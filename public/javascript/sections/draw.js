@@ -30,7 +30,7 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
       this._transform = {
         offsetX: 130,
         offsetY: 260,
-        scale: .5
+        scale: 2
       }
 
       this._lines = [];
@@ -71,33 +71,29 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
       this._shouldRender = false;
     },
 
-    _tap: function(e) {
-      console.log("tap", e);
-      var x = e.distFromLeft;
-      var y = e.distFromTop;
-      console.log("clicked at screen",x,y);
-
-      var scaleChange = .2;
-
+    _zoom: function(x, y, scale) {
       var world = this._screenToWorld(x, y);
-      console.log("world", world);
-
-      this._transform.scale += scaleChange;
+      this._transform.scale += scale;
       var scr = this._worldToScreen(world.x, world.y);
-      console.log("new screen", scr);
 
-      //var diffWorld = {x: world2.x - world.x, y: world2.y - world.y};
       var diffScr = {
         x: x - scr.x,
         y: y - scr.y
       };
-      //console.log(diffWorld);
-      console.log("diff", diffScr);
 
-      this._transform.offsetX += diffScr.x * this._transform.scale;
-      this._transform.offsetY += diffScr.y * this._transform.scale;
+      console.log(this._transform.scale);
+
+      this._transform.offsetX += diffScr.x;// * this._transform.scale;
+      this._transform.offsetY += diffScr.y;// * this._transform.scale;
 
       this._needsUpdate = true;
+    },
+
+    _tap: function(e) {
+      var x = e.distFromLeft;
+      var y = e.distFromTop;
+
+      this._zoom(x, y, -.2);
     },
 
     _move: function(e) {
