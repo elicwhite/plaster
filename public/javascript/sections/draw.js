@@ -113,39 +113,19 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
       }
 
       if (this._needsUpdate) {
-        //ctx.clearRect(w.offsetX, w.offsetY, canvas.width * xscale - offsetX, canvas.height * scale - offsetY);
         this._ctx.setTransform(this._transform.scale, 0, 0, this._transform.scale, this._transform.offsetX, this._transform.offsetY);
 
-        // world to screen?
-        //console.log("top left");
         var topLeft = this._screenToWorld(0, 0);
-
-        //console.log("bottom right");
         var bottomRight = this._screenToWorld(canvas.width, canvas.height);
 
-        //console.log(topLeft, bottomRight);
-
-        var tlX = -1 / this._transform.scale * this._transform.offsetX;
-        var tlY = -1 / this._transform.scale * this._transform.offsetY;
-
-        var brX = canvas.width * 1 / this._transform.scale;
-        var brY = canvas.height * 1 / this._transform.scale;
-
-        //console.log(tlX, tlY, brX, brY, " - ", brX - tlX, brY - tlY);
-
-        this._ctx.clearRect(tlX, tlY, brX, brY);
-
-        // ctx.clearRect(topLeft.x, topLeft.y, bottomRight.x, bottomRight.y);
+        this._ctx.clearRect(topLeft.x, topLeft.y, canvas.width / this._transform.scale, canvas.height / this._transform.scale);
         //ctx.clearRect(topLeft.x, topLeft.y, canvas.width, canvas.height);
-
 
         for (var i = 0; i < this._lines.length; i++) {
           var line = this._lines[i];
 
           this._drawLine(this._ctx, line.startX, line.startY, line.endX, line.endY);
         }
-
-
 
         this._needsUpdate = false;
       }
