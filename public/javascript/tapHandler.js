@@ -24,6 +24,7 @@ define([], function() {
     // Object with x and why of where the element is on the page
     _offset: null,
 
+    _inTouch: false,
     _inGesture: false,
 
     init: function(element, options) {
@@ -53,11 +54,17 @@ define([], function() {
         return;
       }
 
+      this._inTouch = true;
+
       this._processEvent(e);
       this._startTime = e.timeStamp;
 
       this._startX = this._lastX = e.x;
       this._startY = this._lastY = e.y;
+
+      if (this._options.start) {
+        this._options.start(e);
+      }
 
       document.addEventListener("touchmove", this._move);
       document.addEventListener("mousemove", this._move);
@@ -78,16 +85,20 @@ define([], function() {
     },
 
     _end: function(e) {
-      this._processEvent(e);
-
-      this._endTouchHandlers();
+      console.log("end");
       
+      this._endTouchHandlers();
+      this._inTouch = false;
 
-      var dist = Math.sqrt(((e.x - this._startX) * (e.x - this._startX)) + ((e.y - this._startY) * (e.y - this._startY)));
-      if (dist < this._distCutoff && (e.timeStamp - this._startTime < this._timeCutoff)) {
-        if (this._options.tap) {
-          this._options.tap(e);
-          return;
+      if (e) {
+        this._processEvent(e);
+
+        var dist = Math.sqrt(((e.x - this._startX) * (e.x - this._startX)) + ((e.y - this._startY) * (e.y - this._startY)));
+        if (dist < this._distCutoff && (e.timeStamp - this._startTime < this._timeCutoff)) {
+          if (this._options.tap) {
+            this._options.tap(e);
+            return;
+          }
         }
       }
 
@@ -100,8 +111,9 @@ define([], function() {
     _gestureStart: function(e) {
       this._inGesture = true;
 
-      // Make sure we aren't currently processing regular touches
-      this._endTouchHandlers();
+      // We need to end the touch
+      this._end();
+
 
       this._processEvent(e);
       this._processGesture(e);

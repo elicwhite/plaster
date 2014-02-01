@@ -21,6 +21,9 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
     // The current tool, zoom or pan
     _currentTool: "pan",
 
+    // When you move the mouse, what is the tool to use?
+    _currentPointTool: "pencil",
+
     // This is used to draw lines, need two points. this is a temp point
     // TODO: don't use this
     _lastPoint: null,
@@ -44,6 +47,33 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
       this._lines = [];
       window.lines = this._lines;
 
+
+      var randomWorldOnScreen = (function() {
+        var screenPoint = {
+          x: Math.random() * this._canvas.width,
+          y: Math.random() * this._canvas.height
+        }
+
+        return this._screenToWorld(screenPoint.x, screenPoint.y);
+      }).bind(this);
+
+      var randomLineOnScreen = (function() {        
+        var start = randomWorldOnScreen();
+        var end = randomWorldOnScreen();
+
+        return {
+          startX: start.x,
+          startY: start.y,
+          endX: end.x,
+          endY: end.y
+        };
+      }).bind(this);
+
+      for (var i = 0; i < 2000; i++) {
+        this._lines.push(randomLineOnScreen());
+      }
+
+      /*
       this._lines.push({
         startX: -200 / this._transform.scale,
         startY: 0,
@@ -60,6 +90,7 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
         endX: 150 / this._transform.scale,
         endY: 150 / this._transform.scale,
       });
+      */
 
 
       window.scr2wor = this._screenToWorld.bind(this);
@@ -73,7 +104,9 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
       });
 
       new TapHandler(document.getElementById("tools"), {
-        tap: this._toolChanged.bind(this)
+        tap: this._toolChanged.bind(this),
+        start: this._toolStart.bind(this),
+        end: this._toolEnd.bind(this)
       });
 
       canvas.addEventListener("mousewheel", this._mouseWheel.bind(this));
@@ -89,8 +122,8 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
     },
 
     _zoom: function(x, y, scaleChange) {
-      // Can't zoom out that far!
-      if (this._transform.scale + scaleChange < .1) {
+      // Can't zoom that far!
+      if (this._transform.scale + scaleChange < .1 || this._transform.scale + scaleChange > 20000) {
         return;
       }
 
@@ -135,7 +168,8 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
     },
 
     _move: function(e) {
-      var world = this._screenToWorld(e.offsetX, e.offsetY);
+      var world = this._screenToWorld(e.distFromLeft, e.distFromTop);
+      //console.log("world", e, world);
 
       if (this._lastPoint != null) {
         // we have a last point
@@ -145,6 +179,8 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
           endX: world.x,
           endY: world.y
         });
+
+        //console.log("new line");
 
         this._needsUpdate = true;
       }
@@ -212,11 +248,22 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
     },
 
     _toolChanged: function(e) {
-
       if (e.srcElement.tagName == "LI") {
         this._currentTool = e.srcElement.dataset.tool;
       }
     },
+
+    _toolStart: function(e) {
+      if (e.srcElement.tagName == "LI") {
+        //this._currentPointTool = e.srcElement.dataset.tool;
+      }
+    },
+
+    _toolEnd: function(e) {
+      //this._currentPointTool = "pencil";
+    },
+
+
 
     /*
     // Create an image with all of the lines on it.
@@ -267,6 +314,11 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
       // rect
       ctx.lineWidth = 10;
       ctx.strokeRect(20, 20, 80, 100);
+
+      ctx.beginPath();
+      ctx.moveTo(20, 20);
+      ctx.quadraticCurveTo(20, 100, 200, 20);
+      ctx.stroke();
     }
 
   });
