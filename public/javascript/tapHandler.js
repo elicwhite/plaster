@@ -41,10 +41,10 @@ define([], function() {
       this._startX = this._lastX = e.x;
       this._startY = this._lastY = e.y;
 
-      this._element.addEventListener("touchmove", this._move);
-      this._element.addEventListener("mousemove", this._move);
-      this._element.addEventListener("touchend", this._end);
-      this._element.addEventListener("mouseup", this._end);
+      document.addEventListener("touchmove", this._move);
+      document.addEventListener("mousemove", this._move);
+      document.addEventListener("touchend", this._end);
+      document.addEventListener("mouseup", this._end);
     },
 
     _move: function(e) {
@@ -61,10 +61,10 @@ define([], function() {
     _end: function(e) {
       this._processEvent(e);
 
-      this._element.removeEventListener("touchmove", this._move);
-      this._element.removeEventListener("mousemove", this._move);
-      this._element.removeEventListener("touchend", this._end);
-      this._element.removeEventListener("mouseup", this._end);
+      document.removeEventListener("touchmove", this._move);
+      document.removeEventListener("mousemove", this._move);
+      document.removeEventListener("touchend", this._end);
+      document.removeEventListener("mouseup", this._end);
 
       var dist = Math.sqrt(((e.x - this._startX) * (e.x - this._startX)) + ((e.y - this._startY) * (e.y - this._startY)));
       if (dist < this._distCutoff && (e.timeStamp - this._startTime < this._timeCutoff)) {

@@ -30,7 +30,7 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
       this._transform = {
         offsetX: 130,
         offsetY: 260,
-        scale: 1
+        scale: .5
       }
 
       this._lines = [];
@@ -118,8 +118,7 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
         var topLeft = this._screenToWorld(0, 0);
         var bottomRight = this._screenToWorld(canvas.width, canvas.height);
 
-        this._ctx.clearRect(topLeft.x, topLeft.y, canvas.width / this._transform.scale, canvas.height / this._transform.scale);
-        //ctx.clearRect(topLeft.x, topLeft.y, canvas.width, canvas.height);
+        this._ctx.clearRect(topLeft.x, topLeft.y, bottomRight.x - topLeft.x, bottomRight.y - topLeft.y);
 
         for (var i = 0; i < this._lines.length; i++) {
           var line = this._lines[i];
