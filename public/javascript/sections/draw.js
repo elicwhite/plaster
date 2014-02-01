@@ -18,14 +18,22 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
     // Set this to false to stop the render loop
     _shouldRender: false,
 
+    // The current tool, zoom or pan
+    _currentTool: "pan",
+
+    // This is used to draw lines, need two points. this is a temp point
+    // TODO: don't use this
+    _lastPoint: null,
+
     init: function() {
       this._super();
 
       this._canvas = document.getElementById('canvas');
       this._ctx = canvas.getContext("2d");
+      window.ctx = this._ctx;
 
-      this._canvas.width = window.innerWidth - 40;
-      this._canvas.height = window.innerHeight - 40;
+      this._canvas.width = window.innerWidth;
+      this._canvas.height = window.innerHeight;
 
       this._transform = {
         offsetX: 130,
@@ -34,6 +42,7 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
       }
 
       this._lines = [];
+      window.lines = this._lines;
 
       this._lines.push({
         startX: -200 / this._transform.scale,
@@ -58,8 +67,16 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
 
       new TapHandler(canvas, {
         tap: this._tap.bind(this),
-        move: this._move.bind(this)
+        move: this._move.bind(this),
+        end: this._end.bind(this),
+        gesture: this._gesture.bind(this)
       });
+
+      new TapHandler(document.getElementById("tools"), {
+        tap: this._toolChanged.bind(this)
+      });
+
+      canvas.addEventListener("mousewheel", this._mouseWheel.bind(this));
     },
 
     show: function() {
@@ -71,9 +88,14 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
       this._shouldRender = false;
     },
 
-    _zoom: function(x, y, scale) {
+    _zoom: function(x, y, scaleChange) {
+      // Can't zoom out that far!
+      if (this._transform.scale + scaleChange < .1) {
+        return;
+      }
+
       var world = this._screenToWorld(x, y);
-      this._transform.scale += scale;
+      this._transform.scale += scaleChange;
       var scr = this._worldToScreen(world.x, world.y);
 
       var diffScr = {
@@ -81,25 +103,62 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
         y: y - scr.y
       };
 
-      console.log(this._transform.scale);
-
-      this._transform.offsetX += diffScr.x;// * this._transform.scale;
-      this._transform.offsetY += diffScr.y;// * this._transform.scale;
+      this._transform.offsetX += diffScr.x; // * this._transform.scale;
+      this._transform.offsetY += diffScr.y; // * this._transform.scale;
 
       this._needsUpdate = true;
     },
 
-    _tap: function(e) {
-      var x = e.distFromLeft;
-      var y = e.distFromTop;
+    _pan: function(x, y) {
+      this._transform.offsetX += x;
+      this._transform.offsetY += y;
 
-      this._zoom(x, y, -.2);
+      this._needsUpdate = true;
+    },
+
+    _mouseWheel: function(e) {
+
+      if (this._currentTool == "pan") {
+        //console.log("pan", e);
+        this._pan(-e.deltaX, -e.deltaY);
+      } else if (this._currentTool == "zoom") {
+        if (e.deltaY != 0) {
+          //console.log(e);
+          this._zoom(e.offsetX, e.offsetY, e.deltaY / 100 * this._transform.scale);
+        }
+      }
+    },
+
+
+    _tap: function(e) {
+
     },
 
     _move: function(e) {
-      this._transform.offsetX += e.xFromLast;
-      this._transform.offsetY += e.yFromLast;
-      this._needsUpdate = true;
+      var world = this._screenToWorld(e.offsetX, e.offsetY);
+
+      if (this._lastPoint != null) {
+        // we have a last point
+        this._lines.push({
+          startX: this._lastPoint.x,
+          startY: this._lastPoint.y,
+          endX: world.x,
+          endY: world.y
+        });
+
+        this._needsUpdate = true;
+      }
+
+      this._lastPoint = world;
+    },
+
+    _end: function(e) {
+      this._lastPoint = null;
+    },
+
+    _gesture: function(e) {
+      this._pan(e.xFromLast, e.yFromLast);
+      this._zoom(e.x, e.y, e.scaleFromLast * this._transform.scale);
     },
 
     _redraw: function() {
@@ -115,6 +174,9 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
         var bottomRight = this._screenToWorld(canvas.width, canvas.height);
 
         this._ctx.clearRect(topLeft.x, topLeft.y, bottomRight.x - topLeft.x, bottomRight.y - topLeft.y);
+
+        // Keep the line width the same no matter the zoom level
+        this._ctx.lineWidth = 1 / this._transform.scale;
 
         for (var i = 0; i < this._lines.length; i++) {
           var line = this._lines[i];
@@ -147,6 +209,13 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
         x: (x) * this._transform.scale + this._transform.offsetX,
         y: (y) * this._transform.scale + this._transform.offsetY
       };
+    },
+
+    _toolChanged: function(e) {
+
+      if (e.srcElement.tagName == "LI") {
+        this._currentTool = e.srcElement.dataset.tool;
+      }
     },
 
     /*

@@ -11,6 +11,23 @@ body, html {
   user-select: none;
   -webkit-user-select: none; }
 
-#canvas {
-  border: 1px solid black;
-  margin: 20px; }
+#draw {
+  position: relative; }
+  #draw canvas {
+    vertical-align: bottom; }
+  #draw #tools {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    border: 1px solid black;
+    background-color: white; }
+    #draw #tools ul {
+      margin: 0;
+      padding: 0;
+      list-style-type: none; }
+      #draw #tools ul li {
+        padding: 10px;
+        text-align: center;
+        border-bottom: 1px solid black; }
+        #draw #tools ul li:last-child {
+          border-bottom: none; }

@@ -9,9 +9,8 @@ require(["event", "sections/draw"], function(Event, Draw) {
 
     document.addEventListener("mousewheel", function(e) {
       e.preventDefault();
-      //console.log(e);
     });
-
+    
     var draw = new Draw();
     draw.show();
   }
