@@ -1,0 +1,19 @@
+/*
+  brighter pink: c623c4
+  darker: 7d087c
+  darker even: 520551
+*/
+@import "bluePurple.scss";
+//@import "purpleOrange.scss";
+
+$veryLightGray: #aaa;
+$lightGray: #666;
+$mediumGray: #444;
+$darkGray: #333;
+$veryDarkGray: #111;
+
+body {
+  font-size: 18px;
+  font-family: sans-serif;
+  font-weight: 100;
+}
