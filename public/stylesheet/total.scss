@@ -47,8 +47,8 @@ body, html {
 }
 
 
-/*
-@media (min-width: 768px) {
+
+@media (max-width: 768px) {
   #draw {
     #tools {
       display: none;
@@ -57,4 +57,3 @@ body, html {
 
 }
 
-*/

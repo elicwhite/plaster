@@ -35,14 +35,13 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
       this._ctx = canvas.getContext("2d");
       window.ctx = this._ctx;
 
-      this._canvas.width = window.innerWidth;
-      this._canvas.height = window.innerHeight;
-
       this._transform = {
         offsetX: 130,
         offsetY: 260,
         scale: 2
       }
+
+      this._resize();
 
       this._lines = [];
       window.lines = this._lines;
@@ -92,6 +91,7 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
       });
       */
 
+      this._resize = this._resize.bind(this);
 
       window.scr2wor = this._screenToWorld.bind(this);
       window.wor2scr = this._worldToScreen.bind(this);
@@ -110,20 +110,33 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
       });
 
       canvas.addEventListener("mousewheel", this._mouseWheel.bind(this));
+      
     },
 
     show: function() {
       this._shouldRender = true;
+      this._resize();
       this._redraw();
+
+      window.addEventListener("resize", this._resize);
     },
 
     hide: function() {
       this._shouldRender = false;
+
+      window.removeEventListener("resize", this._resize);
+    },
+
+    _resize: function() {
+      this._canvas.width = window.innerWidth;
+      this._canvas.height = window.innerHeight;
+
+      this._needsUpdate = true;
     },
 
     _zoom: function(x, y, scaleChange) {
       // Can't zoom that far!
-      if (this._transform.scale + scaleChange < .1 || this._transform.scale + scaleChange > 20000) {
+      if (this._transform.scale + scaleChange < .001 || this._transform.scale + scaleChange > 20000) {
         return;
       }
 
@@ -169,9 +182,20 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
 
     _move: function(e) {
       var world = this._screenToWorld(e.distFromLeft, e.distFromTop);
+
       //console.log("world", e, world);
 
       if (this._lastPoint != null) {
+
+        var dist = Math.sqrt( ((this._lastPoint.x - world.x) * (this._lastPoint.x - world.x)) + ((this._lastPoint.y - world.y) * (this._lastPoint.y - world.y)));
+        //console.log("dist", dist);
+
+        if (dist < 0.0003) {
+          return;
+        }
+
+        console.log(dist);
+
         // we have a last point
         this._lines.push({
           startX: this._lastPoint.x,
@@ -180,7 +204,7 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
           endY: world.y
         });
 
-        //console.log("new line");
+        //console.log("new line", this._lastPoint.x - world.x, this._lastPoint.y - world.y);
 
         this._needsUpdate = true;
       }
