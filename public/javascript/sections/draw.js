@@ -24,10 +24,6 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
     // When you move the mouse, what is the tool to use?
     _currentPointTool: "pencil",
 
-    // This is used to draw lines, need two points. this is a temp point
-    // TODO: don't use this
-    _lastPoint: null,
-
     init: function() {
       this._super();
 
@@ -46,58 +42,11 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
       this._lines = [];
       window.lines = this._lines;
 
-
-      var randomWorldOnScreen = (function() {
-        var screenPoint = {
-          x: Math.random() * this._canvas.width,
-          y: Math.random() * this._canvas.height
-        }
-
-        return this._screenToWorld(screenPoint.x, screenPoint.y);
-      }).bind(this);
-
-      var randomLineOnScreen = (function() {        
-        var start = randomWorldOnScreen();
-        var end = randomWorldOnScreen();
-
-        return {
-          startX: start.x,
-          startY: start.y,
-          endX: end.x,
-          endY: end.y
-        };
-      }).bind(this);
-
-      for (var i = 0; i < 2000; i++) {
-        this._lines.push(randomLineOnScreen());
-      }
-
-      /*
-      this._lines.push({
-        startX: -200 / this._transform.scale,
-        startY: 0,
-        endX: 200 / this._transform.scale,
-        endY: 0
-      }, {
-        startX: 0,
-        startY: -200 / this._transform.scale,
-        endX: 0,
-        endY: 200 / this._transform.scale,
-      }, {
-        startX: -200 / this._transform.scale,
-        startY: -200 / this._transform.scale,
-        endX: 150 / this._transform.scale,
-        endY: 150 / this._transform.scale,
-      });
-      */
-
       this._resize = this._resize.bind(this);
-
-      window.scr2wor = this._screenToWorld.bind(this);
-      window.wor2scr = this._worldToScreen.bind(this);
 
       new TapHandler(canvas, {
         tap: this._tap.bind(this),
+        start: this._start.bind(this),
         move: this._move.bind(this),
         end: this._end.bind(this),
         gesture: this._gesture.bind(this)
@@ -110,7 +59,7 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
       });
 
       canvas.addEventListener("mousewheel", this._mouseWheel.bind(this));
-      
+
     },
 
     show: function() {
@@ -180,40 +129,39 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
 
     },
 
+    _start: function(e) {
+      var world = this._screenToWorld(e.distFromLeft, e.distFromTop);
+      this._lines.push({
+        points: [world]
+      });
+    },
+
     _move: function(e) {
       var world = this._screenToWorld(e.distFromLeft, e.distFromTop);
 
       //console.log("world", e, world);
+      var currentLine = this._lines[this._lines.length - 1];
 
-      if (this._lastPoint != null) {
+      var points = currentLine.points;
+      var lastPoint = points[points.length - 1];
 
-        var dist = Math.sqrt( ((this._lastPoint.x - world.x) * (this._lastPoint.x - world.x)) + ((this._lastPoint.y - world.y) * (this._lastPoint.y - world.y)));
-        //console.log("dist", dist);
 
-        if (dist < 0.0003) {
-          return;
-        }
+      var dist = Math.sqrt(((lastPoint.x - world.x) * (lastPoint.x - world.x)) + ((lastPoint.y - world.y) * (lastPoint.y - world.y)));
+      //console.log("dist", dist);
 
-        console.log(dist);
-
-        // we have a last point
-        this._lines.push({
-          startX: this._lastPoint.x,
-          startY: this._lastPoint.y,
-          endX: world.x,
-          endY: world.y
-        });
-
-        //console.log("new line", this._lastPoint.x - world.x, this._lastPoint.y - world.y);
-
-        this._needsUpdate = true;
+      if (dist < 0.0003) {
+        return;
       }
 
-      this._lastPoint = world;
+      currentLine.points.push(world);
+      this._needsUpdate = true;
     },
 
     _end: function(e) {
-      this._lastPoint = null;
+      var currentLine = this._lines[this._lines.length - 1];
+      var controlPoints = this._getCurveControlPoints(currentLine.points);
+
+      currentLine.controlPoints = controlPoints;
     },
 
     _gesture: function(e) {
@@ -241,7 +189,7 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
         for (var i = 0; i < this._lines.length; i++) {
           var line = this._lines[i];
 
-          this._drawLine(this._ctx, line.startX, line.startY, line.endX, line.endY);
+          this._drawLine(this._ctx, line);
         }
 
         this._needsUpdate = false;
@@ -250,10 +198,34 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
       requestAnimationFrame(this._redraw.bind(this));
     },
 
-    _drawLine: function(ctx, startX, startY, endX, endY) {
+    _drawLine: function(ctx, line) {
+      if (line.length < 2) {
+        return;
+      }
+
+      var controlPoints = [];
+      var points = line.points;
+      
+      if (!line.controlPoints) {
+        controlPoints = this._getCurveControlPoints(points);  
+      }
+      else {
+        controlPoints = line.controlPoints;
+      }
+
+      var point = points[0];
+
       ctx.beginPath();
-      ctx.moveTo(startX, startY);
-      ctx.lineTo(endX, endY);
+      ctx.moveTo(point.x, point.y);
+
+      for (var i = 1; i < points.length; i++) {
+        point = points[i];
+        var cp1 = controlPoints.firstControlPoints[i - 1];
+        var cp2 = controlPoints.secondControlPoints[i - 1];
+        ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, point.x, point.y);
+        //ctx.lineTo(point.x, point.y);
+      }
+
       ctx.stroke();
     },
 
@@ -328,6 +300,113 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
       var ctx = canvas.getContext("2d");
     }
 */
+    _getCurveControlPoints: function(knots) {
+      var n = knots.length - 1;
+
+      var firstControlPoints = [];
+      var secondControlPoints = [];
+
+      if (n < 1) {
+        console.error("Must have at least two knots");
+        return;
+      }
+
+      if (n == 1) {
+        // Special case: should be a line
+        firstControlPoints.push({});
+        firstControlPoints[0].x = (2 * knots[0].x + knots[1].x) / 3;
+        firstControlPoints[0].y = (2 * knots[0].y + knots[1].y) / 3;
+
+        secondControlPoints.push({});
+        secondControlPoints[0].x = 2 * firstControlPoints[0].x - knots[0].x;
+        secondControlPoints[0].y = 2 * firstControlPoints[0].y - knots[0].y;
+
+        return {
+          firstControlPoints: firstControlPoints,
+          secondControlPoints: secondControlPoints
+        };
+      }
+
+      // Calculate first Bezier control points
+      // Right hand side vector
+      var rhs = new Array(n);
+
+
+      // Set right hand side X values
+      for (var i = 1; i < n - 1; ++i) {
+        rhs[i] = 4 * knots[i].x + 2 * knots[i + 1].x;
+      }
+
+      rhs[0] = knots[0].x + 2 * knots[1].x;
+      rhs[n - 1] = (8 * knots[n - 1].x + knots[n].x) / 2;
+
+      // Get first control points x-values
+      var x = this._getFirstControlPoints(rhs);
+
+      // Set right hand side Y values
+      for (var i = 1; i < n - 1; ++i) {
+        rhs[i] = 4 * knots[i].y + 2 * knots[i + 1].y;
+      }
+
+      rhs[0] = knots[0].y + 2 * knots[1].y;
+      rhs[n - 1] = (8 * knots[n - 1].y + knots[n].y) / 2;
+
+      // Get first control points Y-values
+      var y = this._getFirstControlPoints(rhs);
+
+      // Fill output arrays.
+      firstControlPoints = new Array(n);
+      secondControlPoints = new Array(n);
+
+      for (var i = 0; i < n; ++i) {
+        // First control point
+        firstControlPoints[i] = {
+          x: x[i],
+          y: y[i]
+        };
+
+        // Second control point
+        if (i < n - 1) {
+          secondControlPoints[i] = {
+            x: 2 * knots[i + 1].x - x[i + 1],
+            y: 2 * knots[i + 1].y - y[i + 1]
+          };
+        } else {
+          secondControlPoints[i] = {
+            x: (knots[n].x + x[n - 1]) / 2,
+            y: (knots[n].y + y[n - 1]) / 2
+          };
+        }
+
+      }
+
+
+      return {
+        firstControlPoints: firstControlPoints,
+        secondControlPoints: secondControlPoints
+      };
+    },
+
+    _getFirstControlPoints: function(rhs) {
+      var n = rhs.length;
+      var x = new Array(n); // Solution vector
+      var tmp = new Array(n); // Temp workspace
+
+      var b = 2.0;
+      x[0] = rhs[0] / b;
+
+      for (var i = 1; i < n; i++) { // Decomposition and forward substitution
+        tmp[i] = 1 / b;
+        b = (i < n - 1 ? 4 : 3.5) - tmp[i];
+        x[i] = (rhs[i] - x[i - 1]) / b;
+      }
+
+      for (var i = 1; i < n; i++) {
+        x[n - i - 1] -= tmp[n - i] * x[n - i]; // backsubstituion
+      }
+
+      return x;
+    },
 
     _bezier: function() {
       ctx.beginPath();

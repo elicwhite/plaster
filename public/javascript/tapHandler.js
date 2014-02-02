@@ -85,8 +85,7 @@ define([], function() {
     },
 
     _end: function(e) {
-      console.log("end");
-      
+
       this._endTouchHandlers();
       this._inTouch = false;
 
