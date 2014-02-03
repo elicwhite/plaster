@@ -49,6 +49,7 @@ define(["section", "tapHandler", "db"], function(Section, TapHandler, db) {
       this._resize();
 
       this._actions = [];
+      window.actions = this._actions;
 
       this._resize = this._resize.bind(this);
 
@@ -91,6 +92,7 @@ define(["section", "tapHandler", "db"], function(Section, TapHandler, db) {
           .done((function(results) {
             this._actions = results;
             this._needsUpdate = true;
+            window.actions = this._actions;
           }).bind(this));
       }).bind(this));
 
@@ -269,8 +271,8 @@ define(["section", "tapHandler", "db"], function(Section, TapHandler, db) {
 
       for (var i = 1; i < points.length; i++) {
         point = points[i];
-        var cp1 = controlPoints.firstControlPoints[i - 1];
-        var cp2 = controlPoints.secondControlPoints[i - 1];
+        var cp1 = controlPoints[i-1].first;
+        var cp2 = controlPoints[i-1].second;
         ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, point.x, point.y);
         //ctx.lineTo(point.x, point.y);
       }
@@ -370,10 +372,10 @@ define(["section", "tapHandler", "db"], function(Section, TapHandler, db) {
         secondControlPoints[0].x = 2 * firstControlPoints[0].x - knots[0].x;
         secondControlPoints[0].y = 2 * firstControlPoints[0].y - knots[0].y;
 
-        return {
-          firstControlPoints: firstControlPoints,
-          secondControlPoints: secondControlPoints
-        };
+        return [{
+          first: firstControlPoints[0],
+          second: secondControlPoints[0]
+        }];
       }
 
       // Calculate first Bezier control points
@@ -426,14 +428,17 @@ define(["section", "tapHandler", "db"], function(Section, TapHandler, db) {
             y: (knots[n].y + y[n - 1]) / 2
           };
         }
-
       }
 
+      var controlPoints = new Array(n);
+      for (var i = 0; i < n; ++i) {
+        controlPoints[i] = {
+          first: firstControlPoints[i],
+          second: secondControlPoints[i]
+        }
+      }
 
-      return {
-        firstControlPoints: firstControlPoints,
-        secondControlPoints: secondControlPoints
-      };
+      return controlPoints;
     },
 
     _getFirstControlPoints: function(rhs) {
