@@ -1,4 +1,4 @@
-define(["section", "tapHandler"], function(Section, TapHandler) {
+define(["section", "tapHandler", "db"], function(Section, TapHandler, db) {
 
   var Draw = Section.extend({
     id: "draw",
@@ -9,8 +9,8 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
     // Offsets and scale
     _transform: null,
 
-    // The lines we are drawing
-    _lines: null,
+    // The actions we are taking
+    _actions: null,
 
     // Do we need to update on this frame?
     _needsUpdate: true,
@@ -23,6 +23,8 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
 
     // When you move the mouse, what is the tool to use?
     _currentPointTool: "pencil",
+
+    _server: null,
 
     init: function() {
       this._super();
@@ -39,8 +41,8 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
 
       this._resize();
 
-      this._lines = [];
-      window.lines = this._lines;
+      this._actions = [];
+      
 
       this._resize = this._resize.bind(this);
 
@@ -57,6 +59,34 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
         start: this._toolStart.bind(this),
         end: this._toolEnd.bind(this)
       });
+
+      window.db = db;
+
+      db.open({
+        server: 'draw',
+        version: 3,
+        schema: {
+          actions: {
+            key: {
+              autoIncrement: true
+            },
+            indexes: {
+              type: {}
+            }
+          }
+        }
+      }).done((function(s) {
+        this._server = s;
+        window.server = s;
+
+        this._server.actions.query()
+          .all()
+          .execute()
+          .done((function(results) {
+            this._actions = results;
+            this._needsUpdate = true;
+          }).bind(this));
+      }).bind(this));
 
       canvas.addEventListener("mousewheel", this._mouseWheel.bind(this));
 
@@ -131,8 +161,11 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
 
     _start: function(e) {
       var world = this._screenToWorld(e.distFromLeft, e.distFromTop);
-      this._lines.push({
-        points: [world]
+      this._actions.push({
+        type: "stroke",
+        stroke: {
+          points: [world]  
+        }
       });
     },
 
@@ -140,9 +173,10 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
       var world = this._screenToWorld(e.distFromLeft, e.distFromTop);
 
       //console.log("world", e, world);
-      var currentLine = this._lines[this._lines.length - 1];
+      var currentStroke = this._actions[this._actions.length - 1].stroke;
 
-      var points = currentLine.points;
+
+      var points = currentStroke.points;
       var lastPoint = points[points.length - 1];
 
 
@@ -153,15 +187,20 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
         return;
       }
 
-      currentLine.points.push(world);
+      currentStroke.points.push(world);
       this._needsUpdate = true;
     },
 
     _end: function(e) {
-      var currentLine = this._lines[this._lines.length - 1];
-      var controlPoints = this._getCurveControlPoints(currentLine.points);
+      var currentAction = this._actions[this._actions.length - 1];
+      var currentStroke = currentAction.stroke;
+      var controlPoints = this._getCurveControlPoints(currentStroke.points);
 
-      currentLine.controlPoints = controlPoints;
+      currentStroke.controlPoints = controlPoints;
+
+      server.actions.add(currentAction).done(function(item) {
+        // item stored
+      });
     },
 
     _gesture: function(e) {
@@ -186,10 +225,12 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
         // Keep the line width the same no matter the zoom level
         this._ctx.lineWidth = 1 / this._transform.scale;
 
-        for (var i = 0; i < this._lines.length; i++) {
-          var line = this._lines[i];
-
-          this._drawLine(this._ctx, line);
+        for (var i = 0; i < this._actions.length; i++) {
+          var action = this._actions[i];
+          
+          if (action.type == "stroke") {
+            this._drawStroke(this._ctx, action.stroke);
+          }
         }
 
         this._needsUpdate = false;
@@ -198,19 +239,18 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
       requestAnimationFrame(this._redraw.bind(this));
     },
 
-    _drawLine: function(ctx, line) {
-      if (line.length < 2) {
+    _drawStroke: function(ctx, stroke) {
+      if (stroke.points.length < 2) {
         return;
       }
 
       var controlPoints = [];
-      var points = line.points;
-      
-      if (!line.controlPoints) {
-        controlPoints = this._getCurveControlPoints(points);  
-      }
-      else {
-        controlPoints = line.controlPoints;
+      var points = stroke.points;
+
+      if (!stroke.controlPoints) {
+        controlPoints = this._getCurveControlPoints(points);
+      } else {
+        controlPoints = stroke.controlPoints;
       }
 
       var point = points[0];
