@@ -26,6 +26,9 @@ define(["section", "tapHandler", "db"], function(Section, TapHandler, db) {
 
     _server: null,
 
+    // Timeout for 
+    _saveTransformTimeout: null,
+
     init: function() {
       this._super();
 
@@ -33,16 +36,19 @@ define(["section", "tapHandler", "db"], function(Section, TapHandler, db) {
       this._ctx = canvas.getContext("2d");
       window.ctx = this._ctx;
 
-      this._transform = {
-        offsetX: 130,
-        offsetY: 260,
-        scale: 2
+      if (localStorage.transform) {
+        this._transform = JSON.parse(localStorage.transform);
+      } else {
+        this._transform = {
+          offsetX: 0,
+          offsetY: 0,
+          scale: 1
+        };
       }
 
       this._resize();
 
       this._actions = [];
-      
 
       this._resize = this._resize.bind(this);
 
@@ -64,7 +70,7 @@ define(["section", "tapHandler", "db"], function(Section, TapHandler, db) {
 
       db.open({
         server: 'draw',
-        version: 3,
+        version: 1,
         schema: {
           actions: {
             key: {
@@ -131,12 +137,15 @@ define(["section", "tapHandler", "db"], function(Section, TapHandler, db) {
       this._transform.offsetX += diffScr.x; // * this._transform.scale;
       this._transform.offsetY += diffScr.y; // * this._transform.scale;
 
+      this._saveTransform();
       this._needsUpdate = true;
     },
 
     _pan: function(x, y) {
       this._transform.offsetX += x;
       this._transform.offsetY += y;
+
+      this._saveTransform();
 
       this._needsUpdate = true;
     },
@@ -164,7 +173,7 @@ define(["section", "tapHandler", "db"], function(Section, TapHandler, db) {
       this._actions.push({
         type: "stroke",
         stroke: {
-          points: [world]  
+          points: [world]
         }
       });
     },
@@ -227,7 +236,7 @@ define(["section", "tapHandler", "db"], function(Section, TapHandler, db) {
 
         for (var i = 0; i < this._actions.length; i++) {
           var action = this._actions[i];
-          
+
           if (action.type == "stroke") {
             this._drawStroke(this._ctx, action.stroke);
           }
@@ -446,6 +455,22 @@ define(["section", "tapHandler", "db"], function(Section, TapHandler, db) {
       }
 
       return x;
+    },
+
+    _saveTransform: function() {
+      // If the timeout is set already
+      if (this._saveTransformTimeout) {
+
+        // Clear it and set a new one
+        clearTimeout(this._saveTransformTimeout);
+      }
+
+      this._saveTransformTimeout = setTimeout((function() {
+        // Save the transform and make sure we clear the timeout
+        localStorage.transform = JSON.stringify(this._transform);
+        this._saveTransformTimeout = null;
+      }).bind(this), 300);
+
     },
 
     _bezier: function() {
