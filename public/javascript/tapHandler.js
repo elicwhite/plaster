@@ -85,10 +85,8 @@ define([], function() {
     },
 
     _end: function(e) {
-
       this._endTouchHandlers();
-      this._inTouch = false;
-
+      
       if (e) {
         this._processEvent(e);
 
@@ -96,7 +94,6 @@ define([], function() {
         if (dist < this._distCutoff && (e.timeStamp - this._startTime < this._timeCutoff)) {
           if (this._options.tap) {
             this._options.tap(e);
-            return;
           }
         }
       }
@@ -105,6 +102,8 @@ define([], function() {
       if (this._options.end) {
         this._options.end(e);
       }
+
+      this._inTouch = false;
     },
 
     _gestureStart: function(e) {

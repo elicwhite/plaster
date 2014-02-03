@@ -1,4 +1,4 @@
-define(["section", "tapHandler", "db"], function(Section, TapHandler, db) {
+define(["section", "globals", "tapHandler", "db"], function(Section, g, TapHandler, db) {
 
   var Draw = Section.extend({
     id: "draw",
@@ -12,6 +12,9 @@ define(["section", "tapHandler", "db"], function(Section, TapHandler, db) {
     // The actions we are taking
     _actions: null,
 
+    // If we are currently doing something like drawing, it will be here
+    _currentAction: null,
+
     // Do we need to update on this frame?
     _needsUpdate: true,
 
@@ -24,10 +27,13 @@ define(["section", "tapHandler", "db"], function(Section, TapHandler, db) {
     // When you move the mouse, what is the tool to use?
     _currentPointTool: "pencil",
 
+    // The indexeddb instance we are using
     _server: null,
 
     // Timeout for 
     _saveTransformTimeout: null,
+
+    _redoStack: null,
 
     init: function() {
       this._super();
@@ -51,6 +57,9 @@ define(["section", "tapHandler", "db"], function(Section, TapHandler, db) {
       this._actions = [];
       window.actions = this._actions;
 
+      this._redoStack = [];
+      window.redo = this._redoStack;
+
       this._resize = this._resize.bind(this);
 
       new TapHandler(canvas, {
@@ -71,14 +80,18 @@ define(["section", "tapHandler", "db"], function(Section, TapHandler, db) {
 
       db.open({
         server: 'draw',
-        version: 1,
+        version: 2,
         schema: {
           actions: {
             key: {
+              keyPath: 'id',
               autoIncrement: true
             },
             indexes: {
-              type: {}
+              type: {},
+              id: {
+                unique: true
+              }
             }
           }
         }
@@ -94,9 +107,14 @@ define(["section", "tapHandler", "db"], function(Section, TapHandler, db) {
             this._needsUpdate = true;
             window.actions = this._actions;
           }).bind(this));
-      }).bind(this));
+      }).bind(this))
+        .fail(function(e) {
+          console.error(e);
+        });
 
       canvas.addEventListener("mousewheel", this._mouseWheel.bind(this));
+
+      this.element.addEventListener("keydown", this._keyDown.bind(this));
 
     },
 
@@ -104,6 +122,8 @@ define(["section", "tapHandler", "db"], function(Section, TapHandler, db) {
       this._shouldRender = true;
       this._resize();
       this._redraw();
+
+      canvas.focus();
 
       window.addEventListener("resize", this._resize);
     },
@@ -172,19 +192,28 @@ define(["section", "tapHandler", "db"], function(Section, TapHandler, db) {
 
     _start: function(e) {
       var world = this._screenToWorld(e.distFromLeft, e.distFromTop);
-      this._actions.push({
+
+      if (this._currentAction) {
+        console.error("Current action isn't null!");
+      }
+
+      this._currentAction = {
         type: "stroke",
         stroke: {
           points: [world]
         }
-      });
+      }
+
+      // Make sure the redo stack is empty as we are starting to draw again
+      this._redoStack = [];
     },
 
     _move: function(e) {
+
       var world = this._screenToWorld(e.distFromLeft, e.distFromTop);
 
       //console.log("world", e, world);
-      var currentStroke = this._actions[this._actions.length - 1].stroke;
+      var currentStroke = this._currentAction.stroke;
 
 
       var points = currentStroke.points;
@@ -194,7 +223,8 @@ define(["section", "tapHandler", "db"], function(Section, TapHandler, db) {
       var dist = Math.sqrt(((lastPoint.x - world.x) * (lastPoint.x - world.x)) + ((lastPoint.y - world.y) * (lastPoint.y - world.y)));
       //console.log("dist", dist);
 
-      if (dist < 0.0003) {
+      //if (dist < 0.0003) {
+      if (dist < 0.001) {
         return;
       }
 
@@ -203,15 +233,32 @@ define(["section", "tapHandler", "db"], function(Section, TapHandler, db) {
     },
 
     _end: function(e) {
-      var currentAction = this._actions[this._actions.length - 1];
+      var currentAction = this._currentAction;
+      this._currentAction = null;
+
       var currentStroke = currentAction.stroke;
       var controlPoints = this._getCurveControlPoints(currentStroke.points);
-
       currentStroke.controlPoints = controlPoints;
 
-      server.actions.add(currentAction).done(function(item) {
-        // item stored
-      });
+      this._saveAction(currentAction);
+    },
+
+    _saveAction: function(action) {
+      // Store the current action
+      this._actions.push(action);
+      //this._currentAction = null;
+
+      // And persist it
+
+      server.actions.add(action)
+        .done(function(item) {
+          // item stored
+        })
+        .fail(function(e) {
+          console.error("fail to write", e);
+        });
+
+      this._needsUpdate = true;
     },
 
     _gesture: function(e) {
@@ -244,6 +291,12 @@ define(["section", "tapHandler", "db"], function(Section, TapHandler, db) {
           }
         }
 
+        //console.log("current", this._currentAction);
+
+        if (this._currentAction && this._currentAction.type == "stroke") {
+          this._drawStroke(this._ctx, this._currentAction.stroke);
+        }
+
         this._needsUpdate = false;
       }
 
@@ -271,8 +324,8 @@ define(["section", "tapHandler", "db"], function(Section, TapHandler, db) {
 
       for (var i = 1; i < points.length; i++) {
         point = points[i];
-        var cp1 = controlPoints[i-1].first;
-        var cp2 = controlPoints[i-1].second;
+        var cp1 = controlPoints[i - 1].first;
+        var cp2 = controlPoints[i - 1].second;
         ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, point.x, point.y);
         //ctx.lineTo(point.x, point.y);
       }
@@ -308,6 +361,60 @@ define(["section", "tapHandler", "db"], function(Section, TapHandler, db) {
 
     _toolEnd: function(e) {
       //this._currentPointTool = "pencil";
+    },
+
+    _keyDown: function(e) {
+      var key = String.fromCharCode(e.keyCode);
+      //console.log(e);
+      // console.log("key", key);
+      // console.log(e);
+
+      if (
+        ((g.isMac() && e.metaKey && e.shiftKey) && key == "Z") ||
+        ((g.isPC() && e.ctrlKey) && key == "Y")) {
+        // Redo
+
+        if (this._redoStack.length > 0) {
+          var nowAction = this._redoStack.pop();
+          this._saveAction(nowAction);
+        }
+      } else if ((
+          (g.isMac() && e.metaKey) ||
+          (g.isPC() && e.ctrlKey)
+        ) &&
+        key == "Z") {
+        // Undo
+
+        e.preventDefault();
+
+        if (this._actions.length > 0) {
+          var action = this._actions.pop();
+
+          // It is impossible to delete the id off of the action, so we have to create a new object
+          var newObj = {};
+
+          for(var prop in action) {
+            if (prop != "id") {
+              newObj[prop] = action[prop];
+            }
+          }
+
+          
+
+          this._redoStack.push(newObj);
+
+          server.actions.remove(action.id).done(function(key) {
+            console.log('remove', key, action);
+            // item removed
+          });
+        }
+        this._needsUpdate = true;
+      } else if (key == "Z") {
+        this._currentTool = "zoom";
+      } else if (key == "P") {
+        this._currentTool = "pan";
+      }
+
     },
 
 
@@ -477,23 +584,6 @@ define(["section", "tapHandler", "db"], function(Section, TapHandler, db) {
       }).bind(this), 300);
 
     },
-
-    _bezier: function() {
-      ctx.beginPath();
-      ctx.moveTo(20, 20);
-      ctx.bezierCurveTo(20, 100, 200, 100, 200, 20);
-      ctx.stroke();
-
-      // rect
-      ctx.lineWidth = 10;
-      ctx.strokeRect(20, 20, 80, 100);
-
-      ctx.beginPath();
-      ctx.moveTo(20, 20);
-      ctx.quadraticCurveTo(20, 100, 200, 20);
-      ctx.stroke();
-    }
-
   });
 
   return Draw;
