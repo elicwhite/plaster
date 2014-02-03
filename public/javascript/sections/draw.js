@@ -581,7 +581,7 @@ define(["section", "globals", "tapHandler", "db"], function(Section, g, TapHandl
         // Save the transform and make sure we clear the timeout
         localStorage.transform = JSON.stringify(this._transform);
         this._saveTransformTimeout = null;
-      }).bind(this), 300);
+      }).bind(this), 100);
 
     },
   });
