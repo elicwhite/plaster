@@ -1,4 +1,4 @@
-define(["section", "event", "sections/draw"], function(Section, Event, Draw) {
+define(["section", "event", "sections/fileList", "sections/draw"], function(Section, Event, FileList, Draw) {
 
   var Files = Section.extend({
     id: "files",
@@ -27,21 +27,23 @@ define(["section", "event", "sections/draw"], function(Section, Event, Draw) {
       this._paneWrapper = document.getElementById("files-pane-wrapper");
 
       this.panes = {};
-      this.panes.draw = {
+
+
+      this.panes.list = {
         offsetX: 0,
+        pane: new FileList(this)
+      };
+
+      this.panes.draw = {
+        offsetX: this._screenWidth,
         pane: new Draw(this)
       };
       
-      /*
-      this.panes.details = {
-        offsetX: this._screenWidth,
-        pane: new PhotoDetails(this)
-      };
+      this.panes.draw.pane.element.style.left = this._screenWidth + "px";
 
-      this.panes.details.pane.element.style.left = this._screenWidth + "px";
-      */
+      this.setPane("list");
 
-      this.setPane("draw");
+      window.files = this;
     },
 
     setPane: function(pane, details) {

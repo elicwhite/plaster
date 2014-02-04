@@ -22,7 +22,7 @@ define(["section", "event", "managers/files"], function(Section, Event, Files) {
     },
 
     show: function() {
-      console.log("screens shown");
+      console.log("screens shown", this.element);
 
       if (localStorage.currentPane) {
         this.setPane(localStorage.currentPane);

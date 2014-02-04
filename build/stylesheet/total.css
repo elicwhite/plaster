@@ -20,6 +20,9 @@ body, html {
   position: absolute;
   display: none; }
 
+.pane-slider .pane {
+  display: block; }
+
 #draw {
   position: relative; }
   #draw canvas {

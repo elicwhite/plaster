@@ -120,7 +120,7 @@ define(["section", "globals", "tapHandler", "db"], function(Section, g, TapHandl
 
     show: function() {
       console.log("draw shown");
-      debugger;
+      //debugger;
 
       this._shouldRender = true;
       this._resize();
