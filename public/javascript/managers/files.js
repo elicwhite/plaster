@@ -39,7 +39,7 @@ define(["section", "event", "sections/fileList", "sections/draw"], function(Sect
         pane: new Draw(this)
       };
       
-      this.panes.draw.pane.element.style.left = this._screenWidth + "px";
+      this.panes.draw.pane.element.style.webkitTransform = 'translate(' + this._screenWidth + "px, 0)";
 
       this.setPane("list");
 
@@ -76,14 +76,16 @@ define(["section", "event", "sections/fileList", "sections/draw"], function(Sect
 
 
       // Finish up
-      /*
+      
       var totalPane = this.panes[pane];
-      this.navbarSettings = Helpers.mergeNavbarSettings(this._defaultSettings, totalPane.pane.navbarSettings);
       this._paneWrapper.style.webkitTransform = "translate3d(-"+totalPane.offsetX+"px, 0px, 0px)";
+
+      /*
+      this.navbarSettings = Helpers.mergeNavbarSettings(this._defaultSettings, totalPane.pane.navbarSettings);
       Event.trigger("paneChanged", {
         pane: this
       });
-*/
+      */
     }
   });
 

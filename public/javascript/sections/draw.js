@@ -126,7 +126,10 @@ define(["section", "globals", "tapHandler", "db"], function(Section, g, TapHandl
       this._resize();
       this._redraw();
 
-      canvas.focus();
+      // Focus on the canvas after we navigate to it
+      setTimeout(function(){
+        canvas.focus();
+      }.bind(this), 400);
 
       window.addEventListener("resize", this._resize);
     },

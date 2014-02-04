@@ -1,15 +1,19 @@
 define([], function() {
   return {
     isiOS: function() {
-      return this.getDeviceType().contains("iOS");
+      return this.hasDeviceType("iOS");
     },
 
     isPC: function() {
-      return this.getDeviceType().contains("PC");
+      return this.hasDeviceType("PC");
     },
 
     isMac: function() {
-      return this.getDeviceType().contains("Mac");
+      return this.hasDeviceType("Mac");
+    },
+
+    hasDeviceType: function(type) {
+      return this.getDeviceType().indexOf(type) !== -1;
     },
 
     getDeviceType: function() {
