@@ -1,4 +1,4 @@
-require(["event", "sections/draw"], function(Event, Draw) {
+require(["event", "globals", "managers/login"], function(Event, g, LoginManager) {
 
   function init() {
     window.log = console.log.bind(console);
@@ -10,9 +10,11 @@ require(["event", "sections/draw"], function(Event, Draw) {
     document.addEventListener("mousewheel", function(e) {
       e.preventDefault();
     });
-    
-    var draw = new Draw();
-    draw.show();
+
+    g.setHTMLDevices();
+
+    var loginManager = new LoginManager();
+    window.login = loginManager;
   }
 
   if (document.readyState === "interactive" || document.readyState === "complete") {

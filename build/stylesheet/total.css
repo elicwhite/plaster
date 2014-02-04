@@ -11,6 +11,15 @@ body, html {
   user-select: none;
   -webkit-user-select: none; }
 
+#overall, .page, .pane {
+  width: 100%;
+  height: 100%;
+  overflow: auto; }
+
+.page, .pane {
+  position: absolute;
+  display: none; }
+
 #draw {
   position: relative; }
   #draw canvas {
@@ -32,6 +41,5 @@ body, html {
         #draw #tools ul li:last-child {
           border-bottom: none; }
 
-@media (max-width: 768px) {
-  #draw #tools {
-    display: none; } }
+.tablet #draw #tools {
+  display: none; }

@@ -9,14 +9,41 @@
     <link rel="stylesheet" href="stylesheet/total.css">
   </head>
   <body>
-    <div id="draw">
-      <canvas id="canvas" tabindex="1">
-      </canvas>
-      <div id="tools">
-        <ul>
-          <li data-tool="pan">Pan</li>
-          <li data-tool="zoom">Zoom</li>
-        </ul>
+    <div id="overall">
+      <div id="login" class="page">
+        <div id="loginbutton">Login with Facebook</div>
+      </div>
+
+      <div id="main-container" class="page">
+        <!-- Drawer would go here -->
+        <div id="main-content">
+          <!--
+          <div id="navbar">
+          </div>
+          -->
+          <div id="panes">
+
+            <div id="files" class="pane">
+              <div class="files-pane-wrapper" class="pane">
+                <div id="files-list">
+                </div>
+
+                <div id="draw" class="page">
+                  <canvas id="canvas" tabindex="1">
+                  </canvas>
+                  <div id="tools">
+                    <ul>
+                      <li data-tool="pan">Pan</li>
+                      <li data-tool="zoom">Zoom</li>
+                    </ul>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        </div>
       </div>
     </div>
 
