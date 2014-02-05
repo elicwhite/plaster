@@ -36,10 +36,6 @@ body, html {
   }
 }
 
-
-
-
-
 #draw {
   position: absolute;
 
@@ -51,32 +47,14 @@ body, html {
     position: absolute;
     bottom: 10px;
     left: 10px;
-    border: 1px solid black;
-    background-color: white;
-
+    
     ul {
       margin: 0;
       padding: 0;
       list-style-type: none;
-
-      li {
-        padding: 10px;
-        text-align: center;
-        border-bottom: 1px solid black;
-
-        &:last-child {
-          border-bottom: none;
-        }
-      }
     }
   }
 }
 
-
-.tablet {
-  #draw {
-    #tools {
-      display: none;
-    }
-  }
-}
+@import "icomoon.scss";
+@import "design.scss";

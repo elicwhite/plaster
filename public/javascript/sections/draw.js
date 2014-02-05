@@ -27,8 +27,8 @@ define(["section", "globals", "tapHandler", "db", "data"], function(Section, g, 
     // When you move the mouse, what is the tool to use?
     _currentPointTool: "pencil",
 
-    // The indexeddb instance we are using
-    _server: null,
+    // The file server we are using
+    _fileServer: null,
 
     // Timeout for 
     _saveTransformTimeout: null,
@@ -38,10 +38,9 @@ define(["section", "globals", "tapHandler", "db", "data"], function(Section, g, 
     init: function() {
       this._super();
 
-      
-
       this._canvas = document.getElementById('canvas');
       this._ctx = canvas.getContext("2d");
+
       window.ctx = this._ctx;
 
       if (localStorage.transform) {
@@ -78,50 +77,31 @@ define(["section", "globals", "tapHandler", "db", "data"], function(Section, g, 
         end: this._toolEnd.bind(this)
       });
 
-      window.db = db;
-
-      db.open({
-        server: 'file',
-        version: 3,
-        schema: {
-          actions: {
-            key: {
-              keyPath: 'id',
-              autoIncrement: true
-            },
-            indexes: {
-              type: {},
-              id: {
-                unique: true
-              }
-            }
-          }
-        }
-      }).done((function(s) {
-        this._server = s;
-        window.server = s;
-
-        this._server.actions.query()
-          .all()
-          .execute()
-          .done((function(results) {
-            this._actions = results;
-            this._needsUpdate = true;
-            window.actions = this._actions;
-          }).bind(this));
-      }).bind(this))
-        .fail(function(e) {
-          console.error(e);
-        });
-
       canvas.addEventListener("mousewheel", this._mouseWheel.bind(this));
 
       this.element.addEventListener("keydown", this._keyDown.bind(this));
 
+      window.draw = this;
     },
 
-    show: function() {
-      console.log("draw shown");
+    show: function(file) {
+      console.log("draw shown for file", file);
+
+      data.getFile(file.id, (function(server) {
+
+        this._fileServer = server;
+        this._fileServer.actions.query()
+          .all()
+          .execute()
+          .done((function(results) {
+
+            this._actions = results;
+            this._needsUpdate = true;
+            window.actions = this._actions;
+
+          }).bind(this));
+      }).bind(this));
+
       //debugger;
 
       this._shouldRender = true;
@@ -129,7 +109,7 @@ define(["section", "globals", "tapHandler", "db", "data"], function(Section, g, 
       this._redraw();
 
       // Focus on the canvas after we navigate to it
-      setTimeout(function(){
+      setTimeout(function() {
         canvas.focus();
       }.bind(this), 400);
 
@@ -258,7 +238,7 @@ define(["section", "globals", "tapHandler", "db", "data"], function(Section, g, 
 
       // And persist it
 
-      server.actions.add(action)
+      this._fileServer.actions.add(action)
         .done(function(item) {
           // item stored
         })
@@ -401,17 +381,17 @@ define(["section", "globals", "tapHandler", "db", "data"], function(Section, g, 
           // It is impossible to delete the id off of the action, so we have to create a new object
           var newObj = {};
 
-          for(var prop in action) {
+          for (var prop in action) {
             if (prop != "id") {
               newObj[prop] = action[prop];
             }
           }
 
-          
+
 
           this._redoStack.push(newObj);
 
-          server.actions.remove(action.id).done(function(key) {
+          this._fileServer.actions.remove(action.id).done(function(key) {
             console.log('remove', key, action);
             // item removed
           });

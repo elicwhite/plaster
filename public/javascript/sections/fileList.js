@@ -1,4 +1,4 @@
-define(["section", "tapHandler", "data", "templates/fileList"], function(Section, TapHandler, Data, FileListTemplate) {
+define(["section", "tapHandler", "helpers", "data", "templates/fileList"], function(Section, TapHandler, Helpers, Data, FileListTemplate) {
 
   var FileList = Section.extend({
     id: "files-list-container",
@@ -21,27 +21,55 @@ define(["section", "tapHandler", "data", "templates/fileList"], function(Section
       this._files = {};
 
       Data.getFiles((function(files) {
-        
+
         console.log("got files", files);
-        this._files = files;
         
+
         for (var i = 0; i < files.length; i++) {
           var file = files[i];
+          this._files[file.id] = file;
           var fileTemplate = this._newFileWrapper(file);
           this._fileListElement.appendChild(fileTemplate);
-        } 
+        }
+      }).bind(this));
+
+      new TapHandler(document.getElementById("file-create"), {
+        tap: this._newDoc.bind(this)
+      });
+
+      new TapHandler(this._fileListElement, {
+        tap: this._docSelected.bind(this)
+      })
+    },
+
+
+    _newFileWrapper: function(file) {
+      var newEle = new FileListTemplate();
+      newEle.children[0].innerText = file.id +" - "+ file.name;
+      newEle.fileId = file.id;
+
+      this._files[file.id] = {
+        element: newEle,
+        file: file
+      };
+
+      return newEle;
+    },
+
+    _newDoc: function() {
+      console.log("new doc");
+      data.createFile((function(file) {
+        var fileTemplate = this._newFileWrapper(file);
+        this._fileListElement.appendChild(fileTemplate);
       }).bind(this));
     },
 
-    
-    _newFileWrapper: function(file) {
-      var newEle = new FileListTemplate();
-      newEle.children[0].innerText = file.id;
-      newEle.fileId = file.id;
+    _docSelected: function(e) {
+      var parent = Helpers.parentEleWithClassname(e.srcElement, "file-info");
 
-      this._files[file.id] = {element: newEle, file: file};
-
-      return newEle;
+      if (parent) {
+        this._filesPane.setPane("draw", this._files[parent.fileId].file)
+      }      
     },
 
     _getImageId: function(ele) {
@@ -57,7 +85,7 @@ define(["section", "tapHandler", "data", "templates/fileList"], function(Section
 
       return this._getImageId(ele.parentNode);
     }
-    
+
 
   });
 

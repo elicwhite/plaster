@@ -45,7 +45,10 @@ define(["class", "db"], function(Class, db) {
     },
 
     _doLater: function(func, args) {
-      this._initCallbacks.push({func: func, args: args})
+      this._initCallbacks.push({
+        func: func,
+        args: args
+      })
     },
 
     // Get the name of all the files we have
@@ -90,37 +93,46 @@ define(["class", "db"], function(Class, db) {
         .done((function(items) {
           var item = items[0];
 
-          db.open({
-            server: item.id,
-            version: 1,
-            schema: {
-              actions: {
-                key: {
-                  keyPath: 'id',
-                  autoIncrement: true
-                },
-                indexes: {
-                  type: {},
-                  id: {
-                    unique: true
-                  }
-                }
-              }
-            }
-          }).done((function(s) {
-            this._files[fileId] = s;
-
-
-            console.log("file created with id", item.id);
+          this.getFile(item.id, (function(s) {
             callback(item);
-          }).bind(this))
-            .fail(function(e) {
-              console.error("Failed to create file database", e);
-            });
+          }).bind(this));
+          
         }).bind(this))
         .fail(function(e) {
           console.error("fail to add file to file list", e);
         });
+    },
+
+    getFile: function(fileId, callback) {
+      if (!this._server) {
+        this._doLater(this.createFile, [fileName, callback]);
+        return;
+      }
+
+      db.open({
+        server: fileId,
+        version: 1,
+        schema: {
+          actions: {
+            key: {
+              keyPath: 'id',
+              autoIncrement: true
+            },
+            indexes: {
+              type: {},
+              id: {
+                unique: true
+              }
+            }
+          }
+        }
+      }).done((function(s) {
+        this._files[fileId] = s;
+        callback(s);
+      }).bind(this))
+        .fail(function(e) {
+          console.error("Failed to create file database", e);
+        });;
     },
 
     deleteFile: function(fileName) {
@@ -147,8 +159,17 @@ define(["class", "db"], function(Class, db) {
         });
     },
 
-    _getGuid: function() {
-      return 'T^' + Date.now() + "-" + Math.round(Math.random() * 1000000);
+    // Get the stored file settings
+    localFileSettings: function(fileName, settings) {
+      if (settings) {
+        localStorage.fileName = JSON.stringify(settings);
+      }
+
+      if (localStorage.fileName) {
+        return JSON.parse(localStorage.fileName);
+      } else {
+        console.error("Can't find settings for this file");
+      }
     },
 
     deleteAllDatabases: function() {
@@ -165,7 +186,11 @@ define(["class", "db"], function(Class, db) {
         }
         console.log(e);
       }
-    }
+    },
+
+    _getGuid: function() {
+      return 'T^' + Date.now() + "-" + Math.round(Math.random() * 1000000);
+    },
   });
 
   var data = new Data();
