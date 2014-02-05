@@ -1,4 +1,4 @@
-define(["section", "globals", "helpers", "tapHandler", "db", "data", "components/drawCanvas"], function(Section, g, Helpers, TapHandler, db, Data, DrawCanvas) {
+define(["section", "globals", "helpers", "tapHandler", "db", "data", "components/manipulateCanvas"], function(Section, g, Helpers, TapHandler, db, Data, ManipulateCanvas) {
 
   var Draw = Section.extend({
     id: "draw",
@@ -7,7 +7,7 @@ define(["section", "globals", "helpers", "tapHandler", "db", "data", "components
     _filesPane: null,
 
     // Instance of draw canvas that is handling all the drawing
-    _drawCanvas: null,
+    _manipulateCanvas: null,
 
     _canvas: null,
 
@@ -103,11 +103,11 @@ define(["section", "globals", "helpers", "tapHandler", "db", "data", "components
               });
             }
 
-            this._drawCanvas = new DrawCanvas(this._canvas, this._settings);
+            this._manipulateCanvas = new ManipulateCanvas(this._canvas, this._settings);
 
             this._shouldRender = true;
             this._redraw();
-            
+
 
           }).bind(this));
       }).bind(this));
@@ -136,35 +136,18 @@ define(["section", "globals", "helpers", "tapHandler", "db", "data", "components
       this._needsUpdate = true;
     },
 
-    _zoom: function(x, y, scaleChange) {
-      // Can't zoom that far!
-      if (this._settings.scale + scaleChange < .001 || this._settings.scale + scaleChange > 20000) {
-        return;
+    _zoom: function(x, y, dScale) {
+      if (this._manipulateCanvas.zoom(x, y, dScale)) {
+        this._saveTransform();
+        this._needsUpdate = true;
       }
-
-      var world = Helpers.screenToWorld(this._settings, x, y);
-      this._settings.scale += scaleChange;
-      var scr = Helpers.worldToScreen(this._settings, world.x, world.y);
-
-      var diffScr = {
-        x: x - scr.x,
-        y: y - scr.y
-      };
-
-      this._settings.offsetX += diffScr.x; // * this._settings.scale;
-      this._settings.offsetY += diffScr.y; // * this._settings.scale;
-
-      this._saveTransform();
-      this._needsUpdate = true;
     },
 
-    _pan: function(x, y) {
-      this._settings.offsetX += x;
-      this._settings.offsetY += y;
-
-      this._saveTransform();
-
-      this._needsUpdate = true;
+    _pan: function(dx, dy) {
+      if (this._manipulateCanvas.pan(dx, dy)) {
+        this._saveTransform();
+        this._needsUpdate = true;
+      }
     },
 
     _mouseWheel: function(e) {
@@ -273,10 +256,10 @@ define(["section", "globals", "helpers", "tapHandler", "db", "data", "components
       }
 
       if (this._needsUpdate) {
-        this._drawCanvas.drawAll(this._actions);
+        this._manipulateCanvas.drawAll(this._actions);
 
         if (this._currentAction) {
-          this._drawCanvas.doAction(this._currentAction)
+          this._manipulateCanvas.doAction(this._currentAction)
         }
         this._needsUpdate = false;
       }
@@ -405,7 +388,7 @@ define(["section", "globals", "helpers", "tapHandler", "db", "data", "components
       var ctx = canvas.getContext("2d");
     }
 */
-    
+
 
     _saveTransform: function() {
       // If the timeout is set already

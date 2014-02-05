@@ -23,7 +23,6 @@ define(["section", "tapHandler", "helpers", "data", "templates/fileList"], funct
       Data.getFiles((function(files) {
 
         console.log("got files", files);
-        
 
         for (var i = 0; i < files.length; i++) {
           var file = files[i];
@@ -45,7 +44,7 @@ define(["section", "tapHandler", "helpers", "data", "templates/fileList"], funct
 
     _newFileWrapper: function(file) {
       var newEle = new FileListTemplate();
-      newEle.children[0].innerText = file.id +" - "+ file.name;
+      newEle.children[0].innerText = file.id + " - " + file.name;
       newEle.fileId = file.id;
 
       this._files[file.id] = {
@@ -65,11 +64,24 @@ define(["section", "tapHandler", "helpers", "data", "templates/fileList"], funct
     },
 
     _docSelected: function(e) {
+      var element = e.srcElement;
       var parent = Helpers.parentEleWithClassname(e.srcElement, "file-info");
 
       if (parent) {
+        if (element.dataset.action && element.dataset.action == "delete") {
+
+          var file = this._files[parent.fileId];
+          this._fileListElement.removeChild(file.element);
+          delete this._files[parent.fileId];
+          data.deleteFile(parent.fileId);
+
+          // delete file
+          return;
+        }
+
         this._filesPane.setPane("draw", this._files[parent.fileId].file)
-      }      
+      }
+
     },
 
     _getImageId: function(ele) {

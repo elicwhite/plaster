@@ -1,10 +1,5 @@
-define(["helpers"], function(Helpers) {
-
-  function DrawCanvas(canvas, settings) {
-    this.init(canvas, settings);
-  }
-
-  DrawCanvas.prototype = {
+define(["class", "helpers"], function(Class, Helpers) {
+  var DrawCanvas = Class.extend({
     _canvas: null,
     _ctx: null,
 
@@ -75,7 +70,7 @@ define(["helpers"], function(Helpers) {
 
       this._ctx.stroke();
     },
-  }
+  });
 
   return DrawCanvas;
 
