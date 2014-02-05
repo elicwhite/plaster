@@ -222,6 +222,16 @@ define(["section", "globals", "tapHandler", "db", "data"], function(Section, g, 
       this._currentAction = null;
 
       var currentStroke = currentAction.stroke;
+
+      if (currentStroke.points.length < 2) {
+        // two options, don't count the stroke
+        return;
+
+        // Or create a second point, same as the first.
+        // Canvas doesn't seem to render a line with two identical points.
+        currentStroke.points.push(currentStroke.points[0]);
+      }
+
       var controlPoints = this._getCurveControlPoints(currentStroke.points);
       currentStroke.controlPoints = controlPoints;
 
@@ -266,7 +276,8 @@ define(["section", "globals", "tapHandler", "db", "data"], function(Section, g, 
         this._ctx.clearRect(topLeft.x, topLeft.y, bottomRight.x - topLeft.x, bottomRight.y - topLeft.y);
 
         // Keep the line width the same no matter the zoom level
-        this._ctx.lineWidth = 1 / this._settings.scale;
+        var strokeSize = 1;
+        this._ctx.lineWidth = strokeSize / this._settings.scale;
 
         for (var i = 0; i < this._actions.length; i++) {
           var action = this._actions[i];
