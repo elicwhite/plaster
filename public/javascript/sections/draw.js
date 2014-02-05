@@ -1,10 +1,13 @@
-define(["section", "globals", "tapHandler", "db", "data"], function(Section, g, TapHandler, db, Data) {
+define(["section", "globals", "helpers", "tapHandler", "db", "data", "components/drawCanvas"], function(Section, g, Helpers, TapHandler, db, Data, DrawCanvas) {
 
   var Draw = Section.extend({
     id: "draw",
 
     _canvas: null,
     _ctx: null,
+
+    // Instance of draw canvas that is handling all the drawing
+    _drawCanvas: null,
 
     // The file we are currently rendering
     _fileInfo: null,
@@ -43,6 +46,7 @@ define(["section", "globals", "tapHandler", "db", "data"], function(Section, g, 
       this._super();
 
       this._canvas = document.getElementById('canvas');
+
       this._ctx = canvas.getContext("2d");
 
       this._resize = this._resize.bind(this);
@@ -95,6 +99,8 @@ define(["section", "globals", "tapHandler", "db", "data"], function(Section, g, 
               });
             }
 
+            this._drawCanvas = new DrawCanvas(this._canvas, this._settings);
+
             this._shouldRender = true;
             this._redraw();
             
@@ -132,9 +138,9 @@ define(["section", "globals", "tapHandler", "db", "data"], function(Section, g, 
         return;
       }
 
-      var world = this._screenToWorld(x, y);
+      var world = Helpers.screenToWorld(this._settings, x, y);
       this._settings.scale += scaleChange;
-      var scr = this._worldToScreen(world.x, world.y);
+      var scr = Helpers.worldToScreen(this._settings, world.x, world.y);
 
       var diffScr = {
         x: x - scr.x,
@@ -176,7 +182,7 @@ define(["section", "globals", "tapHandler", "db", "data"], function(Section, g, 
     },
 
     _start: function(e) {
-      var world = this._screenToWorld(e.distFromLeft, e.distFromTop);
+      var world = Helpers.screenToWorld(this._settings, e.distFromLeft, e.distFromTop);
 
       if (this._currentAction) {
         console.error("Current action isn't null!");
@@ -195,7 +201,7 @@ define(["section", "globals", "tapHandler", "db", "data"], function(Section, g, 
 
     _move: function(e) {
 
-      var world = this._screenToWorld(e.distFromLeft, e.distFromTop);
+      var world = Helpers.screenToWorld(this._settings, e.distFromLeft, e.distFromTop);
 
       //console.log("world", e, world);
       var currentStroke = this._currentAction.stroke;
@@ -232,7 +238,7 @@ define(["section", "globals", "tapHandler", "db", "data"], function(Section, g, 
         currentStroke.points.push(currentStroke.points[0]);
       }
 
-      var controlPoints = this._getCurveControlPoints(currentStroke.points);
+      var controlPoints = Helpers.getCurveControlPoints(currentStroke.points);
       currentStroke.controlPoints = controlPoints;
 
       this._saveAction(currentAction);
@@ -268,79 +274,14 @@ define(["section", "globals", "tapHandler", "db", "data"], function(Section, g, 
       }
 
       if (this._needsUpdate) {
-        this._ctx.setTransform(this._settings.scale, 0, 0, this._settings.scale, this._settings.offsetX, this._settings.offsetY);
-
-        var topLeft = this._screenToWorld(0, 0);
-        var bottomRight = this._screenToWorld(canvas.width, canvas.height);
-
-        this._ctx.clearRect(topLeft.x, topLeft.y, bottomRight.x - topLeft.x, bottomRight.y - topLeft.y);
-
-        // Keep the line width the same no matter the zoom level
-        var strokeSize = 1;
-        this._ctx.lineWidth = strokeSize / this._settings.scale;
-
-        for (var i = 0; i < this._actions.length; i++) {
-          var action = this._actions[i];
-
-          if (action.type == "stroke") {
-            this._drawStroke(this._ctx, action.stroke);
-          }
+        this._drawCanvas.drawAll(this._actions);
+        if (this._currentAction) {
+          this._drawCanvas.doAction(this._currentAction)
         }
-
-        //console.log("current", this._currentAction);
-
-        if (this._currentAction && this._currentAction.type == "stroke") {
-          this._drawStroke(this._ctx, this._currentAction.stroke);
-        }
-
         this._needsUpdate = false;
       }
 
       requestAnimationFrame(this._redraw.bind(this));
-    },
-
-    _drawStroke: function(ctx, stroke) {
-      if (stroke.points.length < 2) {
-        return;
-      }
-
-      var controlPoints = [];
-      var points = stroke.points;
-
-      if (!stroke.controlPoints) {
-        controlPoints = this._getCurveControlPoints(points);
-      } else {
-        controlPoints = stroke.controlPoints;
-      }
-
-      var point = points[0];
-
-      ctx.beginPath();
-      ctx.moveTo(point.x, point.y);
-
-      for (var i = 1; i < points.length; i++) {
-        point = points[i];
-        var cp1 = controlPoints[i - 1].first;
-        var cp2 = controlPoints[i - 1].second;
-        ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, point.x, point.y);
-        //ctx.lineTo(point.x, point.y);
-      }
-
-      ctx.stroke();
-    },
-
-    _screenToWorld: function(x, y) {
-      return {
-        x: (x - this._settings.offsetX) / this._settings.scale,
-        y: (y - this._settings.offsetY) / this._settings.scale
-      };
-    },
-
-    _worldToScreen: function(x, y) {
-      return {
-        x: (x) * this._settings.scale + this._settings.offsetX,
-        y: (y) * this._settings.scale + this._settings.offsetY
-      };
     },
 
     _toolChanged: function(e) {
@@ -454,116 +395,7 @@ define(["section", "globals", "tapHandler", "db", "data"], function(Section, g, 
       var ctx = canvas.getContext("2d");
     }
 */
-    _getCurveControlPoints: function(knots) {
-      var n = knots.length - 1;
-
-      var firstControlPoints = [];
-      var secondControlPoints = [];
-
-      if (n < 1) {
-        console.error("Must have at least two knots");
-        return;
-      }
-
-      if (n == 1) {
-        // Special case: should be a line
-        firstControlPoints.push({});
-        firstControlPoints[0].x = (2 * knots[0].x + knots[1].x) / 3;
-        firstControlPoints[0].y = (2 * knots[0].y + knots[1].y) / 3;
-
-        secondControlPoints.push({});
-        secondControlPoints[0].x = 2 * firstControlPoints[0].x - knots[0].x;
-        secondControlPoints[0].y = 2 * firstControlPoints[0].y - knots[0].y;
-
-        return [{
-          first: firstControlPoints[0],
-          second: secondControlPoints[0]
-        }];
-      }
-
-      // Calculate first Bezier control points
-      // Right hand side vector
-      var rhs = new Array(n);
-
-
-      // Set right hand side X values
-      for (var i = 1; i < n - 1; ++i) {
-        rhs[i] = 4 * knots[i].x + 2 * knots[i + 1].x;
-      }
-
-      rhs[0] = knots[0].x + 2 * knots[1].x;
-      rhs[n - 1] = (8 * knots[n - 1].x + knots[n].x) / 2;
-
-      // Get first control points x-values
-      var x = this._getFirstControlPoints(rhs);
-
-      // Set right hand side Y values
-      for (var i = 1; i < n - 1; ++i) {
-        rhs[i] = 4 * knots[i].y + 2 * knots[i + 1].y;
-      }
-
-      rhs[0] = knots[0].y + 2 * knots[1].y;
-      rhs[n - 1] = (8 * knots[n - 1].y + knots[n].y) / 2;
-
-      // Get first control points Y-values
-      var y = this._getFirstControlPoints(rhs);
-
-      // Fill output arrays.
-      firstControlPoints = new Array(n);
-      secondControlPoints = new Array(n);
-
-      for (var i = 0; i < n; ++i) {
-        // First control point
-        firstControlPoints[i] = {
-          x: x[i],
-          y: y[i]
-        };
-
-        // Second control point
-        if (i < n - 1) {
-          secondControlPoints[i] = {
-            x: 2 * knots[i + 1].x - x[i + 1],
-            y: 2 * knots[i + 1].y - y[i + 1]
-          };
-        } else {
-          secondControlPoints[i] = {
-            x: (knots[n].x + x[n - 1]) / 2,
-            y: (knots[n].y + y[n - 1]) / 2
-          };
-        }
-      }
-
-      var controlPoints = new Array(n);
-      for (var i = 0; i < n; ++i) {
-        controlPoints[i] = {
-          first: firstControlPoints[i],
-          second: secondControlPoints[i]
-        }
-      }
-
-      return controlPoints;
-    },
-
-    _getFirstControlPoints: function(rhs) {
-      var n = rhs.length;
-      var x = new Array(n); // Solution vector
-      var tmp = new Array(n); // Temp workspace
-
-      var b = 2.0;
-      x[0] = rhs[0] / b;
-
-      for (var i = 1; i < n; i++) { // Decomposition and forward substitution
-        tmp[i] = 1 / b;
-        b = (i < n - 1 ? 4 : 3.5) - tmp[i];
-        x[i] = (rhs[i] - x[i - 1]) / b;
-      }
-
-      for (var i = 1; i < n; i++) {
-        x[n - i - 1] -= tmp[n - i] * x[n - i]; // backsubstituion
-      }
-
-      return x;
-    },
+    
 
     _saveTransform: function() {
       // If the timeout is set already
