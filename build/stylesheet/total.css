@@ -30,14 +30,18 @@ body, html {
   position: absolute; }
   #draw canvas {
     vertical-align: bottom; }
+  #draw ul {
+    margin: 0;
+    padding: 0;
+    list-style-type: none; }
+  #draw #menu {
+    position: absolute;
+    top: 10px;
+    left: 10px; }
   #draw #tools {
     position: absolute;
     bottom: 10px;
     left: 10px; }
-    #draw #tools ul {
-      margin: 0;
-      padding: 0;
-      list-style-type: none; }
 
 @font-face {
   font-family: 'icomoon';
@@ -148,15 +152,16 @@ body {
 
 #files #files-list li {
   padding: 10px 5px; }
-#files #draw #tools {
+#files #draw #menu, #files #draw #tools {
   border: 1px solid black;
   background-color: white; }
-  #files #draw #tools ul li {
-    padding: 10px;
-    text-align: center;
-    border-bottom: 1px solid black; }
-    #files #draw #tools ul li:last-child {
-      border-bottom: none; }
+#files #draw ul li {
+  padding: 10px;
+  text-align: center;
+  border-bottom: 1px solid black;
+  cursor: pointer; }
+  #files #draw ul li:last-child {
+    border-bottom: none; }
 
 .tablet #draw #tools {
   display: none; }

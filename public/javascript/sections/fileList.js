@@ -12,10 +12,10 @@ define(["section", "tapHandler", "helpers", "data", "templates/fileList"], funct
     // The set of files we are displaying on the page
     _files: null,
 
-    init: function(files) {
+    init: function(filesPane) {
       this._super();
 
-      this._filesPane = files;
+      this._filesPane = filesPane;
 
       this._fileListElement = document.getElementById("files-list");
       this._files = {};

@@ -35,12 +35,6 @@ define(["helpers"], function(Helpers) {
         this.doAction(action);
         
       }
-
-      //console.log("current", this._currentAction);
-
-      //if (this._currentAction && this._currentAction.type == "stroke") {
-      //  this._drawStroke(this._ctx, this._currentAction.stroke);
-      //}
     },
 
     doAction: function(action) {

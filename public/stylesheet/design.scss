@@ -26,19 +26,20 @@ body {
   }
 
   #draw {
-    #tools {
+    #menu, #tools {
       border: 1px solid black;
       background-color: white;
+    }
 
-      ul {
-        li {
-          padding: 10px;
-          text-align: center;
-          border-bottom: 1px solid black;
+    ul {
+      li {
+        padding: 10px;
+        text-align: center;
+        border-bottom: 1px solid black;
+        cursor: pointer;
 
-          &:last-child {
-            border-bottom: none;
-          }
+        &:last-child {
+          border-bottom: none;
         }
       }
     }

@@ -43,16 +43,22 @@ body, html {
     vertical-align: bottom;
   }
 
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+  }
+
+  #menu {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+  }
+
   #tools {
     position: absolute;
     bottom: 10px;
     left: 10px;
-    
-    ul {
-      margin: 0;
-      padding: 0;
-      list-style-type: none;
-    }
   }
 }
 

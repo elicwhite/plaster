@@ -22,12 +22,10 @@ define(["section", "event", "sections/fileList", "sections/draw"], function(Sect
       };
 
       this._screenWidth = window.innerWidth;
-      
 
       this._paneWrapper = document.getElementById("files-pane-wrapper");
 
       this.panes = {};
-
 
       this.panes.list = {
         offsetX: 0,
@@ -41,7 +39,12 @@ define(["section", "event", "sections/fileList", "sections/draw"], function(Sect
       
       this.panes.draw.pane.element.style.webkitTransform = 'translate(' + this._screenWidth + "px, 0)";
 
-      this.setPane("list");
+      var state = {pane: "list", details: null};
+      if (localStorage.filesPane) {
+        state = JSON.parse(localStorage.filesPane);
+      }
+
+      this.setPane(state.pane, state.details);
 
       window.files = this;
     },
@@ -80,6 +83,7 @@ define(["section", "event", "sections/fileList", "sections/draw"], function(Sect
       var totalPane = this.panes[pane];
       this._paneWrapper.style.webkitTransform = "translate3d(-"+totalPane.offsetX+"px, 0px, 0px)";
 
+      localStorage.filesPane = JSON.stringify({pane: pane, details: details});
       /*
       this.navbarSettings = Helpers.mergeNavbarSettings(this._defaultSettings, totalPane.pane.navbarSettings);
       Event.trigger("paneChanged", {

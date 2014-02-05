@@ -3,11 +3,13 @@ define(["section", "globals", "helpers", "tapHandler", "db", "data", "components
   var Draw = Section.extend({
     id: "draw",
 
-    _canvas: null,
-    _ctx: null,
+    // The parent pane for this page
+    _filesPane: null,
 
     // Instance of draw canvas that is handling all the drawing
     _drawCanvas: null,
+
+    _canvas: null,
 
     // The file we are currently rendering
     _fileInfo: null,
@@ -36,23 +38,21 @@ define(["section", "globals", "helpers", "tapHandler", "db", "data", "components
     // When you move the mouse, what is the tool to use?
     _currentPointTool: "pencil",
 
-
     // Timeout for 
     _saveTransformTimeout: null,
 
     _redoStack: null,
 
-    init: function() {
+    init: function(filesPane) {
       this._super();
 
-      this._canvas = document.getElementById('canvas');
+      this._filesPane = filesPane;
 
-      this._ctx = canvas.getContext("2d");
+      this._canvas = document.getElementById('canvas');
 
       this._resize = this._resize.bind(this);
 
       new TapHandler(canvas, {
-        tap: this._tap.bind(this),
         start: this._start.bind(this),
         move: this._move.bind(this),
         end: this._end.bind(this),
@@ -65,7 +65,11 @@ define(["section", "globals", "helpers", "tapHandler", "db", "data", "components
         end: this._toolEnd.bind(this)
       });
 
-      canvas.addEventListener("mousewheel", this._mouseWheel.bind(this));
+      new TapHandler(document.getElementById("menu"), {
+        tap: this._menuTapped.bind(this),
+      });
+
+      this.element.addEventListener("mousewheel", this._mouseWheel.bind(this));
 
       this.element.addEventListener("keydown", this._keyDown.bind(this));
     },
@@ -176,11 +180,6 @@ define(["section", "globals", "helpers", "tapHandler", "db", "data", "components
       }
     },
 
-
-    _tap: function(e) {
-
-    },
-
     _start: function(e) {
       var world = Helpers.screenToWorld(this._settings, e.distFromLeft, e.distFromTop);
 
@@ -275,6 +274,7 @@ define(["section", "globals", "helpers", "tapHandler", "db", "data", "components
 
       if (this._needsUpdate) {
         this._drawCanvas.drawAll(this._actions);
+
         if (this._currentAction) {
           this._drawCanvas.doAction(this._currentAction)
         }
@@ -282,6 +282,16 @@ define(["section", "globals", "helpers", "tapHandler", "db", "data", "components
       }
 
       requestAnimationFrame(this._redraw.bind(this));
+    },
+
+    _menuTapped: function(e) {
+      if (e.srcElement.tagName == "LI") {
+        var action = e.srcElement.dataset.action;
+
+        if (action == "back") {
+          this._filesPane.setPane("list");
+        }
+      }
     },
 
     _toolChanged: function(e) {

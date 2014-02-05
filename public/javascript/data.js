@@ -105,7 +105,7 @@ define(["class", "db"], function(Class, db) {
 
     getFile: function(fileId, callback) {
       if (!this._server) {
-        this._doLater(this.createFile, [fileName, callback]);
+        this._doLater(this.getFile, [fileId, callback]);
         return;
       }
 
