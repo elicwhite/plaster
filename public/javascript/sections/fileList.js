@@ -1,28 +1,29 @@
-define(["section", "tapHandler", "templates/fileList"], function(Section, TapHandler, FileListTemplate) {
+define(["section", "tapHandler", "data", "templates/fileList"], function(Section, TapHandler, Data, FileListTemplate) {
 
   var FileList = Section.extend({
     id: "files-list-container",
 
     // The parent pane for this page
-    _files: null,
+    _filesPane: null,
 
     // The element
-    _fileList: null,
+    _fileListElement: null,
 
-    // The set of images we are displaying on the page
-    _images: null,
-
-    // When we add an image to the list, this is it's index
-    // into images
-    _imageIndex: 0, 
+    // The set of files we are displaying on the page
+    _files: null,
 
     init: function(files) {
       this._super();
-      
-      this._files = files;
 
-      this._fileList = document.getElementById("files-list");
+      this._filesPane = files;
 
+      this._fileListElement = document.getElementById("files-list");
+
+      Data.getFiles(function(files) {
+        console.log("got files", files);
+      });
+
+      //this._files = Data.
       /*
       this._images = [];
 
@@ -31,7 +32,7 @@ define(["section", "tapHandler", "templates/fileList"], function(Section, TapHan
         this._images.push(image);
         this._photoList.appendChild(image);
       }   
-      */   
+      */
     },
 
     /*

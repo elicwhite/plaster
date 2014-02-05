@@ -1,27 +1,175 @@
 define(["class", "db"], function(Class, db) {
   var Data = Class.extend({
+    _server: null,
+    _files: null,
+
+    // If we call other functions before the database is opened, 
+    //these are the things we need to run
+    _initCallbacks: null,
+
     init: function() {
-      
+      this._files = [];
+
+      this._initCallbacks = [];
+
+      db.open({
+        server: 'draw',
+        version: 5,
+        schema: {
+          files: {
+            key: {
+              keyPath: 'id',
+            },
+            indexes: {
+              id: {
+                unique: true
+              }
+            }
+          }
+        }
+      })
+        .done((function(server) {
+          console.log("Set up files server");
+          this._server = server;
+
+          // Go through all our delayed callbacks
+          for (var i = 0; i < this._initCallbacks.length; i++) {
+            var callback = this._initCallbacks[i];
+            callback.func.apply(this, callback.args);
+          }
+
+        }).bind(this))
+        .fail(function(e) {
+          console.error("Failed setting up database", e);
+        });
+    },
+
+    _doLater: function(func, args) {
+      this._initCallbacks.push({func: func, args: args})
     },
 
     // Get the name of all the files we have
-    getFileNames: function(callback) {
-      callback(["file1", "file2"]);
+    getFiles: function(callback) {
+      if (!this._server) {
+        this._doLater(this.getFiles, [callback]);
+        return;
+      }
+
+      if (!callback) {
+        throw "You must specify a callback";
+      }
+
+      this._server.files.query()
+        .all()
+        .execute()
+        .done((function(results) {
+          callback(results);
+        }).bind(this));
+
     },
 
     // Create a new file and returns the file name
     createFile: function(callback) {
-      //return ["file3"];
-      callback("file3");
+      if (!this._server) {
+        this._doLater(this.createFile, [callback]);
+        return;
+      }
+
+      if (!callback) {
+        throw "You must specify a callback";
+      }
+
+      var fileId = this._getGuid();
+
+      var file = {
+        id: fileId,
+        name: "Untitled File"
+      }
+
+      this._server.files.add(file)
+        .done((function(items) {
+          var item = items[0];
+
+          db.open({
+            server: item.id,
+            version: 1,
+            schema: {
+              actions: {
+                key: {
+                  keyPath: 'id',
+                  autoIncrement: true
+                },
+                indexes: {
+                  type: {},
+                  id: {
+                    unique: true
+                  }
+                }
+              }
+            }
+          }).done((function(s) {
+            this._files[fileId] = s;
+
+
+            console.log("file created with id", item.id);
+            callback(item);
+          }).bind(this))
+            .fail(function(e) {
+              console.error("Failed to create file database", e);
+            });
+        }).bind(this))
+        .fail(function(e) {
+          console.error("fail to add file to file list", e);
+        });
     },
 
-    // Get the stored data for the file
-    getFileStore: function(fileName, callback) {
-      return server[fileNam];
+    deleteFile: function(fileName) {
+      if (!this._server) {
+        this._doLater(this.deleteFile, [fileName]);
+        return;
+      }
+
+      this._server.files.remove(fileName)
+        .done(function(key) {
+          // item removed
+          console.log("Deleted file from file table", fileName);
+
+          var f = indexedDB.deleteDatabase(fileName);
+          f.onsuccess = function(e) {
+            console.log("Deleted Database for file", key);
+          }
+          f.onerror = function(e) {
+            console.log("Error deleting database", e);
+          }
+        })
+        .fail(function(e) {
+          console.error("Failed to delete file from file table", fileName);
+        });
+    },
+
+    _getGuid: function() {
+      return 'T^' + Date.now() + "-" + Math.round(Math.random() * 1000000);
+    },
+
+    deleteAllDatabases: function() {
+      var f = indexedDB.webkitGetDatabaseNames();
+      f.onsuccess = function(e) {
+        var list = e.target.result;
+        for (var i = 0; i < list.length; i++) {
+          console.log("Deleting", list[i]);
+          var d = indexedDB.deleteDatabase(list[i]);
+          window.d = d;
+          d.onerror = function(e) {
+            console.error("Error deleting database", e);
+          }
+        }
+        console.log(e);
+      }
     }
-
-
   });
 
-  return Data;
+  var data = new Data();
+  window.data = data
+
+  return data;
 });

@@ -1,4 +1,4 @@
-define(["section", "globals", "tapHandler", "db"], function(Section, g, TapHandler, db) {
+define(["section", "globals", "tapHandler", "db", "data"], function(Section, g, TapHandler, db, Data) {
 
   var Draw = Section.extend({
     id: "draw",
@@ -37,6 +37,8 @@ define(["section", "globals", "tapHandler", "db"], function(Section, g, TapHandl
 
     init: function() {
       this._super();
+
+      
 
       this._canvas = document.getElementById('canvas');
       this._ctx = canvas.getContext("2d");
@@ -79,8 +81,8 @@ define(["section", "globals", "tapHandler", "db"], function(Section, g, TapHandl
       window.db = db;
 
       db.open({
-        server: 'draw',
-        version: 2,
+        server: 'file',
+        version: 3,
         schema: {
           actions: {
             key: {

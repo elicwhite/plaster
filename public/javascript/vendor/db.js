@@ -562,7 +562,23 @@ define(['indexedDBShim'], function(idbpoly) {
 
             var deferred = Deferred();
 
-            if ( dbCache[ options.server ] ) {
+            // Check if we already have it in cache
+            var serverCache = dbCache[options.server];
+
+            if (serverCache) {
+                // If it is already in cache, make sure that we also 
+                // have all of the tables we are opening already
+
+                for (var table in options.schema) {
+                    if (!serverCache.objectStoreNames.contains(table)) {
+                        serverCache.close();
+                        delete dbCache[options.server];
+                    }
+                }
+            }
+             
+
+            if ( dbCache[ options.server ]) {
                 open( {
                     target: {
                         result: dbCache[ options.server ]
