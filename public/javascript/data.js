@@ -14,7 +14,7 @@ define(["class", "db"], function(Class, db) {
 
       db.open({
         server: 'draw',
-        version: 5,
+        version: 1,
         schema: {
           files: {
             key: {
@@ -96,7 +96,7 @@ define(["class", "db"], function(Class, db) {
           this.getFile(item.id, (function(s) {
             callback(item);
           }).bind(this));
-          
+
         }).bind(this))
         .fail(function(e) {
           console.error("fail to add file to file list", e);
@@ -153,6 +153,10 @@ define(["class", "db"], function(Class, db) {
           f.onerror = function(e) {
             console.log("Error deleting database", e);
           }
+
+          // Delete settings from local storage
+          delete localStorage[fileName];
+
         })
         .fail(function(e) {
           console.error("Failed to delete file from file table", fileName);
@@ -162,13 +166,13 @@ define(["class", "db"], function(Class, db) {
     // Get the stored file settings
     localFileSettings: function(fileName, settings) {
       if (settings) {
-        localStorage.fileName = JSON.stringify(settings);
+        localStorage[fileName] = JSON.stringify(settings);
       }
 
-      if (localStorage.fileName) {
-        return JSON.parse(localStorage.fileName);
+      if (localStorage[fileName]) {
+        return JSON.parse(localStorage[fileName]);
       } else {
-        console.error("Can't find settings for this file");
+        return false;
       }
     },
 

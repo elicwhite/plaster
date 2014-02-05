@@ -6,8 +6,14 @@ define(["section", "globals", "tapHandler", "db", "data"], function(Section, g, 
     _canvas: null,
     _ctx: null,
 
-    // Offsets and scale
-    _transform: null,
+    // The file we are currently rendering
+    _fileInfo: null,
+
+    // The file server we are using
+    _fileServer: null,
+
+    // Local settings such as offset and zoom
+    _settings: null,
 
     // The actions we are taking
     _actions: null,
@@ -27,8 +33,6 @@ define(["section", "globals", "tapHandler", "db", "data"], function(Section, g, 
     // When you move the mouse, what is the tool to use?
     _currentPointTool: "pencil",
 
-    // The file server we are using
-    _fileServer: null,
 
     // Timeout for 
     _saveTransformTimeout: null,
@@ -40,26 +44,6 @@ define(["section", "globals", "tapHandler", "db", "data"], function(Section, g, 
 
       this._canvas = document.getElementById('canvas');
       this._ctx = canvas.getContext("2d");
-
-      window.ctx = this._ctx;
-
-      if (localStorage.transform) {
-        this._transform = JSON.parse(localStorage.transform);
-      } else {
-        this._transform = {
-          offsetX: 0,
-          offsetY: 0,
-          scale: 1
-        };
-      }
-
-      this._resize();
-
-      this._actions = [];
-      window.actions = this._actions;
-
-      this._redoStack = [];
-      window.redo = this._redoStack;
 
       this._resize = this._resize.bind(this);
 
@@ -80,11 +64,14 @@ define(["section", "globals", "tapHandler", "db", "data"], function(Section, g, 
       canvas.addEventListener("mousewheel", this._mouseWheel.bind(this));
 
       this.element.addEventListener("keydown", this._keyDown.bind(this));
-
-      window.draw = this;
     },
 
     show: function(file) {
+      this._fileInfo = file;
+
+      this._actions = [];
+      this._redoStack = [];
+
       console.log("draw shown for file", file);
 
       data.getFile(file.id, (function(server) {
@@ -97,16 +84,26 @@ define(["section", "globals", "tapHandler", "db", "data"], function(Section, g, 
 
             this._actions = results;
             this._needsUpdate = true;
-            window.actions = this._actions;
+
+            this._settings = data.localFileSettings(file.id);
+            if (!this._settings) {
+              // No settings saved
+              this._settings = data.localFileSettings(file.id, {
+                offsetX: 0,
+                offsetY: 0,
+                scale: 1
+              });
+            }
+
+            this._shouldRender = true;
+            this._redraw();
+            
 
           }).bind(this));
       }).bind(this));
 
-      //debugger;
-
-      this._shouldRender = true;
+      // We don't need data to resize
       this._resize();
-      this._redraw();
 
       // Focus on the canvas after we navigate to it
       setTimeout(function() {
@@ -131,12 +128,12 @@ define(["section", "globals", "tapHandler", "db", "data"], function(Section, g, 
 
     _zoom: function(x, y, scaleChange) {
       // Can't zoom that far!
-      if (this._transform.scale + scaleChange < .001 || this._transform.scale + scaleChange > 20000) {
+      if (this._settings.scale + scaleChange < .001 || this._settings.scale + scaleChange > 20000) {
         return;
       }
 
       var world = this._screenToWorld(x, y);
-      this._transform.scale += scaleChange;
+      this._settings.scale += scaleChange;
       var scr = this._worldToScreen(world.x, world.y);
 
       var diffScr = {
@@ -144,16 +141,16 @@ define(["section", "globals", "tapHandler", "db", "data"], function(Section, g, 
         y: y - scr.y
       };
 
-      this._transform.offsetX += diffScr.x; // * this._transform.scale;
-      this._transform.offsetY += diffScr.y; // * this._transform.scale;
+      this._settings.offsetX += diffScr.x; // * this._settings.scale;
+      this._settings.offsetY += diffScr.y; // * this._settings.scale;
 
       this._saveTransform();
       this._needsUpdate = true;
     },
 
     _pan: function(x, y) {
-      this._transform.offsetX += x;
-      this._transform.offsetY += y;
+      this._settings.offsetX += x;
+      this._settings.offsetY += y;
 
       this._saveTransform();
 
@@ -168,7 +165,7 @@ define(["section", "globals", "tapHandler", "db", "data"], function(Section, g, 
       } else if (this._currentTool == "zoom") {
         if (e.deltaY != 0) {
           //console.log(e);
-          this._zoom(e.offsetX, e.offsetY, e.deltaY / 100 * this._transform.scale);
+          this._zoom(e.offsetX, e.offsetY, e.deltaY / 100 * this._settings.scale);
         }
       }
     },
@@ -251,7 +248,7 @@ define(["section", "globals", "tapHandler", "db", "data"], function(Section, g, 
 
     _gesture: function(e) {
       this._pan(e.xFromLast, e.yFromLast);
-      this._zoom(e.x, e.y, e.scaleFromLast * this._transform.scale);
+      this._zoom(e.x, e.y, e.scaleFromLast * this._settings.scale);
     },
 
     _redraw: function() {
@@ -261,7 +258,7 @@ define(["section", "globals", "tapHandler", "db", "data"], function(Section, g, 
       }
 
       if (this._needsUpdate) {
-        this._ctx.setTransform(this._transform.scale, 0, 0, this._transform.scale, this._transform.offsetX, this._transform.offsetY);
+        this._ctx.setTransform(this._settings.scale, 0, 0, this._settings.scale, this._settings.offsetX, this._settings.offsetY);
 
         var topLeft = this._screenToWorld(0, 0);
         var bottomRight = this._screenToWorld(canvas.width, canvas.height);
@@ -269,7 +266,7 @@ define(["section", "globals", "tapHandler", "db", "data"], function(Section, g, 
         this._ctx.clearRect(topLeft.x, topLeft.y, bottomRight.x - topLeft.x, bottomRight.y - topLeft.y);
 
         // Keep the line width the same no matter the zoom level
-        this._ctx.lineWidth = 1 / this._transform.scale;
+        this._ctx.lineWidth = 1 / this._settings.scale;
 
         for (var i = 0; i < this._actions.length; i++) {
           var action = this._actions[i];
@@ -323,15 +320,15 @@ define(["section", "globals", "tapHandler", "db", "data"], function(Section, g, 
 
     _screenToWorld: function(x, y) {
       return {
-        x: (x - this._transform.offsetX) / this._transform.scale,
-        y: (y - this._transform.offsetY) / this._transform.scale
+        x: (x - this._settings.offsetX) / this._settings.scale,
+        y: (y - this._settings.offsetY) / this._settings.scale
       };
     },
 
     _worldToScreen: function(x, y) {
       return {
-        x: (x) * this._transform.scale + this._transform.offsetX,
-        y: (y) * this._transform.scale + this._transform.offsetY
+        x: (x) * this._settings.scale + this._settings.offsetX,
+        y: (y) * this._settings.scale + this._settings.offsetY
       };
     },
 
@@ -566,8 +563,7 @@ define(["section", "globals", "tapHandler", "db", "data"], function(Section, g, 
       }
 
       this._saveTransformTimeout = setTimeout((function() {
-        // Save the transform and make sure we clear the timeout
-        localStorage.transform = JSON.stringify(this._transform);
+        data.localFileSettings(this._fileInfo.id, this._settings);
         this._saveTransformTimeout = null;
       }).bind(this), 100);
 
