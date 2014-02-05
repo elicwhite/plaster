@@ -9,6 +9,7 @@ define(["section", "globals", "helpers", "tapHandler", "db", "data", "components
     // Instance of draw canvas that is handling all the drawing
     _manipulateCanvas: null,
 
+    // The actual canvas element
     _canvas: null,
 
     // The file we are currently rendering
@@ -158,6 +159,7 @@ define(["section", "globals", "helpers", "tapHandler", "db", "data", "components
     _start: function(e) {
       var world = Helpers.screenToWorld(this._settings, e.distFromLeft, e.distFromTop);
 
+      console.log("started at", world);
       if (this._currentAction) {
         console.error("Current action isn't null!");
       }

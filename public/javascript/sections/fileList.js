@@ -1,4 +1,4 @@
-define(["section", "tapHandler", "helpers", "data", "templates/fileList"], function(Section, TapHandler, Helpers, Data, FileListTemplate) {
+define(["section", "tapHandler", "helpers", "data", "templates/fileList", "components/thumbnail"], function(Section, TapHandler, Helpers, Data, FileListTemplate, Thumbnail) {
 
   var FileList = Section.extend({
     id: "files-list-container",
@@ -11,6 +11,9 @@ define(["section", "tapHandler", "helpers", "data", "templates/fileList"], funct
 
     // The set of files we are displaying on the page
     _files: null,
+
+    // The canvas we will be drawing thumbs to
+    _canvas: null,
 
     init: function(filesPane) {
       this._super();
@@ -38,7 +41,11 @@ define(["section", "tapHandler", "helpers", "data", "templates/fileList"], funct
 
       new TapHandler(this._fileListElement, {
         tap: this._docSelected.bind(this)
-      })
+      });
+
+      this._canvas = document.getElementById("thumb");
+      this._canvas.width = 500;
+      this._canvas.height = 500;
     },
 
 
@@ -78,26 +85,19 @@ define(["section", "tapHandler", "helpers", "data", "templates/fileList"], funct
           // delete file
           return;
         }
+        else if (element.dataset.action && element.dataset.action == "show") {
+          this._filesPane.setPane("draw", this._files[parent.fileId].file)
+          return;  
+        }
 
-        this._filesPane.setPane("draw", this._files[parent.fileId].file)
+        // draw the thumb
+        var thumb = new Thumbnail(this._canvas);
+        thumb.render(this._files[parent.fileId].file);
+
+        
       }
 
     },
-
-    _getImageId: function(ele) {
-      console.log(ele);
-
-      if (ele == null) {
-        return false;
-      }
-
-      if (ele.imageId != null) {
-        return ele.imageId;
-      }
-
-      return this._getImageId(ele.parentNode);
-    }
-
 
   });
 

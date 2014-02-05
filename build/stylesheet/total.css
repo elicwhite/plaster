@@ -150,6 +150,8 @@ body {
   font-family: sans-serif;
   font-weight: 100; }
 
+#files #thumb {
+  border: 1px solid black; }
 #files #files-list li {
   padding: 10px 5px; }
 #files #draw #menu, #files #draw #tools {

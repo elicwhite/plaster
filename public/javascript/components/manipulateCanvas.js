@@ -22,12 +22,17 @@ define(["components/drawCanvas", "helpers"], function(DrawCanvas, Helpers) {
       return true;
     },
 
-    pan: function(x, y) {
-      this._settings.offsetX += x;
-      this._settings.offsetY += y;
+    pan: function(dx, dy) {
+      this._settings.offsetX += dx;
+      this._settings.offsetY += dy;
 
       return true;
     },
+
+    panTo: function(x, y) {
+      this._settings.offsetX = x;
+      this._settings.offsetY = y;
+    }
   });
 
   return ManipulateCanvas;
