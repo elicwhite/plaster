@@ -20,6 +20,7 @@ define(["class", "helpers", "data", "components/manipulateCanvas"], function(Cla
 
             var manipulateCanvas = new ManipulateCanvas(this._canvas, settings);
 
+            // Find out what world point is in the middle
             var centerScreen = {x: window.innerWidth/2, y: window.innerHeight/2};
             var centerWorld = Helpers.screenToWorld(settings, centerScreen.x, centerScreen.y);
 
@@ -27,16 +28,15 @@ define(["class", "helpers", "data", "components/manipulateCanvas"], function(Cla
             var zoomDiff = (settings.scale * scale) - settings.scale;
             manipulateCanvas.zoom(0, 0, zoomDiff);
             
-            
+            // Now that we have zoomed, find the middle of the canvas
             var centerScreenAfter = {x: this._canvas.width/2, y: this._canvas.height/2};
-            var centerWorldAfter = Helpers.screenToWorld(settings, centerScreenAfter.x, centerScreenAfter.y);
-            console.log(centerWorld, centerWorldAfter);
-            var diffWorld = {x: centerWorldAfter.x - centerWorld.x, y: centerWorldAfter.y - centerWorld.y};
-            
-            console.log("panning", diffWorld);
-            //manipulateCanvas.pan(diffWorld.x, diffWorld.y);
 
-            //manipulateCanvas.pan(-1 * (centerScreenAfter.x - centerScreen.x), -1 * (centerScreenAfter.y - centerScreen.y));
+            // And where the middle point was from before
+            var centerScreenPointAfter = Helpers.worldToScreen(settings, centerWorld.x, centerWorld.y);
+
+            // pan the difference
+            var diffScreen = {x: centerScreenAfter.x - centerScreenPointAfter.x, y: centerScreenAfter.y - centerScreenPointAfter.y};
+            manipulateCanvas.pan(diffScreen.x, diffScreen.y);
 
             manipulateCanvas.drawAll(actions);
 

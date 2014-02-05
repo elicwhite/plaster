@@ -44,8 +44,8 @@ define(["section", "tapHandler", "helpers", "data", "templates/fileList", "compo
       });
 
       this._canvas = document.getElementById("thumb");
-      this._canvas.width = 500;
-      this._canvas.height = 500;
+      this._canvas.width = 100;
+      this._canvas.height = 100;
     },
 
 
