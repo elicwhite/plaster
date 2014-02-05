@@ -1,8 +1,9 @@
 define([], function() {
 
   function FileList() {
-    var template = '<div class="fileThumbnail">'+
-                    '</div>';
+    var template = '<li>'+
+                      '<span class="fileName"></span>'+
+                    '</li';
     var element = document.createElement("div");
     element.innerHTML = template;
     return element.firstChild;

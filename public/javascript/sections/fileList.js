@@ -18,33 +18,28 @@ define(["section", "tapHandler", "data", "templates/fileList"], function(Section
       this._filesPane = files;
 
       this._fileListElement = document.getElementById("files-list");
+      this._files = {};
 
-      Data.getFiles(function(files) {
+      Data.getFiles((function(files) {
+        
         console.log("got files", files);
-      });
-
-      //this._files = Data.
-      /*
-      this._images = [];
-
-      for (var i = 1; i <= 4; i++) {
-        var image = this._newImageWrapper(i);
-        this._images.push(image);
-        this._photoList.appendChild(image);
-      }   
-      */
+        this._files = files;
+        
+        for (var i = 0; i < files.length; i++) {
+          var file = files[i];
+          var fileTemplate = this._newFileWrapper(file);
+          this._fileListElement.appendChild(fileTemplate);
+        } 
+      }).bind(this));
     },
 
-    /*
-    _newImageWrapper: function(fileName) {
-      var newEle = new PhotoListTemplate();
+    
+    _newFileWrapper: function(file) {
+      var newEle = new FileListTemplate();
+      newEle.children[0].innerText = file.id;
+      newEle.fileId = file.id;
 
-      var fullPath = "images/me/"+fileName+".jpg";
-      newEle.children[0].style.backgroundImage = "url('"+fullPath+"')";
-
-      var imageId = this._imageIndex++;
-      newEle.imageId = imageId;
-      this._images[imageId] = {element: newEle, path: fullPath};
+      this._files[file.id] = {element: newEle, file: file};
 
       return newEle;
     },
@@ -62,7 +57,7 @@ define(["section", "tapHandler", "data", "templates/fileList"], function(Section
 
       return this._getImageId(ele.parentNode);
     }
-    */
+    
 
   });
 
