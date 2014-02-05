@@ -169,11 +169,16 @@ define(["class", "db"], function(Class, db) {
         localStorage[fileName] = JSON.stringify(settings);
       }
 
-      if (localStorage[fileName]) {
-        return JSON.parse(localStorage[fileName]);
-      } else {
-        return false;
+      if (!localStorage[fileName]) {
+        localStorage[fileName] = JSON.stringify({
+          offsetX: 0,
+          offsetY: 0,
+          scale: 1
+        });
       }
+
+      return JSON.parse(localStorage[fileName]);
+
     },
 
     deleteAllDatabases: function() {

@@ -94,14 +94,6 @@ define(["section", "globals", "helpers", "tapHandler", "db", "data", "components
             this._needsUpdate = true;
 
             this._settings = data.localFileSettings(file.id);
-            if (!this._settings) {
-              // No settings saved
-              this._settings = data.localFileSettings(file.id, {
-                offsetX: 0,
-                offsetY: 0,
-                scale: 1
-              });
-            }
 
             this._manipulateCanvas = new ManipulateCanvas(this._canvas, this._settings);
 
