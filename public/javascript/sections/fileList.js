@@ -12,8 +12,7 @@ define(["section", "tapHandler", "helpers", "data", "templates/fileList", "compo
     // The set of files we are displaying on the page
     _files: null,
 
-    // The canvas we will be drawing thumbs to
-    _canvas: null,
+    _resizeTimeout: null,
 
     init: function(filesPane) {
       this._super();
@@ -22,6 +21,9 @@ define(["section", "tapHandler", "helpers", "data", "templates/fileList", "compo
 
       this._fileListElement = document.getElementById("files-list");
       this._files = {};
+
+      this._resizeAndRender = this._resizeAndRender.bind(this);
+      this._actuallyResizeAndRender = this._actuallyResizeAndRender.bind(this);
 
       Data.getFiles((function(files) {
 
@@ -33,6 +35,8 @@ define(["section", "tapHandler", "helpers", "data", "templates/fileList", "compo
           var fileTemplate = this._newFileWrapper(file);
           this._fileListElement.appendChild(fileTemplate);
         }
+
+        this._actuallyResizeAndRender();
       }).bind(this));
 
       new TapHandler(document.getElementById("file-create"), {
@@ -42,24 +46,66 @@ define(["section", "tapHandler", "helpers", "data", "templates/fileList", "compo
       new TapHandler(this._fileListElement, {
         tap: this._docSelected.bind(this)
       });
-
-      this._canvas = document.getElementById("thumb");
-      this._canvas.width = 100;
-      this._canvas.height = 100;
     },
 
+    show: function(fileInfo) {
+      if (fileInfo) {
+        // We came from draw, it is the info of the file we were just looking at
+        var file = this._files[fileInfo.id];
+        if (!file){
+          debugger;
+          console.error("We somehow came from a file that doesn't exist");
+        }
+        
+        file.thumbnail.render(file.file);
+      }
+
+      window.addEventListener("resize", this._resizeAndRender);
+    },
+
+    hide: function() {
+      window.removeEventListener("resize", this._resizeAndRender);
+    },
 
     _newFileWrapper: function(file) {
       var newEle = new FileListTemplate();
-      newEle.children[0].innerText = file.id + " - " + file.name;
+
+      var canvas = newEle.getElementsByClassName("thumbnail")[0];
+      var fileName = newEle.getElementsByClassName("file-name")[0];
+
+      var thumbnail = new Thumbnail(canvas);
+      fileName.innerText = file.name;
+
       newEle.fileId = file.id;
 
       this._files[file.id] = {
         element: newEle,
-        file: file
+        file: file,
+        canvas: canvas,
+        thumbnail: thumbnail
       };
 
       return newEle;
+    },
+
+    // Resize every thumbnail canvas and re-render them
+    _resizeAndRender: function() {
+      if(this._resizeTimeout) {
+        clearTimeout(this._resizeTimeout);
+      }
+
+      this._resizeTimeout = setTimeout(this._actuallyResizeAndRender.bind(this), 500);
+    },
+
+    _actuallyResizeAndRender: function() {
+      for(var fileId in this._files) {
+        var file = this._files[fileId];
+
+        var canvasParent = file.canvas.parentElement;
+        file.canvas.width = canvasParent.offsetWidth;
+        file.canvas.height = canvasParent.offsetHeight;
+        file.thumbnail.render(file.file);
+      }
     },
 
     _newDoc: function() {
@@ -85,16 +131,8 @@ define(["section", "tapHandler", "helpers", "data", "templates/fileList", "compo
           // delete file
           return;
         }
-        else if (element.dataset.action && element.dataset.action == "show") {
-          this._filesPane.setPane("draw", this._files[parent.fileId].file)
-          return;  
-        }
 
-        // draw the thumb
-        var thumb = new Thumbnail(this._canvas);
-        thumb.render(this._files[parent.fileId].file);
-
-        
+        this._filesPane.setPane("draw", this._files[parent.fileId].file);        
       }
 
     },

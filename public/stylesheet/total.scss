@@ -28,7 +28,6 @@ body, html {
   .pane-wrapper {
     overflow: visible;
     width: inherit;
-    transition: all .4s;
   }
 
   .pane {
@@ -36,30 +35,42 @@ body, html {
   }
 }
 
-#draw {
-  position: absolute;
-
-  canvas {
-    vertical-align: bottom;
-  }
-
-  ul {
+#files {
+  #files-list {
+    list-style-type: none;
     margin: 0;
     padding: 0;
-    list-style-type: none;
   }
 
-  #menu {
+  #draw {
     position: absolute;
-    top: 10px;
-    left: 10px;
-  }
 
-  #tools {
-    position: absolute;
-    bottom: 10px;
-    left: 10px;
+    canvas {
+      vertical-align: bottom;
+    }
+
+    ul {
+      margin: 0;
+      padding: 0;
+      list-style-type: none;
+    }
+
+    #menu {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+    }
+
+    #tools {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+    }
   }
+}
+
+.ani4 {
+  transition: all .4s;
 }
 
 @import "icomoon.scss";

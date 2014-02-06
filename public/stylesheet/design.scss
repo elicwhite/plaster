@@ -19,13 +19,31 @@ body {
 }
 
 #files {
-  #thumb {
-    border: 1px solid black;
-  }
-
   #files-list {
+    clear: both;
+
     li {
-      padding: 10px 5px;
+      float: left;
+      border: 1px solid black;
+      width: 25%;
+
+      &:nth-child(1), &:nth-child(2) {
+        width: 50%;
+      }
+
+      .thumbnail-wrapper {
+        //max-height: 150px;
+        overflow: hidden;
+
+        .thumbnail {
+          vertical-align: bottom;
+        }
+      }
+
+      .file-details {
+        border-top: 1px solid black;
+        text-align: center;
+      }
     }
   }
 

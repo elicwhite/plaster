@@ -266,7 +266,7 @@ define(["section", "globals", "helpers", "tapHandler", "db", "data", "components
         var action = e.srcElement.dataset.action;
 
         if (action == "back") {
-          this._filesPane.setPane("list");
+          this._filesPane.setPane("list", this._fileInfo);
         }
       }
     },

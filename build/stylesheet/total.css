@@ -21,27 +21,33 @@ body, html {
 
 .pane-slider .pane-wrapper {
   overflow: visible;
-  width: inherit;
-  transition: all .4s; }
+  width: inherit; }
 .pane-slider .pane {
   display: block !important; }
 
-#draw {
+#files #files-list {
+  list-style-type: none;
+  margin: 0;
+  padding: 0; }
+#files #draw {
   position: absolute; }
-  #draw canvas {
+  #files #draw canvas {
     vertical-align: bottom; }
-  #draw ul {
+  #files #draw ul {
     margin: 0;
     padding: 0;
     list-style-type: none; }
-  #draw #menu {
+  #files #draw #menu {
     position: absolute;
     top: 10px;
     left: 10px; }
-  #draw #tools {
+  #files #draw #tools {
     position: absolute;
     bottom: 10px;
     left: 10px; }
+
+.ani4 {
+  transition: all .4s; }
 
 @font-face {
   font-family: 'icomoon';
@@ -150,10 +156,21 @@ body {
   font-family: sans-serif;
   font-weight: 100; }
 
-#files #thumb {
-  border: 1px solid black; }
-#files #files-list li {
-  padding: 10px 5px; }
+#files #files-list {
+  clear: both; }
+  #files #files-list li {
+    float: left;
+    border: 1px solid black;
+    width: 25%; }
+    #files #files-list li:nth-child(1), #files #files-list li:nth-child(2) {
+      width: 50%; }
+    #files #files-list li .thumbnail-wrapper {
+      overflow: hidden; }
+      #files #files-list li .thumbnail-wrapper .thumbnail {
+        vertical-align: bottom; }
+    #files #files-list li .file-details {
+      border-top: 1px solid black;
+      text-align: center; }
 #files #draw #menu, #files #draw #tools {
   border: 1px solid black;
   background-color: white; }

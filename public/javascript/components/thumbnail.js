@@ -24,7 +24,7 @@ define(["class", "helpers", "data", "components/manipulateCanvas"], function(Cla
             var centerScreen = {x: window.innerWidth/2, y: window.innerHeight/2};
             var centerWorld = Helpers.screenToWorld(settings, centerScreen.x, centerScreen.y);
 
-            var scale = this._canvas.width / window.innerWidth;
+            var scale = Math.min(this._canvas.width / window.innerWidth, this._canvas.height / window.innerHeight);
             var zoomDiff = (settings.scale * scale) - settings.scale;
             manipulateCanvas.zoom(0, 0, zoomDiff);
             
