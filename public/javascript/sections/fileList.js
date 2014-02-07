@@ -112,7 +112,7 @@ define(["section", "tapHandler", "helpers", "data", "templates/fileList", "compo
       console.log("new doc");
       data.createFile((function(file) {
         var fileTemplate = this._newFileWrapper(file);
-        this._fileListElement.appendChild(fileTemplate);
+        this._fileListElement.insertBefore(fileTemplate, this._fileListElement.children[0]);
       }).bind(this));
     },
 
