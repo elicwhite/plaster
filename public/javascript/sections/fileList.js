@@ -1,4 +1,4 @@
-define(["section", "tapHandler", "helpers", "data", "templates/fileList", "components/thumbnail"], function(Section, TapHandler, Helpers, Data, FileListTemplate, Thumbnail) {
+define(["section", "tapHandler", "event", "helpers", "data", "templates/fileList", "components/thumbnail"], function(Section, TapHandler, Event, Helpers, Data, FileListTemplate, Thumbnail) {
 
   var FileList = Section.extend({
     id: "files-list-container",
@@ -46,17 +46,19 @@ define(["section", "tapHandler", "helpers", "data", "templates/fileList", "compo
       new TapHandler(this._fileListElement, {
         tap: this._docSelected.bind(this)
       });
+
+      Event.addListener("fileModified", this._fileModified);
     },
 
     show: function(fileInfo) {
       if (fileInfo) {
         // We came from draw, it is the info of the file we were just looking at
         var file = this._files[fileInfo.id];
-        if (!file){
+        if (!file) {
           debugger;
           console.error("We somehow came from a file that doesn't exist");
         }
-        
+
         file.thumbnail.render(file.file);
       }
 
@@ -90,7 +92,7 @@ define(["section", "tapHandler", "helpers", "data", "templates/fileList", "compo
 
     // Resize every thumbnail canvas and re-render them
     _resizeAndRender: function() {
-      if(this._resizeTimeout) {
+      if (this._resizeTimeout) {
         clearTimeout(this._resizeTimeout);
       }
 
@@ -98,7 +100,7 @@ define(["section", "tapHandler", "helpers", "data", "templates/fileList", "compo
     },
 
     _actuallyResizeAndRender: function() {
-      for(var fileId in this._files) {
+      for (var fileId in this._files) {
         var file = this._files[fileId];
 
         var canvasParent = file.canvas.parentElement;
@@ -132,10 +134,14 @@ define(["section", "tapHandler", "helpers", "data", "templates/fileList", "compo
           return;
         }
 
-        this._filesPane.setPane("draw", this._files[parent.fileId].file);        
+        this._filesPane.setPane("draw", this._files[parent.fileId].file);
       }
 
     },
+
+    _fileModified: function(data) {
+      console.log("File was changed", data);
+    }
 
   });
 

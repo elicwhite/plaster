@@ -1,4 +1,4 @@
-define(["section", "globals", "helpers", "tapHandler", "db", "data", "components/manipulateCanvas"], function(Section, g, Helpers, TapHandler, db, Data, ManipulateCanvas) {
+define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "components/manipulateCanvas"], function(Section, g, Event, Helpers, TapHandler, db, Data, ManipulateCanvas) {
 
   var Draw = Section.extend({
     id: "draw",
@@ -234,6 +234,11 @@ define(["section", "globals", "helpers", "tapHandler", "db", "data", "components
         .fail(function(e) {
           console.error("fail to write", e);
         });
+
+      Event.trigger("fileModified", {
+        fileId: this._fileInfo.id,
+        timestamp: Date.now()
+      })
 
       this._needsUpdate = true;
     },

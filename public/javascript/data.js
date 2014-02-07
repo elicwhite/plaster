@@ -1,4 +1,4 @@
-define(["class", "db"], function(Class, db) {
+define(["class", "db", "event"], function(Class, db, Event) {
   var Data = Class.extend({
     _server: null,
     _files: null,
@@ -23,7 +23,8 @@ define(["class", "db"], function(Class, db) {
             indexes: {
               id: {
                 unique: true
-              }
+              },
+              modifiedTime: {}
             }
           }
         }
@@ -42,6 +43,8 @@ define(["class", "db"], function(Class, db) {
         .fail(function(e) {
           console.error("Failed setting up database", e);
         });
+
+      Event.addListener("fileModified", this._fileModified.bind(this));
     },
 
     _doLater: function(func, args) {
@@ -86,7 +89,8 @@ define(["class", "db"], function(Class, db) {
 
       var file = {
         id: fileId,
-        name: "Untitled File"
+        name: "Untitled File",
+        modifiedTime: Date.now()
       }
 
       this._server.files.add(file)
@@ -142,15 +146,17 @@ define(["class", "db"], function(Class, db) {
       }
 
       this._server.files.query('id')
-      .only(fileId)
-      .modify({name: newFileName})
-      .execute()
-      .done(function(results) {
-        console.log("Want to rename file", results);
-      })
-      .fail(function(e) {
-        console.error("Couldn't find file", e);
-      })
+        .only(fileId)
+        .modify({
+          name: newFileName
+        })
+        .execute()
+        .done(function(results) {
+          console.log("Want to rename file", results);
+        })
+        .fail(function(e) {
+          console.error("Couldn't find file", e);
+        })
     },
 
     deleteFile: function(fileId) {
@@ -218,6 +224,25 @@ define(["class", "db"], function(Class, db) {
     _getGuid: function() {
       return 'T^' + Date.now() + "-" + Math.round(Math.random() * 1000000);
     },
+
+    _fileModified: function(data) {
+      if (!this._server) {
+        this._doLater(this._fileModified, [data]);
+        return;
+      }
+
+      this._server.files.query('id')
+        .only(data.fileId)
+        .modify({
+          modifiedTime: data.timestamp
+        })
+        .execute()
+        .done(function(results) {
+        })
+        .fail(function(e) {
+          console.error("Couldn't find file", e);
+        })
+    }
   });
 
   var data = new Data();
