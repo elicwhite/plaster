@@ -135,18 +135,36 @@ define(["class", "db"], function(Class, db) {
         });;
     },
 
-    deleteFile: function(fileName) {
+    renameFile: function(fileId, newFileName) {
       if (!this._server) {
-        this._doLater(this.deleteFile, [fileName]);
+        this._doLater(this.renameFile, [fileId]);
         return;
       }
 
-      this._server.files.remove(fileName)
+      this._server.files.query('id')
+      .only(fileId)
+      .modify({name: newFileName})
+      .execute()
+      .done(function(results) {
+        console.log("Want to rename file", results);
+      })
+      .fail(function(e) {
+        console.error("Couldn't find file", e);
+      })
+    },
+
+    deleteFile: function(fileId) {
+      if (!this._server) {
+        this._doLater(this.deleteFile, [fileId]);
+        return;
+      }
+
+      this._server.files.remove(fileId)
         .done(function(key) {
           // item removed
-          console.log("Deleted file from file table", fileName);
+          console.log("Deleted file from file table", fileId);
 
-          var f = indexedDB.deleteDatabase(fileName);
+          var f = indexedDB.deleteDatabase(fileId);
           f.onsuccess = function(e) {
             console.log("Deleted Database for file", key);
           }
@@ -155,29 +173,29 @@ define(["class", "db"], function(Class, db) {
           }
 
           // Delete settings from local storage
-          delete localStorage[fileName];
+          delete localStorage[fileId];
 
         })
         .fail(function(e) {
-          console.error("Failed to delete file from file table", fileName);
+          console.error("Failed to delete file from file table", fileId);
         });
     },
 
     // Get the stored file settings
-    localFileSettings: function(fileName, settings) {
+    localFileSettings: function(fileId, settings) {
       if (settings) {
-        localStorage[fileName] = JSON.stringify(settings);
+        localStorage[fileId] = JSON.stringify(settings);
       }
 
-      if (!localStorage[fileName]) {
-        localStorage[fileName] = JSON.stringify({
+      if (!localStorage[fileId]) {
+        localStorage[fileId] = JSON.stringify({
           offsetX: 0,
           offsetY: 0,
           scale: 1
         });
       }
 
-      return JSON.parse(localStorage[fileName]);
+      return JSON.parse(localStorage[fileId]);
 
     },
 

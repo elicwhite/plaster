@@ -59,11 +59,11 @@ module.exports = function(grunt) {
     uglify: {
       default: {
         options: {
-          sourceMap: 'build/javascript/main.min.js.map',
+          sourceMap: '/build/javascript/main.min.js.map',
           sourceMappingURL: '/javascript/main.min.js.map'
         },
         files: {
-          'build/javascript/main.min.js': ['build/javascript/main.min.js']
+          '/build/javascript/main.min.js': ['/build/javascript/main.min.js']
         }
       }
     }
