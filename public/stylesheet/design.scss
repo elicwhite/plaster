@@ -21,19 +21,27 @@ body {
 #files {
   #files-list {
     clear: both;
+    overflow: hidden;
 
     li {
       float: left;
       border: 1px solid black;
-      width: 25%;
+      width: calc(25% - 20px);
+      margin: 10px;
+      
 
       &:nth-child(1), &:nth-child(2) {
-        width: 50%;
+        width: calc(50% - 20px);
+
+        .thumbnail-wrapper {
+          height: 200px;
+        }
       }
 
       .thumbnail-wrapper {
         //max-height: 150px;
         overflow: hidden;
+        height: 100px;
 
         .thumbnail {
           vertical-align: bottom;
