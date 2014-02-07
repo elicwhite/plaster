@@ -5,10 +5,13 @@ define(["section", "event", "sections/fileList", "sections/draw"], function(Sect
 
     _paneWrapper: null,
 
+    _screenWidth: 0,
+
     _defaultSettings: {},
 
     panes: null,
-    currentPane: null,
+
+    currentPaneName: null,
 
     init: function() {
       this._super();
@@ -19,53 +22,47 @@ define(["section", "event", "sections/fileList", "sections/draw"], function(Sect
         }
       };
 
+      this._screenWidth = window.innerWidth;
+
       this._paneWrapper = document.getElementById("files-pane-wrapper");
+
+      this._finishedSliding = this._finishedSliding.bind(this);
+      this._paneWrapper.addEventListener("webkitTransitionEnd", this._finishedSliding);
 
       this.panes = {};
 
-      // Add these in order
       this.panes.list = {
         offsetX: 0,
         pane: new FileList(this)
       };
 
       this.panes.draw = {
-        offsetX: 0,
+        offsetX: this._screenWidth,
         pane: new Draw(this)
       };
+      
+      this.panes.draw.pane.element.style.webkitTransform = 'translate(' + this._screenWidth + "px, 0)";
 
-      var state = {
-        pane: "list",
-        details: null
-      };
-
-      // var screenWidth = window.innerWidth;
-      // this.panes.draw.offsetX = screenWidth;
-      // this.panes.draw.pane.element.style.webkitTransform = 'translate(' + screenWidth + "px, 0)";
-
-
+      var state = {pane: "list", details: null};
       if (localStorage.filesPane) {
         state = JSON.parse(localStorage.filesPane);
       }
 
-
-
       this.setPane(state.pane, state.details);
 
-      this._paneWrapper.addEventListener("webkitTransitionEnd", this._changePaneComplete.bind(this));
 
       window.files = this;
     },
 
     setPane: function(pane, details) {
-      if (this.currentPane == pane)
+      if (this.currentPaneName == pane) 
         return;
 
       var paneobj = null;
 
-      if (this.currentPane) {
+      if (this.currentPaneName) {
 
-        var paneobj = this.panes[this.currentPane].pane;
+        var paneobj = this.panes[this.currentPaneName].pane;
 
         if (paneobj.hide) {
           paneobj.hide();
@@ -76,58 +73,39 @@ define(["section", "event", "sections/fileList", "sections/draw"], function(Sect
 
 
       paneobj = this.panes[pane].pane;
-
+      
       if (paneobj.show) {
         paneobj.show(details);
       }
 
       paneobj.afterShow();
 
-      this.currentPane = pane;
+      this.currentPaneName = pane;
 
 
       // Finish up
-
+      
       var totalPane = this.panes[pane];
       this._paneWrapper.classList.add("ani4");
-      setTimeout((function() {
-        this._paneWrapper.style.webkitTransform = "translate3d(" + totalPane.offsetX + "px, 0px, 0px)";
-      }).bind(this), 0);
-      
+      this._paneWrapper.style.webkitTransform = "translate3d(-"+totalPane.offsetX+"px, 0px, 0px)";        
 
       if (pane == "list") {
         delete localStorage["filesPane"];
-      } else {
-        localStorage.filesPane = JSON.stringify({
-          pane: pane,
-          details: details
-        });
       }
+      else
+      {
+        localStorage.filesPane = JSON.stringify({pane: pane, details: details});
+      }
+      /*
+      this.navbarSettings = Helpers.mergeNavbarSettings(this._defaultSettings, totalPane.pane.navbarSettings);
+      Event.trigger("paneChanged", {
+        pane: this
+      });
+      */
     },
 
-    _changePaneComplete: function() {
-      console.log("Done changing panes");
-
-      var paneIndex = 0;
-      for (var paneName in this.panes) {
-        if (paneName != this.currentPane) {
-          paneIndex++;
-        }
-      }
-
-      var screenWidth = window.innerWidth;
-
-      var widthOffset = -1 * paneIndex * screenWidth;
-
-      for (var paneName in this.panes) {
-        this.panes[paneName].offsetX = widthOffset;
-        this.panes[paneName].pane.element.style.webkitTransform = 'translate(' + widthOffset + "px, 0)";
-
-        widthOffset += screenWidth;
-      }
-
-      // Move it back to 0
-      this._paneWrapper.style.webkitTransform = "translate3d(0px, 0px, 0px)";
+    _finishedSliding: function() {
+      this._paneWrapper.classList.remove("ani4");
     }
   });
 
