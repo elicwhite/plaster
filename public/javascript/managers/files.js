@@ -26,7 +26,9 @@ define(["section", "event", "sections/fileList", "sections/draw"], function(Sect
 
       this._paneWrapper = document.getElementById("files-pane-wrapper");
 
+      this._windowResized = this._windowResized.bind(this);
       this._finishedSliding = this._finishedSliding.bind(this);
+
       this._paneWrapper.addEventListener("webkitTransitionEnd", this._finishedSliding);
 
       this.panes = {};
@@ -55,6 +57,14 @@ define(["section", "event", "sections/fileList", "sections/draw"], function(Sect
 
 
       window.files = this;
+    },
+
+    show: function() {
+      window.addEventListener("resize", this._windowResized);
+    },
+
+    hide: function() {
+      window.removeEventListener("resize", this._windowResized);
     },
 
     setPane: function(pane, details) {
@@ -87,7 +97,6 @@ define(["section", "event", "sections/fileList", "sections/draw"], function(Sect
 
 
       // Finish up
-
       var totalPane = this.panes[pane];
 
       var translate = "translate3d(" + (-1 * totalPane.offsetX) + "px, 0px, 0px)";
@@ -105,17 +114,23 @@ define(["section", "event", "sections/fileList", "sections/draw"], function(Sect
           details: details
         });
       }
-      /*
-      this.navbarSettings = Helpers.mergeNavbarSettings(this._defaultSettings, totalPane.pane.navbarSettings);
-      Event.trigger("paneChanged", {
-        pane: this
-      });
-      */
     },
 
     _finishedSliding: function() {
       // Remove the animation
       this._paneWrapper.classList.remove("ani4");
+
+      this._redoOffsets();
+
+      this._paneWrapper.style.webkitTransform = "translate3d(0px, 0px, 0px)";
+    },
+
+    _windowResized: function() {
+      this._redoOffsets();
+    },
+
+    _redoOffsets: function() {
+      this._screenWidth = window.innerWidth;
 
       // Set the offsets on all the panes so that the current pane is 0,0
       var currentIndex = 0;
@@ -134,8 +149,6 @@ define(["section", "event", "sections/fileList", "sections/draw"], function(Sect
         this.panes[pane].pane.element.style.webkitTransform = 'translate(' + startX + "px, 0)";
         startX += this._screenWidth;
       }
-
-      this._paneWrapper.style.webkitTransform = "translate3d(0px, 0px, 0px)";
     }
   });
 
