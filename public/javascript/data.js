@@ -65,8 +65,9 @@ define(["class", "db", "event"], function(Class, db, Event) {
         throw "You must specify a callback";
       }
 
-      this._server.files.query()
+      this._server.files.query('modifiedTime')
         .all()
+        .desc()
         .execute()
         .done((function(results) {
           callback(results);

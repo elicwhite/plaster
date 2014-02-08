@@ -10,7 +10,12 @@ define(["section", "tapHandler", "event", "helpers", "data", "templates/fileList
     _fileListElement: null,
 
     // The set of files we are displaying on the page
+    // fileId => info
     _files: null,
+
+    // Th order the files appear on the page
+    // index => fileId
+    _fileOrder: null,
 
     _resizeTimeout: null,
 
@@ -21,6 +26,7 @@ define(["section", "tapHandler", "event", "helpers", "data", "templates/fileList
 
       this._fileListElement = document.getElementById("files-list");
       this._files = {};
+      this._fileOrder = [];
 
       this._resizeAndRender = this._resizeAndRender.bind(this);
       this._actuallyResizeAndRender = this._actuallyResizeAndRender.bind(this);
@@ -32,6 +38,7 @@ define(["section", "tapHandler", "event", "helpers", "data", "templates/fileList
         for (var i = 0; i < files.length; i++) {
           var file = files[i];
           this._files[file.id] = file;
+          this._fileOrder[i] = file.id;
           var fileTemplate = this._newFileWrapper(file);
           this._fileListElement.appendChild(fileTemplate);
         }
@@ -47,7 +54,7 @@ define(["section", "tapHandler", "event", "helpers", "data", "templates/fileList
         tap: this._docSelected.bind(this)
       });
 
-      Event.addListener("fileModified", this._fileModified);
+      Event.addListener("fileModified", this._fileModified.bind(this));
     },
 
     show: function(fileInfo) {
@@ -114,6 +121,7 @@ define(["section", "tapHandler", "event", "helpers", "data", "templates/fileList
       console.log("new doc");
       data.createFile((function(file) {
         var fileTemplate = this._newFileWrapper(file);
+        this._fileOrder.unshift(file.id);
         this._fileListElement.insertBefore(fileTemplate, this._fileListElement.children[0]);
       }).bind(this));
     },
@@ -141,6 +149,25 @@ define(["section", "tapHandler", "event", "helpers", "data", "templates/fileList
 
     _fileModified: function(data) {
       console.log("File was changed", data);
+
+      var index = this._fileOrder.indexOf(data.fileId);
+      console.log("was index", index);
+
+      // Move every element up
+      for (var i = index; i < this._files.length - 1; i++) {
+        this._fileOrder[i] = this._fileOrder[i+1];
+      }
+
+      // Change the length to get rid of the last element
+      this._fileOrder.length = this._fileOrder.length - 1;
+
+      // Put this one at the beginning
+      this._fileOrder.unshift(data.fileId);
+
+      // Now actually take the element out and put it at the beginning too
+      var element = this._files[data.fileId].element;
+      this._fileListElement.removeChild(element);
+      this._fileListElement.insertBefore(element, this._fileListElement.children[0]);
     }
 
   });
