@@ -78,7 +78,7 @@ body {
   #draw {
     #tools {
       li[data-action="undo"], li[data-action="redo"] {
-        //display: none !important;
+        display: none !important;
       }
     }
   }
@@ -87,7 +87,7 @@ body {
 .tablet, .phone {
   #draw {
     #tools {
-      li[data-tool="zoom"], li[data-tool="pan"] {
+      li[data-tool="zoom"] {
         display: none;
       }
     }

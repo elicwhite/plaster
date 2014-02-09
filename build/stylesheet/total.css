@@ -184,5 +184,8 @@ body {
     border-bottom: 1px solid black;
     cursor: pointer; }
 
-.tablet #draw #tools li[data-tool="zoom"], .tablet #draw #tools li[data-tool="pan"], .phone #draw #tools li[data-tool="zoom"], .phone #draw #tools li[data-tool="pan"] {
+.computer #draw #tools li[data-action="undo"], .computer #draw #tools li[data-action="redo"] {
+  display: none !important; }
+
+.tablet #draw #tools li[data-tool="zoom"], .phone #draw #tools li[data-tool="zoom"] {
   display: none; }

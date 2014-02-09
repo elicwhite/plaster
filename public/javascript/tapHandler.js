@@ -27,6 +27,8 @@ define([], function() {
     _inTouch: false,
     _inGesture: false,
 
+    _ignoreGestures: false,
+
     init: function(element, options) {
       this._element = element;
       this._options = options;
@@ -46,6 +48,10 @@ define([], function() {
       this._element.addEventListener("mousedown", this._start.bind(this));
       this._element.addEventListener("touchstart", this._start.bind(this));
       this._element.addEventListener("gesturestart", this._gestureStart.bind(this));
+    },
+
+    ignoreGestures: function(value) {
+      this._ignoreGestures = value;
     },
 
     _start: function(e) {
@@ -68,7 +74,7 @@ define([], function() {
 
       document.addEventListener("touchmove", this._move);
       document.addEventListener("mousemove", this._move);
-      
+
       document.addEventListener("touchend", this._end);
       document.addEventListener("mouseup", this._end);
     },
@@ -86,7 +92,7 @@ define([], function() {
 
     _end: function(e) {
       this._endTouchHandlers();
-      
+
       if (e) {
         this._processEvent(e);
 
@@ -107,6 +113,10 @@ define([], function() {
     },
 
     _gestureStart: function(e) {
+      if (this._ignoreGestures) {
+        return;
+      }
+
       this._inGesture = true;
 
       // We need to end the touch
@@ -138,7 +148,7 @@ define([], function() {
       //console.log(e.xFromLast, e.yFromLast);
 
       this._lastScale = e.scale;
-      
+
       if (this._options.gesture) {
         this._options.gesture(e);
       }
@@ -152,7 +162,7 @@ define([], function() {
       document.removeEventListener("gestureend", this._gestureEnd);
 
       this._inGesture = false;
-    },  
+    },
 
     // Unregister the regular touch handlers, used for when gestures start
     _endTouchHandlers: function() {
@@ -166,8 +176,9 @@ define([], function() {
     _processEvent: function(e) {
       // It's a touch
       if (e.touches && e.touches.length > 0) {
-        e.x = e.touches[0].clientX;
-        e.y = e.touches[0].clientY;
+        // Use the last touch
+        e.x = e.touches[e.touches.length - 1].clientX;
+        e.y = e.touches[e.touches.length - 1].clientY;
       } else if (e.clientX) {
         // It's a click
         e.x = e.clientX;

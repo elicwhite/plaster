@@ -3,7 +3,7 @@
 /**
  * An initialization file that checks for conditions, removes console.log and warn, etc
  */
-var idbModules = {DEBUG: true};
+var idbModules = {/*DEBUG: true*/};
 /*jshint globalstrict: true*/
 'use strict';
 (function(idbModules) {

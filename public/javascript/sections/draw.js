@@ -44,6 +44,11 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
 
     _redoStack: null,
 
+    // The tap handler for the draw pane. Needed to turn on and off gestures
+    _canvasTapHandler: null,
+
+    _toolTapHandler: null,
+
     init: function(filesPane) {
       this._super();
 
@@ -53,22 +58,25 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
 
       this._resize = this._resize.bind(this);
 
-      new TapHandler(canvas, {
+
+      this._canvasTapHandler = new TapHandler(canvas, {
         start: this._start.bind(this),
         move: this._move.bind(this),
         end: this._end.bind(this),
         gesture: this._gesture.bind(this)
       });
 
-      new TapHandler(document.getElementById("tools"), {
+      this._toolTapHandler = new TapHandler(document.getElementById("tools"), {
         tap: this._toolChanged.bind(this),
         start: this._toolStart.bind(this),
         end: this._toolEnd.bind(this)
       });
 
+      /*
       new TapHandler(document.getElementById("menu"), {
         tap: this._menuTapped.bind(this),
       });
+*/
 
       this.element.addEventListener("mousewheel", this._mouseWheel.bind(this));
 
@@ -157,67 +165,77 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     },
 
     _start: function(e) {
-      var world = Helpers.screenToWorld(this._settings, e.distFromLeft, e.distFromTop);
+      if (this._currentPointTool == "pan") {
 
-      console.log("started at", world);
-      if (this._currentAction) {
-        console.error("Current action isn't null!");
-      }
+      } else if (this._currentPointTool == "pencil") {
+        var world = Helpers.screenToWorld(this._settings, e.distFromLeft, e.distFromTop);
 
-      this._currentAction = {
-        type: "stroke",
-        stroke: {
-          points: [world]
+        console.log("started at", world);
+        if (this._currentAction) {
+          console.error("Current action isn't null!");
         }
-      }
 
-      // Make sure the redo stack is empty as we are starting to draw again
-      this._redoStack = [];
+        this._currentAction = {
+          type: "stroke",
+          stroke: {
+            points: [world]
+          }
+        }
+
+        // Make sure the redo stack is empty as we are starting to draw again
+        this._redoStack = [];
+      }
     },
 
     _move: function(e) {
+      if (this._currentPointTool == "pan") {
+        this._pan(e.xFromLast, e.yFromLast);
+      } else if (this._currentPointTool == "pencil") {
 
-      var world = Helpers.screenToWorld(this._settings, e.distFromLeft, e.distFromTop);
+        var world = Helpers.screenToWorld(this._settings, e.distFromLeft, e.distFromTop);
 
-      //console.log("world", e, world);
-      var currentStroke = this._currentAction.stroke;
-
-
-      var points = currentStroke.points;
-      var lastPoint = points[points.length - 1];
+        //console.log("world", e, world);
+        var currentStroke = this._currentAction.stroke;
 
 
-      var dist = Math.sqrt(((lastPoint.x - world.x) * (lastPoint.x - world.x)) + ((lastPoint.y - world.y) * (lastPoint.y - world.y)));
-      //console.log("dist", dist);
+        var points = currentStroke.points;
+        var lastPoint = points[points.length - 1];
 
-      //if (dist < 0.0003) {
-      if (dist < 0.001) {
-        return;
+
+        var dist = Math.sqrt(((lastPoint.x - world.x) * (lastPoint.x - world.x)) + ((lastPoint.y - world.y) * (lastPoint.y - world.y)));
+        //console.log("dist", dist);
+
+        //if (dist < 0.0003) {
+        if (dist < 0.001) {
+          return;
+        }
+
+        currentStroke.points.push(world);
+        this._needsUpdate = true;
       }
-
-      currentStroke.points.push(world);
-      this._needsUpdate = true;
     },
 
     _end: function(e) {
-      var currentAction = this._currentAction;
-      this._currentAction = null;
+      if (this._currentPointTool == "pencil") {
+        var currentAction = this._currentAction;
+        this._currentAction = null;
 
-      var currentStroke = currentAction.stroke;
+        var currentStroke = currentAction.stroke;
 
-      if (currentStroke.points.length < 2) {
-        // two options, don't count the stroke
-        return;
+        if (currentStroke.points.length < 2) {
+          // two options, don't count the stroke
+          return;
 
-        // Or create a second point, same as the first.
-        // Canvas doesn't seem to render a line with two identical points.
-        currentStroke.points.push(currentStroke.points[0]);
+          // Or create a second point, same as the first.
+          // Canvas doesn't seem to render a line with two identical points.
+          currentStroke.points.push(currentStroke.points[0]);
+        }
+
+        var controlPoints = Helpers.getCurveControlPoints(currentStroke.points);
+        currentStroke.controlPoints = controlPoints;
+
+        this._saveAction(currentAction);
       }
-
-      var controlPoints = Helpers.getCurveControlPoints(currentStroke.points);
-      currentStroke.controlPoints = controlPoints;
-
-      this._saveAction(currentAction);
     },
 
     _saveAction: function(action) {
@@ -294,13 +312,32 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     },
 
     _toolStart: function(e) {
-      if (e.srcElement.tagName == "LI") {
-        //this._currentPointTool = e.srcElement.dataset.tool;
+      var tool = e.srcElement.dataset.tool;
+
+      if (e.srcElement.tagName == "LI" && tool) {
+        this._currentPointTool = tool;
+
+        if (tool == "pan") {
+          console.log("pan started",e);
+          this._canvasTapHandler.ignoreGestures(true);
+          this._toolTapHandler.ignoreGestures(true);
+        }
       }
     },
 
     _toolEnd: function(e) {
-      //this._currentPointTool = "pencil";
+      console.log("tool ended",e);
+      var tool = e.srcElement.dataset.tool;
+
+      if (e.srcElement.tagName == "LI" && tool) {
+        if (tool == "pan") {
+          console.log("pan ended");
+          this._currentPointTool = "pencil";
+
+          this._canvasTapHandler.ignoreGestures(false);
+          this._toolTapHandler.ignoreGestures(false);
+        }
+      }
     },
 
     _keyDown: function(e) {
