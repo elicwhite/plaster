@@ -278,7 +278,18 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
 
     _toolChanged: function(e) {
       if (e.srcElement.tagName == "LI") {
-        this._currentTool = e.srcElement.dataset.tool;
+        var action = e.srcElement.dataset.action;
+        var tool = e.srcElement.dataset.tool;
+
+        if (tool) {
+          this._currentTool = e.srcElement.dataset.tool;
+        } else if (action) {
+          if (action == "undo") {
+            this._undo();
+          } else if (action == "redo") {
+            this._redo();
+          }
+        }
       }
     },
 
@@ -304,8 +315,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         // Redo
 
         if (this._redoStack.length > 0) {
-          var nowAction = this._redoStack.pop();
-          this._saveAction(nowAction);
+          this._redo();
         }
       } else if ((
           (g.isMac() && e.metaKey) ||
@@ -315,29 +325,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         // Undo
 
         e.preventDefault();
-
-        if (this._actions.length > 0) {
-          var action = this._actions.pop();
-
-          // It is impossible to delete the id off of the action, so we have to create a new object
-          var newObj = {};
-
-          for (var prop in action) {
-            if (prop != "id") {
-              newObj[prop] = action[prop];
-            }
-          }
-
-
-
-          this._redoStack.push(newObj);
-
-          this._fileServer.actions.remove(action.id).done(function(key) {
-            console.log('remove', key, action);
-            // item removed
-          });
-        }
-        this._needsUpdate = true;
+        this._undo();
       } else if (key == "Z") {
         this._currentTool = "zoom";
       } else if (key == "P") {
@@ -346,6 +334,36 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
 
     },
 
+    _undo: function() {
+      if (this._actions.length > 0) {
+        var action = this._actions.pop();
+
+        // It is impossible to delete the id off of the action, so we have to create a new object
+        var newObj = {};
+
+        for (var prop in action) {
+          if (prop != "id") {
+            newObj[prop] = action[prop];
+          }
+        }
+
+        this._redoStack.push(newObj);
+
+        this._fileServer.actions.remove(action.id).done(function(key) {
+          console.log('remove', key, action);
+          // item removed
+        });
+
+        this._needsUpdate = true;
+      }
+    },
+
+    _redo: function() {
+      if (this._redoStack.length > 0) {
+        var nowAction = this._redoStack.pop();
+        this._saveAction(nowAction);
+      }
+    },
 
 
     /*

@@ -691,9 +691,7 @@ var idbModules = {DEBUG: true};
         var me = this,
             request = this.__idbObjectStore.transaction.__createRequest(function(){}); //Stub request
         idbModules.Sca.encode(valueToUpdate, function(encoded) {
-            debugger;
             this.__idbObjectStore.__pushToQueue(request, function(tx, args, success, error){
-                debugger;
                 me.__find(undefined, tx, function(key, value){
                     var sql = "UPDATE " + idbModules.util.quote(me.__idbObjectStore.name) + " SET value = ? WHERE key = ?";
                     idbModules.DEBUG && console.log(sql, encoded, key);
@@ -783,7 +781,6 @@ var idbModules = {DEBUG: true};
                     "keyPath": keyPath,
                     "optionalParams": optionalParameters
                 };
-
                 // For this index, first create a column
                 me.__idbObjectStore.__storeProps.indexList = JSON.stringify(idxList);
                 var sql = ["ALTER TABLE", idbModules.util.quote(me.__idbObjectStore.name), "ADD", columnName, "BLOB"].join(" ");
@@ -795,15 +792,7 @@ var idbModules = {DEBUG: true};
                             if (i < data.rows.length) {
                                 try {
                                     var value = idbModules.Sca.decode(data.rows.item(i).value);
-
-                                    var valueobj = value;
-
-                                    if (typeof(valueobj) == "string") {
-                                        var valueobj = JSON.parse(value);    
-                                    }
-
-                                    var indexKey = eval("valueobj['" + keyPath + "']");
-
+                                    var indexKey = eval("value['" + keyPath + "']");
                                     tx.executeSql("UPDATE " + idbModules.util.quote(me.__idbObjectStore.name) + " set " + columnName + " = ? where key = ?", [idbModules.Key.encode(indexKey), data.rows.item(i).key], function(tx, data){
                                         initIndexForRow(i + 1);
                                     }, error);
@@ -994,12 +983,6 @@ var idbModules = {DEBUG: true};
                 idbModules.util.throwDOMException(0, "Data Error - Could not get the auto increment value for key", error);
             });
         }
-
-        var valueobj = value;
-
-        if (typeof(valueobj) == "string") {
-            var valueobj = JSON.parse(value);    
-        }
         
         var me = this;
         me.__getStoreProps(tx, function(props){
@@ -1012,7 +995,7 @@ var idbModules = {DEBUG: true};
                 }
                 if (value) {
                     try {
-                        var primaryKey = eval("valueobj['" + props.keyPath + "']");
+                        var primaryKey = eval("value['" + props.keyPath + "']");
                         if (!primaryKey) {
                             if (props.autoInc === "true") {
                                 getNextAutoIncKey();
@@ -1055,29 +1038,18 @@ var idbModules = {DEBUG: true};
         if (typeof primaryKey !== "undefined") {
             paramMap.key = idbModules.Key.encode(primaryKey);
         }
-
-        var valueobj = value;
-
-        if (typeof(valueobj) == "string") {
-            var valueobj = JSON.parse(value);    
-        }
-
         var indexes = JSON.parse(this.__storeProps.indexList);
         for (var key in indexes) {
             try {
-                paramMap[indexes[key].columnName] = idbModules.Key.encode(eval("valueobj['" + indexes[key].keyPath + "']"));
+                paramMap[indexes[key].columnName] = idbModules.Key.encode(eval("value['" + indexes[key].keyPath + "']"));
             } 
             catch (e) {
                 error(e);
             }
         }
-
-
-
         var sqlStart = ["INSERT INTO ", idbModules.util.quote(this.name), "("];
         var sqlEnd = [" VALUES ("];
         var sqlValues = [];
-
         for (key in paramMap) {
             sqlStart.push(key + ",");
             sqlEnd.push("?,");
@@ -1418,9 +1390,6 @@ var idbModules = {DEBUG: true};
         var me = this;
         createOptions = createOptions || {};
         createOptions.keyPath = createOptions.keyPath || null;
-
-        idbModules.DEBUG && console.log("Creating object store", storeName);
-
         var result = new idbModules.IDBObjectStore(storeName, me.__versionTransaction, false);
         
         var transaction = me.__versionTransaction;

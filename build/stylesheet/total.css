@@ -29,22 +29,20 @@ body, html {
   list-style-type: none;
   margin: 0;
   padding: 0; }
-#files #draw {
-  position: absolute; }
-  #files #draw canvas {
-    vertical-align: bottom; }
-  #files #draw ul {
-    margin: 0;
-    padding: 0;
-    list-style-type: none; }
-  #files #draw #menu {
-    position: absolute;
-    top: 10px;
-    left: 10px; }
-  #files #draw #tools {
-    position: absolute;
-    bottom: 10px;
-    left: 10px; }
+#files #draw canvas {
+  vertical-align: bottom; }
+#files #draw ul {
+  margin: 0;
+  padding: 0;
+  list-style-type: none; }
+#files #draw #menu {
+  position: absolute;
+  top: 10px;
+  left: 10px; }
+#files #draw #tools {
+  position: absolute;
+  bottom: 10px;
+  left: 10px; }
 
 .ani4 {
   transition: all .4s; }
@@ -178,14 +176,13 @@ body {
       text-align: center; }
 #files #draw #menu, #files #draw #tools {
   border: 1px solid black;
+  border-bottom: none;
   background-color: white; }
-#files #draw ul li {
-  padding: 10px;
-  text-align: center;
-  border-bottom: 1px solid black;
-  cursor: pointer; }
-  #files #draw ul li:last-child {
-    border-bottom: none; }
+  #files #draw #menu ul li, #files #draw #tools ul li {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid black;
+    cursor: pointer; }
 
-.tablet #draw #tools {
+.tablet #draw #tools li[data-tool="zoom"], .tablet #draw #tools li[data-tool="pan"], .phone #draw #tools li[data-tool="zoom"], .phone #draw #tools li[data-tool="pan"] {
   display: none; }
