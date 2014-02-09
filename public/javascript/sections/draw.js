@@ -58,13 +58,13 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
 
       this._resize = this._resize.bind(this);
 
-
       this._canvasTapHandler = new TapHandler(canvas, {
         start: this._start.bind(this),
         move: this._move.bind(this),
         end: this._end.bind(this),
         gesture: this._gesture.bind(this)
       });
+
 
       this._toolTapHandler = new TapHandler(document.getElementById("tools"), {
         tap: this._toolChanged.bind(this),
@@ -165,6 +165,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     },
 
     _start: function(e) {
+      console.log("canvas start");
       if (this._currentPointTool == "pan") {
 
       } else if (this._currentPointTool == "pencil") {
@@ -216,6 +217,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     },
 
     _end: function(e) {
+      console.log("canvas end");
       if (this._currentPointTool == "pencil") {
         var currentAction = this._currentAction;
         this._currentAction = null;
@@ -318,7 +320,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         this._currentPointTool = tool;
 
         if (tool == "pan") {
-          console.log("pan started",e);
+          console.log("pan started", e);
           this._canvasTapHandler.ignoreGestures(true);
           this._toolTapHandler.ignoreGestures(true);
         }
@@ -326,16 +328,23 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     },
 
     _toolEnd: function(e) {
-      console.log("tool ended",e);
-      var tool = e.srcElement.dataset.tool;
+      console.log("tool ended", e);
 
-      if (e.srcElement.tagName == "LI" && tool) {
-        if (tool == "pan") {
-          console.log("pan ended");
-          this._currentPointTool = "pencil";
+      if (!e ||
+        (e && !e.touches) ||
+        (e && e.touches && e.touches.length == 0)
+      ) {
 
-          this._canvasTapHandler.ignoreGestures(false);
-          this._toolTapHandler.ignoreGestures(false);
+        var tool = e.srcElement.dataset.tool;
+
+        if (e.srcElement.tagName == "LI" && tool) {
+          if (tool == "pan") {
+            console.log("pan ended");
+            this._currentPointTool = "pencil";
+
+            this._canvasTapHandler.ignoreGestures(false);
+            this._toolTapHandler.ignoreGestures(false);
+          }
         }
       }
     },

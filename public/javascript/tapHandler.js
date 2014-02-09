@@ -10,6 +10,8 @@ define([], function() {
     _distCutoff: 20,
     _timeCutoff: 500,
 
+    // touch or mouse
+    _startType: null,
     _startTime: null,
     _startX: null,
     _startY: null,
@@ -55,9 +57,23 @@ define([], function() {
     },
 
     _start: function(e) {
+      if (this._startType == "touch" && !e.touches) {
+        // Last one was a touch, this one is a mouse. Make sure it isn't a duplicate.
+        if (e.x == this._startX && e.y == this._startY) { // && (e.timeStamp - this._startTime < 500)) {
+          // It was in the same position reasonably recently, ignore it.
+          //debugger
+          return;
+        }
+      }
+
       // Ignore these if we are currently gesturing
       if (this._inGesture) {
         return;
+      }
+
+      this._startType = "mouse";
+      if (e.touches) {
+        this._startType = "touch";
       }
 
       this._inTouch = true;
@@ -72,11 +88,14 @@ define([], function() {
         this._options.start(e);
       }
 
-      document.addEventListener("touchmove", this._move);
-      document.addEventListener("mousemove", this._move);
-
-      document.addEventListener("touchend", this._end);
-      document.addEventListener("mouseup", this._end);
+      if (this._startType == "touch") {
+        document.addEventListener("touchmove", this._move);
+        document.addEventListener("touchend", this._end);
+      }
+      else if (this._startType == "mouse") {
+        document.addEventListener("mousemove", this._move);
+        document.addEventListener("mouseup", this._end);
+      }
     },
 
     _move: function(e) {
@@ -91,7 +110,13 @@ define([], function() {
     },
 
     _end: function(e) {
-      this._endTouchHandlers();
+
+      if (!e ||
+        (e && !e.touches) ||
+        (e && e.touches && e.touches.length == 0)
+      ) {
+        this._endTouchHandlers();
+      }
 
       if (e) {
         this._processEvent(e);
@@ -104,10 +129,12 @@ define([], function() {
         }
       }
 
+
       // It wasn't a tap, just an up
       if (this._options.end) {
         this._options.end(e);
       }
+
 
       this._inTouch = false;
     },
@@ -166,10 +193,14 @@ define([], function() {
 
     // Unregister the regular touch handlers, used for when gestures start
     _endTouchHandlers: function() {
-      document.removeEventListener("touchmove", this._move);
-      document.removeEventListener("mousemove", this._move);
-      document.removeEventListener("touchend", this._end);
-      document.removeEventListener("mouseup", this._end);
+      if (this._startType == "touch") {
+        document.removeEventListener("touchmove", this._move);
+        document.removeEventListener("touchend", this._end);
+      }
+      else if (this._startType == "mouse") {
+        document.removeEventListener("mousemove", this._move);
+        document.removeEventListener("mouseup", this._end);
+      }
     },
 
     // Given an e, add things like x and y regardless of touch or mouse

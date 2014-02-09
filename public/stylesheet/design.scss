@@ -90,6 +90,9 @@ body {
       li[data-tool="zoom"] {
         display: none;
       }
+      li[data-tool="pan"] {
+        padding: 30px !important;
+      }
     }
   }
 }

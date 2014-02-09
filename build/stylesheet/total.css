@@ -189,3 +189,5 @@ body {
 
 .tablet #draw #tools li[data-tool="zoom"], .phone #draw #tools li[data-tool="zoom"] {
   display: none; }
+.tablet #draw #tools li[data-tool="pan"], .phone #draw #tools li[data-tool="pan"] {
+  padding: 30px !important; }
