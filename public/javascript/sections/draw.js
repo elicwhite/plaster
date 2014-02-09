@@ -165,7 +165,6 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     },
 
     _start: function(e) {
-      console.log("canvas start");
       if (this._currentPointTool == "pan") {
 
       } else if (this._currentPointTool == "pencil") {
@@ -190,6 +189,11 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
 
     _move: function(e) {
       if (this._currentPointTool == "pan") {
+        // Make sure there are two touches
+        if (e.touches.length == 1) {
+          return;
+        }
+
         this._pan(e.xFromLast, e.yFromLast);
       } else if (this._currentPointTool == "pencil") {
 
@@ -217,7 +221,6 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     },
 
     _end: function(e) {
-      console.log("canvas end");
       if (this._currentPointTool == "pencil") {
         var currentAction = this._currentAction;
         this._currentAction = null;
@@ -323,13 +326,13 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
           console.log("pan started", e);
           this._canvasTapHandler.ignoreGestures(true);
           this._toolTapHandler.ignoreGestures(true);
+
+          e.stopPropagation();
         }
       }
     },
 
     _toolEnd: function(e) {
-      console.log("tool ended", e);
-
       if (!e ||
         (e && !e.touches) ||
         (e && e.touches && e.touches.length == 0)
