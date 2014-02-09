@@ -333,9 +333,27 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     },
 
     _toolEnd: function(e) {
+      console.log("tool ended");
+
+      function isInside() {
+        function offset(type, element) {
+          if (element == null) {
+            return 0;
+          }
+
+          return element[type] + offset(type, element.parentElement);
+        }
+
+        return e.clientX >= offset("offsetLeft", e.srcElement) &&
+              e.clientX <= offset("offsetLeft", e.srcElement) + e.srcElement.offsetWidth &&
+              e.clientY >= offset("offsetTop", e.srcElement) &&
+              e.clientY <= offset("offsetTop", e.srcElement) + e.srcElement.offsetHeight;
+      }
+
       if (!e ||
         (e && !e.touches) ||
-        (e && e.touches && e.touches.length == 0)
+        (e && e.touches && e.touches.length == 0) ||
+        !isInside()
       ) {
 
         var tool = e.srcElement.dataset.tool;
