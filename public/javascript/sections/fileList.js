@@ -62,7 +62,6 @@ define(["section", "tapHandler", "event", "helpers", "data", "templates/fileList
         // We came from draw, it is the info of the file we were just looking at
         var file = this._files[fileInfo.id];
         if (!file) {
-          debugger;
           console.error("We somehow came from a file that doesn't exist");
         }
 

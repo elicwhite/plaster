@@ -24,7 +24,9 @@ define(["class", "db", "event"], function(Class, db, Event) {
               id: {
                 unique: true
               },
-              modifiedTime: {}
+              modifiedTime: {
+                //keyPath: 'modifiedTime'
+              }
             }
           }
         }
@@ -122,13 +124,15 @@ define(["class", "db", "event"], function(Class, db, Event) {
             key: {
               keyPath: 'id',
               autoIncrement: true
-            },
+            }
+            /*,
             indexes: {
               type: {},
               id: {
                 unique: true
               }
             }
+            */
           }
         }
       }).done((function(s) {
@@ -203,23 +207,6 @@ define(["class", "db", "event"], function(Class, db, Event) {
       }
 
       return JSON.parse(localStorage[fileId]);
-
-    },
-
-    deleteAllDatabases: function() {
-      var f = indexedDB.webkitGetDatabaseNames();
-      f.onsuccess = function(e) {
-        var list = e.target.result;
-        for (var i = 0; i < list.length; i++) {
-          console.log("Deleting", list[i]);
-          var d = indexedDB.deleteDatabase(list[i]);
-          window.d = d;
-          d.onerror = function(e) {
-            console.error("Error deleting database", e);
-          }
-        }
-        console.log(e);
-      }
     },
 
     _getGuid: function() {
