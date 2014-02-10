@@ -1,4 +1,4 @@
-define(['indexedDBShim'], function(idbpoly) {
+define([], function() {
     'use strict';
     var indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.oIndexedDB || window.msIndexedDB,
         IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange,
@@ -10,7 +10,8 @@ define(['indexedDBShim'], function(idbpoly) {
     var hasOwn = Object.prototype.hasOwnProperty;
 
     if ( !indexedDB ) {
-        throw 'IndexedDB required';
+        console.warn('IndexedDB required');
+        return;
     }
 
     var defaultMapper = function (value) {

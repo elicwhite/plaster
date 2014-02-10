@@ -8,9 +8,18 @@ define(["class", "dataBacking/indexedDBBacking", "dataBacking/webSQLBacking", "e
     _backing: null,
 
     init: function() {
-      //this._backing = new IndexedDBBacking();
-      window.sql = new WebSQLBacking();
-      this._backing = window.sql;
+      var indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.oIndexedDB || window.msIndexedDB;
+      
+      if (indexedDB) {
+        console.log("Using IndexedDB as data store");
+        this._backing = new IndexedDBBacking();  
+      }
+      else
+      {
+        console.log("Using WebSQL as data store");
+        this._backing = new WebSQLBacking();
+      }
+      
 
       Event.addListener("fileModified", this._fileModified.bind(this));
     },
