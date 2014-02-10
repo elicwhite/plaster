@@ -15,9 +15,6 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     // The file we are currently rendering
     _fileInfo: null,
 
-    // The file server we are using
-    _fileServer: null,
-
     // Local settings such as offset and zoom
     _settings: null,
 
@@ -96,26 +93,16 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
 
       this._fileNameElement.innerText = this._fileInfo.name;
 
-      data.getFile(file.id, (function(server) {
+      data.getFileActions(file.id, (function(results) {
+        this._actions = results;
+        this._needsUpdate = true;
 
-        this._fileServer = server;
-        this._fileServer.actions.query()
-          .all()
-          .execute()
-          .done((function(results) {
+        this._settings = data.localFileSettings(file.id);
 
-            this._actions = results;
-            this._needsUpdate = true;
+        this._manipulateCanvas = new ManipulateCanvas(this._canvas, this._settings);
 
-            this._settings = data.localFileSettings(file.id);
-
-            this._manipulateCanvas = new ManipulateCanvas(this._canvas, this._settings);
-
-            this._shouldRender = true;
-            this._redraw();
-
-
-          }).bind(this));
+        this._shouldRender = true;
+        this._redraw();
       }).bind(this));
 
       // We don't need data to resize
@@ -182,7 +169,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
 
         this._currentAction = {
           type: "stroke",
-          stroke: {
+          value: {
             points: [world]
           }
         }
@@ -211,8 +198,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         var world = Helpers.screenToWorld(this._settings, e.distFromLeft, e.distFromTop);
 
         //console.log("world", e, world);
-        var currentStroke = this._currentAction.stroke;
-
+        var currentStroke = this._currentAction.value;
 
         var points = currentStroke.points;
         var lastPoint = points[points.length - 1];
@@ -242,7 +228,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         var currentAction = this._currentAction;
         this._currentAction = null;
 
-        var currentStroke = currentAction.stroke;
+        var currentStroke = currentAction.value;
 
         if (currentStroke.points.length < 2) {
           // two options, don't count the stroke
@@ -266,14 +252,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
       //this._currentAction = null;
 
       // And persist it
-
-      this._fileServer.actions.add(action)
-        .done(function(item) {
-          // item stored
-        })
-        .fail(function(e) {
-          console.error("fail to write", e);
-        });
+      data.addAction(this._fileInfo.id, action);
 
       Event.trigger("fileModified", {
         fileId: this._fileInfo.id,
@@ -312,9 +291,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
 
         if (action == "back") {
           this._filesPane.setPane("list", this._fileInfo);
-        }
-
-        else if (action == "export") {
+        } else if (action == "export") {
           var dataURL = this._canvas.toDataURL();
           window.open(dataURL);
         }
@@ -441,11 +418,8 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
 
         this._redoStack.push(newObj);
 
-        this._fileServer.actions.remove(action.id).done(function(key) {
-          console.log('remove', key, action);
-          // item removed
-        });
-
+        data.removeLastAction(this._fileInfo.id);
+        
         this._needsUpdate = true;
       }
     },
@@ -506,7 +480,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     _fileNameBlur: function(e) {
       var name = e.srcElement.innerText;
       data.renameFile(this._fileInfo.id, name);
-      
+
       Event.trigger("fileRenamed", {
         fileId: this._fileInfo.id,
         name: name

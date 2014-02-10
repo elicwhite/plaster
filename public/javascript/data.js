@@ -1,195 +1,58 @@
-define(["class", "db", "event"], function(Class, db, Event) {
-  var Data = Class.extend({
-    _server: null,
-    _files: null,
+/*
+TODO:
+  Make data.js have the same functions 
+*/
 
-    // If we call other functions before the database is opened, 
-    //these are the things we need to run
-    _initCallbacks: null,
+define(["class", "dataBacking/indexedDBBacking", "dataBacking/webSQLBacking", "event"], function(Class, IndexedDBBacking, WebSQLBacking, Event) {
+  var Data = Class.extend({
+    _backing: null,
 
     init: function() {
-      this._files = [];
-
-      this._initCallbacks = [];
-
-      db.open({
-        server: 'draw',
-        version: 1,
-        schema: {
-          files: {
-            key: {
-              keyPath: 'id',
-            },
-            indexes: {
-              id: {
-                unique: true
-              },
-              modifiedTime: {
-                //keyPath: 'modifiedTime'
-              }
-            }
-          }
-        }
-      })
-        .done((function(server) {
-          console.log("Set up files server");
-          this._server = server;
-
-          // Go through all our delayed callbacks
-          for (var i = 0; i < this._initCallbacks.length; i++) {
-            var callback = this._initCallbacks[i];
-            callback.func.apply(this, callback.args);
-          }
-
-        }).bind(this))
-        .fail(function(e) {
-          console.error("Failed setting up database", e);
-        });
+      //this._backing = new IndexedDBBacking();
+      window.sql = new WebSQLBacking();
+      this._backing = window.sql;
 
       Event.addListener("fileModified", this._fileModified.bind(this));
     },
 
-    _doLater: function(func, args) {
-      this._initCallbacks.push({
-        func: func,
-        args: args
-      })
-    },
-
     // Get the name of all the files we have
     getFiles: function(callback) {
-      if (!this._server) {
-        this._doLater(this.getFiles, [callback]);
-        return;
-      }
+      this._backing.getFiles(callback);
+    },
 
-      if (!callback) {
-        throw "You must specify a callback";
-      }
-
-      this._server.files.query('modifiedTime')
-        .all()
-        .desc()
-        .execute()
-        .done((function(results) {
-          callback(results);
-        }).bind(this));
-
+    getFileActions: function(fileId, callback) {
+      this._backing.getFileActions(fileId, callback);
     },
 
     // Create a new file and returns the file name
     createFile: function(callback) {
-      if (!this._server) {
-        this._doLater(this.createFile, [callback]);
-        return;
-      }
-
-      if (!callback) {
-        throw "You must specify a callback";
-      }
-
-      var fileId = this._getGuid();
-
-      var file = {
-        id: fileId,
-        name: "Untitled File",
-        modifiedTime: Date.now()
-      }
-
-      this._server.files.add(file)
-        .done((function(items) {
-          var item = items[0];
-
-          this.getFile(item.id, (function(s) {
-            callback(item);
-          }).bind(this));
-
-        }).bind(this))
-        .fail(function(e) {
-          console.error("fail to add file to file list", e);
-        });
-    },
-
-    getFile: function(fileId, callback) {
-      if (!this._server) {
-        this._doLater(this.getFile, [fileId, callback]);
-        return;
-      }
-
-      db.open({
-        server: fileId,
-        version: 1,
-        schema: {
-          actions: {
-            key: {
-              keyPath: 'id',
-              autoIncrement: true
-            }
-            /*,
-            indexes: {
-              type: {},
-              id: {
-                unique: true
-              }
-            }
-            */
-          }
-        }
-      }).done((function(s) {
-        this._files[fileId] = s;
-        callback(s);
-      }).bind(this))
-        .fail(function(e) {
-          console.error("Failed to create file database", e);
-        });;
+      this._backing.createFile(callback);
     },
 
     renameFile: function(fileId, newFileName) {
-      if (!this._server) {
-        this._doLater(this.renameFile, [fileId]);
-        return;
-      }
-
-      this._server.files.query('id')
-        .only(fileId)
-        .modify({
-          name: newFileName
-        })
-        .execute()
-        .done(function(results) {
-          console.log("Want to rename file", results);
-        })
-        .fail(function(e) {
-          console.error("Couldn't find file", e);
-        })
+      this._backing.renameFile(fileId, newFileName);
     },
 
     deleteFile: function(fileId) {
-      if (!this._server) {
-        this._doLater(this.deleteFile, [fileId]);
-        return;
-      }
+      this._backing.deleteFile(fileId);
+    },
 
-      this._server.files.remove(fileId)
-        .done(function(key) {
-          // item removed
-          console.log("Deleted file from file table", fileId);
+    addAction: function(fileId, action) {
+      this._backing.addAction(fileId, action);
+    },
 
-          var f = indexedDB.deleteDatabase(fileId);
-          f.onsuccess = function(e) {
-            console.log("Deleted Database for file", key);
-          }
-          f.onerror = function(e) {
-            console.log("Error deleting database", e);
-          }
+    removeLastAction: function(fileId) {
+      this._backing.removeLastAction(fileId);
+    },
 
-          // Delete settings from local storage
-          delete localStorage[fileId];
+    // Delete all the file rows, delete all the file databases,
+    // delete everything for files from local storage
+    clearAll: function() {
+      this._backing.clearAll();
+    },
 
-        })
-        .fail(function(e) {
-          console.error("Failed to delete file from file table", fileId);
-        });
+    _fileModified: function(data) {
+      this._backing.updateFileModified(data.fileId, data.timestamp);
     },
 
     // Get the stored file settings
@@ -208,38 +71,6 @@ define(["class", "db", "event"], function(Class, db, Event) {
 
       return JSON.parse(localStorage[fileId]);
     },
-
-    _getGuid: function() {
-      return 'T^' + Date.now() + "-" + Math.round(Math.random() * 1000000);
-    },
-
-    _fileModified: function(data) {
-      if (!this._server) {
-        this._doLater(this._fileModified, [data]);
-        return;
-      }
-
-      this._server.files.query('id')
-        .only(data.fileId)
-        .modify({
-          modifiedTime: data.timestamp
-        })
-        .execute()
-        .done(function(results) {})
-        .fail(function(e) {
-          console.error("Couldn't find file", e);
-        })
-    },
-
-    // Delete all the file rows, delete all the file databases,
-    // delete everything for files from local storage
-    clear: function() {
-      this.getFiles((function(files) {
-        for (var i = 0; i < files.length; i++) {
-          this.deleteFile(files[i].id);
-        }
-      }).bind(this));
-    }
   });
 
   var data = new Data();

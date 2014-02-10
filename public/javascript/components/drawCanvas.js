@@ -34,7 +34,7 @@ define(["class", "helpers"], function(Class, Helpers) {
 
     doAction: function(action) {
       if (action.type == "stroke") {
-        this._drawStroke(action.stroke);
+        this._drawStroke(action.value);
       }
     },
 
