@@ -55,6 +55,7 @@ define(["section", "tapHandler", "event", "helpers", "data", "templates/fileList
       });
 
       Event.addListener("fileModified", this._fileModified.bind(this));
+      Event.addListener("fileRenamed", this._fileRenamed.bind(this));
     },
 
     show: function(fileInfo) {
@@ -167,6 +168,14 @@ define(["section", "tapHandler", "event", "helpers", "data", "templates/fileList
       var element = this._files[data.fileId].element;
       this._fileListElement.removeChild(element);
       this._fileListElement.insertBefore(element, this._fileListElement.children[0]);
+    },
+
+    _fileRenamed: function(data) {
+      console.log("File renamed", data);
+
+      var element = this._files[data.fileId].element;
+      var fileNameElement = element.getElementsByClassName("file-name")[0];
+      fileNameElement.innerText = data.name;
     }
 
   });

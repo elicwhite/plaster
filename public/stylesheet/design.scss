@@ -58,16 +58,29 @@ body {
   #draw {
     #menu, #tools {
       border: 1px solid black;
-      border-bottom: none;
       background-color: white;
 
-      ul {
-        li {
-          padding: 10px;
-          text-align: center;
-          border-bottom: 1px solid black;
-          cursor: pointer;
-        }
+      li {
+        padding: 10px;
+        text-align: center;
+        
+        cursor: pointer;
+      }
+    }
+
+    #menu {
+      border-right: none;
+      li {
+        float: left;
+        border-right: 1px solid black;
+      }
+    }
+
+    #tools {
+      border-bottom: none;
+
+      li {
+        border-bottom: 1px solid black;
       }
     }
   }

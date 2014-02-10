@@ -75,13 +75,20 @@ body {
       text-align: center; }
 #files #draw #menu, #files #draw #tools {
   border: 1px solid black;
-  border-bottom: none;
   background-color: white; }
-  #files #draw #menu ul li, #files #draw #tools ul li {
+  #files #draw #menu li, #files #draw #tools li {
     padding: 10px;
     text-align: center;
-    border-bottom: 1px solid black;
     cursor: pointer; }
+#files #draw #menu {
+  border-right: none; }
+  #files #draw #menu li {
+    float: left;
+    border-right: 1px solid black; }
+#files #draw #tools {
+  border-bottom: none; }
+  #files #draw #tools li {
+    border-bottom: 1px solid black; }
 
 .computer #draw #tools li[data-action="undo"], .computer #draw #tools li[data-action="redo"] {
   display: none !important; }

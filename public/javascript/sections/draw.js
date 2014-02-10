@@ -49,6 +49,8 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
 
     _toolTapHandler: null,
 
+    _fileNameElement: null,
+
     init: function(filesPane) {
       this._super();
 
@@ -72,15 +74,16 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         end: this._toolEnd.bind(this)
       });
 
-      /*
       new TapHandler(document.getElementById("menu"), {
         tap: this._menuTapped.bind(this),
       });
-*/
 
       this.element.addEventListener("mousewheel", this._mouseWheel.bind(this));
-
       this.element.addEventListener("keydown", this._keyDown.bind(this));
+
+      this._fileNameElement = document.getElementById("fileName");
+      this._fileNameElement.addEventListener("keydown", this._fileNameKeyDown.bind(this));
+      this._fileNameElement.addEventListener("blur", this._fileNameBlur.bind(this));
     },
 
     show: function(file) {
@@ -90,6 +93,8 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
       this._redoStack = [];
 
       console.log("draw shown for file", file);
+
+      this._fileNameElement.innerText = this._fileInfo.name;
 
       data.getFile(file.id, (function(server) {
 
@@ -197,6 +202,12 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         this._pan(e.xFromLast, e.yFromLast);
       } else if (this._currentPointTool == "pencil") {
 
+        if (!this._currentAction) {
+          // no current action. This can happen if we were dragging a tool and let up the
+          // tool button and kept dragging
+          return;
+        }
+
         var world = Helpers.screenToWorld(this._settings, e.distFromLeft, e.distFromTop);
 
         //console.log("world", e, world);
@@ -222,6 +233,12 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
 
     _end: function(e) {
       if (this._currentPointTool == "pencil") {
+        if (!this._currentAction) {
+          // no current action. This can happen if we were dragging a tool and let up the
+          // tool button and kept dragging
+          return;
+        }
+
         var currentAction = this._currentAction;
         this._currentAction = null;
 
@@ -261,7 +278,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
       Event.trigger("fileModified", {
         fileId: this._fileInfo.id,
         timestamp: Date.now()
-      })
+      });
 
       this._needsUpdate = true;
     },
@@ -324,18 +341,18 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
 
         if (tool == "pan") {
           console.log("pan started", e);
-          this._canvasTapHandler.ignoreGestures(true);
-          this._toolTapHandler.ignoreGestures(true);
-
-          e.stopPropagation();
         }
+
+        e.stopPropagation();
+        this._canvasTapHandler.ignoreGestures(true);
+        this._toolTapHandler.ignoreGestures(true);
       }
     },
 
     _toolEnd: function(e) {
-      console.log("tool ended");
 
-      function isInside() {
+      // Is a 
+      function isInside(event) {
         function offset(type, element) {
           if (element == null) {
             return 0;
@@ -344,16 +361,19 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
           return element[type] + offset(type, element.parentElement);
         }
 
-        return e.clientX >= offset("offsetLeft", e.srcElement) &&
-              e.clientX <= offset("offsetLeft", e.srcElement) + e.srcElement.offsetWidth &&
-              e.clientY >= offset("offsetTop", e.srcElement) &&
-              e.clientY <= offset("offsetTop", e.srcElement) + e.srcElement.offsetHeight;
+        var offsetLeft = offset("offsetLeft", e.srcElement);
+        var offsetTop = offset("offsetTop", e.srcElement);
+
+        return e.clientX >= offsetLeft &&
+          e.clientX <= offsetLeft + e.srcElement.offsetWidth &&
+          e.clientY >= offsetTop &&
+          e.clientY <= offsetTop + e.srcElement.offsetHeight;
       }
 
       if (!e ||
         (e && !e.touches) ||
-        (e && e.touches && e.touches.length == 0) ||
-        !isInside()
+        (e && e.touches && e.touches.length == 0) || // No touches left
+        (e && e.touches && !isInside()) // Not inside of the tool anymore
       ) {
 
         var tool = e.srcElement.dataset.tool;
@@ -361,11 +381,11 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         if (e.srcElement.tagName == "LI" && tool) {
           if (tool == "pan") {
             console.log("pan ended");
-            this._currentPointTool = "pencil";
-
-            this._canvasTapHandler.ignoreGestures(false);
-            this._toolTapHandler.ignoreGestures(false);
           }
+
+          this._currentPointTool = "pencil";
+          this._canvasTapHandler.ignoreGestures(false);
+          this._toolTapHandler.ignoreGestures(false);
         }
       }
     },
@@ -472,6 +492,21 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
       var ctx = canvas.getContext("2d");
     }
 */
+    _fileNameKeyDown: function(e) {
+      if (e.keyCode == 13) { // Enter
+        this._fileNameElement.blur();
+      }
+    },
+
+    _fileNameBlur: function(e) {
+      var name = e.srcElement.innerText;
+      data.renameFile(this._fileInfo.id, name);
+      
+      Event.trigger("fileRenamed", {
+        fileId: this._fileInfo.id,
+        name: name
+      });
+    },
 
 
     _saveTransform: function() {
