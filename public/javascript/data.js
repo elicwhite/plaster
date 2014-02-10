@@ -225,11 +225,20 @@ define(["class", "db", "event"], function(Class, db, Event) {
           modifiedTime: data.timestamp
         })
         .execute()
-        .done(function(results) {
-        })
+        .done(function(results) {})
         .fail(function(e) {
           console.error("Couldn't find file", e);
         })
+    },
+
+    // Delete all the file rows, delete all the file databases,
+    // delete everything for files from local storage
+    clear: function() {
+      this.getFiles((function(files) {
+        for (var i = 0; i < files.length; i++) {
+          this.deleteFile(files[i].id);
+        }
+      }).bind(this));
     }
   });
 

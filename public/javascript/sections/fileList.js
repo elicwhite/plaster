@@ -173,6 +173,7 @@ define(["section", "tapHandler", "event", "helpers", "data", "templates/fileList
     _fileRenamed: function(data) {
       console.log("File renamed", data);
 
+      this._files[data.fileId].name = data.name;
       var element = this._files[data.fileId].element;
       var fileNameElement = element.getElementsByClassName("file-name")[0];
       fileNameElement.innerText = data.name;

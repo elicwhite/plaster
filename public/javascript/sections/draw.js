@@ -313,6 +313,11 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         if (action == "back") {
           this._filesPane.setPane("list", this._fileInfo);
         }
+
+        else if (action == "export") {
+          var dataURL = this._canvas.toDataURL();
+          window.open(dataURL);
+        }
       }
     },
 
