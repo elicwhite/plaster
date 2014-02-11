@@ -101,12 +101,17 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
 
         this._manipulateCanvas = new ManipulateCanvas(this._canvas, this._settings);
 
+        // Add all the actions to the manipulate canvas
+        this._manipulateCanvas.doAll(this._actions);
+
         this._shouldRender = true;
         this._redraw();
       }).bind(this));
 
       // We don't need data to resize
       this._resize();
+
+
 
       // Focus on the canvas after we navigate to it
       setTimeout(function() {
@@ -132,6 +137,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     _zoom: function(x, y, dScale) {
       if (this._manipulateCanvas.zoom(x, y, dScale)) {
         this._saveTransform();
+        this._manipulateCanvas.doAll(this._actions);
         this._needsUpdate = true;
       }
     },
@@ -139,6 +145,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     _pan: function(dx, dy) {
       if (this._manipulateCanvas.pan(dx, dy)) {
         this._saveTransform();
+        this._manipulateCanvas.doAll(this._actions);
         this._needsUpdate = true;
       }
     },
@@ -249,7 +256,8 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     _saveAction: function(action) {
       // Store the current action
       this._actions.push(action);
-      //this._currentAction = null;
+
+      this._manipulateCanvas.addAction(action);
 
       // And persist it
       data.addAction(this._fileInfo.id, action);
@@ -274,11 +282,11 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
       }
 
       if (this._needsUpdate) {
-        this._manipulateCanvas.drawAll(this._actions);
-
         if (this._currentAction) {
-          this._manipulateCanvas.doAction(this._currentAction)
+          this._manipulateCanvas.doTemporaryAction(this._currentAction)
         }
+
+        this._manipulateCanvas.render();
         this._needsUpdate = false;
       }
 
@@ -421,6 +429,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         this._redoStack.push(newObj);
 
         data.removeLastAction(this._fileInfo.id);
+        this._manipulateCanvas.doAll(this._actions);
 
         this._needsUpdate = true;
       }

@@ -42,10 +42,8 @@ define(["class", "helpers", "data", "components/manipulateCanvas"], function(Cla
         };
         manipulateCanvas.pan(diffScreen.x, diffScreen.y);
 
-        manipulateCanvas.drawAll(actions);
-
-        window.a = actions;
-        window.c = manipulateCanvas;
+        manipulateCanvas.doAll(actions);
+        manipulateCanvas.render();
       }).bind(this));
     }
   });

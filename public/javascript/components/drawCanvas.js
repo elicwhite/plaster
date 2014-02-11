@@ -2,39 +2,88 @@ define(["class", "helpers"], function(Class, Helpers) {
   var DrawCanvas = Class.extend({
     _canvas: null,
     _ctx: null,
-
     _settings: null,
+
+    // Holds all of the main actions
+    _backCanvas: null,
+    _backCtx: null,
+
+    // Holds at most one action
+    _tempCanvas: null,
+    _tempCtx: null,
 
     init: function(canvas, settings) {
       this._canvas = canvas;
       this._ctx = canvas.getContext("2d");
-
       this._settings = settings;
+
+      this._backCanvas = document.createElement("canvas");
+      this._backCtx = this._backCanvas.getContext("2d");
+
+      this._tempCanvas = document.createElement("canvas");
+      this._tempCtx = this._tempCanvas.getContext("2d");
     },
 
-    drawAll: function(actions) {
-      this._ctx.setTransform(this._settings.scale, 0, 0, this._settings.scale, this._settings.offsetX, this._settings.offsetY);
+    // Creates a back canvas and draws all the actions to it and renders it on the main canvas
+    doAll: function(actions) {      
+      this._backCanvas.width = this._canvas.width;
+      this._backCanvas.height = this._canvas.height;
 
-      var topLeft = Helpers.screenToWorld(this._settings, 0, 0);
-      var bottomRight = Helpers.screenToWorld(this._settings, this._canvas.width, this._canvas.height);
+      this._clearCanvas(this._backCanvas, this._backCtx);
 
-      this._ctx.clearRect(topLeft.x, topLeft.y, bottomRight.x - topLeft.x, bottomRight.y - topLeft.y);
+      // Also clear the temp canvas
+      this._clearCanvas(this._tempCanvas, this._tempCtx);
 
       // Keep the line width the same no matter the zoom level
       var strokeSize = 1;
-      this._ctx.lineWidth = strokeSize / this._settings.scale;
+      this._backCtx.lineWidth = strokeSize / this._settings.scale;
 
       for (var i = 0; i < actions.length; i++) {
         var action = actions[i];
 
-        this.doAction(action);
-        
+        this._doAction(this._backCtx, action);
       }
     },
 
-    doAction: function(action) {
+    // The action is done to a temporary canvas
+    doTemporaryAction: function(action) {
+      this._tempCanvas.width = this._canvas.width;
+      this._tempCanvas.height = this._canvas.height;
+
+      this._clearCanvas(this._tempCanvas, this._tempCtx);
+
+      var strokeSize = 1;
+      this._tempCtx.lineWidth = strokeSize / this._settings.scale;
+      this._doAction(this._tempCtx, action);
+    },
+
+    addAction: function(action) {
+      this._doAction(this._backCtx, action);
+
+      // Clears the temp canvas when you add something to the back
+      this._clearCanvas(this._tempCanvas, this._tempCtx);
+    },
+
+    _clearCanvas: function(canvas, ctx) {
+      ctx.setTransform(this._settings.scale, 0, 0, this._settings.scale, this._settings.offsetX, this._settings.offsetY);
+
+      var topLeft = Helpers.screenToWorld(this._settings, 0, 0);
+      var bottomRight = Helpers.screenToWorld(this._settings, canvas.width, canvas.height);
+
+      ctx.clearRect(topLeft.x, topLeft.y, bottomRight.x - topLeft.x, bottomRight.y - topLeft.y);
+    },
+
+    render: function() {
+      console.log("render called!");
+      this._ctx.clearRect(0,0, this._canvas.width, this._canvas.height);
+      this._ctx.drawImage(this._backCanvas, 0, 0, this._backCanvas.width, this._backCanvas.height);
+      this._ctx.drawImage(this._tempCanvas, 0, 0, this._tempCanvas.width, this._tempCanvas.height);
+    },
+
+
+    _doAction: function(ctx, action) {
       if (action.type == "stroke") {
-        this._drawStroke(action.value);
+        this._drawStroke(ctx, action.value);
       }
     },
 
@@ -42,7 +91,7 @@ define(["class", "helpers"], function(Class, Helpers) {
       this._settings = settings;
     },
 
-    _drawStroke: function(stroke) {
+    _drawStroke: function(ctx, stroke) {
       if (stroke.points.length < 2) {
         return;
       }
@@ -58,20 +107,26 @@ define(["class", "helpers"], function(Class, Helpers) {
 
       var point = points[0];
 
-      this._ctx.beginPath();
-      this._ctx.moveTo(point.x, point.y);
+      ctx.beginPath();
+      ctx.moveTo(point.x, point.y);
 
       for (var i = 1; i < points.length; i++) {
         point = points[i];
         var cp1 = controlPoints[i - 1].first;
         var cp2 = controlPoints[i - 1].second;
-        this._ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, point.x, point.y);
+        ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, point.x, point.y);
       }
 
-      this._ctx.stroke();
+      ctx.stroke();
     },
   });
 
   return DrawCanvas;
+
+  /*
+  drawAll(actions) // Draw all actions to a back canvas
+  drawTemporary(action) // draw action on front canvas
+  addAction(action) // add action to back canvas
+  */
 
 });
