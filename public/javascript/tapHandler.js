@@ -88,10 +88,6 @@ define([], function() {
         document.addEventListener("mousemove", this._move);
         document.addEventListener("mouseup", this._end);
       }
-
-      // Keep mouse events from being called
-      e.preventDefault();
-      e.stopImmediatePropagation();
     },
 
     _move: function(e) {

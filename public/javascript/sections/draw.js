@@ -291,6 +291,8 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
 
         if (action == "back") {
           this._filesPane.setPane("list", this._fileInfo);
+        } else if (action == "rename") {
+          e.srcElement.focus();
         } else if (action == "export") {
           var dataURL = this._canvas.toDataURL();
           window.open(dataURL);
@@ -419,7 +421,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         this._redoStack.push(newObj);
 
         data.removeLastAction(this._fileInfo.id);
-        
+
         this._needsUpdate = true;
       }
     },
