@@ -4,10 +4,6 @@ define(["class", "helpers"], function(Class, Helpers) {
     _ctx: null,
     _settings: null,
 
-    // Holds all of the main actions
-    _backCanvas: null,
-    _backCtx: null,
-
     // Holds at most one action
     _tempCanvas: null,
     _tempCtx: null,
@@ -74,7 +70,6 @@ define(["class", "helpers"], function(Class, Helpers) {
     },
 
     render: function() {
-      console.log("render called!");
       this._ctx.clearRect(0,0, this._canvas.width, this._canvas.height);
       this._ctx.drawImage(this._backCanvas, 0, 0, this._backCanvas.width, this._backCanvas.height);
       this._ctx.drawImage(this._tempCanvas, 0, 0, this._tempCanvas.width, this._tempCanvas.height);

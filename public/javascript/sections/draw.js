@@ -25,7 +25,10 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     _currentAction: null,
 
     // Do we need to update on this frame?
-    _needsUpdate: true,
+    _updateAll: true,
+
+    // Does the current action need to be redrawn?
+    _updateCurrentAction: false,
 
     // Set this to false to stop the render loop
     _shouldRender: false,
@@ -95,14 +98,11 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
 
       data.getFileActions(file.id, (function(results) {
         this._actions = results;
-        this._needsUpdate = true;
+        this._updateAll = true;
 
         this._settings = data.localFileSettings(file.id);
 
         this._manipulateCanvas = new ManipulateCanvas(this._canvas, this._settings);
-
-        // Add all the actions to the manipulate canvas
-        this._manipulateCanvas.doAll(this._actions);
 
         this._shouldRender = true;
         this._redraw();
@@ -131,22 +131,20 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
       this._canvas.width = window.innerWidth;
       this._canvas.height = window.innerHeight;
 
-      this._needsUpdate = true;
+      this._updateAll = true;
     },
 
     _zoom: function(x, y, dScale) {
       if (this._manipulateCanvas.zoom(x, y, dScale)) {
         this._saveTransform();
-        this._manipulateCanvas.doAll(this._actions);
-        this._needsUpdate = true;
+        this._updateAll = true;
       }
     },
 
     _pan: function(dx, dy) {
       if (this._manipulateCanvas.pan(dx, dy)) {
         this._saveTransform();
-        this._manipulateCanvas.doAll(this._actions);
-        this._needsUpdate = true;
+        this._updateAll = true;
       }
     },
 
@@ -180,6 +178,8 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
             points: [world]
           }
         }
+
+
 
         // Make sure the redo stack is empty as we are starting to draw again
         this._redoStack = [];
@@ -220,7 +220,8 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         }
 
         currentStroke.points.push(world);
-        this._needsUpdate = true;
+        //this._updateAll = true;
+        this._updateCurrentAction = true;
       }
     },
 
@@ -249,6 +250,8 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         var controlPoints = Helpers.getCurveControlPoints(currentStroke.points);
         currentStroke.controlPoints = controlPoints;
 
+        this._updateCurrentAction = true;
+
         this._saveAction(currentAction);
       }
     },
@@ -267,7 +270,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         timestamp: Date.now()
       });
 
-      this._needsUpdate = true;
+      this._updateAll = true;
     },
 
     _gesture: function(e) {
@@ -281,13 +284,21 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         return;
       }
 
-      if (this._needsUpdate) {
-        if (this._currentAction) {
-          this._manipulateCanvas.doTemporaryAction(this._currentAction)
-        }
+      if (this._updateAll) {
+        this._manipulateCanvas.doAll(this._actions);
+        
+      }
 
+      if (this._updateCurrentAction && this._currentAction) {
+        this._manipulateCanvas.doTemporaryAction(this._currentAction)
+        
+      }
+
+      if (this._updateAll || this._updateCurrentAction) {
         this._manipulateCanvas.render();
-        this._needsUpdate = false;
+
+        this._updateAll = false;
+        this._updateCurrentAction = false;
       }
 
       requestAnimationFrame(this._redraw.bind(this));
@@ -431,7 +442,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         data.removeLastAction(this._fileInfo.id);
         this._manipulateCanvas.doAll(this._actions);
 
-        this._needsUpdate = true;
+        this._updateAll = true;
       }
     },
 
