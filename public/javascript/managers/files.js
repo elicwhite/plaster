@@ -43,7 +43,7 @@ define(["section", "event", "sections/fileList", "sections/draw"], function(Sect
         pane: new Draw(this)
       };
 
-      this.panes.draw.pane.element.style.webkitTransform = 'translate(' + this._screenWidth + "px, 0)";
+      this.panes.draw.pane.element.style.webkitTransform = 'translate3d(' + this._screenWidth + "px, 0px, 0px)";
 
       var state = {
         pane: "list",
@@ -126,10 +126,14 @@ define(["section", "event", "sections/fileList", "sections/draw"], function(Sect
     },
 
     _windowResized: function() {
+      console.log("window resized");
       this._redoOffsets();
     },
 
     _redoOffsets: function() {
+      console.log("redoing offsets");
+      window.current = this;
+
       this._screenWidth = window.innerWidth;
 
       // Set the offsets on all the panes so that the current pane is 0,0
@@ -146,7 +150,7 @@ define(["section", "event", "sections/fileList", "sections/draw"], function(Sect
       var startX = -1 * currentIndex * this._screenWidth;
       for (var pane in this.panes) {
         this.panes[pane].offsetX = startX;
-        this.panes[pane].pane.element.style.webkitTransform = 'translate(' + startX + "px, 0)";
+        this.panes[pane].pane.element.style.webkitTransform = 'translate3d(' + startX + "px, 0px, 0px)";
         startX += this._screenWidth;
       }
     }

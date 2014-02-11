@@ -15,6 +15,12 @@ require(["event", "globals", "managers/login"], function(Event, g, LoginManager)
 
     var loginManager = new LoginManager();
     window.login = loginManager;
+
+    window.addEventListener("resize", function() {
+      // make sure we are scrolled to 0. Without this there are problems 
+      // when changing device orientation
+      window.scroll(0,0);
+    })
   }
 
   if (document.readyState === "interactive" || document.readyState === "complete") {
