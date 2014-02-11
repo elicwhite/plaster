@@ -46,7 +46,6 @@ define([], function() {
         y: element.offsetTop
       };
 
-
       this._element.addEventListener("mousedown", this._start.bind(this));
       this._element.addEventListener("touchstart", this._start.bind(this));
       this._element.addEventListener("gesturestart", this._gestureStart.bind(this));
@@ -57,6 +56,9 @@ define([], function() {
     },
 
     _start: function(e) {
+      // This keeps click from being called
+      e.preventDefault();
+
       if (this._startType == "touch" && !e.touches) {
         // Last one was a touch, this one is a mouse. Make sure it isn't a duplicate.
         if (e.x == this._startX && e.y == this._startY) { // && (e.timeStamp - this._startTime < 500)) {
@@ -110,7 +112,6 @@ define([], function() {
     },
 
     _end: function(e) {
-
       if (!e ||
         (e && !e.touches) ||
         (e && e.touches && e.touches.length == 0)

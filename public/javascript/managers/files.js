@@ -126,12 +126,10 @@ define(["section", "event", "sections/fileList", "sections/draw"], function(Sect
     },
 
     _windowResized: function() {
-      console.log("window resized");
       this._redoOffsets();
     },
 
     _redoOffsets: function() {
-      console.log("redoing offsets");
       window.current = this;
 
       this._screenWidth = window.innerWidth;

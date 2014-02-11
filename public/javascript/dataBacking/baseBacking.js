@@ -1,7 +1,6 @@
 define(["class"], function(Class) {
   var BaseBacking = Class.extend({
     init: function() {
-      console.log("base called?");
       throw "Do not use this class without extending it";
     },
 
