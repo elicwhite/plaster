@@ -21,7 +21,7 @@ body {
 #files {
   #files-list {
     clear: both;
-    overflow: hidden;
+    overflow: scroll;
 
     li {
       float: left;

@@ -55,18 +55,9 @@ define([], function() {
       this._ignoreGestures = value;
     },
 
-    _start: function(e) {
-      // This keeps click from being called
-      e.preventDefault();
 
-      if (this._startType == "touch" && !e.touches) {
-        // Last one was a touch, this one is a mouse. Make sure it isn't a duplicate.
-        if (e.x == this._startX && e.y == this._startY) { // && (e.timeStamp - this._startTime < 500)) {
-          // It was in the same position reasonably recently, ignore it.
-          //debugger
-          return;
-        }
-      }
+    _start: function(e) {
+      this._processEvent(e);
 
       // Ignore these if we are currently gesturing
       if (this._inGesture) {
@@ -80,7 +71,7 @@ define([], function() {
 
       this._inTouch = true;
 
-      this._processEvent(e);
+
       this._startTime = e.timeStamp;
 
       this._startX = this._lastX = e.x;
@@ -93,11 +84,14 @@ define([], function() {
       if (this._startType == "touch") {
         document.addEventListener("touchmove", this._move);
         document.addEventListener("touchend", this._end);
-      }
-      else if (this._startType == "mouse") {
+      } else if (this._startType == "mouse") {
         document.addEventListener("mousemove", this._move);
         document.addEventListener("mouseup", this._end);
       }
+
+      // Keep mouse events from being called
+      e.preventDefault();
+      e.stopImmediatePropagation();
     },
 
     _move: function(e) {
@@ -112,6 +106,8 @@ define([], function() {
     },
 
     _end: function(e) {
+
+
       if (!e ||
         (e && !e.touches) ||
         (e && e.touches && e.touches.length == 0)
@@ -121,6 +117,7 @@ define([], function() {
 
       if (e) {
         this._processEvent(e);
+
 
         var dist = Math.sqrt(((e.x - this._startX) * (e.x - this._startX)) + ((e.y - this._startY) * (e.y - this._startY)));
         if (dist < this._distCutoff && (e.timeStamp - this._startTime < this._timeCutoff)) {
@@ -138,6 +135,12 @@ define([], function() {
 
 
       this._inTouch = false;
+
+      // Keep mouse events from being called
+      if (e) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+      }
     },
 
     _gestureStart: function(e) {
@@ -197,8 +200,7 @@ define([], function() {
       if (this._startType == "touch") {
         document.removeEventListener("touchmove", this._move);
         document.removeEventListener("touchend", this._end);
-      }
-      else if (this._startType == "mouse") {
+      } else if (this._startType == "mouse") {
         document.removeEventListener("mousemove", this._move);
         document.removeEventListener("mouseup", this._end);
       }
