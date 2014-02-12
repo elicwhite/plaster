@@ -274,8 +274,10 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     },
 
     _gesture: function(e) {
-      this._pan(e.xFromLast, e.yFromLast);
-      this._zoom(e.x, e.y, e.scaleFromLast * this._settings.scale);
+      if (this._currentPointTool == "pencil") {
+        this._pan(e.xFromLast, e.yFromLast);
+        this._zoom(e.x, e.y, e.scaleFromLast * this._settings.scale);
+      }
     },
 
     _redraw: function() {
@@ -346,10 +348,12 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         this._currentPointTool = tool;
 
         if (tool == "pan") {
-          //console.log("pan started", e);
+
         }
 
-        e.stopPropagation();
+        //e.stopImmediatePropagation();
+        //e.preventDefault();
+
         this._canvasTapHandler.ignoreGestures(true);
         this._toolTapHandler.ignoreGestures(true);
       }
@@ -361,7 +365,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
 
         if (e.srcElement.tagName == "LI" && tool) {
           if (tool == "pan") {
-            console.log("-pan ended");
+
           }
 
           this._currentPointTool = "pencil";
