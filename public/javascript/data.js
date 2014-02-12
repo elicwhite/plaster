@@ -50,8 +50,8 @@ define(["class", "dataBacking/indexedDBBacking", "dataBacking/webSQLBacking", "e
       this._backing.addAction(fileId, action);
     },
 
-    removeLastAction: function(fileId) {
-      this._backing.removeLastAction(fileId);
+    removeAction: function(fileId, actionIndex) {
+      this._backing.removeAction(fileId, actionIndex);
     },
 
     // Delete all the file rows, delete all the file databases,

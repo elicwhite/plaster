@@ -34,7 +34,7 @@ define(["dataBacking/baseBacking"], function(BaseBacking) {
 
         // You can't seem to use prepared statement variables as the table name
         tx.executeSql('CREATE TABLE IF NOT EXISTS `' + fileId + '` ' +
-          '(id INTEGER PRIMARY KEY ASC, type VARCHAR(255), value TEXT)', []);
+          '(id INTEGER PRIMARY KEY, type VARCHAR(255), value TEXT)', []);
 
         var file = {
           id: fileId,
@@ -64,7 +64,14 @@ define(["dataBacking/baseBacking"], function(BaseBacking) {
 
     addAction: function(fileId, action) {
       this._db.transaction(function(tx) {
-        tx.executeSql('INSERT INTO `'+fileId+'` (type, value) VALUES (?, ?)', [action.type, JSON.stringify(action.value)], this._success, this._error);
+        tx.executeSql('INSERT INTO `'+fileId+'` (id, type, value) VALUES (?, ?, ?)', [action.id, action.type, JSON.stringify(action.value)], this._success, this._error);
+      });
+    },
+
+    removeAction: function(fileId, actionIndex) {
+      
+      this._db.transaction(function(tx) {
+        tx.executeSql('DELETE FROM `'+fileId+'` WHERE id = ?', [actionIndex], this._success, this._error);
       });
     },
 

@@ -257,7 +257,10 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     },
 
     _saveAction: function(action) {
-      // Store the current action
+      // The id for the action is the next one in the array
+      // But 1 based indexing
+      action.id = this._actions.length + 1;
+
       this._actions.push(action);
 
       this._manipulateCanvas.addAction(action);
@@ -286,12 +289,12 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
 
       if (this._updateAll) {
         this._manipulateCanvas.doAll(this._actions);
-        
+
       }
 
       if (this._updateCurrentAction && this._currentAction) {
         this._manipulateCanvas.doTemporaryAction(this._currentAction)
-        
+
       }
 
       if (this._updateAll || this._updateCurrentAction) {
@@ -437,9 +440,10 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
           }
         }
 
+
         this._redoStack.push(newObj);
 
-        data.removeLastAction(this._fileInfo.id);
+        data.removeAction(this._fileInfo.id, action.id);
         this._manipulateCanvas.doAll(this._actions);
 
         this._updateAll = true;

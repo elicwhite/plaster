@@ -28,7 +28,7 @@ define(["class"], function(Class) {
       console.error("Implement this function");
     },
 
-    removeLastAction: function(fileId) {
+    removeAction: function(fileId, actionIndex) {
       console.error("Implement this function");
     },
 
