@@ -11,24 +11,31 @@ body, html {
   user-select: none;
   -webkit-user-select: none; }
 
-#overall, .page, .pane {
+#overall, #main-content, #panes, .page, .pane {
   width: 100%;
-  height: 100%; }
+  height: 100%;
+  position: absolute;
+  overflow: hidden; }
 
 .page, .pane {
-  position: absolute;
   display: none; }
 
-.pane-slider .pane-wrapper {
-  overflow: visible;
-  width: inherit; }
-.pane-slider .pane {
-  display: block !important; }
+.pane-slider {
+  overflow: hidden; }
+  .pane-slider .pane-wrapper {
+    width: 200%;
+    overflow: visible; }
+    .pane-slider .pane-wrapper > .pane {
+      width: 50%; }
+  .pane-slider .pane {
+    display: block !important; }
 
-#files #files-list {
-  list-style-type: none;
-  margin: 0;
-  padding: 0; }
+#files #files-list-container {
+  overflow-y: scroll; }
+  #files #files-list-container #files-list {
+    list-style-type: none;
+    margin: 0;
+    padding: 0; }
 #files #draw canvas {
   vertical-align: bottom; }
 #files #draw ul {

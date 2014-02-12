@@ -3,12 +3,8 @@ require(["event", "globals", "managers/login"], function(Event, g, LoginManager)
   function init() {
     window.log = console.log.bind(console);
 
-    document.addEventListener("touchmove", function(e) {
-      e.preventDefault();
-    });
-
     window.addEventListener("mousewheel", function(e) {
-      //e.preventDefault();
+      e.preventDefault();
     });
 
     g.setHTMLDevices();

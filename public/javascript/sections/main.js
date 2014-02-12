@@ -33,6 +33,7 @@ define(["section", "event", "managers/files"], function(Section, Event, Files) {
       //this.showDrawer();
     },
 
+
     setPane: function(pane) {
       if (this.currentPane == pane)
         return;

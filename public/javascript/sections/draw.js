@@ -60,6 +60,11 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
 
       this._resize = this._resize.bind(this);
 
+      // Keep the trackpad from trigger chrome's back event
+      this.element.addEventListener("touchmove", function(e) {
+        e.preventDefault();
+      });
+
       this._canvasTapHandler = new TapHandler(canvas, {
         start: this._start.bind(this),
         move: this._move.bind(this),
