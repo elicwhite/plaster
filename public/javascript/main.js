@@ -7,8 +7,8 @@ require(["event", "globals", "managers/login"], function(Event, g, LoginManager)
       e.preventDefault();
     });
 
-    document.addEventListener("mousewheel", function(e) {
-      e.preventDefault();
+    window.addEventListener("mousewheel", function(e) {
+      //e.preventDefault();
     });
 
     g.setHTMLDevices();

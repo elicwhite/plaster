@@ -12,6 +12,7 @@ define([], function() {
 
     // touch or mouse
     _startType: null,
+    _startTouchId: null,
     _startTime: null,
     _startX: null,
     _startY: null,
@@ -57,6 +58,12 @@ define([], function() {
 
 
     _start: function(e) {
+      console.log("start called");
+      if (e.touches) {
+        // start touch is the last touch
+        this._startTouchId = e.touches[e.touches.length - 1].identifier;
+      }
+
       this._processEvent(e);
 
       // Ignore these if we are currently gesturing
@@ -67,6 +74,8 @@ define([], function() {
       this._startType = "mouse";
       if (e.touches) {
         this._startType = "touch";
+        console.log(e);
+
       }
 
       this._inTouch = true;
@@ -76,6 +85,8 @@ define([], function() {
 
       this._startX = this._lastX = e.x;
       this._startY = this._lastY = e.y;
+
+      console.log("-start", e.x, e.y);
 
       if (this._options.start) {
         this._options.start(e);
@@ -102,33 +113,43 @@ define([], function() {
     },
 
     _end: function(e) {
+      /*
+        if e isn't set, end the handlers, call tap if it is within limits, call end
+      */
 
-
-      if (!e ||
-        (e && !e.touches) ||
-        (e && e.touches && e.touches.length == 0)
-      ) {
+      if (!e) {
         this._endTouchHandlers();
+        if (this._options.end) {
+          this._options.end();
+        }
+
+        return;
       }
 
-      if (e) {
-        this._processEvent(e);
+      // The event still has our start touch, it hasn't ended
+      if (e.touches && this._indexOfTouch(e, this._startTouchId) !== -1) {
+        return;
+      }
+
+      this._endTouchHandlers();
+      this._processEvent(e);
+
+      console.log("-end", e.x, e.y, this._startX, this._startY);
 
 
-        var dist = Math.sqrt(((e.x - this._startX) * (e.x - this._startX)) + ((e.y - this._startY) * (e.y - this._startY)));
-        if (dist < this._distCutoff && (e.timeStamp - this._startTime < this._timeCutoff)) {
-          if (this._options.tap) {
-            this._options.tap(e);
-          }
+      var dist = Math.sqrt(((e.x - this._startX) * (e.x - this._startX)) + ((e.y - this._startY) * (e.y - this._startY)));
+      console.log("-dist", dist);
+
+      if (dist < this._distCutoff && (e.timeStamp - this._startTime < this._timeCutoff)) {
+        if (this._options.tap) {
+          this._options.tap(e);
         }
       }
-
 
       // It wasn't a tap, just an up
       if (this._options.end) {
         this._options.end(e);
       }
-
 
       this._inTouch = false;
 
@@ -157,6 +178,8 @@ define([], function() {
 
       this._startX = this._lastX = e.x;
       this._startY = this._lastY = e.y;
+
+      console.log("gesture started", this._startX, this._startY);
 
       this._startScale = this._lastScale = e.scale;
 
@@ -204,11 +227,12 @@ define([], function() {
 
     // Given an e, add things like x and y regardless of touch or mouse
     _processEvent: function(e) {
+      var index = -1;
       // It's a touch
-      if (e.touches && e.touches.length > 0) {
+      if (e.touches && e.touches.length > 0 && (index = this._indexOfTouch(e, this._startTouchId)) !== -1) {
         // Use the last touch
-        e.x = e.touches[e.touches.length - 1].clientX;
-        e.y = e.touches[e.touches.length - 1].clientY;
+        e.x = e.touches[index].clientX;
+        e.y = e.touches[index].clientY;
       } else if (e.clientX) {
         // It's a click
         e.x = e.clientX;
@@ -232,6 +256,20 @@ define([], function() {
 
     _processGesture: function(e) {
       e.scaleFromLast = e.scale - this._lastScale;
+    },
+
+    _indexOfTouch: function(e, identifier) {
+      var index = -1;
+      if (e.touches && identifier) {
+        for (var i = 0; i < e.touches.length; i++) {
+          if (e.touches[i].identifier == identifier) {
+            index = i;
+            break;
+          }
+        }
+      }
+
+      return index;
     }
 
 

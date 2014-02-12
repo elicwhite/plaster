@@ -148,10 +148,7 @@ define(["section", "tapHandler", "event", "helpers", "data", "templates/fileList
     },
 
     _fileModified: function(data) {
-      console.log("File was changed", data);
-
       var index = this._fileOrder.indexOf(data.fileId);
-      console.log("was index", index);
 
       // Move every element up
       for (var i = index; i < this._files.length - 1; i++) {

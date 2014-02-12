@@ -151,7 +151,6 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     _mouseWheel: function(e) {
 
       if (this._currentTool == "pan") {
-        //console.log("pan", e);
         this._pan(-e.deltaX, -e.deltaY);
       } else if (this._currentTool == "zoom") {
         if (e.deltaY != 0) {
@@ -167,7 +166,6 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
       } else if (this._currentPointTool == "pencil") {
         var world = Helpers.screenToWorld(this._settings, e.distFromLeft, e.distFromTop);
 
-        console.log("started at", world);
         if (this._currentAction) {
           console.error("Current action isn't null!");
         }
@@ -220,7 +218,6 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         }
 
         currentStroke.points.push(world);
-        //this._updateAll = true;
         this._updateCurrentAction = true;
       }
     },
@@ -323,6 +320,8 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     },
 
     _toolChanged: function(e) {
+      console.log("tool tapped");
+
       if (e.srcElement.tagName == "LI") {
         var action = e.srcElement.dataset.action;
         var tool = e.srcElement.dataset.tool;
@@ -341,12 +340,13 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
 
     _toolStart: function(e) {
       var tool = e.srcElement.dataset.tool;
+      var action = e.srcElement.dataset.action;
 
       if (e.srcElement.tagName == "LI" && tool) {
         this._currentPointTool = tool;
 
         if (tool == "pan") {
-          console.log("pan started", e);
+          //console.log("pan started", e);
         }
 
         e.stopPropagation();
@@ -356,37 +356,12 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     },
 
     _toolEnd: function(e) {
-
-      // Is a 
-      function isInside(event) {
-        function offset(type, element) {
-          if (element == null) {
-            return 0;
-          }
-
-          return element[type] + offset(type, element.parentElement);
-        }
-
-        var offsetLeft = offset("offsetLeft", e.srcElement);
-        var offsetTop = offset("offsetTop", e.srcElement);
-
-        return e.clientX >= offsetLeft &&
-          e.clientX <= offsetLeft + e.srcElement.offsetWidth &&
-          e.clientY >= offsetTop &&
-          e.clientY <= offsetTop + e.srcElement.offsetHeight;
-      }
-
-      if (!e ||
-        (e && !e.touches) ||
-        (e && e.touches && e.touches.length == 0) || // No touches left
-        (e && e.touches && !isInside()) // Not inside of the tool anymore
-      ) {
-
+      if (e) {
         var tool = e.srcElement.dataset.tool;
 
         if (e.srcElement.tagName == "LI" && tool) {
           if (tool == "pan") {
-            console.log("pan ended");
+            console.log("-pan ended");
           }
 
           this._currentPointTool = "pencil";
@@ -429,6 +404,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
 
     _undo: function() {
       if (this._actions.length > 0) {
+        console.log("undo");
         var action = this._actions.pop();
 
         // It is impossible to delete the id off of the action, so we have to create a new object
@@ -452,6 +428,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
 
     _redo: function() {
       if (this._redoStack.length > 0) {
+        console.log("redo");
         var nowAction = this._redoStack.pop();
         this._saveAction(nowAction);
       }
