@@ -46,6 +46,10 @@ define(["section", "tapHandler", "event", "helpers", "data", "templates/fileList
         this._actuallyResizeAndRender();
       }).bind(this));
 
+      this.element.addEventListener("mousewheel", function(e) {
+        e.stopPropagation();
+      });
+
       new TapHandler(document.getElementById("file-create"), {
         tap: this._newDoc.bind(this)
       });
@@ -110,19 +114,23 @@ define(["section", "tapHandler", "event", "helpers", "data", "templates/fileList
       for (var fileId in this._files) {
         var file = this._files[fileId];
 
-        var canvasParent = file.canvas.parentElement;
-        file.canvas.width = canvasParent.offsetWidth;
-        file.canvas.height = canvasParent.offsetHeight;
-        file.thumbnail.render(file.file);
+        this._resizeAndRenderFile(file);
       }
     },
 
+    _resizeAndRenderFile: function(file) {
+      var canvasParent = file.canvas.parentElement;
+      file.canvas.width = canvasParent.offsetWidth;
+      file.canvas.height = canvasParent.offsetHeight;
+      file.thumbnail.render(file.file);
+    },
+
     _newDoc: function() {
-      console.log("new doc");
       data.createFile((function(file) {
         var fileTemplate = this._newFileWrapper(file);
         this._fileOrder.unshift(file.id);
         this._fileListElement.insertBefore(fileTemplate, this._fileListElement.children[0]);
+        this._actuallyResizeAndRender();
       }).bind(this));
     },
 
@@ -138,6 +146,8 @@ define(["section", "tapHandler", "event", "helpers", "data", "templates/fileList
           delete this._files[parent.fileId];
           data.deleteFile(parent.fileId);
 
+          this._actuallyResizeAndRender();
+
           // delete file
           return;
         }
@@ -152,7 +162,7 @@ define(["section", "tapHandler", "event", "helpers", "data", "templates/fileList
 
       // Move every element up
       for (var i = index; i < this._files.length - 1; i++) {
-        this._fileOrder[i] = this._fileOrder[i+1];
+        this._fileOrder[i] = this._fileOrder[i + 1];
       }
 
       // Change the length to get rid of the last element
@@ -165,6 +175,7 @@ define(["section", "tapHandler", "event", "helpers", "data", "templates/fileList
       var element = this._files[data.fileId].element;
       this._fileListElement.removeChild(element);
       this._fileListElement.insertBefore(element, this._fileListElement.children[0]);
+      this._actuallyResizeAndRender();
     },
 
     _fileRenamed: function(data) {

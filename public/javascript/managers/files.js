@@ -43,7 +43,7 @@ define(["section", "event", "sections/fileList", "sections/draw"], function(Sect
         pane: new Draw(this)
       };
 
-      this.panes.draw.pane.element.style.webkitTransform = 'translate3d(' + this._screenWidth + "px, 0px, 0px)";
+      this.panes.draw.pane.element.style.webkitTransform = 'translate(' + this._screenWidth + "px, 0px)";
 
       var state = {
         pane: "list",
@@ -99,7 +99,7 @@ define(["section", "event", "sections/fileList", "sections/draw"], function(Sect
       // Finish up
       var totalPane = this.panes[pane];
 
-      var translate = "translate3d(" + (-1 * totalPane.offsetX) + "px, 0px, 0px)";
+      var translate = "translate(" + (-1 * totalPane.offsetX) + "px, 0px)";
       if (this._paneWrapper.style.webkitTransform != translate) {
         this._paneWrapper.classList.add("ani4");
         this._paneWrapper.style.webkitTransform = translate;
@@ -122,7 +122,7 @@ define(["section", "event", "sections/fileList", "sections/draw"], function(Sect
 
       this._redoOffsets();
 
-      this._paneWrapper.style.webkitTransform = "translate3d(0px, 0px, 0px)";
+      this._paneWrapper.style.webkitTransform = "translate(0px,0px)";
     },
 
     _windowResized: function() {
@@ -148,7 +148,7 @@ define(["section", "event", "sections/fileList", "sections/draw"], function(Sect
       var startX = -1 * currentIndex * this._screenWidth;
       for (var pane in this.panes) {
         this.panes[pane].offsetX = startX;
-        this.panes[pane].pane.element.style.webkitTransform = 'translate3d(' + startX + "px, 0px, 0px)";
+        this.panes[pane].pane.element.style.webkitTransform = 'translate(' + startX + "px, 0px)";
         startX += this._screenWidth;
       }
     }
