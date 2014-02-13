@@ -30,10 +30,6 @@ define(["class", "helpers"], function(Class, Helpers) {
       // Also clear the temp canvas
       this._clearCanvas(this._tempCanvas, this._tempCtx);
 
-      // Keep the line width the same no matter the zoom level
-      var strokeSize = 1;
-      this._backCtx.lineWidth = strokeSize / this._settings.scale;
-
       for (var i = 0; i < actions.length; i++) {
         var action = actions[i];
 
@@ -48,8 +44,6 @@ define(["class", "helpers"], function(Class, Helpers) {
 
       this._clearCanvas(this._tempCanvas, this._tempCtx);
 
-      var strokeSize = 1;
-      this._tempCtx.lineWidth = strokeSize / this._settings.scale;
       this._doAction(this._tempCtx, action);
     },
 
@@ -101,6 +95,10 @@ define(["class", "helpers"], function(Class, Helpers) {
       }
 
       var point = points[0];
+
+
+      var strokeSize = 1;
+      ctx.lineWidth = stroke.width / this._settings.scale;
 
       ctx.beginPath();
       ctx.moveTo(point.x, point.y);

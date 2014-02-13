@@ -89,6 +89,8 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
       this._fileNameElement = document.getElementById("fileName");
       this._fileNameElement.addEventListener("keydown", this._fileNameKeyDown.bind(this));
       this._fileNameElement.addEventListener("blur", this._fileNameBlur.bind(this));
+
+      document.getElementById("sizepicker").addEventListener("mousewheel", this._sizeWheel.bind(this));
     },
 
     show: function(file) {
@@ -178,7 +180,8 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         this._currentAction = {
           type: "stroke",
           value: {
-            points: [world]
+            points: [world],
+            width: this._currentPenLevel
           }
         }
 
@@ -341,6 +344,9 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
           } else if (action == "redo") {
             this._redo();
           }
+          if (action == "color") {
+
+          }
         }
       }
     },
@@ -378,6 +384,41 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
           this._toolTapHandler.ignoreGestures(false);
         }
       }
+    },
+
+    _currentPenLevel: 60,
+
+    _sizeWheel: function(e) {
+      var newPenLevel = this._currentPenLevel + e.deltaY / 10;
+
+      newPenLevel = Math.max(1, Math.min(60, newPenLevel));
+
+      var ring = document.getElementById("actualRing");
+
+      // The size our scale is based on
+      var origSize = 60;
+
+      if (newPenLevel < 15) {
+        origSize = 15;
+        ring.className = "quarter";
+      }
+      else if (newPenLevel < 30) {
+        origSize = 30;
+        ring.className = "half";
+      } 
+      else 
+      {
+        ring.className = "";
+      }
+
+      ring.style.webkitTransform = "scale("+(newPenLevel / origSize)+")";
+
+      this._currentPenLevel = newPenLevel;
+
+
+      console.log("new size", newPenLevel);
+      e.stopPropagation();
+      e.preventDefault();
     },
 
     _keyDown: function(e) {

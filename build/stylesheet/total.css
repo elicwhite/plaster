@@ -50,6 +50,25 @@ body, html {
   position: absolute;
   bottom: 10px;
   left: 10px; }
+  #files #draw #tools #sizepicker .outerRing, #files #draw #tools #sizepicker #actualRing {
+    border: 1px solid black;
+    width: 60px;
+    height: 60px;
+    border-radius: 30px; }
+  #files #draw #tools #sizepicker #actualRing {
+    margin-top: -1px;
+    margin-left: -1px;
+    background-color: green; }
+    #files #draw #tools #sizepicker #actualRing.half {
+      width: 30px;
+      height: 30px;
+      border-radius: 15px;
+      margin: 14px; }
+    #files #draw #tools #sizepicker #actualRing.quarter {
+      width: 15px;
+      height: 15px;
+      border-radius: 7.5px;
+      margin: 22px; }
 
 .ani4 {
   transition: all .4s; }
