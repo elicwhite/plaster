@@ -39,6 +39,8 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     // When you move the mouse, what is the tool to use?
     _currentPointTool: "pencil",
 
+    _currentPencilColor: "#000000",
+
     // Timeout for 
     _saveTransformTimeout: null,
 
@@ -50,6 +52,9 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     _toolTapHandler: null,
 
     _fileNameElement: null,
+
+    // The overlay of modals
+    _overlay: null,
 
     init: function(filesPane) {
       this._super();
@@ -83,14 +88,20 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         tap: this._menuTapped.bind(this),
       });
 
+      new TapHandler(document.getElementById("colorPicker"), {
+        tap: this._colorPicked.bind(this)
+      });
+
+      this._overlay = document.getElementById("draw-overlay");
+      this._overlay.addEventListener("mousedown", this._hideModal.bind(this));
+      this._overlay.addEventListener("touchstart", this._hideModal.bind(this));
+
       this.element.addEventListener("mousewheel", this._mouseWheel.bind(this));
       this.element.addEventListener("keydown", this._keyDown.bind(this));
 
       this._fileNameElement = document.getElementById("fileName");
       this._fileNameElement.addEventListener("keydown", this._fileNameKeyDown.bind(this));
       this._fileNameElement.addEventListener("blur", this._fileNameBlur.bind(this));
-
-      document.getElementById("sizepicker").addEventListener("mousewheel", this._sizeWheel.bind(this));
     },
 
     show: function(file) {
@@ -181,11 +192,10 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
           type: "stroke",
           value: {
             points: [world],
-            width: this._currentPenLevel
+            width: 2,
+            color: this._currentPencilColor
           }
         }
-
-
 
         // Make sure the redo stack is empty as we are starting to draw again
         this._redoStack = [];
@@ -330,14 +340,14 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     },
 
     _toolChanged: function(e) {
-      console.log("tool tapped");
+      var parent = Helpers.parentEleWithClassname(e.srcElement, "toolitem");
 
-      if (e.srcElement.tagName == "LI") {
-        var action = e.srcElement.dataset.action;
-        var tool = e.srcElement.dataset.tool;
+      if (parent && parent.tagName == "LI") {
+        var action = parent.dataset.action;
+        var tool = parent.dataset.tool;
 
         if (tool) {
-          this._currentTool = e.srcElement.dataset.tool;
+          this._currentTool = tool;
         } else if (action) {
           if (action == "undo") {
             this._undo();
@@ -345,10 +355,64 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
             this._redo();
           }
           if (action == "color") {
+            this._showModal("colorPicker");
 
+            e.preventDefault();
+            e.stopImmediatePropagation();
           }
         }
       }
+    },
+
+    _showModal: function(modalId) {
+      var modal = document.getElementById(modalId);
+      if (!modal) {
+        console.error("No modal with that id");
+        return;
+      }
+
+
+      this._overlay.currentModal = modalId;
+      this._overlay.style.display = "block";
+      modal.classList.add("visible");
+      modal.style.left = window.innerWidth / 2 - modal.offsetWidth / 2 +"px";
+      modal.style.top = window.innerHeight / 2 - modal.offsetHeight / 2 +"px";
+    },
+
+    _hideModal: function(e) {
+      if (e && e.srcElement != this._overlay) {
+        // overlay was explicitly tapped
+        return;
+      }
+
+      if (this._overlay.currentModal) {
+        // A modal is showing
+        var modal = document.getElementById(this._overlay.currentModal);
+        modal.classList.remove("visible");
+        this._overlay.currentModal = "";
+      }
+
+      this._overlay.style.display = "";
+
+      if (e) {
+        e.stopPropagation();
+      }
+    },
+
+    _colorPicked: function(e) {
+      console.log("color picked");
+
+      parent = Helpers.parentEleWithClassname(e.srcElement, "swatch");
+      if (parent) {
+        var color = parent.style.backgroundColor;
+        this._currentPencilColor = color;
+
+        console.log("color", color);
+        document.getElementById("chosenColorSwatch").style.backgroundColor = color;
+        this._hideModal();
+      }
+
+      e.stopPropagation();
     },
 
     _toolStart: function(e) {
@@ -361,9 +425,6 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         if (tool == "pan") {
 
         }
-
-        //e.stopImmediatePropagation();
-        //e.preventDefault();
 
         this._canvasTapHandler.ignoreGestures(true);
         this._toolTapHandler.ignoreGestures(true);
@@ -384,41 +445,6 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
           this._toolTapHandler.ignoreGestures(false);
         }
       }
-    },
-
-    _currentPenLevel: 60,
-
-    _sizeWheel: function(e) {
-      var newPenLevel = this._currentPenLevel + e.deltaY / 10;
-
-      newPenLevel = Math.max(1, Math.min(60, newPenLevel));
-
-      var ring = document.getElementById("actualRing");
-
-      // The size our scale is based on
-      var origSize = 60;
-
-      if (newPenLevel < 15) {
-        origSize = 15;
-        ring.className = "quarter";
-      }
-      else if (newPenLevel < 30) {
-        origSize = 30;
-        ring.className = "half";
-      } 
-      else 
-      {
-        ring.className = "";
-      }
-
-      ring.style.webkitTransform = "scale("+(newPenLevel / origSize)+")";
-
-      this._currentPenLevel = newPenLevel;
-
-
-      console.log("new size", newPenLevel);
-      e.stopPropagation();
-      e.preventDefault();
     },
 
     _keyDown: function(e) {
@@ -484,46 +510,6 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
       }
     },
 
-
-    /*
-    // Create an image with all of the lines on it.
-    _save: function() {
-      // FIgure out the bounds of the lines
-      var top = lines[0].startY;
-      var left = lines[0].startX;
-      var bottom = lines[0].startY;
-      var right = lines[0].startX;
-
-      for (var i = 0; i < lines.length; i++) {
-        var top = Math.min(lines[i].startY, Math.min(lines[i].endY, top));
-        var left = Math.min(lines[i].startX, Math.min(lines[i].endX, top));
-        var bottom = Math.max(lines[i].startY, Math.max(lines[i].endY, top));
-        var right = Math.max(lines[i].startX, Math.max(lines[i].endX, top));
-      }
-
-      // Create a canvas large enough that it can contain the bounds
-      var width = right - left;
-      var height = bottom - top;
-
-      // Expand for some padding
-      var paddingX = width * .05;
-      var paddingY = height * .05;
-      width *= 1.1;
-      height *= 1.1;
-
-      var transformations = {
-        offsetX: paddingX,
-        offsetY: paddingY,
-        scale: 1
-      }
-
-      var canvas = document.createElement("canvas");
-      canvas.width = width;
-      canvas.height = height;
-
-      var ctx = canvas.getContext("2d");
-    }
-*/
     _fileNameKeyDown: function(e) {
       if (e.keyCode == 13) { // Enter
         this._fileNameElement.blur();

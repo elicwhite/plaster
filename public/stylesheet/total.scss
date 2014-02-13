@@ -31,14 +31,12 @@ body, html {
   .pane-wrapper {
     width: 200%;
     overflow: visible;
+    display: block;
 
     &>.pane {
       width: 50%;
+      display: block !important;
     }
-  }
-
-  .pane {
-    display: block !important;
   }
 }
 
@@ -54,6 +52,35 @@ body, html {
   }
 
   #draw {
+    .swatch {
+        border: 1px solid black;
+        width: 50px;
+        height: 40px;
+        margin: auto;
+      }
+
+    .overlay {
+      z-index: 1000;
+
+      .modal{
+        margin: auto;
+        position: absolute;
+        opacity: 0;
+        transition: .3s opacity;
+
+        &.visible {
+          opacity: 1;
+        }
+      }
+
+      #colorPicker ul {
+        width: 100px;
+
+        li {
+          float: left;
+        }
+      }
+    }
 
     canvas {
       vertical-align: bottom;
@@ -76,44 +103,7 @@ body, html {
       bottom: 10px;
       left: 10px;
 
-      #sizepicker {
-        $size: 60px;
-
-        .outerRing, #actualRing {
-          border: 1px solid black;
-
-
-          width: $size;
-          height: $size;
-          border-radius: $size / 2;
-        }
-
-        #actualRing {
-          margin-top: -1px;
-          margin-left: -1px;
-          background-color: green;
-
-          &.half {
-            $thisSize: $size / 2;
-
-            width: $thisSize;
-            height: $thisSize;
-            border-radius: $thisSize / 2;
-            margin: (($size - $thisSize) / 2) - 1;
-          }
-
-          &.quarter {
-            $thisSize: $size / 4;
-
-            width: $thisSize;
-            height: $thisSize;
-            border-radius: $thisSize / 2;
-            margin: (($size - $thisSize - 1) / 2);
-          }
-        }
-
-
-      }
+      
     }
   }
 }

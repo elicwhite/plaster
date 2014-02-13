@@ -33,6 +33,17 @@
                 </div>
 
                 <div id="draw" class="pane">
+                  <div id="draw-overlay" class="overlay pane">
+                    <div id="colorPicker" class="modal">
+                      <ul>
+                        <li class="swatch" style="background-color: #000000"></li>
+                        <li class="swatch" style="background-color: #666666"></li>
+                        <li class="swatch" style="background-color: #ff0000"></li>
+                        <li class="swatch" style="background-color: #0000ff"></li>
+                        <li class="swatch" style="background-color: #00ff00"></li>
+                      </ul>
+                    </div>
+                  </div>
                   <canvas id="canvas" tabindex="1">
                   </canvas>
                   <div id="menu">
@@ -44,14 +55,13 @@
                   </div>
                   <div id="tools">
                     <ul>
-                      <li data-action="undo">Undo</li>
-                      <li data-action="redo">Redo</li>
-                      <li data-tool="pan">Pan</li>
-                      <li data-tool="zoom">Zoom</li>
-                      <li data-action="size" id="sizepicker">
-                        <div class="outerRing">
-                          <div id="actualRing">
-                          </div>
+                      <li class="toolitem" data-tool="eraser">Eraser</li>
+                      <li class="toolitem" data-action="undo">Undo</li>
+                      <li class="toolitem" data-action="redo">Redo</li>
+                      <li class="toolitem" data-tool="pan">Pan</li>
+                      <li class="toolitem" data-tool="zoom">Zoom</li>
+                      <li data-action="color" class="toolitem menu">
+                        <div id="chosenColorSwatch" class="swatch" style="background-color: black">
                         </div>
                       </li>
                     </ul>
@@ -66,7 +76,7 @@
       </div>
     </div>
 
-    <!--<script src="http://localhost:35729/livereload.js"></script>-->
-    <script src="http://169.254.185.195:35729/livereload.js"></script>
+    <script src="http://localhost:35729/livereload.js"></script>
+    <!--<script src="http://169.254.185.195:35729/livereload.js"></script>-->
   </body>
 </html>

@@ -24,11 +24,11 @@ body, html {
   overflow: hidden; }
   .pane-slider .pane-wrapper {
     width: 200%;
-    overflow: visible; }
+    overflow: visible;
+    display: block; }
     .pane-slider .pane-wrapper > .pane {
-      width: 50%; }
-  .pane-slider .pane {
-    display: block !important; }
+      width: 50%;
+      display: block !important; }
 
 #files #files-list-container {
   overflow-y: scroll; }
@@ -36,6 +36,24 @@ body, html {
     list-style-type: none;
     margin: 0;
     padding: 0; }
+#files #draw .swatch {
+  border: 1px solid black;
+  width: 50px;
+  height: 40px;
+  margin: auto; }
+#files #draw .overlay {
+  z-index: 1000; }
+  #files #draw .overlay .modal {
+    margin: auto;
+    position: absolute;
+    opacity: 0;
+    transition: .3s opacity; }
+    #files #draw .overlay .modal.visible {
+      opacity: 1; }
+  #files #draw .overlay #colorPicker ul {
+    width: 100px; }
+    #files #draw .overlay #colorPicker ul li {
+      float: left; }
 #files #draw canvas {
   vertical-align: bottom; }
 #files #draw ul {
@@ -50,25 +68,6 @@ body, html {
   position: absolute;
   bottom: 10px;
   left: 10px; }
-  #files #draw #tools #sizepicker .outerRing, #files #draw #tools #sizepicker #actualRing {
-    border: 1px solid black;
-    width: 60px;
-    height: 60px;
-    border-radius: 30px; }
-  #files #draw #tools #sizepicker #actualRing {
-    margin-top: -1px;
-    margin-left: -1px;
-    background-color: green; }
-    #files #draw #tools #sizepicker #actualRing.half {
-      width: 30px;
-      height: 30px;
-      border-radius: 15px;
-      margin: 14px; }
-    #files #draw #tools #sizepicker #actualRing.quarter {
-      width: 15px;
-      height: 15px;
-      border-radius: 7.5px;
-      margin: 22px; }
 
 .ani4 {
   transition: all .4s; }
