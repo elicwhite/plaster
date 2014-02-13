@@ -39,10 +39,8 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     // When you move the mouse, what is the tool to use?
     _currentPointTool: "pencil",
 
-    _currentPencilColor: "#000000",
-
     // Timeout for 
-    _saveTransformTimeout: null,
+    _saveSettingsTimeout: null,
 
     _redoStack: null,
 
@@ -70,7 +68,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         e.preventDefault();
       });
 
-      this._canvasTapHandler = new TapHandler(canvas, {
+      this._canvasTapHandler = new TapHandler(this.element, {
         start: this._start.bind(this),
         move: this._move.bind(this),
         end: this._end.bind(this),
@@ -85,10 +83,16 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
       });
 
       new TapHandler(document.getElementById("menu"), {
+        start: function(e) {
+          e.stopPropagation();
+        },
         tap: this._menuTapped.bind(this),
       });
 
       new TapHandler(document.getElementById("colorPicker"), {
+        start: function(e) {
+          e.stopPropagation();
+        },
         tap: this._colorPicked.bind(this)
       });
 
@@ -110,15 +114,11 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
       this._actions = [];
       this._redoStack = [];
 
-      console.log("draw shown for file", file);
-
       this._fileNameElement.innerText = this._fileInfo.name;
 
       data.getFileActions(file.id, (function(results) {
         this._actions = results;
         this._updateAll = true;
-
-        this._settings = data.localFileSettings(file.id);
 
         this._manipulateCanvas = new ManipulateCanvas(this._canvas, this._settings);
 
@@ -126,9 +126,11 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         this._redraw();
       }).bind(this));
 
+      this._settings = data.localFileSettings(file.id);
+      document.getElementById("chosenColorSwatch").style.backgroundColor = this._settings.color;
+
       // We don't need data to resize
       this._resize();
-
 
 
       // Focus on the canvas after we navigate to it
@@ -154,14 +156,14 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
 
     _zoom: function(x, y, dScale) {
       if (this._manipulateCanvas.zoom(x, y, dScale)) {
-        this._saveTransform();
+        this._saveSettings();
         this._updateAll = true;
       }
     },
 
     _pan: function(dx, dy) {
       if (this._manipulateCanvas.pan(dx, dy)) {
-        this._saveTransform();
+        this._saveSettings();
         this._updateAll = true;
       }
     },
@@ -193,7 +195,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
           value: {
             points: [world],
             width: 2,
-            color: this._currentPencilColor
+            color: this._settings.color
           }
         }
 
@@ -374,9 +376,13 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
 
       this._overlay.currentModal = modalId;
       this._overlay.style.display = "block";
-      modal.classList.add("visible");
-      modal.style.left = window.innerWidth / 2 - modal.offsetWidth / 2 +"px";
-      modal.style.top = window.innerHeight / 2 - modal.offsetHeight / 2 +"px";
+
+      setTimeout(function() {
+        modal.classList.add("visible");
+      }, 0);
+
+      modal.style.left = window.innerWidth / 2 - modal.offsetWidth / 2 + "px";
+      modal.style.top = window.innerHeight / 2 - modal.offsetHeight / 2 + "px";
     },
 
     _hideModal: function(e) {
@@ -395,19 +401,17 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
       this._overlay.style.display = "";
 
       if (e) {
-        e.stopPropagation();
+        //e.stopPropagation();
       }
     },
 
     _colorPicked: function(e) {
-      console.log("color picked");
-
       parent = Helpers.parentEleWithClassname(e.srcElement, "swatch");
       if (parent) {
         var color = parent.style.backgroundColor;
-        this._currentPencilColor = color;
+        this._settings.color = color;
+        this._saveSettings();
 
-        console.log("color", color);
         document.getElementById("chosenColorSwatch").style.backgroundColor = color;
         this._hideModal();
       }
@@ -429,6 +433,8 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         this._canvasTapHandler.ignoreGestures(true);
         this._toolTapHandler.ignoreGestures(true);
       }
+
+      e.stopPropagation();
     },
 
     _toolEnd: function(e) {
@@ -527,17 +533,17 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     },
 
 
-    _saveTransform: function() {
+    _saveSettings: function() {
       // If the timeout is set already
-      if (this._saveTransformTimeout) {
+      if (this._saveSettingsTimeout) {
 
         // Clear it and set a new one
-        clearTimeout(this._saveTransformTimeout);
+        clearTimeout(this._saveSettingsTimeout);
       }
 
-      this._saveTransformTimeout = setTimeout((function() {
+      this._saveSettingsTimeout = setTimeout((function() {
         data.localFileSettings(this._fileInfo.id, this._settings);
-        this._saveTransformTimeout = null;
+        this._saveSettingsTimeout = null;
       }).bind(this), 100);
 
     },

@@ -99,6 +99,7 @@ define(["class", "helpers"], function(Class, Helpers) {
 
       var strokeSize = 1;
       ctx.lineWidth = stroke.width / this._settings.scale;
+      ctx.setStrokeColor(stroke.color);
 
       ctx.beginPath();
       ctx.moveTo(point.x, point.y);

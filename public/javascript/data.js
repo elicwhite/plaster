@@ -74,7 +74,8 @@ define(["class", "dataBacking/indexedDBBacking", "dataBacking/webSQLBacking", "e
         localStorage[fileId] = JSON.stringify({
           offsetX: 0,
           offsetY: 0,
-          scale: 1
+          scale: 1,
+          color: "#000"
         });
       }
 

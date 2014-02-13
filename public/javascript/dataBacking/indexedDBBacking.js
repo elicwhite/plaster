@@ -198,12 +198,10 @@ define(["dataBacking/baseBacking", "db"], function(BaseBacking, db) {
     },
 
     addAction: function(fileId, action) {
-      console.log("Saving action", action);
       this._getFileServer(fileId, (function(server) {
         server.actions
           .add(action)
           .done(function(item) {
-            console.log("After save", action, item);
             // item stored
           })
           .fail(function(e) {
