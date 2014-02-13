@@ -76,30 +76,41 @@ body {
     }
 
     #menu, #tools {
-      border: 1px solid black;
-      background-color: white;
+      ul {
+        border: 1px solid black;
+        background-color: white;
+        overflow: hidden;
 
-      li {
-        padding: 10px;
-        text-align: center;
-        
-        cursor: pointer;
+        li {
+          padding: 10px;
+          text-align: center;
+          
+          cursor: pointer;
+        }
       }
     }
 
     #menu {
-      border-right: none;
-      li {
-        float: left;
-        border-right: 1px solid black;
+      ul {
+        border-right: none;
+        height: 40px;
+
+        li {
+          float: left;
+          border-right: 1px solid black;
+          line-height: 40px;
+          padding: 0 10px;
+        }
       }
     }
 
     #tools {
-      border-bottom: none;
+      ul {
+        border-bottom: none;
 
-      li {
-        border-bottom: 1px solid black;
+        li {
+          border-bottom: 1px solid black;
+        }
       }
     }
   }

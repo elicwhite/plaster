@@ -159,21 +159,25 @@ body {
   width: 100px; }
   #files #draw .overlay #colorPicker ul li {
     float: left; }
-#files #draw #menu, #files #draw #tools {
+#files #draw #menu ul, #files #draw #tools ul {
   border: 1px solid black;
-  background-color: white; }
-  #files #draw #menu li, #files #draw #tools li {
+  background-color: white;
+  overflow: hidden; }
+  #files #draw #menu ul li, #files #draw #tools ul li {
     padding: 10px;
     text-align: center;
     cursor: pointer; }
-#files #draw #menu {
-  border-right: none; }
-  #files #draw #menu li {
+#files #draw #menu ul {
+  border-right: none;
+  height: 40px; }
+  #files #draw #menu ul li {
     float: left;
-    border-right: 1px solid black; }
-#files #draw #tools {
+    border-right: 1px solid black;
+    line-height: 40px;
+    padding: 0 10px; }
+#files #draw #tools ul {
   border-bottom: none; }
-  #files #draw #tools li {
+  #files #draw #tools ul li {
     border-bottom: 1px solid black; }
 
 .computer #files #files-list-container #navbar ul {
@@ -196,14 +200,14 @@ body {
       width: 100%;
       height: 100%;
       position: relative; }
+      .computer #files #files-list-container #files-list li .thumbnail-wrapper .overlay .file-name, .computer #files #files-list-container #files-list li .thumbnail-wrapper .overlay .delete {
+        position: absolute;
+        background-color: white; }
       .computer #files #files-list-container #files-list li .thumbnail-wrapper .overlay .file-name {
         top: 10px;
         left: 10px;
         padding: 2px;
         border-radius: 8px; }
-      .computer #files #files-list-container #files-list li .thumbnail-wrapper .overlay .file-name, .computer #files #files-list-container #files-list li .thumbnail-wrapper .overlay .delete {
-        position: absolute;
-        background-color: white; }
       .computer #files #files-list-container #files-list li .thumbnail-wrapper .overlay .delete {
         transition: .3s opacity;
         opacity: 0;

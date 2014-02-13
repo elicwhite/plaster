@@ -35,16 +35,16 @@
               height: 100%;
               position: relative;
 
+              .file-name, .delete {
+                position: absolute;
+                background-color: white;
+              }
+
               .file-name {
                 top: 10px;
                 left: 10px;
                 padding: 2px;
                 border-radius: 8px;
-              }
-
-              .file-name, .delete {
-                position: absolute;
-                background-color: white;
               }
 
               .delete {
