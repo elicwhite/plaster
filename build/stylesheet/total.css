@@ -3,6 +3,9 @@
   -moz-box-sizing: border-box;
   box-sizing: border-box; }
 
+* {
+  cursor: default; }
+
 body, html {
   margin: 0;
   padding: 0;
@@ -30,36 +33,30 @@ body, html {
       width: 50%;
       display: block !important; }
 
-#files #files-list-container #navbar {
-  height: 40px;
-  border-bottom: 1px solid black;
-  background-color: #333; }
+#files #files-list-container #navbar ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  display: inline-block; }
+  #files #files-list-container #navbar ul li {
+    display: inline-block; }
 #files #files-list-container #files-list {
   overflow-y: scroll;
   list-style-type: none;
   margin: 0;
   padding: 0;
   position: absolute;
-  top: 40px;
+  top: 0;
   bottom: 0; }
-#files #draw .swatch {
-  border: 1px solid black;
-  width: 50px;
-  height: 40px;
-  margin: auto; }
+  #files #files-list-container #files-list li .thumbnail-wrapper {
+    overflow: hidden; }
+    #files #files-list-container #files-list li .thumbnail-wrapper .thumbnail {
+      vertical-align: bottom; }
 #files #draw .overlay {
   z-index: 1000; }
   #files #draw .overlay .modal {
     margin: auto;
-    position: absolute;
-    opacity: 0;
-    transition: .3s opacity; }
-    #files #draw .overlay .modal.visible {
-      opacity: 1; }
-  #files #draw .overlay #colorPicker ul {
-    width: 100px; }
-    #files #draw .overlay #colorPicker ul li {
-      float: left; }
+    position: absolute; }
 #files #draw canvas {
   vertical-align: bottom; }
 #files #draw ul {
@@ -77,58 +74,6 @@ body, html {
 
 .ani4 {
   transition: all .4s; }
-
-@font-face {
-  font-family: 'icomoon';
-  src: url("../fonts/icomoon.eot");
-  src: url("../fonts/icomoon.eot?#iefix") format("embedded-opentype"), url("../fonts/icomoon.ttf") format("truetype"), url("../fonts/icomoon.woff") format("woff"), url("../fonts/icomoon.svg#icomoon") format("svg");
-  font-weight: normal;
-  font-style: normal; }
-
-[class^="icon-"], [class*=" icon-"] {
-  font-family: 'icomoon';
-  speak: none;
-  font-style: normal;
-  font-weight: normal;
-  font-variant: normal;
-  text-transform: none;
-  line-height: 1;
-  /* Better Font Rendering =========== */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale; }
-
-.icon-menu:before {
-  content: "\e600"; }
-
-.icon-plus:before {
-  content: "\e601"; }
-
-.icon-cog:before {
-  content: "\e602"; }
-
-.icon-arrow-left:before {
-  content: "\e603"; }
-
-.icon-arrow-left2:before {
-  content: "\e604"; }
-
-.icon-fire:before {
-  content: "\e605"; }
-
-.icon-settings:before {
-  content: "\e606"; }
-
-.icon-equalizer:before {
-  content: "\e607"; }
-
-.icon-spinner:before {
-  content: "\e608"; }
-
-.icon-exit:before {
-  content: "\e609"; }
-
-.icon-enter:before {
-  content: "\e60a"; }
 
 /*
   brighter pink: c623c4
@@ -185,26 +130,35 @@ body {
   font-family: sans-serif;
   font-weight: 100; }
 
-#files #files-list {
-  clear: both;
-  overflow: scroll; }
-  #files #files-list li {
-    float: left;
-    border: 1px solid black;
-    width: calc(25% - 20px);
-    margin: 10px; }
-    #files #files-list li:nth-child(1), #files #files-list li:nth-child(2) {
-      width: calc(50% - 20px); }
-      #files #files-list li:nth-child(1) .thumbnail-wrapper, #files #files-list li:nth-child(2) .thumbnail-wrapper {
-        height: 200px; }
-    #files #files-list li .thumbnail-wrapper {
-      overflow: hidden;
-      height: 100px; }
-      #files #files-list li .thumbnail-wrapper .thumbnail {
-        vertical-align: bottom; }
-    #files #files-list li .file-details {
-      border-top: 1px solid black;
-      text-align: center; }
+#files #files-list-container #navbar {
+  height: 40px;
+  border-bottom: 1px solid #057cb5;
+  background-color: #0aa6f2; }
+  #files #files-list-container #navbar ul {
+    color: white;
+    line-height: 40px; }
+  #files #files-list-container #navbar .pull-left {
+    float: left; }
+  #files #files-list-container #navbar .pull-right {
+    float: right; }
+#files #files-list-container #files-list {
+  top: 40px; }
+  #files #files-list-container #files-list li {
+    float: left; }
+#files #draw .swatch {
+  border: 1px solid black;
+  width: 50px;
+  height: 40px;
+  margin: auto; }
+#files #draw .overlay .modal {
+  opacity: 0;
+  transition: .3s opacity; }
+  #files #draw .overlay .modal.visible {
+    opacity: 1; }
+#files #draw .overlay #colorPicker ul {
+  width: 100px; }
+  #files #draw .overlay #colorPicker ul li {
+    float: left; }
 #files #draw #menu, #files #draw #tools {
   border: 1px solid black;
   background-color: white; }
@@ -222,6 +176,83 @@ body {
   #files #draw #tools li {
     border-bottom: 1px solid black; }
 
+.computer #files #files-list-container #navbar ul {
+  margin-left: 20px;
+  margin-right: 20px; }
+.computer #files #files-list-container #navbar #file-create {
+  cursor: pointer; }
+.computer #files #files-list-container #files-list {
+  width: 100%;
+  padding-top: 15px;
+  padding-left: 15px; }
+  .computer #files #files-list-container #files-list li {
+    border-radius: 1px;
+    border: 1px solid black;
+    margin-right: 15px;
+    margin-bottom: 15px; }
+    .computer #files #files-list-container #files-list li .thumbnail-wrapper .thumbnail {
+      position: absolute; }
+    .computer #files #files-list-container #files-list li .thumbnail-wrapper .overlay {
+      width: 100%;
+      height: 100%;
+      position: relative; }
+      .computer #files #files-list-container #files-list li .thumbnail-wrapper .overlay .file-name {
+        top: 10px;
+        left: 10px;
+        padding: 2px;
+        border-radius: 8px; }
+      .computer #files #files-list-container #files-list li .thumbnail-wrapper .overlay .file-name, .computer #files #files-list-container #files-list li .thumbnail-wrapper .overlay .delete {
+        position: absolute;
+        background-color: white; }
+      .computer #files #files-list-container #files-list li .thumbnail-wrapper .overlay .delete {
+        transition: .3s opacity;
+        opacity: 0;
+        cursor: pointer;
+        right: 10px;
+        bottom: 10px; }
+      .computer #files #files-list-container #files-list li .thumbnail-wrapper .overlay:hover .delete {
+        opacity: 1; }
+  @media (max-width: 470px) {
+    .computer #files #files-list-container #files-list {
+      padding-top: 10px;
+      padding-left: 10px; }
+      .computer #files #files-list-container #files-list li {
+        margin-right: 10px;
+        margin-bottom: 10px;
+        width: calc(50% - 10px); }
+        .computer #files #files-list-container #files-list li:nth-child(1) {
+          width: calc(100% - 10px); }
+          .computer #files #files-list-container #files-list li:nth-child(1) .thumbnail-wrapper {
+            height: 200px; }
+        .computer #files #files-list-container #files-list li .thumbnail-wrapper {
+          height: 140px; } }
+  @media (max-width: 767px) and (min-width: 471px) {
+    .computer #files #files-list-container #files-list li {
+      width: calc(33.33% - 15px); }
+      .computer #files #files-list-container #files-list li:nth-child(1), .computer #files #files-list-container #files-list li:nth-child(2) {
+        width: calc(50% - 15px); }
+        .computer #files #files-list-container #files-list li:nth-child(1) .thumbnail-wrapper, .computer #files #files-list-container #files-list li:nth-child(2) .thumbnail-wrapper {
+          height: 200px; }
+      .computer #files #files-list-container #files-list li .thumbnail-wrapper {
+        height: 140px; } }
+  @media (min-width: 768px) {
+    .computer #files #files-list-container #files-list li {
+      width: calc(25% - 15px); }
+      .computer #files #files-list-container #files-list li:nth-child(1), .computer #files #files-list-container #files-list li:nth-child(2), .computer #files #files-list-container #files-list li:nth-child(3) {
+        width: calc(33.33% - 15px); }
+        .computer #files #files-list-container #files-list li:nth-child(1) .thumbnail-wrapper, .computer #files #files-list-container #files-list li:nth-child(2) .thumbnail-wrapper, .computer #files #files-list-container #files-list li:nth-child(3) .thumbnail-wrapper {
+          height: 200px; }
+      .computer #files #files-list-container #files-list li .thumbnail-wrapper {
+        height: 140px; } }
+  @media (min-width: 1100px) and (min-width: 769px) {
+    .computer #files #files-list-container #files-list li {
+      width: calc(20% - 15px); }
+      .computer #files #files-list-container #files-list li:nth-child(1), .computer #files #files-list-container #files-list li:nth-child(2), .computer #files #files-list-container #files-list li:nth-child(3), .computer #files #files-list-container #files-list li:nth-child(4) {
+        width: calc(25% - 15px); }
+        .computer #files #files-list-container #files-list li:nth-child(1) .thumbnail-wrapper, .computer #files #files-list-container #files-list li:nth-child(2) .thumbnail-wrapper, .computer #files #files-list-container #files-list li:nth-child(3) .thumbnail-wrapper, .computer #files #files-list-container #files-list li:nth-child(4) .thumbnail-wrapper {
+          height: 250px; }
+      .computer #files #files-list-container #files-list li .thumbnail-wrapper {
+        height: 180px; } }
 .computer #draw #tools li[data-action="undo"], .computer #draw #tools li[data-action="redo"] {
   display: none !important; }
 
@@ -229,3 +260,55 @@ body {
   display: none; }
 .tablet #draw #tools li[data-tool="pan"], .phone #draw #tools li[data-tool="pan"] {
   padding: 30px !important; }
+
+@font-face {
+  font-family: 'icomoon';
+  src: url("../fonts/icomoon.eot");
+  src: url("../fonts/icomoon.eot?#iefix") format("embedded-opentype"), url("../fonts/icomoon.ttf") format("truetype"), url("../fonts/icomoon.woff") format("woff"), url("../fonts/icomoon.svg#icomoon") format("svg");
+  font-weight: normal;
+  font-style: normal; }
+
+[class^="icon-"], [class*=" icon-"] {
+  font-family: 'icomoon';
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale; }
+
+.icon-menu:before {
+  content: "\e600"; }
+
+.icon-plus:before {
+  content: "\e601"; }
+
+.icon-cog:before {
+  content: "\e602"; }
+
+.icon-arrow-left:before {
+  content: "\e603"; }
+
+.icon-arrow-left2:before {
+  content: "\e604"; }
+
+.icon-fire:before {
+  content: "\e605"; }
+
+.icon-settings:before {
+  content: "\e606"; }
+
+.icon-equalizer:before {
+  content: "\e607"; }
+
+.icon-spinner:before {
+  content: "\e608"; }
+
+.icon-exit:before {
+  content: "\e609"; }
+
+.icon-enter:before {
+  content: "\e60a"; }

@@ -116,7 +116,11 @@ define(["section", "event", "sections/fileList", "sections/draw"], function(Sect
       }
     },
 
-    _finishedSliding: function() {
+    _finishedSliding: function(e) {
+      if (e.srcElement != this._paneWrapper) {
+        return;
+      }
+
       // Remove the animation
       this._paneWrapper.classList.remove("ani4");
 

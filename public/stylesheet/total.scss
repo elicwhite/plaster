@@ -4,6 +4,10 @@
   box-sizing: border-box;
 }
 
+* {
+  cursor: default;
+}
+
 body, html {
   margin: 0;
   padding: 0;
@@ -42,34 +46,43 @@ body, html {
 
 #files {
   #files-list-container {
-    
     #navbar {
-      height: 40px;
-      border-bottom: 1px solid black;
-      background-color: #333;
+      ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        display: inline-block;
+
+        li {
+          display: inline-block;
+        }
+      }
     }
 
     #files-list {
       overflow-y: scroll;
-
-
       list-style-type: none;
       margin: 0;
       padding: 0;
 
       position: absolute;
-      top: 40px;
+      top: 0;      
       bottom: 0;
+
+      li {
+        .thumbnail-wrapper {
+          overflow: hidden;
+
+          .thumbnail {
+            vertical-align: bottom;
+          }
+        }
+      }
     }
   }
 
   #draw {
-    .swatch {
-        border: 1px solid black;
-        width: 50px;
-        height: 40px;
-        margin: auto;
-      }
+    
 
     .overlay {
       z-index: 1000;
@@ -77,20 +90,6 @@ body, html {
       .modal{
         margin: auto;
         position: absolute;
-        opacity: 0;
-        transition: .3s opacity;
-
-        &.visible {
-          opacity: 1;
-        }
-      }
-
-      #colorPicker ul {
-        width: 100px;
-
-        li {
-          float: left;
-        }
       }
     }
 
@@ -124,5 +123,5 @@ body, html {
   transition: all .4s;
 }
 
-@import "icomoon.scss";
 @import "design.scss";
+@import "icomoon.scss";

@@ -6,11 +6,13 @@ module.exports = function(grunt) {
     sass: {
       dist: {
         files: [{
-          expand: true,
+          /*expand: true,
           cwd: 'public/stylesheet',
           dest: 'build/stylesheet',
           src: ['*.scss'],
           ext: '.css'
+          */
+          'build/stylesheet/total.css': 'public/stylesheet/total.scss',
         }]
       }
     },
