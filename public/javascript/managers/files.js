@@ -122,7 +122,7 @@ define(["section", "event", "sections/fileList", "sections/draw"], function(Sect
 
       this._redoOffsets();
 
-      this._paneWrapper.style.webkitTransform = "translate(0px,0px)";
+      this._paneWrapper.style.webkitTransform = "";//"translate(0px,0px)";
     },
 
     _windowResized: function() {
