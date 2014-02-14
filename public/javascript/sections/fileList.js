@@ -102,6 +102,9 @@ define(["section", "tapHandler", "event", "helpers", "data", "templates/fileList
       if (this._resizeTimeout) {
         clearTimeout(this._resizeTimeout);
       }
+      else {
+        // we should clear canvases here
+      }
 
       this._resizeTimeout = setTimeout(this._actuallyResizeAndRender.bind(this), 500);
     },

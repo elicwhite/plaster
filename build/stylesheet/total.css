@@ -226,8 +226,9 @@ body {
         transition: .3s opacity;
         opacity: 0;
         cursor: pointer;
-        right: 10px;
-        bottom: 10px; }
+        padding: 10px;
+        right: 0px;
+        bottom: 0px; }
       .computer #files #files-list-container #files-list li .thumbnail-wrapper .overlay:hover .delete {
         opacity: 1; }
   @media (max-width: 470px) {
