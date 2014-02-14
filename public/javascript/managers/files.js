@@ -54,6 +54,7 @@ define(["section", "event", "sections/fileList", "sections/draw"], function(Sect
       }
 
       this.setPane(state.pane, state.details);
+      this._redoOffsets();
 
 
       window.files = this;
@@ -125,8 +126,6 @@ define(["section", "event", "sections/fileList", "sections/draw"], function(Sect
       this._paneWrapper.classList.remove("ani4");
 
       this._redoOffsets();
-
-      this._paneWrapper.style.webkitTransform = "";//"translate(0px,0px)";
     },
 
     _windowResized: function() {
@@ -155,6 +154,8 @@ define(["section", "event", "sections/fileList", "sections/draw"], function(Sect
         this.panes[pane].pane.element.style.webkitTransform = 'translate(' + startX + "px, 0px)";
         startX += this._screenWidth;
       }
+
+      this._paneWrapper.style.webkitTransform = "";
     }
   });
 

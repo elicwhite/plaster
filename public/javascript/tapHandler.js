@@ -165,6 +165,8 @@ define([], function() {
         return;
       }
 
+      console.log("in a gesture");
+
       this._inGesture = true;
 
       // We need to end the touch

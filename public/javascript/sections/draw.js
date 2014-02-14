@@ -184,13 +184,16 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     },
 
     _mouseWheel: function(e) {
+      // deltaX is chrome, wheelDelta is safari
+      var dx = -e.deltaX || (e.wheelDeltaX / 5);
+      var dy = -e.deltaY || (e.wheelDeltaY / 5);
 
       if (this._currentTool == "pan") {
-        this._pan(-e.deltaX, -e.deltaY);
+        this._pan(dx, dy);
       } else if (this._currentTool == "zoom") {
-        if (e.deltaY != 0) {
+        if (dy != 0) {
           //console.log(e);
-          this._zoom(e.offsetX, e.offsetY, e.deltaY / 100 * this._settings.scale);
+          this._zoom(e.offsetX, e.offsetY, dy / 100 * this._settings.scale);
         }
       }
     },
