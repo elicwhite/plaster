@@ -13,17 +13,24 @@
       }
 
       #files-list {
+        background-color: #f5f5f5;
+
         width: 100%;
 
         padding-top: 15px;
         padding-left: 15px;
 
         li {
-          border-radius: 1px;
-          border: 1px solid black;
+          background-color: white;
+
+          border-radius: 2px;
+          border: 1px solid $veryLightGray;
+          box-shadow: 0px 1px 2px $veryLightGray;
 
           margin-right: 15px;
           margin-bottom: 15px;
+
+          
 
           .thumbnail-wrapper {
             .thumbnail {
@@ -147,7 +154,59 @@
         }
       }
     }
-  }
+
+    #draw {
+
+      #tools {
+        width: 70px;
+
+        .swatch {
+          border: 1px solid black;
+          width: 100%;
+          height: 40px;
+        }
+      }
+
+      .overlay {
+        #colorPicker {
+          bottom: 0;
+          left: 0;
+
+          opacity: 0;
+          transition: .4s all;
+          -webkit-transform: translate(80px, -10px);
+
+          &.visible, &:hover {
+            opacity: 1;
+          }
+
+          ul {
+            $swatchSize: 30px;
+            $swatchSpacing: 5px;
+
+            width: ($swatchSize + $swatchSpacing) * 3 ;
+            margin-right: -1 * $swatchSpacing;
+            margin-bottom: -1 * $swatchSpacing;
+
+            li {
+              float: left;
+
+              &.swatch {
+                border: 1px solid black;
+                width: $swatchSize;
+                height: $swatchSize;
+                margin: auto;
+
+                //border-radius: $swatchSize / 4;
+
+                margin-right: $swatchSpacing;
+                margin-bottom: $swatchSpacing;
+              }
+            }
+          }
+        }
+      }
+    }
 
   #draw {
     #tools {
@@ -176,4 +235,56 @@
 }
 
 .tablet {
+
+  /*
+  #draw {
+
+      .overlay {
+        .modal{
+          opacity: 0;
+          transition: .3s opacity;
+
+          &.visible {
+            opacity: 1;
+          }
+        }
+
+        #colorPicker {
+          background-color: rgba(255, 255, 255, 1);
+
+          border-radius: 25px;
+          border: 1px solid $veryLightGray;
+          //box-shadow: 0px 1px 2px $veryLightGray;
+
+          padding: 40px 40px 20px 40px;
+
+          ul {
+            $swatchSize: 50px;
+            $swatchSpacing: 20px;
+
+            width: ($swatchSize + $swatchSpacing) * 3 ;
+
+            margin-right: -1 * $swatchSpacing;
+
+            li {
+              float: left;
+
+              &.swatch {
+                border: 1px solid black;
+                width: $swatchSize;
+                height: $swatchSize;
+                margin: auto;
+
+                border-radius: $swatchSize / 2;
+
+                margin-right: $swatchSpacing;
+                margin-bottom: $swatchSpacing;
+              }
+            }
+          }
+        }
+      }
+    }
+    */
+  }
 }

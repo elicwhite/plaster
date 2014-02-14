@@ -89,6 +89,13 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         tap: this._menuTapped.bind(this),
       });
 
+      new TapHandler(document.getElementById("options"), {
+        start: function(e) {
+          e.stopPropagation();
+        },
+        tap: this._menuTapped.bind(this),
+      });
+
       new TapHandler(document.getElementById("colorPicker"), {
         start: function(e) {
           e.stopPropagation();
@@ -124,6 +131,8 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
 
         this._shouldRender = true;
         this._redraw();
+
+        //this._showModal("colorPicker");
       }).bind(this));
 
       this._settings = data.localFileSettings(file.id);
@@ -373,16 +382,12 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         return;
       }
 
-
       this._overlay.currentModal = modalId;
       this._overlay.style.display = "block";
 
       setTimeout(function() {
         modal.classList.add("visible");
       }, 0);
-
-      modal.style.left = window.innerWidth / 2 - modal.offsetWidth / 2 + "px";
-      modal.style.top = window.innerHeight / 2 - modal.offsetHeight / 2 + "px";
     },
 
     _hideModal: function(e) {

@@ -105,14 +105,20 @@ body, html {
 
     #menu {
       position: absolute;
-      top: 10px;
-      left: 10px;
+      top: 0px;
+      left: 0px;
+    }
+
+    #options {
+      position: absolute;
+      top: 0px;
+      right: 0px;
     }
 
     #tools {
       position: absolute;
-      bottom: 10px;
-      left: 10px;
+      bottom: 0px;
+      left: 0px;
 
       
     }

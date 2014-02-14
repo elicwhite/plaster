@@ -38,7 +38,6 @@ body {
       }
     }
   
-
     #files-list {
       top: 40px;
 
@@ -49,35 +48,16 @@ body {
   }
 
   #draw {
-    .swatch {
-      border: 1px solid black;
-      width: 50px;
-      height: 40px;
-      margin: auto;
-    }
-
     .overlay {
-      .modal{
-        opacity: 0;
-        transition: .3s opacity;
-
-        &.visible {
-          opacity: 1;
-        }
-      }
-
-      #colorPicker ul {
-        width: 100px;
-
-        li {
-          float: left;
+      .modal {
+        ul {
+          overflow: hidden;
         }
       }
     }
 
-    #menu, #tools {
+    #menu, #tools, #options {
       ul {
-        border: 1px solid black;
         background-color: white;
         overflow: hidden;
 
@@ -90,14 +70,30 @@ body {
       }
     }
 
+    $menuBorder: $veryLightGray;
+    
     #menu {
       ul {
-        border-right: none;
+        border-bottom: 1px solid $menuBorder;
         height: 40px;
 
         li {
           float: left;
-          border-right: 1px solid black;
+          border-right: 1px solid $menuBorder;
+          line-height: 40px;
+          padding: 0 10px;
+        }
+      }
+    }
+
+    #options {
+      ul {
+        border-bottom: 1px solid $menuBorder;
+        height: 40px;
+
+        li {
+          float: right;
+          border-left: 1px solid $menuBorder;
           line-height: 40px;
           padding: 0 10px;
         }
@@ -106,10 +102,10 @@ body {
 
     #tools {
       ul {
-        border-bottom: none;
+        border-right: 1px solid $menuBorder;
 
         li {
-          border-bottom: 1px solid black;
+          border-top: 1px solid $menuBorder;
         }
       }
     }
