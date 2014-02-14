@@ -251,11 +251,11 @@ body, input {
     overflow: hidden; }
     #files #draw #menu ul li, #files #draw #tools ul li, #files #draw #options ul li {
       text-align: center;
-      cursor: pointer; }
+      cursor: pointer;
+      overflow: hidden; }
 #files #draw #title {
   width: 100%;
-  text-align: center;
-  line-height: 40px; }
+  text-align: center; }
   #files #draw #title #fileName {
     text-align: center;
     border: 0;
@@ -275,16 +275,19 @@ body, input {
     float: right;
     border-left: 1px solid #aaaaaa;
     padding: 0 10px; }
-#files #draw #tools {
-  width: 70px; }
-  #files #draw #tools ul {
-    border-right: 1px solid #aaaaaa; }
-    #files #draw #tools ul li {
-      border-top: 1px solid #aaaaaa; }
-  #files #draw #tools .swatch {
-    border: 1px solid black;
-    width: 100%;
-    height: 40px; }
+#files #draw #tools ul {
+  border-right: 1px solid #aaaaaa; }
+  #files #draw #tools ul li {
+    border-top: 1px solid #aaaaaa; }
+    #files #draw #tools ul li.undo, #files #draw #tools ul li.redo {
+      width: 50%;
+      float: left; }
+    #files #draw #tools ul li.undo {
+      border-right: 1px solid #aaaaaa; }
+#files #draw #tools .swatch {
+  border: 1px solid black;
+  width: 100%;
+  height: 40px; }
 
 .computer #files #files-list-container #navbar #file-create {
   cursor: pointer; }
@@ -294,13 +297,17 @@ body, input {
   cursor: pointer; }
 .computer #files #files-list-container #files-list li .thumbnail-wrapper .overlay:hover .delete {
   opacity: 1; }
-.computer #files #draw #tools ul li {
-  padding: 10px; }
+.computer #files #draw #tools {
+  width: 70px; }
+  .computer #files #draw #tools ul li {
+    padding: 10px; }
 .computer #files #draw #menu ul {
   height: 40px; }
   .computer #files #draw #menu ul li {
     line-height: 40px;
     padding: 0 10px; }
+.computer #files #draw #title {
+  line-height: 40px; }
 .computer #files #draw .overlay #colorPicker {
   bottom: 0;
   left: 0;
@@ -327,64 +334,47 @@ body, input {
 
 .tablet #draw #tools li[data-tool="zoom"], .phone #draw #tools li[data-tool="zoom"] {
   display: none; }
-.tablet #draw #tools li[data-tool="pan"], .phone #draw #tools li[data-tool="pan"] {
-  padding: 30px !important; }
 
-.tablet #files #draw #tools ul li {
-  padding: 10px; }
-.tablet #files #draw #menu ul {
-  height: 40px; }
-  .tablet #files #draw #menu ul li {
-    line-height: 40px;
-    padding: 0 10px; }
-.tablet #draw {
-    /*
-    .overlay {
-      .modal{
-        opacity: 0;
-        transition: .3s opacity;
-
-        &.visible {
-          opacity: 1;
-        }
-      }
-
-      #colorPicker {
-        background-color: rgba(255, 255, 255, 1);
-
+.tablet #files #draw #title {
+  line-height: 50px; }
+.tablet #files #draw #tools {
+  width: 90px; }
+  .tablet #files #draw #tools ul li {
+    padding: 15px; }
+    .tablet #files #draw #tools ul li.pan, .tablet #files #draw #tools ul li.pencil, .tablet #files #draw #tools ul li.eraser {
+      padding: 20px 30px; }
+.tablet #files #draw #menu ul, .tablet #files #draw #options ul {
+  height: 50px; }
+  .tablet #files #draw #menu ul li, .tablet #files #draw #options ul li {
+    line-height: 50px;
+    padding: 0 15px; }
+.tablet #draw .overlay .modal {
+  left: 50%;
+  opacity: 0;
+  transition: .3s opacity; }
+  .tablet #draw .overlay .modal.visible {
+    opacity: 1; }
+.tablet #draw .overlay #colorPicker {
+  left: calc(50% - 130px);
+  top: calc(50% - 130px);
+  background-color: white;
+  border-radius: 25px;
+  border: 1px solid #aaaaaa;
+  padding: 40px;
+  padding-bottom: 20px; }
+  .tablet #draw .overlay #colorPicker ul {
+    width: 210px;
+    margin-right: -20px; }
+    .tablet #draw .overlay #colorPicker ul li {
+      float: left; }
+      .tablet #draw .overlay #colorPicker ul li.swatch {
+        border: 1px solid black;
+        width: 50px;
+        height: 50px;
+        margin: auto;
         border-radius: 25px;
-        border: 1px solid $veryLightGray;
-        //box-shadow: 0px 1px 2px $veryLightGray;
-
-        padding: 40px 40px 20px 40px;
-
-        ul {
-          $swatchSize: 50px;
-          $swatchSpacing: 20px;
-
-          width: ($swatchSize + $swatchSpacing) * 3 ;
-
-          margin-right: -1 * $swatchSpacing;
-
-          li {
-            float: left;
-
-            &.swatch {
-              border: 1px solid black;
-              width: $swatchSize;
-              height: $swatchSize;
-              margin: auto;
-
-              border-radius: $swatchSize / 2;
-
-              margin-right: $swatchSpacing;
-              margin-bottom: $swatchSpacing;
-            }
-          }
-        }
-      }
-    }
-    */ }
+        margin-right: 20px;
+        margin-bottom: 20px; }
 
 @font-face {
   font-family: 'icomoon';

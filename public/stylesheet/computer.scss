@@ -28,6 +28,8 @@
 
     #draw {
       #tools {
+        width: 70px;
+
         ul {
           li {
             padding: 10px;
@@ -46,6 +48,9 @@
         }
       }
 
+      #title {
+        line-height: 40px;
+      }
 
       .overlay {
         #colorPicker {
@@ -105,34 +110,38 @@
       li[data-tool="zoom"] {
         display: none;
       }
-      li[data-tool="pan"] {
-        padding: 30px !important;
-      }
     }
   }
-}
-
-.phone {
 }
 
 .tablet {
   #files {
     #draw {
+      #title {
+        line-height: 50px;
+      }
+
       #tools {
+        width: 90px;
+
         ul {
           li {
-            padding: 10px;
+            padding: 15px;
+
+            &.pan, &.pencil, &.eraser {
+              padding: 20px 30px;
+            }
           }
         }
       }
 
-      #menu {
+      #menu, #options {
         ul {
-          height: 40px;
+          height: 50px;
 
           li {
-            line-height: 40px;
-            padding: 0 10px;
+            line-height: 50px;
+            padding: 0 15px;
           }
         }
       }
@@ -142,9 +151,11 @@
 
   
   #draw {
-    /*
+    
     .overlay {
       .modal{
+        left: 50%;
+
         opacity: 0;
         transition: .3s opacity;
 
@@ -154,21 +165,29 @@
       }
 
       #colorPicker {
+        $swatchSize: 50px;
+        $swatchSpacing: 20px;
+
+        left: calc(50% - 130px);
+        top: calc(50% - 130px);
+
+        // 3 columns, 80px horiz padding, each swatch is 70
+
         background-color: rgba(255, 255, 255, 1);
 
-        border-radius: 25px;
+        border-radius: $swatchSize / 2;
         border: 1px solid $veryLightGray;
         //box-shadow: 0px 1px 2px $veryLightGray;
 
-        padding: 40px 40px 20px 40px;
+        padding: $swatchSpacing * 2;
+        padding-bottom: $swatchSpacing;
 
         ul {
-          $swatchSize: 50px;
-          $swatchSpacing: 20px;
-
+          
           width: ($swatchSize + $swatchSpacing) * 3 ;
-
           margin-right: -1 * $swatchSpacing;
+
+          //left: -1.5 * ($swatchSize + $swatchSpacing)
 
           li {
             float: left;
@@ -188,7 +207,10 @@
         }
       }
     }
-    */
+    
     
   }
+}
+
+.phone {
 }

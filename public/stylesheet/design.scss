@@ -233,9 +233,9 @@ body, input {
         overflow: hidden;
 
         li {
-
           text-align: center;
           cursor: pointer;
+          overflow: hidden;
         }
       }
     }
@@ -243,7 +243,6 @@ body, input {
     #title {
       width: 100%;
       text-align: center;
-      line-height: 40px;
       
       #fileName {
         text-align: center;
@@ -283,13 +282,20 @@ body, input {
     }
 
     #tools {
-      width: 70px;
-
       ul {
         border-right: 1px solid $menuBorder;
 
         li {
           border-top: 1px solid $menuBorder;
+
+          &.undo, &.redo {
+            width: 50%;
+            float: left;
+          }
+
+          &.undo {
+            border-right: 1px solid $menuBorder;
+          }
         }
       }
 

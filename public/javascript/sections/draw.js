@@ -241,10 +241,11 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     _move: function(e) {
       var tool = this._currentTools.gesture || this._currentTools.point;
 
+      //debugger;
       if (tool == "pan") {
         // Make sure there are two touches
         if (e.touches && e.touches.length == 1) {
-          return;
+          //return;
         }
 
         this._pan(e.xFromLast, e.yFromLast);
@@ -461,7 +462,6 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     },
 
     _toolChanged: function(e) {
-      window.d = this;
       var parent = Helpers.parentEleWithClassname(e.srcElement, "toolitem");
 
       if (parent && parent.tagName == "LI") {
@@ -474,7 +474,12 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
           } else if (tool == "eraser") {
             this._currentTools.point = "eraser";
           } else if (tool == "pan") {
-            this._currentTools.scroll = "pan";
+            if (g.isComputer()) {
+              this._currentTools.scroll = "pan";
+            }
+            else {
+              this._currentTools.point = "pan";
+            }
           } else if (tool == "zoom") {
             this._currentTools.scroll = "zoom";
           }
