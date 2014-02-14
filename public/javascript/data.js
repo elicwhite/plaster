@@ -29,6 +29,10 @@ define(["class", "dataBacking/indexedDBBacking", "dataBacking/webSQLBacking", "e
       this._backing.getFiles(callback);
     },
 
+    getFile: function(fileId, callback) {
+      this._backing.getFile(fileId, callback);
+    },
+
     getFileActions: function(fileId, callback) {
       this._backing.getFileActions(fileId, callback);
     },

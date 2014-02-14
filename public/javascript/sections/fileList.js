@@ -60,6 +60,8 @@ define(["section", "tapHandler", "event", "helpers", "data", "templates/fileList
 
       Event.addListener("fileModified", this._fileModified.bind(this));
       Event.addListener("fileRenamed", this._fileRenamed.bind(this));
+
+      window.addEventListener("resize", this._resizeAndRender);
     },
 
     show: function(fileInfo) {
@@ -72,12 +74,6 @@ define(["section", "tapHandler", "event", "helpers", "data", "templates/fileList
 
         file.thumbnail.render(file.file);
       }
-
-      window.addEventListener("resize", this._resizeAndRender);
-    },
-
-    hide: function() {
-      window.removeEventListener("resize", this._resizeAndRender);
     },
 
     _newFileWrapper: function(file) {

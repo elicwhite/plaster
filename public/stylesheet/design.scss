@@ -56,7 +56,16 @@ body {
       }
     }
 
+    #menu, #options {
+      ul {
+        li {
+          line-height: 40px;
+        }
+      }
+    }
+
     #menu, #tools, #options {
+      z-index: 1;
       ul {
         background-color: white;
         overflow: hidden;
@@ -64,7 +73,6 @@ body {
         li {
           padding: 10px;
           text-align: center;
-          
           cursor: pointer;
         }
       }
@@ -86,6 +94,18 @@ body {
       }
     }
 
+    #title {
+      width: 100%;
+      text-align: center;
+      line-height: 40px;
+      
+      span {
+        background-color: white;
+        padding: 5px 15px;
+        border-radius: 10px;
+      }
+    }
+
     #options {
       ul {
         border-bottom: 1px solid $menuBorder;
@@ -94,7 +114,6 @@ body {
         li {
           float: right;
           border-left: 1px solid $menuBorder;
-          line-height: 40px;
           padding: 0 10px;
         }
       }

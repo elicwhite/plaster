@@ -63,16 +63,17 @@ body, html {
   margin: 0;
   padding: 0;
   list-style-type: none; }
+#files #draw #menu, #files #draw #title, #files #draw #options, #files #draw #tools {
+  position: absolute; }
+#files #draw #menu, #files #draw #title, #files #draw #options {
+  top: 0px; }
 #files #draw #menu {
-  position: absolute;
-  top: 0px;
   left: 0px; }
 #files #draw #options {
-  position: absolute;
-  top: 0px;
+  margin: auto; }
+#files #draw #options {
   right: 0px; }
 #files #draw #tools {
-  position: absolute;
   bottom: 0px;
   left: 0px; }
 
@@ -151,13 +152,17 @@ body {
     float: left; }
 #files #draw .overlay .modal ul {
   overflow: hidden; }
-#files #draw #menu ul, #files #draw #tools ul, #files #draw #options ul {
-  background-color: white;
-  overflow: hidden; }
-  #files #draw #menu ul li, #files #draw #tools ul li, #files #draw #options ul li {
-    padding: 10px;
-    text-align: center;
-    cursor: pointer; }
+#files #draw #menu ul li, #files #draw #options ul li {
+  line-height: 40px; }
+#files #draw #menu, #files #draw #tools, #files #draw #options {
+  z-index: 1; }
+  #files #draw #menu ul, #files #draw #tools ul, #files #draw #options ul {
+    background-color: white;
+    overflow: hidden; }
+    #files #draw #menu ul li, #files #draw #tools ul li, #files #draw #options ul li {
+      padding: 10px;
+      text-align: center;
+      cursor: pointer; }
 #files #draw #menu ul {
   border-bottom: 1px solid #aaaaaa;
   height: 40px; }
@@ -166,13 +171,20 @@ body {
     border-right: 1px solid #aaaaaa;
     line-height: 40px;
     padding: 0 10px; }
+#files #draw #title {
+  width: 100%;
+  text-align: center;
+  line-height: 40px; }
+  #files #draw #title span {
+    background-color: white;
+    padding: 5px 15px;
+    border-radius: 10px; }
 #files #draw #options ul {
   border-bottom: 1px solid #aaaaaa;
   height: 40px; }
   #files #draw #options ul li {
     float: right;
     border-left: 1px solid #aaaaaa;
-    line-height: 40px;
     padding: 0 10px; }
 #files #draw #tools ul {
   border-right: 1px solid #aaaaaa; }

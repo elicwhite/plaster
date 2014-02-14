@@ -67,6 +67,20 @@ define(["dataBacking/baseBacking", "db"], function(BaseBacking, db) {
         }).bind(this));
     },
 
+    getFile: function(fileId, callback) {
+      if (!this._server) {
+        this._doLater(this.getFile, [fileId, callback]);
+        return;
+      }
+
+      this._server.files.query('id')
+        .only(fileId)
+        .execute()
+        .done((function(results) {
+          callback(results[0]);
+        }).bind(this));
+    },
+
     _getFileServer: function(fileId, callback) {
       if (this._files[fileId]) {
         callback(this._files[fileId]);

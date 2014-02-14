@@ -8,6 +8,10 @@ define(["class"], function(Class) {
       console.error("Implement this function");
     },
 
+    getFile: function(fileId, callback) {
+      console.error("Implement this function");
+    },
+
     getFileActions: function(fileId, callback) {
       console.error("Implement this function");
     },

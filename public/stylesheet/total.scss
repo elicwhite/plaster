@@ -82,8 +82,6 @@ body, html {
   }
 
   #draw {
-    
-
     .overlay {
       z-index: 1000;
 
@@ -103,20 +101,27 @@ body, html {
       list-style-type: none;
     }
 
-    #menu {
+    #menu, #title, #options, #tools {
       position: absolute;
+    }
+
+    #menu, #title, #options {
       top: 0px;
+    }
+
+    #menu {
       left: 0px;
     }
 
     #options {
-      position: absolute;
-      top: 0px;
+      margin: auto;
+    }
+
+    #options {
       right: 0px;
     }
 
     #tools {
-      position: absolute;
       bottom: 0px;
       left: 0px;
 

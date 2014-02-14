@@ -89,6 +89,12 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         tap: this._menuTapped.bind(this),
       });
 
+      new TapHandler(document.getElementById("fileName"), {
+        start: function(e) {
+          e.stopPropagation();
+        }
+      });
+
       new TapHandler(document.getElementById("options"), {
         start: function(e) {
           e.stopPropagation();
@@ -116,12 +122,13 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     },
 
     show: function(file) {
-      this._fileInfo = file;
-
       this._actions = [];
       this._redoStack = [];
 
-      this._fileNameElement.innerText = this._fileInfo.name;
+      data.getFile(file.id, (function(fileInfo) {
+        this._fileInfo = fileInfo;
+        this._fileNameElement.innerText = this._fileInfo.name;
+      }).bind(this));
 
       data.getFileActions(file.id, (function(results) {
         this._actions = results;
@@ -140,7 +147,6 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
 
       // We don't need data to resize
       this._resize();
-
 
       // Focus on the canvas after we navigate to it
       setTimeout(function() {
@@ -336,6 +342,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     },
 
     _menuTapped: function(e) {
+      console.log("menu tapped");
       if (e.srcElement.tagName == "LI") {
         var action = e.srcElement.dataset.action;
 

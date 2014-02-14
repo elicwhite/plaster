@@ -15,7 +15,15 @@ define(["dataBacking/baseBacking"], function(BaseBacking) {
           callback(resultsObj);
         }).bind(this));
       }).bind(this));
+    },
 
+    getFile: function(fileId, callback) {
+      this._db.readTransaction((function(tx) {
+        tx.executeSql('SELECT * FROM `files` WHERE `id` = ?', [fileId], (function(transaction, results) {
+          var resultsObj = this._convertResultToObject(results);
+          callback(resultsObj[0]);
+        }).bind(this));
+      }).bind(this));
     },
 
     getFileActions: function(fileId, callback) {
