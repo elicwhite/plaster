@@ -219,7 +219,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
       this._currentAction = {
         type: "stroke",
         value: {
-          points: [world],
+          points: [[world.x, world.y]],
           width: 2,
           lockWidth: true, // should the width stay the same regardless of zoom
           color: this._settings.color
@@ -266,7 +266,10 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         var lastPoint = points[points.length - 1];
 
 
-        var dist = Math.sqrt(((lastPoint.x - world.x) * (lastPoint.x - world.x)) + ((lastPoint.y - world.y) * (lastPoint.y - world.y)));
+        var dist = Math.sqrt(
+          ((lastPoint[0] - world[0]) * (lastPoint[0] - world[0])) +
+          ((lastPoint[1] - world[1]) * (lastPoint[1] - world[1]))
+        );
         //console.log("dist", dist);
 
         //if (dist < 0.0003) {
@@ -274,7 +277,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
           return;
         }
 
-        currentStroke.points.push(world);
+        currentStroke.points.push([world.x, world.y]);
         this._updateCurrentAction = true;
       }
     },
@@ -298,9 +301,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
           // two options, don't count the stroke
           return;
 
-          // Or create a second point, same as the first.
-          // Canvas doesn't seem to render a line with two identical points.
-          currentStroke.points.push(currentStroke.points[0]);
+          // or render a point
         }
 
         var controlPoints = Helpers.getCurveControlPoints(currentStroke.points);

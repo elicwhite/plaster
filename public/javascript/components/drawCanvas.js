@@ -105,7 +105,7 @@ define(["class", "helpers"], function(Class, Helpers) {
       if (stroke.lockWidth) { // the width stays the same regardless of zoom
         lineWidth /= this._settings.scale;
       }
-      
+
       ctx.lineWidth = lineWidth;
       ctx.setStrokeColor(stroke.color);
 
@@ -114,9 +114,9 @@ define(["class", "helpers"], function(Class, Helpers) {
 
       for (var i = 1; i < points.length; i++) {
         point = points[i];
-        var cp1 = controlPoints[i - 1].first;
-        var cp2 = controlPoints[i - 1].second;
-        ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, point.x, point.y);
+        var cp1 = controlPoints[i - 1][0];
+        var cp2 = controlPoints[i - 1][1];
+        ctx.bezierCurveTo(cp1[0], cp1[1], cp2[0], cp2[1], point[0], point[1]);
       }
 
       ctx.stroke();

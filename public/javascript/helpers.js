@@ -63,18 +63,16 @@ define([], function() {
 
       if (n == 1) {
         // Special case: should be a line
-        firstControlPoints.push({});
-        firstControlPoints[0].x = (2 * knots[0].x + knots[1].x) / 3;
-        firstControlPoints[0].y = (2 * knots[0].y + knots[1].y) / 3;
+        firstControlPoints.push([]);
+        firstControlPoints[0] = [(2 * knots[0][0] + knots[1][0]) / 3, (2 * knots[0][1] + knots[1][1]) / 3];
 
-        secondControlPoints.push({});
-        secondControlPoints[0].x = 2 * firstControlPoints[0].x - knots[0].x;
-        secondControlPoints[0].y = 2 * firstControlPoints[0].y - knots[0].y;
+        secondControlPoints.push([]);
+        secondControlPoints[0] = [2 * firstControlPoints[0][0] - knots[0][0], 2 * firstControlPoints[0][1] - knots[0][1]];
 
-        return [{
-          first: firstControlPoints[0],
-          second: secondControlPoints[0]
-        }];
+        return [[
+          firstControlPoints[0],
+          secondControlPoints[0]
+        ]];
       }
 
       // Calculate first Bezier control points
@@ -84,22 +82,22 @@ define([], function() {
 
       // Set right hand side X values
       for (var i = 1; i < n - 1; ++i) {
-        rhs[i] = 4 * knots[i].x + 2 * knots[i + 1].x;
+        rhs[i] = 4 * knots[i][0] + 2 * knots[i + 1][0];
       }
 
-      rhs[0] = knots[0].x + 2 * knots[1].x;
-      rhs[n - 1] = (8 * knots[n - 1].x + knots[n].x) / 2;
+      rhs[0] = knots[0][0] + 2 * knots[1][0];
+      rhs[n - 1] = (8 * knots[n - 1][0] + knots[n][0]) / 2;
 
       // Get first control points x-values
       var x = getFirstControlPoints(rhs);
 
       // Set right hand side Y values
       for (var i = 1; i < n - 1; ++i) {
-        rhs[i] = 4 * knots[i].y + 2 * knots[i + 1].y;
+        rhs[i] = 4 * knots[i][1] + 2 * knots[i + 1][1];
       }
 
-      rhs[0] = knots[0].y + 2 * knots[1].y;
-      rhs[n - 1] = (8 * knots[n - 1].y + knots[n].y) / 2;
+      rhs[0] = knots[0][1] + 2 * knots[1][1];
+      rhs[n - 1] = (8 * knots[n - 1][1] + knots[n][1]) / 2;
 
       // Get first control points Y-values
       var y = getFirstControlPoints(rhs);
@@ -110,31 +108,31 @@ define([], function() {
 
       for (var i = 0; i < n; ++i) {
         // First control point
-        firstControlPoints[i] = {
-          x: x[i],
-          y: y[i]
-        };
+        firstControlPoints[i] = [
+          x[i],
+          y[i]
+        ];
 
         // Second control point
         if (i < n - 1) {
-          secondControlPoints[i] = {
-            x: 2 * knots[i + 1].x - x[i + 1],
-            y: 2 * knots[i + 1].y - y[i + 1]
-          };
+          secondControlPoints[i] = [
+            2 * knots[i + 1][0] - x[i + 1],
+            2 * knots[i + 1][1] - y[i + 1]
+          ];
         } else {
-          secondControlPoints[i] = {
-            x: (knots[n].x + x[n - 1]) / 2,
-            y: (knots[n].y + y[n - 1]) / 2
-          };
+          secondControlPoints[i] = [
+            (knots[n][0] + x[n - 1]) / 2,
+            (knots[n][1] + y[n - 1]) / 2
+          ];
         }
       }
 
       var controlPoints = new Array(n);
       for (var i = 0; i < n; ++i) {
-        controlPoints[i] = {
-          first: firstControlPoints[i],
-          second: secondControlPoints[i]
-        }
+        controlPoints[i] = [
+          firstControlPoints[i],
+          secondControlPoints[i]
+        ];
       }
 
       return controlPoints;
