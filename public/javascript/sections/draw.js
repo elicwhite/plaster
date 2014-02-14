@@ -203,7 +203,9 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     },
 
     _start: function(e) {
-      if (this._currentTools.point == "pan") {
+      var tool = this._currentTools.gesture || this._currentTools.point;
+
+      if (tool == "pan") {
         return;
       }
 
@@ -227,7 +229,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
       // Make sure the redo stack is empty as we are starting to draw again
       this._redoStack = [];
 
-      if (this._currentTools.point == "eraser") {
+      if (tool == "eraser") {
         this._currentAction.value.width = 30 / this._settings.scale;
         this._currentAction.value.color = "#ffffff";
         this._currentAction.value.lockWidth = false;
@@ -237,14 +239,16 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     },
 
     _move: function(e) {
-      if (this._currentTools.gesture == "pan") {
+      var tool = this._currentTools.gesture || this._currentTools.point;
+
+      if (tool == "pan") {
         // Make sure there are two touches
-        if (e.touches.length == 1) {
+        if (e.touches && e.touches.length == 1) {
           return;
         }
 
         this._pan(e.xFromLast, e.yFromLast);
-      } else if (this._currentTools.point == "pencil" || this._currentTools.point == "eraser") {
+      } else if (tool == "pencil" || tool == "eraser") {
 
         if (!this._currentAction) {
           // no current action. This can happen if we were dragging a tool and let up the
@@ -275,7 +279,9 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     },
 
     _end: function(e) {
-      if (this._currentTools.point == "pencil" || this._currentTools.point == "eraser") {
+      var tool = this._currentTools.gesture || this._currentTools.point;
+
+      if (tool == "pencil" || tool == "eraser") {
         if (!this._currentAction) {
           // no current action. This can happen if we were dragging a tool and let up the
           // tool button and kept dragging
@@ -423,38 +429,35 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     },
 
     _toolStart: function(e) {
-      /*
+      
       var tool = e.srcElement.dataset.tool;
       var action = e.srcElement.dataset.action;
 
       if (e.srcElement.tagName == "LI" && tool) {
-        if (tool == "pan") {
+        if (tool == "pan" || tool == "eraser" || tool == "pencil") {
           this._currentTools.gesture = tool;
 
           this._canvasTapHandler.ignoreGestures(true);
           this._toolTapHandler.ignoreGestures(true);
         }
       }
-      */
 
       e.stopPropagation();
     },
 
     _toolEnd: function(e) {
-      /*
       if (e) {
         var tool = e.srcElement.dataset.tool;
 
         if (e.srcElement.tagName == "LI" && tool) {
-          if (tool == "pan") {
-            this._currentTools.gesture = "";
+          if (tool == "pan" || tool == "eraser" || tool == "pencil") {
+            this._currentTools.gesture = null;
 
             this._canvasTapHandler.ignoreGestures(false);
             this._toolTapHandler.ignoreGestures(false);
           }
         }
       }
-      */
     },
 
     _toolChanged: function(e) {
