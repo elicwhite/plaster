@@ -2,86 +2,19 @@
   #files {
     #files-list-container {
       #navbar {
-        ul {
-          margin-left: 20px;
-          margin-right: 20px;
-        }
-
         #file-create {
           cursor: pointer;
-          display: none;
         }
       }
 
       #files-list {
-        background-color: #f5f5f5;
-
-        width: 100%;
-
-        padding-top: 15px;
-        padding-left: 15px;
-
         li {
-          background-color: white;
-
-          border-radius: 2px;
-          border: 1px solid $veryLightGray;
-          box-shadow: 0px 1px 2px $veryLightGray;
-
-          margin-right: 15px;
-          margin-bottom: 15px;
-
-          
-          &.create {
-            .thumbnail-wrapper {
-              background-color: #ececec;
-              position: relative;
-
-              .thumbnail {
-                position: absolute;
-                width: 100%;
-                height: 100%;
-                text-align: center;
-
-                font-size: 160px;
-                line-height: 200px;
-
-                color: #dcdcdc;
-                text-shadow: 1px 1px $veryLightGray;
-              }
-            }
-          }
-
           .thumbnail-wrapper {
-            .thumbnail {
-              position: absolute; 
-            }
-
             .overlay {
-              width: 100%;
-              height: 100%;
-              position: relative;
-
-              .file-name, .delete {
-                position: absolute;
-                background-color: white;
-              }
-
-              .file-name {
-                top: 10px;
-                left: 10px;
-                padding: 2px;
-                border-radius: 8px;
-              }
-
               .delete {
                 transition: .3s opacity;
                 opacity: 0;
                 cursor: pointer;
-
-                padding: 10px;
-                right: 0px;
-                bottom: 0px;
               }
 
               &:hover .delete {
@@ -90,111 +23,29 @@
             }
           }
         }
-
-        // phone
-        @media (max-width: 470px) { 
-          & {
-            padding-top: 10px;
-            padding-left: 10px;
-
-            li {
-              margin-right: 10px;
-              margin-bottom: 10px;
-              width: calc(50% - 10px); 
-
-              &:nth-child(1) {
-                width: calc(100% - 10px);
-
-                .thumbnail-wrapper {
-                  height: 200px;
-                }
-              }
-
-              .thumbnail-wrapper {
-                height: 140px;
-              }
-            }
-          }
-        }
-
-        // tablet
-        @media (max-width: 767px) and (min-width: 471px) { 
-          li {
-            width: calc(33.33% - 15px);   
-
-            &:nth-child(1), &:nth-child(2) {
-              width: calc(50% - 15px);
-
-              .thumbnail-wrapper {
-                height: 200px;
-              }
-            }
-
-            .thumbnail-wrapper {
-              height: 140px;
-            }
-          }
-        }
-
-        // big
-        @media (min-width: 768px) {
-          li {
-            width: calc(25% - 15px);          
-
-            &:nth-child(1), &:nth-child(2), &:nth-child(3) {
-              width: calc(33.33% - 15px);
-
-              .thumbnail-wrapper {
-                height: 200px;
-              }
-            }
-
-            .thumbnail-wrapper {
-              height: 140px;
-            }
-          }
-        }
-
-        // really big
-        @media (min-width: 1100px) and (min-width: 769px) {
-          li {
-            width: calc(20% - 15px);  
-
-            &.create {
-              .thumbnail-wrapper {
-                .thumbnail {
-                  font-size: 200px;
-                  line-height: 250px;
-                }
-              }
-            }         
-
-            &:nth-child(1), &:nth-child(2), &:nth-child(3), &:nth-child(4) {
-              width: calc(25% - 15px);
-
-              .thumbnail-wrapper {
-                height: 250px;
-              }
-            }
-
-            .thumbnail-wrapper {
-              height: 180px;
-            }
-          }
-        }
       }
     }
 
     #draw {
       #tools {
-        width: 70px;
-
-        .swatch {
-          border: 1px solid black;
-          width: 100%;
-          height: 40px;
+        ul {
+          li {
+            padding: 10px;
+          }
         }
       }
+
+      #menu {
+        ul {
+          height: 40px;
+
+          li {
+            line-height: 40px;
+            padding: 0 10px;
+          }
+        }
+      }
+
 
       .overlay {
         #colorPicker {
@@ -237,10 +88,11 @@
       }
     }
 
-  #draw {
-    #tools {
-      li[data-action="undo"], li[data-action="redo"] {
-        display: none !important;
+    #draw {
+      #tools {
+        li[data-action="undo"], li[data-action="redo"] {
+          display: none !important;
+        }
       }
     }
   }
@@ -264,56 +116,79 @@
 }
 
 .tablet {
-
-  /*
-  #draw {
-
-      .overlay {
-        .modal{
-          opacity: 0;
-          transition: .3s opacity;
-
-          &.visible {
-            opacity: 1;
+  #files {
+    #draw {
+      #tools {
+        ul {
+          li {
+            padding: 10px;
           }
         }
+      }
 
-        #colorPicker {
-          background-color: rgba(255, 255, 255, 1);
+      #menu {
+        ul {
+          height: 40px;
 
-          border-radius: 25px;
-          border: 1px solid $veryLightGray;
-          //box-shadow: 0px 1px 2px $veryLightGray;
+          li {
+            line-height: 40px;
+            padding: 0 10px;
+          }
+        }
+      }
+    }
+  }
 
-          padding: 40px 40px 20px 40px;
 
-          ul {
-            $swatchSize: 50px;
-            $swatchSpacing: 20px;
+  
+  #draw {
+    /*
+    .overlay {
+      .modal{
+        opacity: 0;
+        transition: .3s opacity;
 
-            width: ($swatchSize + $swatchSpacing) * 3 ;
+        &.visible {
+          opacity: 1;
+        }
+      }
 
-            margin-right: -1 * $swatchSpacing;
+      #colorPicker {
+        background-color: rgba(255, 255, 255, 1);
 
-            li {
-              float: left;
+        border-radius: 25px;
+        border: 1px solid $veryLightGray;
+        //box-shadow: 0px 1px 2px $veryLightGray;
 
-              &.swatch {
-                border: 1px solid black;
-                width: $swatchSize;
-                height: $swatchSize;
-                margin: auto;
+        padding: 40px 40px 20px 40px;
 
-                border-radius: $swatchSize / 2;
+        ul {
+          $swatchSize: 50px;
+          $swatchSpacing: 20px;
 
-                margin-right: $swatchSpacing;
-                margin-bottom: $swatchSpacing;
-              }
+          width: ($swatchSize + $swatchSpacing) * 3 ;
+
+          margin-right: -1 * $swatchSpacing;
+
+          li {
+            float: left;
+
+            &.swatch {
+              border: 1px solid black;
+              width: $swatchSize;
+              height: $swatchSize;
+              margin: auto;
+
+              border-radius: $swatchSize / 2;
+
+              margin-right: $swatchSpacing;
+              margin-bottom: $swatchSpacing;
             }
           }
         }
       }
     }
     */
+    
   }
 }

@@ -63,6 +63,5 @@ define([], function() {
       var body = document.body;
       body.className = devices.join(" ");
     }
-
   }
 });

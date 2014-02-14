@@ -143,15 +143,103 @@ body, input {
   background-color: #0aa6f2; }
   #files #files-list-container #navbar ul {
     color: white;
-    line-height: 40px; }
+    line-height: 40px;
+    margin-left: 20px;
+    margin-right: 20px; }
+  #files #files-list-container #navbar #file-create {
+    display: none; }
   #files #files-list-container #navbar .pull-left {
     float: left; }
   #files #files-list-container #navbar .pull-right {
     float: right; }
 #files #files-list-container #files-list {
-  top: 40px; }
+  top: 40px;
+  width: 100%;
+  background-color: #f5f5f5;
+  padding-top: 15px;
+  padding-left: 15px; }
   #files #files-list-container #files-list li {
-    float: left; }
+    float: left;
+    background-color: white;
+    border-radius: 2px;
+    border: 1px solid #aaaaaa;
+    box-shadow: 0px 1px 2px #aaaaaa;
+    margin-right: 15px;
+    margin-bottom: 15px; }
+    #files #files-list-container #files-list li.create .thumbnail-wrapper {
+      background-color: #ececec;
+      position: relative; }
+      #files #files-list-container #files-list li.create .thumbnail-wrapper .thumbnail {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        font-size: 160px;
+        line-height: 200px;
+        color: #dcdcdc;
+        text-shadow: 1px 1px #aaaaaa; }
+    #files #files-list-container #files-list li .thumbnail-wrapper .thumbnail {
+      position: absolute; }
+    #files #files-list-container #files-list li .thumbnail-wrapper .overlay {
+      width: 100%;
+      height: 100%;
+      position: relative; }
+      #files #files-list-container #files-list li .thumbnail-wrapper .overlay .file-name, #files #files-list-container #files-list li .thumbnail-wrapper .overlay .delete {
+        position: absolute;
+        background-color: white; }
+      #files #files-list-container #files-list li .thumbnail-wrapper .overlay .file-name {
+        top: 10px;
+        left: 10px;
+        padding: 2px;
+        border-radius: 8px; }
+      #files #files-list-container #files-list li .thumbnail-wrapper .overlay .delete {
+        padding: 10px;
+        right: 0px;
+        bottom: 0px; }
+  @media (max-width: 470px) {
+    #files #files-list-container #files-list {
+      padding-top: 10px;
+      padding-left: 10px; }
+      #files #files-list-container #files-list li {
+        margin-right: 10px;
+        margin-bottom: 10px;
+        width: calc(50% - 10px); }
+        #files #files-list-container #files-list li:nth-child(1) {
+          width: calc(100% - 10px); }
+          #files #files-list-container #files-list li:nth-child(1) .thumbnail-wrapper {
+            height: 200px; }
+        #files #files-list-container #files-list li .thumbnail-wrapper {
+          height: 140px; } }
+  @media (max-width: 767px) and (min-width: 471px) {
+    #files #files-list-container #files-list li {
+      width: calc(33.33% - 15px); }
+      #files #files-list-container #files-list li:nth-child(1), #files #files-list-container #files-list li:nth-child(2) {
+        width: calc(50% - 15px); }
+        #files #files-list-container #files-list li:nth-child(1) .thumbnail-wrapper, #files #files-list-container #files-list li:nth-child(2) .thumbnail-wrapper {
+          height: 200px; }
+      #files #files-list-container #files-list li .thumbnail-wrapper {
+        height: 140px; } }
+  @media (min-width: 768px) {
+    #files #files-list-container #files-list li {
+      width: calc(25% - 15px); }
+      #files #files-list-container #files-list li:nth-child(1), #files #files-list-container #files-list li:nth-child(2), #files #files-list-container #files-list li:nth-child(3) {
+        width: calc(33.33% - 15px); }
+        #files #files-list-container #files-list li:nth-child(1) .thumbnail-wrapper, #files #files-list-container #files-list li:nth-child(2) .thumbnail-wrapper, #files #files-list-container #files-list li:nth-child(3) .thumbnail-wrapper {
+          height: 200px; }
+      #files #files-list-container #files-list li .thumbnail-wrapper {
+        height: 140px; } }
+  @media (min-width: 1100px) and (min-width: 769px) {
+    #files #files-list-container #files-list li {
+      width: calc(20% - 15px); }
+      #files #files-list-container #files-list li.create .thumbnail-wrapper .thumbnail {
+        font-size: 200px;
+        line-height: 250px; }
+      #files #files-list-container #files-list li:nth-child(1), #files #files-list-container #files-list li:nth-child(2), #files #files-list-container #files-list li:nth-child(3), #files #files-list-container #files-list li:nth-child(4) {
+        width: calc(25% - 15px); }
+        #files #files-list-container #files-list li:nth-child(1) .thumbnail-wrapper, #files #files-list-container #files-list li:nth-child(2) .thumbnail-wrapper, #files #files-list-container #files-list li:nth-child(3) .thumbnail-wrapper, #files #files-list-container #files-list li:nth-child(4) .thumbnail-wrapper {
+          height: 250px; }
+      #files #files-list-container #files-list li .thumbnail-wrapper {
+        height: 180px; } }
 #files #draw .overlay .modal ul {
   overflow: hidden; }
 #files #draw #menu ul li, #files #draw #options ul li {
@@ -162,17 +250,8 @@ body, input {
     background-color: white;
     overflow: hidden; }
     #files #draw #menu ul li, #files #draw #tools ul li, #files #draw #options ul li {
-      padding: 10px;
       text-align: center;
       cursor: pointer; }
-#files #draw #menu ul {
-  border-bottom: 1px solid #aaaaaa;
-  height: 40px; }
-  #files #draw #menu ul li {
-    float: left;
-    border-right: 1px solid #aaaaaa;
-    line-height: 40px;
-    padding: 0 10px; }
 #files #draw #title {
   width: 100%;
   text-align: center;
@@ -184,6 +263,11 @@ body, input {
     padding: 5px 15px;
     border-radius: 10px;
     max-width: 250px; }
+#files #draw #menu ul {
+  border-bottom: 1px solid #aaaaaa; }
+  #files #draw #menu ul li {
+    float: left;
+    border-right: 1px solid #aaaaaa; }
 #files #draw #options ul {
   border-bottom: 1px solid #aaaaaa;
   height: 40px; }
@@ -191,114 +275,32 @@ body, input {
     float: right;
     border-left: 1px solid #aaaaaa;
     padding: 0 10px; }
-#files #draw #tools ul {
-  border-right: 1px solid #aaaaaa; }
-  #files #draw #tools ul li {
-    border-top: 1px solid #aaaaaa; }
-
-.computer #files #files-list-container #navbar ul {
-  margin-left: 20px;
-  margin-right: 20px; }
-.computer #files #files-list-container #navbar #file-create {
-  cursor: pointer;
-  display: none; }
-.computer #files #files-list-container #files-list {
-  background-color: #f5f5f5;
-  width: 100%;
-  padding-top: 15px;
-  padding-left: 15px; }
-  .computer #files #files-list-container #files-list li {
-    background-color: white;
-    border-radius: 2px;
-    border: 1px solid #aaaaaa;
-    box-shadow: 0px 1px 2px #aaaaaa;
-    margin-right: 15px;
-    margin-bottom: 15px; }
-    .computer #files #files-list-container #files-list li.create .thumbnail-wrapper {
-      background-color: #ececec;
-      position: relative; }
-      .computer #files #files-list-container #files-list li.create .thumbnail-wrapper .thumbnail {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        text-align: center;
-        font-size: 160px;
-        line-height: 200px;
-        color: #dcdcdc;
-        text-shadow: 1px 1px #aaaaaa; }
-    .computer #files #files-list-container #files-list li .thumbnail-wrapper .thumbnail {
-      position: absolute; }
-    .computer #files #files-list-container #files-list li .thumbnail-wrapper .overlay {
-      width: 100%;
-      height: 100%;
-      position: relative; }
-      .computer #files #files-list-container #files-list li .thumbnail-wrapper .overlay .file-name, .computer #files #files-list-container #files-list li .thumbnail-wrapper .overlay .delete {
-        position: absolute;
-        background-color: white; }
-      .computer #files #files-list-container #files-list li .thumbnail-wrapper .overlay .file-name {
-        top: 10px;
-        left: 10px;
-        padding: 2px;
-        border-radius: 8px; }
-      .computer #files #files-list-container #files-list li .thumbnail-wrapper .overlay .delete {
-        transition: .3s opacity;
-        opacity: 0;
-        cursor: pointer;
-        padding: 10px;
-        right: 0px;
-        bottom: 0px; }
-      .computer #files #files-list-container #files-list li .thumbnail-wrapper .overlay:hover .delete {
-        opacity: 1; }
-  @media (max-width: 470px) {
-    .computer #files #files-list-container #files-list {
-      padding-top: 10px;
-      padding-left: 10px; }
-      .computer #files #files-list-container #files-list li {
-        margin-right: 10px;
-        margin-bottom: 10px;
-        width: calc(50% - 10px); }
-        .computer #files #files-list-container #files-list li:nth-child(1) {
-          width: calc(100% - 10px); }
-          .computer #files #files-list-container #files-list li:nth-child(1) .thumbnail-wrapper {
-            height: 200px; }
-        .computer #files #files-list-container #files-list li .thumbnail-wrapper {
-          height: 140px; } }
-  @media (max-width: 767px) and (min-width: 471px) {
-    .computer #files #files-list-container #files-list li {
-      width: calc(33.33% - 15px); }
-      .computer #files #files-list-container #files-list li:nth-child(1), .computer #files #files-list-container #files-list li:nth-child(2) {
-        width: calc(50% - 15px); }
-        .computer #files #files-list-container #files-list li:nth-child(1) .thumbnail-wrapper, .computer #files #files-list-container #files-list li:nth-child(2) .thumbnail-wrapper {
-          height: 200px; }
-      .computer #files #files-list-container #files-list li .thumbnail-wrapper {
-        height: 140px; } }
-  @media (min-width: 768px) {
-    .computer #files #files-list-container #files-list li {
-      width: calc(25% - 15px); }
-      .computer #files #files-list-container #files-list li:nth-child(1), .computer #files #files-list-container #files-list li:nth-child(2), .computer #files #files-list-container #files-list li:nth-child(3) {
-        width: calc(33.33% - 15px); }
-        .computer #files #files-list-container #files-list li:nth-child(1) .thumbnail-wrapper, .computer #files #files-list-container #files-list li:nth-child(2) .thumbnail-wrapper, .computer #files #files-list-container #files-list li:nth-child(3) .thumbnail-wrapper {
-          height: 200px; }
-      .computer #files #files-list-container #files-list li .thumbnail-wrapper {
-        height: 140px; } }
-  @media (min-width: 1100px) and (min-width: 769px) {
-    .computer #files #files-list-container #files-list li {
-      width: calc(20% - 15px); }
-      .computer #files #files-list-container #files-list li.create .thumbnail-wrapper .thumbnail {
-        font-size: 200px;
-        line-height: 250px; }
-      .computer #files #files-list-container #files-list li:nth-child(1), .computer #files #files-list-container #files-list li:nth-child(2), .computer #files #files-list-container #files-list li:nth-child(3), .computer #files #files-list-container #files-list li:nth-child(4) {
-        width: calc(25% - 15px); }
-        .computer #files #files-list-container #files-list li:nth-child(1) .thumbnail-wrapper, .computer #files #files-list-container #files-list li:nth-child(2) .thumbnail-wrapper, .computer #files #files-list-container #files-list li:nth-child(3) .thumbnail-wrapper, .computer #files #files-list-container #files-list li:nth-child(4) .thumbnail-wrapper {
-          height: 250px; }
-      .computer #files #files-list-container #files-list li .thumbnail-wrapper {
-        height: 180px; } }
-.computer #files #draw #tools {
+#files #draw #tools {
   width: 70px; }
-  .computer #files #draw #tools .swatch {
+  #files #draw #tools ul {
+    border-right: 1px solid #aaaaaa; }
+    #files #draw #tools ul li {
+      border-top: 1px solid #aaaaaa; }
+  #files #draw #tools .swatch {
     border: 1px solid black;
     width: 100%;
     height: 40px; }
+
+.computer #files #files-list-container #navbar #file-create {
+  cursor: pointer; }
+.computer #files #files-list-container #files-list li .thumbnail-wrapper .overlay .delete {
+  transition: .3s opacity;
+  opacity: 0;
+  cursor: pointer; }
+.computer #files #files-list-container #files-list li .thumbnail-wrapper .overlay:hover .delete {
+  opacity: 1; }
+.computer #files #draw #tools ul li {
+  padding: 10px; }
+.computer #files #draw #menu ul {
+  height: 40px; }
+  .computer #files #draw #menu ul li {
+    line-height: 40px;
+    padding: 0 10px; }
 .computer #files #draw .overlay #colorPicker {
   bottom: 0;
   left: 0;
@@ -322,55 +324,61 @@ body, input {
         margin-bottom: 5px; }
 .computer #files #draw #tools li[data-action="undo"], .computer #files #draw #tools li[data-action="redo"] {
   display: none !important; }
-.computer .tablet #draw #tools li[data-tool="zoom"], .computer .phone #draw #tools li[data-tool="zoom"] {
+
+.tablet #draw #tools li[data-tool="zoom"], .phone #draw #tools li[data-tool="zoom"] {
   display: none; }
-.computer .tablet #draw #tools li[data-tool="pan"], .computer .phone #draw #tools li[data-tool="pan"] {
+.tablet #draw #tools li[data-tool="pan"], .phone #draw #tools li[data-tool="pan"] {
   padding: 30px !important; }
-.computer .tablet {
-  /*
-  #draw {
 
-      .overlay {
-        .modal{
-          opacity: 0;
-          transition: .3s opacity;
+.tablet #files #draw #tools ul li {
+  padding: 10px; }
+.tablet #files #draw #menu ul {
+  height: 40px; }
+  .tablet #files #draw #menu ul li {
+    line-height: 40px;
+    padding: 0 10px; }
+.tablet #draw {
+    /*
+    .overlay {
+      .modal{
+        opacity: 0;
+        transition: .3s opacity;
 
-          &.visible {
-            opacity: 1;
-          }
+        &.visible {
+          opacity: 1;
         }
+      }
 
-        #colorPicker {
-          background-color: rgba(255, 255, 255, 1);
+      #colorPicker {
+        background-color: rgba(255, 255, 255, 1);
 
-          border-radius: 25px;
-          border: 1px solid $veryLightGray;
-          //box-shadow: 0px 1px 2px $veryLightGray;
+        border-radius: 25px;
+        border: 1px solid $veryLightGray;
+        //box-shadow: 0px 1px 2px $veryLightGray;
 
-          padding: 40px 40px 20px 40px;
+        padding: 40px 40px 20px 40px;
 
-          ul {
-            $swatchSize: 50px;
-            $swatchSpacing: 20px;
+        ul {
+          $swatchSize: 50px;
+          $swatchSpacing: 20px;
 
-            width: ($swatchSize + $swatchSpacing) * 3 ;
+          width: ($swatchSize + $swatchSpacing) * 3 ;
 
-            margin-right: -1 * $swatchSpacing;
+          margin-right: -1 * $swatchSpacing;
 
-            li {
-              float: left;
+          li {
+            float: left;
 
-              &.swatch {
-                border: 1px solid black;
-                width: $swatchSize;
-                height: $swatchSize;
-                margin: auto;
+            &.swatch {
+              border: 1px solid black;
+              width: $swatchSize;
+              height: $swatchSize;
+              margin: auto;
 
-                border-radius: $swatchSize / 2;
+              border-radius: $swatchSize / 2;
 
-                margin-right: $swatchSpacing;
-                margin-bottom: $swatchSpacing;
-              }
+              margin-right: $swatchSpacing;
+              margin-bottom: $swatchSpacing;
             }
           }
         }
