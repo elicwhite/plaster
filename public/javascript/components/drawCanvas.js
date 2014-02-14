@@ -101,9 +101,12 @@ define(["class", "helpers"], function(Class, Helpers) {
 
       var point = points[0];
 
-
-      var strokeSize = 1;
-      ctx.lineWidth = stroke.width / this._settings.scale;
+      var lineWidth = stroke.width;
+      if (stroke.lockWidth) { // the width stays the same regardless of zoom
+        lineWidth /= this._settings.scale;
+      }
+      
+      ctx.lineWidth = lineWidth;
       ctx.setStrokeColor(stroke.color);
 
       ctx.beginPath();

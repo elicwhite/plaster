@@ -126,6 +126,8 @@ define([], function() {
         return;
       }
 
+      e.wasTap = false;
+
       // The event still has our start touch, it hasn't ended
       if (e.touches && this._indexOfTouch(e, this._startTouchId) !== -1) {
         return;
@@ -141,6 +143,7 @@ define([], function() {
       //console.log("-dist", dist);
 
       if (dist < this._distCutoff && (e.timeStamp - this._startTime < this._timeCutoff)) {
+        e.wasTap = true;
         if (this._options.tap) {
           this._options.tap(e);
         }
@@ -229,6 +232,8 @@ define([], function() {
 
     // Given an e, add things like x and y regardless of touch or mouse
     _processEvent: function(e) {
+      e.isTouch = e.touches ? true : false;
+
       var index = -1;
       // It's a touch
       if (e.touches && e.touches.length > 0 && (index = this._indexOfTouch(e, this._startTouchId)) !== -1) {

@@ -12,6 +12,10 @@ define([], function() {
       return this.hasDeviceType("Mac");
     },
 
+    isComputer: function() {
+      return this.hasDeviceType("computer");
+    },
+
     hasDeviceType: function(type) {
       return this.getDeviceType().indexOf(type) !== -1;
     },

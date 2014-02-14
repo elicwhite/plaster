@@ -33,11 +33,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     // Set this to false to stop the render loop
     _shouldRender: false,
 
-    // The current tool, zoom or pan
-    _currentTool: "pan",
-
-    // When you move the mouse, what is the tool to use?
-    _currentPointTool: "pencil",
+    _currentTools: null,
 
     // Timeout for 
     _saveSettingsTimeout: null,
@@ -55,6 +51,14 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     _overlay: null,
 
     init: function(filesPane) {
+
+      // TODO, not using this
+      this._currentTools = {
+        point: "pencil",
+        gesture: null,
+        scroll: "pan"
+      }
+
       this._super();
 
       this._filesPane = filesPane;
@@ -188,9 +192,9 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
       var dx = -e.deltaX || (e.wheelDeltaX / 5);
       var dy = -e.deltaY || (e.wheelDeltaY / 5);
 
-      if (this._currentTool == "pan") {
+      if (this._currentTools.scroll == "pan") {
         this._pan(dx, dy);
-      } else if (this._currentTool == "zoom") {
+      } else if (this._currentTools.scroll == "zoom") {
         if (dy != 0) {
           //console.log(e);
           this._zoom(e.offsetX, e.offsetY, dy / 100 * this._settings.scale);
@@ -199,38 +203,48 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     },
 
     _start: function(e) {
-      if (this._currentPointTool == "pan") {
+      if (this._currentTools.point == "pan") {
+        return;
+      }
 
-      } else if (this._currentPointTool == "pencil") {
-        var world = Helpers.screenToWorld(this._settings, e.distFromLeft, e.distFromTop);
 
-        if (this._currentAction) {
-          console.error("Current action isn't null!");
+      var world = Helpers.screenToWorld(this._settings, e.distFromLeft, e.distFromTop);
+
+      if (this._currentAction) {
+        console.error("Current action isn't null!");
+      }
+
+      this._currentAction = {
+        type: "stroke",
+        value: {
+          points: [world],
+          width: 2,
+          lockWidth: true, // should the width stay the same regardless of zoom
+          color: this._settings.color
         }
+      }
 
-        this._currentAction = {
-          type: "stroke",
-          value: {
-            points: [world],
-            width: 2,
-            color: this._settings.color
-          }
-        }
+      // Make sure the redo stack is empty as we are starting to draw again
+      this._redoStack = [];
 
-        // Make sure the redo stack is empty as we are starting to draw again
-        this._redoStack = [];
+      if (this._currentTools.point == "eraser") {
+        this._currentAction.value.width = 30 / this._settings.scale;
+        this._currentAction.value.color = "#ffffff";
+        this._currentAction.value.lockWidth = false;
+      } else if (this._currentTools.point == "pencil") {
+
       }
     },
 
     _move: function(e) {
-      if (this._currentPointTool == "pan") {
+      if (this._currentTools.gesture == "pan") {
         // Make sure there are two touches
         if (e.touches.length == 1) {
           return;
         }
 
         this._pan(e.xFromLast, e.yFromLast);
-      } else if (this._currentPointTool == "pencil") {
+      } else if (this._currentTools.point == "pencil" || this._currentTools.point == "eraser") {
 
         if (!this._currentAction) {
           // no current action. This can happen if we were dragging a tool and let up the
@@ -261,7 +275,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     },
 
     _end: function(e) {
-      if (this._currentPointTool == "pencil") {
+      if (this._currentTools.point == "pencil" || this._currentTools.point == "eraser") {
         if (!this._currentAction) {
           // no current action. This can happen if we were dragging a tool and let up the
           // tool button and kept dragging
@@ -312,7 +326,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     },
 
     _gesture: function(e) {
-      if (this._currentPointTool == "pencil") {
+      if (this._currentTools.point == "pencil") {
         this._pan(e.xFromLast, e.yFromLast);
         this._zoom(e.x, e.y, e.scaleFromLast * this._settings.scale);
       }
@@ -345,7 +359,6 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     },
 
     _menuTapped: function(e) {
-      console.log("menu tapped");
       if (e.srcElement.tagName == "LI") {
         var action = e.srcElement.dataset.action;
 
@@ -356,31 +369,6 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         } else if (action == "export") {
           var dataURL = this._canvas.toDataURL();
           window.open(dataURL);
-        }
-      }
-    },
-
-    _toolChanged: function(e) {
-      var parent = Helpers.parentEleWithClassname(e.srcElement, "toolitem");
-
-      if (parent && parent.tagName == "LI") {
-        var action = parent.dataset.action;
-        var tool = parent.dataset.tool;
-
-        if (tool) {
-          this._currentTool = tool;
-        } else if (action) {
-          if (action == "undo") {
-            this._undo();
-          } else if (action == "redo") {
-            this._redo();
-          }
-          if (action == "color") {
-            this._showModal("colorPicker");
-
-            e.preventDefault();
-            e.stopImmediatePropagation();
-          }
         }
       }
     },
@@ -435,35 +423,70 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     },
 
     _toolStart: function(e) {
+      /*
       var tool = e.srcElement.dataset.tool;
       var action = e.srcElement.dataset.action;
 
       if (e.srcElement.tagName == "LI" && tool) {
-        this._currentPointTool = tool;
-
         if (tool == "pan") {
+          this._currentTools.gesture = tool;
 
+          this._canvasTapHandler.ignoreGestures(true);
+          this._toolTapHandler.ignoreGestures(true);
         }
-
-        this._canvasTapHandler.ignoreGestures(true);
-        this._toolTapHandler.ignoreGestures(true);
       }
+      */
 
       e.stopPropagation();
     },
 
     _toolEnd: function(e) {
+      /*
       if (e) {
         var tool = e.srcElement.dataset.tool;
 
         if (e.srcElement.tagName == "LI" && tool) {
           if (tool == "pan") {
+            this._currentTools.gesture = "";
 
+            this._canvasTapHandler.ignoreGestures(false);
+            this._toolTapHandler.ignoreGestures(false);
           }
+        }
+      }
+      */
+    },
 
-          this._currentPointTool = "pencil";
-          this._canvasTapHandler.ignoreGestures(false);
-          this._toolTapHandler.ignoreGestures(false);
+    _toolChanged: function(e) {
+      window.d = this;
+      var parent = Helpers.parentEleWithClassname(e.srcElement, "toolitem");
+
+      if (parent && parent.tagName == "LI") {
+        var action = parent.dataset.action;
+        var tool = parent.dataset.tool;
+
+        if (tool) {
+          if (tool == "pencil") {
+            this._currentTools.point = "pencil";
+          } else if (tool == "eraser") {
+            this._currentTools.point = "eraser";
+          } else if (tool == "pan") {
+            this._currentTools.scroll = "pan";
+          } else if (tool == "zoom") {
+            this._currentTools.scroll = "zoom";
+          }
+        } else if (action) {
+          if (action == "undo") {
+            this._undo();
+          } else if (action == "redo") {
+            this._redo();
+          }
+          if (action == "color") {
+            this._showModal("colorPicker");
+
+            e.preventDefault();
+            e.stopImmediatePropagation();
+          }
         }
       }
     },
@@ -492,9 +515,9 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         e.preventDefault();
         this._undo();
       } else if (key == "Z") {
-        this._currentTool = "zoom";
+        this._currentTools.scroll = "zoom";
       } else if (key == "P") {
-        this._currentTool = "pan";
+        this._currentTools.scroll = "pan";
       }
 
     },
