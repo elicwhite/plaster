@@ -11,7 +11,7 @@ $mediumGray: #444;
 $darkGray: #333;
 $veryDarkGray: #111;
 
-body {
+body, input {
   font-size: 18px;
   font-family: sans-serif;
   font-weight: 100;
@@ -99,10 +99,14 @@ body {
       text-align: center;
       line-height: 40px;
       
-      span {
+      #fileName {
+        text-align: center;
+        border: 0;
         background-color: white;
         padding: 5px 15px;
         border-radius: 10px;
+
+        max-width: 250px;
       }
     }
 

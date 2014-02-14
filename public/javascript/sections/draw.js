@@ -127,7 +127,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
 
       data.getFile(file.id, (function(fileInfo) {
         this._fileInfo = fileInfo;
-        this._fileNameElement.innerText = this._fileInfo.name;
+        this._fileNameElement.value = this._fileInfo.name;
       }).bind(this));
 
       data.getFileActions(file.id, (function(results) {
@@ -538,7 +538,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     },
 
     _fileNameBlur: function(e) {
-      var name = e.srcElement.innerText;
+      var name = e.srcElement.value;
       data.renameFile(this._fileInfo.id, name);
 
       Event.trigger("fileRenamed", {

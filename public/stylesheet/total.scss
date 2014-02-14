@@ -8,14 +8,16 @@
   cursor: default;
 }
 
+body, html, canvas {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
 body, html {
   margin: 0;
   padding: 0;
   height: 100%;
   overflow: hidden;
-
-  user-select: none;
-  -webkit-user-select: none;
 }
 
 #overall, #main-content, #panes, .page, .pane {
