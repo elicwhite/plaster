@@ -16,7 +16,14 @@ require(["event", "globals", "managers/login"], function(Event, g, LoginManager)
       // make sure we are scrolled to 0. Without this there are problems 
       // when changing device orientation
       window.scroll(0,0);
-    })
+      setHeight();
+    });
+
+    function setHeight() {
+      document.body.style.height = window.innerHeight+"px";
+    }
+
+    setHeight();
   }
 
   if (document.readyState === "interactive" || document.readyState === "complete") {

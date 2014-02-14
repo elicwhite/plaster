@@ -333,10 +333,10 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     },
 
     _gesture: function(e) {
-      if (this._currentTools.point == "pencil") {
+      //if (this._currentTools.point == "pencil") {
         this._pan(e.xFromLast, e.yFromLast);
         this._zoom(e.x, e.y, e.scaleFromLast * this._settings.scale);
-      }
+      //}
     },
 
     _redraw: function() {
@@ -444,6 +444,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
       }
 
       e.stopPropagation();
+      e.preventDefault();
     },
 
     _toolEnd: function(e) {
@@ -474,6 +475,8 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
           } else if (tool == "eraser") {
             this._currentTools.point = "eraser";
           } else if (tool == "pan") {
+            // TODO: this should probably check if the event was a touch
+            // or mouse event
             if (g.isComputer()) {
               this._currentTools.scroll = "pan";
             }
