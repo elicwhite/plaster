@@ -128,7 +128,7 @@ define(["section", "tapHandler", "event", "helpers", "data", "templates/fileList
       data.createFile((function(file) {
         var fileTemplate = this._newFileWrapper(file);
         this._fileOrder.unshift(file.id);
-        this._fileListElement.insertBefore(fileTemplate, this._fileListElement.children[0]);
+        this._fileListElement.insertBefore(fileTemplate, this._fileListElement.children[1]);
         this._actuallyResizeAndRender();
       }).bind(this));
     },
@@ -138,20 +138,27 @@ define(["section", "tapHandler", "event", "helpers", "data", "templates/fileList
       var parent = Helpers.parentEleWithClassname(e.srcElement, "file-info");
 
       if (parent) {
-        if (element.dataset.action && element.dataset.action == "delete") {
-
-          var file = this._files[parent.fileId];
-          this._fileListElement.removeChild(file.element);
-          delete this._files[parent.fileId];
-          data.deleteFile(parent.fileId);
-
-          this._actuallyResizeAndRender();
-
-          // delete file
-          return;
+        if (parent.classList.contains("create")) {
+          // Create was called
+          this._newDoc();
         }
+        else
+        {
 
-        this._filesPane.setPane("draw", this._files[parent.fileId].file);
+          if (element.dataset.action && element.dataset.action == "delete") {
+            // Delete was clicked
+            var file = this._files[parent.fileId];
+            this._fileListElement.removeChild(file.element);
+            delete this._files[parent.fileId];
+            data.deleteFile(parent.fileId);
+
+            this._actuallyResizeAndRender();
+            return;
+          }
+
+          // Regular file was clicked
+          this._filesPane.setPane("draw", this._files[parent.fileId].file);
+        }
       }
 
     },
@@ -173,7 +180,7 @@ define(["section", "tapHandler", "event", "helpers", "data", "templates/fileList
       // Now actually take the element out and put it at the beginning too
       var element = this._files[data.fileId].element;
       this._fileListElement.removeChild(element);
-      this._fileListElement.insertBefore(element, this._fileListElement.children[0]);
+      this._fileListElement.insertBefore(element, this._fileListElement.children[1]);
       this._actuallyResizeAndRender();
     },
 

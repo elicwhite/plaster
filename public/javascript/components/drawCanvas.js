@@ -54,6 +54,11 @@ define(["class", "helpers"], function(Class, Helpers) {
       this._clearCanvas(this._tempCanvas, this._tempCtx);
     },
 
+    // Clears the main screen
+    clear: function() {
+      this._clearCanvas(this._canvas, this._ctx);
+    },
+
     _clearCanvas: function(canvas, ctx) {
       ctx.setTransform(this._settings.scale, 0, 0, this._settings.scale, this._settings.offsetX, this._settings.offsetY);
 

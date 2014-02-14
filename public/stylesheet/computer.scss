@@ -9,6 +9,7 @@
 
         #file-create {
           cursor: pointer;
+          display: none;
         }
       }
 
@@ -31,6 +32,25 @@
           margin-bottom: 15px;
 
           
+          &.create {
+            .thumbnail-wrapper {
+              background-color: #ececec;
+              position: relative;
+
+              .thumbnail {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                text-align: center;
+
+                font-size: 160px;
+                line-height: 200px;
+
+                color: #dcdcdc;
+                text-shadow: 1px 1px $veryLightGray;
+              }
+            }
+          }
 
           .thumbnail-wrapper {
             .thumbnail {
@@ -80,7 +100,7 @@
             li {
               margin-right: 10px;
               margin-bottom: 10px;
-              width: calc(50% - 10px);          
+              width: calc(50% - 10px); 
 
               &:nth-child(1) {
                 width: calc(100% - 10px);
@@ -100,7 +120,7 @@
         // tablet
         @media (max-width: 767px) and (min-width: 471px) { 
           li {
-            width: calc(33.33% - 15px);          
+            width: calc(33.33% - 15px);   
 
             &:nth-child(1), &:nth-child(2) {
               width: calc(50% - 15px);
@@ -138,7 +158,16 @@
         // really big
         @media (min-width: 1100px) and (min-width: 769px) {
           li {
-            width: calc(20% - 15px);          
+            width: calc(20% - 15px);  
+
+            &.create {
+              .thumbnail-wrapper {
+                .thumbnail {
+                  font-size: 200px;
+                  line-height: 250px;
+                }
+              }
+            }         
 
             &:nth-child(1), &:nth-child(2), &:nth-child(3), &:nth-child(4) {
               width: calc(25% - 15px);

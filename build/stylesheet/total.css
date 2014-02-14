@@ -195,7 +195,8 @@ body {
   margin-left: 20px;
   margin-right: 20px; }
 .computer #files #files-list-container #navbar #file-create {
-  cursor: pointer; }
+  cursor: pointer;
+  display: none; }
 .computer #files #files-list-container #files-list {
   background-color: #f5f5f5;
   width: 100%;
@@ -208,6 +209,18 @@ body {
     box-shadow: 0px 1px 2px #aaaaaa;
     margin-right: 15px;
     margin-bottom: 15px; }
+    .computer #files #files-list-container #files-list li.create .thumbnail-wrapper {
+      background-color: #ececec;
+      position: relative; }
+      .computer #files #files-list-container #files-list li.create .thumbnail-wrapper .thumbnail {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        font-size: 160px;
+        line-height: 200px;
+        color: #dcdcdc;
+        text-shadow: 1px 1px #aaaaaa; }
     .computer #files #files-list-container #files-list li .thumbnail-wrapper .thumbnail {
       position: absolute; }
     .computer #files #files-list-container #files-list li .thumbnail-wrapper .overlay {
@@ -266,6 +279,9 @@ body {
   @media (min-width: 1100px) and (min-width: 769px) {
     .computer #files #files-list-container #files-list li {
       width: calc(20% - 15px); }
+      .computer #files #files-list-container #files-list li.create .thumbnail-wrapper .thumbnail {
+        font-size: 200px;
+        line-height: 250px; }
       .computer #files #files-list-container #files-list li:nth-child(1), .computer #files #files-list-container #files-list li:nth-child(2), .computer #files #files-list-container #files-list li:nth-child(3), .computer #files #files-list-container #files-list li:nth-child(4) {
         width: calc(25% - 15px); }
         .computer #files #files-list-container #files-list li:nth-child(1) .thumbnail-wrapper, .computer #files #files-list-container #files-list li:nth-child(2) .thumbnail-wrapper, .computer #files #files-list-container #files-list li:nth-child(3) .thumbnail-wrapper, .computer #files #files-list-container #files-list li:nth-child(4) .thumbnail-wrapper {
