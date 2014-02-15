@@ -1,0 +1,19 @@
+CACHE MANIFEST
+#v0
+index.html
+fonts/icomoon.eot
+fonts/icomoon.eot?-8bxl3b
+fonts/icomoon.eot?#iefix-8bxl3b
+fonts/icomoon.svg
+fonts/icomoon.svg?-8bxl3b#icomoon
+fonts/icomoon.ttf
+fonts/icomoon.ttf?-8bxl3b
+fonts/icomoon.woff
+fonts/icomoon.woff?-8bxl3b
+
+javascript/main.min.js
+javascript/main.min.js.map
+stylesheet/total.css
+
+NETWORK:
+*
