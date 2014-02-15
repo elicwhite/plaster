@@ -28,11 +28,34 @@
 
     #draw {
       #tools {
-        width: 70px;
+        width: 90px;
 
         ul {
           li {
-            padding: 10px;
+            height: 60px;
+            line-height: 60px;
+
+            &#undo-tool, &#redo-tool {
+              display: none !important;
+            }
+
+            &#pan-tool, &#zoom-tool {
+              width: 50%;
+              float: left;
+            }
+
+            &#pan-tool {
+              border-right: 1px solid $veryLightGray;
+            }
+
+            &#color-tool {
+              padding: 5px;
+              .swatch {
+                height: 50px;
+
+                //padding-top: 0px;
+              }
+            }
           }
         }
       }
@@ -59,7 +82,7 @@
 
           opacity: 0;
           transition: .4s all;
-          -webkit-transform: translate(80px, -10px);
+          -webkit-transform: translate(95px, -10px);
 
           &.visible, &:hover {
             opacity: 1;
@@ -92,14 +115,6 @@
         }
       }
     }
-
-    #draw {
-      #tools {
-        li[data-action="undo"], li[data-action="redo"] {
-          display: none !important;
-        }
-      }
-    }
   }
 }
 
@@ -107,7 +122,7 @@
 .tablet, .phone {
   #draw {
     #tools {
-      li[data-tool="zoom"] {
+      li#zoom-tool {
         display: none;
       }
     }
@@ -128,7 +143,7 @@
           li {
             padding: 15px;
 
-            &.pan, &.pencil, &.eraser {
+            &#pan-tool, &#pencil-tool, &#eraser-tool {
               padding: 20px 30px;
             }
           }
@@ -146,12 +161,7 @@
         }
       }
     }
-  }
 
-
-  
-  #draw {
-    
     .overlay {
       .modal{
         left: 50%;
@@ -168,8 +178,9 @@
         $swatchSize: 50px;
         $swatchSpacing: 20px;
 
-        left: calc(50% - 130px);
-        top: calc(50% - 130px);
+        $offset: ($swatchSpacing + 1.5 * ($swatchSize + $swatchSpacing));
+        left: calc(50% - 125px);
+        top: calc(50% - 125px);
 
         // 3 columns, 80px horiz padding, each swatch is 70
 
@@ -213,4 +224,144 @@
 }
 
 .phone {
+  #files {
+    #files-list-container {
+      #navbar {
+        #file-create {
+          display: block;
+        }
+      }
+    }
+
+    #draw {
+      #title {
+        line-height: 40px;
+      }
+
+      #menu, #options {
+        ul {
+          height: 40px;
+
+          li {
+            line-height: 40px;
+            padding: 0 10px;
+          }
+        }
+      }
+
+      #menu, #tools, #options {
+        //font-size: 15px;
+      }
+
+      #tools {
+        //width: 70px;
+        width: auto;
+
+        ul {
+          @media (orientation: portrait) {
+            width: 60px;
+          }
+
+          @media (orientation: landscape) {
+            height: 60px;
+            width: auto;
+          }
+          
+          li {
+            float: left;
+
+            text-align: center;
+            width: 60px;
+            height: 60px;
+            line-height: 60px;
+            //padding: 20px 5px;
+
+            &#undo-tool {
+              border-right: none;
+            }
+
+            &#undo-tool, &#redo-tool {
+              //padding: 8px 5px;
+              width: 60px;
+            }
+
+            &#pan-tool, &#pencil-tool, &#eraser-tool {
+              //padding: 20px 20px;
+              //padding: 5px;
+            }
+
+            &#color-tool {
+              padding: 5px;
+              .swatch {
+                height: 50px;
+                width: 49px;
+                //padding-top: 0px;
+              }
+            }
+          }
+        }
+      }
+
+      
+
+      .overlay {
+        .modal{
+          left: 50%;
+
+          opacity: 0;
+          transition: .3s opacity;
+
+          &.visible {
+            opacity: 1;
+          }
+        }
+
+        #colorPicker {
+          $swatchSize: 50px;
+          $swatchSpacing: 10px;
+
+          $offset: ($swatchSpacing + 1.5 * ($swatchSize + $swatchSpacing));
+
+          // using 101 just to make it overlap the tool's border
+          left: calc(50% - 101px);
+          top: calc(50% - 101px);
+
+          // 3 columns, 80px horiz padding, each swatch is 70
+
+          background-color: rgba(255, 255, 255, 1);
+
+          border-radius: $swatchSize / 2;
+          border: 1px solid $veryLightGray;
+          //box-shadow: 0px 1px 2px $veryLightGray;
+
+          padding: $swatchSpacing * 2;
+          padding-bottom: $swatchSpacing;
+
+          ul {
+            
+            width: ($swatchSize + $swatchSpacing) * 3 ;
+            margin-right: -1 * $swatchSpacing;
+
+            //left: -1.5 * ($swatchSize + $swatchSpacing)
+
+            li {
+              float: left;
+
+              &.swatch {
+                border: 1px solid black;
+                width: $swatchSize;
+                height: $swatchSize;
+                margin: auto;
+
+                border-radius: $swatchSize / 2;
+
+                margin-right: $swatchSpacing;
+                margin-bottom: $swatchSpacing;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }

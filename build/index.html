@@ -6,6 +6,7 @@
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <script src="javascript/main.min.js"></script>
+    <script type="text/javascript" src="https://apis.google.com/js/api.js"></script>
     <link rel="stylesheet" href="stylesheet/total.css">
   </head>
   <body>
@@ -81,13 +82,13 @@
 
                   <div id="tools">
                     <ul>
-                      <li class="toolitem pencil icon-pencil" data-tool="pencil"></li>
-                      <li class="toolitem eraser icon-eraser" data-tool="eraser"></li>
-                      <li class="toolitem undo icon-undo" data-action="undo"></li>
-                      <li class="toolitem redo icon-redo" data-action="redo"></li>
-                      <li class="toolitem pan icon-move" data-tool="pan"></li>
-                      <li class="toolitem icon-zoom-in" data-tool="zoom"></li>
-                      <li data-action="color" class="toolitem menu">
+                      <li id="pencil-tool" class="toolitem icon-pencil" data-tool="pencil"></li>
+                      <li id="eraser-tool" class="toolitem icon-eraser" data-tool="eraser"></li>
+                      <li id="undo-tool" class="toolitem icon-undo" data-action="undo"></li>
+                      <li id="redo-tool" class="toolitem icon-redo" data-action="redo"></li>
+                      <li id="pan-tool" class="toolitem icon-move" data-tool="pan"></li>
+                      <li id="zoom-tool" class="toolitem icon-zoom-in" data-tool="zoom"></li>
+                      <li id="color-tool" data-action="color" class="toolitem menu">
                         <div id="chosenColorSwatch" class="swatch" style="background-color: black">
                         </div>
                       </li>

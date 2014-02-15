@@ -9,17 +9,15 @@ define(["class", "dataBacking/indexedDBBacking", "dataBacking/webSQLBacking", "e
 
     init: function() {
       var indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.oIndexedDB || window.msIndexedDB;
-      
+
       if (indexedDB) {
         console.log("Using IndexedDB as data store");
-        this._backing = new IndexedDBBacking();  
-      }
-      else
-      {
+        this._backing = new IndexedDBBacking();
+      } else {
         console.log("Using WebSQL as data store");
         this._backing = new WebSQLBacking();
       }
-      
+
 
       Event.addListener("fileModified", this._fileModified.bind(this));
     },
@@ -79,7 +77,12 @@ define(["class", "dataBacking/indexedDBBacking", "dataBacking/webSQLBacking", "e
           offsetX: 0,
           offsetY: 0,
           scale: 1,
-          color: "#000"
+          color: "#000",
+          tools: {
+            point: "pencil",
+            gesture: null,
+            scroll: "pan"
+          }
         });
       }
 

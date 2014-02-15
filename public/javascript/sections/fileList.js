@@ -1,4 +1,4 @@
-define(["section", "tapHandler", "event", "helpers", "data", "templates/fileList", "components/thumbnail"], function(Section, TapHandler, Event, Helpers, Data, FileListTemplate, Thumbnail) {
+define(["section", "tapHandler", "event", "globals", "helpers", "data", "templates/fileList", "components/thumbnail"], function(Section, TapHandler, Event, g, Helpers, Data, FileListTemplate, Thumbnail) {
 
   var FileList = Section.extend({
     id: "files-list-container",
@@ -30,6 +30,11 @@ define(["section", "tapHandler", "event", "helpers", "data", "templates/fileList
 
       this._resizeAndRender = this._resizeAndRender.bind(this);
       this._actuallyResizeAndRender = this._actuallyResizeAndRender.bind(this);
+
+      // Don't have the big create button on phone
+      if (g.isPhone()) {
+        this._fileListElement.innerHTML = "";
+      }
 
       Data.getFiles((function(files) {
 

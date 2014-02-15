@@ -16,6 +16,10 @@ define([], function() {
       return this.hasDeviceType("computer");
     },
 
+    isPhone: function() {
+      return this.hasDeviceType("phone");
+    },
+
     hasDeviceType: function(type) {
       return this.getDeviceType().indexOf(type) !== -1;
     },

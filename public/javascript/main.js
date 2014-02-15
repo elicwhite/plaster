@@ -1,4 +1,4 @@
-require(["event", "globals", "managers/login"], function(Event, g, LoginManager) {
+require(["event", "globals", "managers/login", "realtimeData"], function(Event, g, LoginManager, RealtimeData) {
 
   function init() {
     window.log = console.log.bind(console);
@@ -24,6 +24,9 @@ require(["event", "globals", "managers/login"], function(Event, g, LoginManager)
     }
 
     setHeight();
+
+    //var realtime = new RealtimeData();
+    //realtime.startRealtime();
   }
 
   if (document.readyState === "interactive" || document.readyState === "complete") {

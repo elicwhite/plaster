@@ -288,13 +288,19 @@ body, input {
         li {
           border-top: 1px solid $menuBorder;
 
-          &.undo, &.redo {
+          &#undo-tool, &#redo-tool {
             width: 50%;
             float: left;
           }
 
-          &.undo {
+          &#undo-tool {
             border-right: 1px solid $menuBorder;
+          }
+
+          &.active-point, &.active-gesture, &.active-scroll {
+            background-color: #eee;
+            color: $primary1;
+            text-shadow: 1px 1px $mediumGray;
           }
         }
       }

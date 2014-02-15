@@ -33,8 +33,6 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     // Set this to false to stop the render loop
     _shouldRender: false,
 
-    _currentTools: null,
-
     // Timeout for 
     _saveSettingsTimeout: null,
 
@@ -51,14 +49,6 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     _overlay: null,
 
     init: function(filesPane) {
-
-      // TODO, not using this
-      this._currentTools = {
-        point: "pencil",
-        gesture: null,
-        scroll: "pan"
-      }
-
       this._super();
 
       this._filesPane = filesPane;
@@ -147,6 +137,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
       }).bind(this));
 
       this._settings = data.localFileSettings(file.id);
+      this._setActiveTool();
       document.getElementById("chosenColorSwatch").style.backgroundColor = this._settings.color;
 
       // We don't need data to resize
@@ -192,9 +183,9 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
       var dx = -e.deltaX || (e.wheelDeltaX / 5);
       var dy = -e.deltaY || (e.wheelDeltaY / 5);
 
-      if (this._currentTools.scroll == "pan") {
+      if (this._settings.tools.scroll == "pan") {
         this._pan(dx, dy);
-      } else if (this._currentTools.scroll == "zoom") {
+      } else if (this._settings.tools.scroll == "zoom") {
         if (dy != 0) {
           //console.log(e);
           this._zoom(e.offsetX, e.offsetY, dy / 100 * this._settings.scale);
@@ -203,7 +194,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     },
 
     _start: function(e) {
-      var tool = this._currentTools.gesture || this._currentTools.point;
+      var tool = this._settings.tools.gesture || this._settings.tools.point;
 
       if (tool == "pan") {
         return;
@@ -219,7 +210,9 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
       this._currentAction = {
         type: "stroke",
         value: {
-          points: [[world.x, world.y]],
+          points: [
+            [world.x, world.y]
+          ],
           width: 2,
           lockWidth: true, // should the width stay the same regardless of zoom
           color: this._settings.color
@@ -233,13 +226,13 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         this._currentAction.value.width = 30 / this._settings.scale;
         this._currentAction.value.color = "#ffffff";
         this._currentAction.value.lockWidth = false;
-      } else if (this._currentTools.point == "pencil") {
+      } else if (this._settings.tools.point == "pencil") {
 
       }
     },
 
     _move: function(e) {
-      var tool = this._currentTools.gesture || this._currentTools.point;
+      var tool = this._settings.tools.gesture || this._settings.tools.point;
 
       //debugger;
       if (tool == "pan") {
@@ -283,7 +276,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     },
 
     _end: function(e) {
-      var tool = this._currentTools.gesture || this._currentTools.point;
+      var tool = this._settings.tools.gesture || this._settings.tools.point;
 
       if (tool == "pencil" || tool == "eraser") {
         if (!this._currentAction) {
@@ -334,9 +327,9 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     },
 
     _gesture: function(e) {
-      //if (this._currentTools.point == "pencil") {
-        this._pan(e.xFromLast, e.yFromLast);
-        this._zoom(e.x, e.y, e.scaleFromLast * this._settings.scale);
+      //if (this._settings.tools.point == "pencil") {
+      this._pan(e.xFromLast, e.yFromLast);
+      this._zoom(e.x, e.y, e.scaleFromLast * this._settings.scale);
       //}
     },
 
@@ -431,13 +424,15 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     },
 
     _toolStart: function(e) {
-      
+
       var tool = e.srcElement.dataset.tool;
       var action = e.srcElement.dataset.action;
 
       if (e.srcElement.tagName == "LI" && tool) {
         if (tool == "pan" || tool == "eraser" || tool == "pencil") {
-          this._currentTools.gesture = tool;
+          this._settings.tools.gesture = tool;
+
+          this._setActiveTool();
 
           this._canvasTapHandler.ignoreGestures(true);
           this._toolTapHandler.ignoreGestures(true);
@@ -454,7 +449,9 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
 
         if (e.srcElement.tagName == "LI" && tool) {
           if (tool == "pan" || tool == "eraser" || tool == "pencil") {
-            this._currentTools.gesture = null;
+            this._settings.tools.gesture = null;
+
+            this._setActiveTool();
 
             this._canvasTapHandler.ignoreGestures(false);
             this._toolTapHandler.ignoreGestures(false);
@@ -472,21 +469,23 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
 
         if (tool) {
           if (tool == "pencil") {
-            this._currentTools.point = "pencil";
+            this._settings.tools.point = "pencil";
           } else if (tool == "eraser") {
-            this._currentTools.point = "eraser";
+            this._settings.tools.point = "eraser";
           } else if (tool == "pan") {
             // TODO: this should probably check if the event was a touch
             // or mouse event
             if (g.isComputer()) {
-              this._currentTools.scroll = "pan";
-            }
-            else {
-              this._currentTools.point = "pan";
+              this._settings.tools.scroll = "pan";
+            } else {
+              this._settings.tools.point = "pan";
             }
           } else if (tool == "zoom") {
-            this._currentTools.scroll = "zoom";
+            this._settings.tools.scroll = "zoom";
           }
+
+          this._setActiveTool();
+          this._saveSettings();
         } else if (action) {
           if (action == "undo") {
             this._undo();
@@ -500,6 +499,42 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
             e.stopImmediatePropagation();
           }
         }
+      }
+    },
+
+    _setActiveTool: function() {
+      var toolsElement = document.getElementById("tools");
+
+      function addRemove(type) {
+        var prevTool = toolsElement.dataset["active" + type];
+        if (prevTool) {
+          var toolItem = document.getElementById(prevTool);
+          toolItem.classList.remove("active-"+type);
+        }
+
+        var currentTool = this._settings.tools[type];
+
+        if (currentTool) {
+
+          var currentToolId = currentTool + "-tool";
+          var newToolItem = document.getElementById(currentToolId);
+          newToolItem.classList.add("active-"+type);
+
+          toolsElement.dataset["active"+type] = currentToolId;
+        }
+        else
+        {
+          delete toolsElement.dataset["active"+type];
+        }
+        
+      }
+
+      addRemove = addRemove.bind(this);
+
+      addRemove("point");
+
+      if (g.isComputer()) {
+        addRemove("scroll");
       }
     },
 
@@ -527,9 +562,9 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         e.preventDefault();
         this._undo();
       } else if (key == "Z") {
-        this._currentTools.scroll = "zoom";
+        this._settings.tools.scroll = "zoom";
       } else if (key == "P") {
-        this._currentTools.scroll = "pan";
+        this._settings.tools.scroll = "pan";
       }
 
     },
