@@ -312,8 +312,6 @@ body, input {
   .computer #files #draw #tools ul li {
     height: 60px;
     line-height: 60px; }
-    .computer #files #draw #tools ul li#undo-tool, .computer #files #draw #tools ul li#redo-tool {
-      display: none !important; }
     .computer #files #draw #tools ul li#pan-tool, .computer #files #draw #tools ul li#zoom-tool {
       width: 50%;
       float: left; }
