@@ -291,6 +291,9 @@ body, input {
       background-color: #eee;
       color: #0aa6f2;
       text-shadow: 1px 1px #444444; }
+    #files #draw #tools ul li.disabled {
+      background-color: #ccc;
+      color: #bbb; }
 #files #draw #tools .swatch {
   border: 1px solid black;
   width: 100%;

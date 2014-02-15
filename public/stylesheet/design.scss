@@ -302,6 +302,11 @@ body, input {
             color: $primary1;
             text-shadow: 1px 1px $mediumGray;
           }
+
+          &.disabled {
+            background-color: #ccc;
+            color: #bbb;
+          }
         }
       }
 

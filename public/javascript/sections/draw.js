@@ -133,6 +133,8 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         this._shouldRender = true;
         this._redraw();
 
+        this._setDisabledUndoRedo();
+
         //this._showModal("colorPicker");
       }).bind(this));
 
@@ -229,6 +231,8 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
       } else if (this._settings.tools.point == "pencil") {
 
       }
+
+      this._setDisabledUndoRedo();
     },
 
     _move: function(e) {
@@ -303,6 +307,8 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         this._updateCurrentAction = true;
 
         this._saveAction(currentAction);
+
+        this._setDisabledUndoRedo();
       }
     },
 
@@ -502,6 +508,27 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
       }
     },
 
+    _setDisabledUndoRedo: function() {
+      var undo = document.getElementById("undo-tool");
+      var redo = document.getElementById("redo-tool");
+      
+      if (this._actions.length) {
+        undo.classList.remove("disabled");
+      }
+      else
+      {
+        undo.classList.add("disabled");
+      }
+
+      if (this._redoStack.length) {
+        redo.classList.remove("disabled");
+      }
+      else
+      {
+        redo.classList.add("disabled");
+      }
+    },
+
     _setActiveTool: function() {
       var toolsElement = document.getElementById("tools");
 
@@ -590,6 +617,8 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         this._manipulateCanvas.doAll(this._actions);
 
         this._updateAll = true;
+
+        this._setDisabledUndoRedo();
       }
     },
 
@@ -598,6 +627,8 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         console.log("redo");
         var nowAction = this._redoStack.pop();
         this._saveAction(nowAction);
+
+        this._setDisabledUndoRedo();
       }
     },
 
