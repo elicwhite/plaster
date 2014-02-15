@@ -15,9 +15,13 @@ define(["class", "helpers"], function(Class, Helpers) {
 
       this._backCanvas = document.createElement("canvas");
       this._backCtx = this._backCanvas.getContext("2d");
+      //this._backCtx.lineJoin = "round";
+      //this._backCtx.lineCap = "round";
 
       this._tempCanvas = document.createElement("canvas");
       this._tempCtx = this._tempCanvas.getContext("2d");
+      //this._tempCtx.lineJoin = "round";
+      //this._tempCtx.lineCap = "round";
     },
 
     // Creates a back canvas and draws all the actions to it and renders it on the main canvas
@@ -119,6 +123,9 @@ define(["class", "helpers"], function(Class, Helpers) {
         ctx.bezierCurveTo(cp1[0], cp1[1], cp2[0], cp2[1], point[0], point[1]);
       }
 
+
+      //ctx.lineJoin = "round";
+      ctx.lineCap = "round";
       ctx.stroke();
     },
   });
