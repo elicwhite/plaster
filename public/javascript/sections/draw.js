@@ -464,6 +464,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     },
 
     _toolChanged: function(e) {
+      console.log("tool clicked");
       var parent = Helpers.parentEleWithClassname(e.srcElement, "toolitem");
 
       if (parent && parent.tagName == "LI") {

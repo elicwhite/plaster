@@ -145,10 +145,14 @@ body, input {
   border-bottom: 1px solid #057cb5;
   background-color: #0aa6f2; }
   #files #files-list-container #navbar ul {
-    color: white;
-    line-height: 40px;
-    margin-left: 20px;
-    margin-right: 20px; }
+    color: white; }
+    #files #files-list-container #navbar ul li {
+      display: inline;
+      padding: 0 10px 0 10px;
+      float: left;
+      line-height: 40px; }
+      #files #files-list-container #navbar ul li#mode.offline {
+        color: #ff8900; }
   #files #files-list-container #navbar #file-create {
     display: none; }
   #files #files-list-container #navbar .pull-left {

@@ -15,10 +15,10 @@ define(["class", "event"], function(Class, Event) {
       this._userId = this._params['userId'];
     },
 
-    start: function(onAuthComplete) {
+    start: function() {
       if (window.gapi) {
         gapi.load('auth:client,drive-realtime,drive-share', (function() {
-          this._authorize(onAuthComplete);
+          this._authorize();
         }).bind(this));
       } else {
         console.log("Offline mode");
@@ -46,7 +46,7 @@ define(["class", "event"], function(Class, Event) {
       if (authResult && !authResult.error) {
         // logged in
         Event.trigger("login", authResult);
-        this._fetchUserId();
+        this._fetchUser();
       } else {
         Event.trigger("logout", authResult);
       }

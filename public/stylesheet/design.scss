@@ -26,9 +26,17 @@ body, input {
 
       ul {
         color: white;
-        line-height: 40px;
-        margin-left: 20px;
-        margin-right: 20px;
+
+        li {
+          display: inline;
+          padding: 0 10px 0 10px;
+          float: left;
+          line-height: 40px;
+
+          &#mode.offline {
+            color: $complementary1;
+          }
+        }
       }
 
       #file-create {
