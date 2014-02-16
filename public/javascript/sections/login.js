@@ -1,4 +1,4 @@
-define(["event", "section", "tapHandler"], function(Event, Section, TapHandler) {
+define(["event", "section", "tapHandler", "gauth"], function(Event, Section, TapHandler, GAuth) {
 
   var Login = Section.extend({
     id: "login",
@@ -11,9 +11,7 @@ define(["event", "section", "tapHandler"], function(Event, Section, TapHandler) 
     },
 
     _loginClicked: function() {
-      setTimeout(function() {
-        Event.trigger("login");  
-      }, 400);
+      GAuth.authorizeWithPopup();
     },
   });
 

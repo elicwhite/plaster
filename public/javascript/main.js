@@ -1,4 +1,4 @@
-require(["event", "globals", "managers/login"], function(Event, g, LoginManager) {
+require(["event", "globals", "managers/login", "gauth"], function(Event, g, LoginManager, GAuth) {
 
   function init() {
     window.log = console.log.bind(console);
@@ -24,6 +24,8 @@ require(["event", "globals", "managers/login"], function(Event, g, LoginManager)
     }
 
     setHeight();
+
+    GAuth.start();
 
     //var realtime = new RealtimeData();
     //realtime.startRealtime();

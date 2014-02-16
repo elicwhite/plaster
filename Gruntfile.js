@@ -49,11 +49,11 @@ module.exports = function(grunt) {
           name: "main",
           mainConfigFile: "public/javascript/config.js",
           out: "build/javascript/main.min.js",
-          optimize: 'uglify2',
-          generateSourceMaps: false,
+          //optimize: 'uglify2',
+          //generateSourceMaps: false,
 
-          //optimize: 'none',
-          //generateSourceMaps: true,
+          optimize: 'none',
+          generateSourceMaps: true,
 
           preserveLicenseComments: false,
           wrap: true

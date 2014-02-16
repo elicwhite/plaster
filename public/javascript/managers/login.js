@@ -16,9 +16,6 @@ define(["event", "sections/login", "sections/main"], function(Event, LoginSectio
       this.pages.login = new LoginSection();
       this.pages.main = new MainSection();
 
-      // Skip login entirely
-      localStorage.loggedIn = "true";
-
       if (localStorage.loggedIn == "true") {
         this.setPage("main");
       }
@@ -57,6 +54,7 @@ define(["event", "sections/login", "sections/main"], function(Event, LoginSectio
     },
 
     _logout: function() {
+      // https://accounts.google.com/Logout
       localStorage.loggedIn = false;
       this.setPage("login");
     }
