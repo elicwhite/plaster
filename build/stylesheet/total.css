@@ -547,6 +547,9 @@ body, input {
 .icon-pencil2:before {
   content: "\e617"; }
 
+.icon-plus:before {
+  content: "\e61b"; }
+
 .icon-fullscreen:before {
   content: "\e618"; }
 
@@ -555,3 +558,6 @@ body, input {
 
 .icon-eraser:before {
   content: "\e61a"; }
+
+.icon-plus2:before {
+  content: "\e61c"; }
