@@ -198,7 +198,8 @@ body, input {
       #files #files-list-container #files-list li .thumbnail-wrapper .overlay .delete {
         padding: 10px;
         right: 0px;
-        bottom: 0px; }
+        bottom: 0px;
+        color: #aaaaaa; }
   @media (max-width: 470px) {
     #files #files-list-container #files-list {
       padding-top: 10px;

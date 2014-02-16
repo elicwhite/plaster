@@ -597,8 +597,10 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         this._undo();
       } else if (key == "Z") {
         this._settings.tools.scroll = "zoom";
+        this._setActiveTool();
       } else if (key == "P") {
         this._settings.tools.scroll = "pan";
+        this._setActiveTool();
       }
 
     },

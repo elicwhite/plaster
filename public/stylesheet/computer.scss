@@ -35,10 +35,6 @@
             height: 60px;
             line-height: 60px;
 
-            &#undo-tool, &#redo-tool {
-              //display: none !important;
-            }
-
             &#pan-tool, &#zoom-tool {
               width: 50%;
               float: left;
@@ -50,10 +46,9 @@
 
             &#color-tool {
               padding: 5px;
+              
               .swatch {
                 height: 50px;
-
-                //padding-top: 0px;
               }
             }
           }

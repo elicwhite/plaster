@@ -16,6 +16,9 @@ define(["event", "sections/login", "sections/main"], function(Event, LoginSectio
       this.pages.login = new LoginSection();
       this.pages.main = new MainSection();
 
+      // Skip login entirely
+      localStorage.loggedIn = "true";
+
       if (localStorage.loggedIn == "true") {
         this.setPage("main");
       }
