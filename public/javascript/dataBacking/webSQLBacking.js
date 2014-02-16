@@ -3,7 +3,6 @@ define(["dataBacking/baseBacking"], function(BaseBacking) {
     _db: null,
 
     init: function() {
-      console.log("sql init");
       this._error = this._error.bind(this);
       this._db = openDatabase("draw", "1.0", "draw", 2 * 1024 * 1024, this._databaseCreated.bind(this));
     },
@@ -138,7 +137,7 @@ define(["dataBacking/baseBacking"], function(BaseBacking) {
     },
 
     _success: function(e) {
-      console.log("Query Success", e);
+
     },
 
     _error: function(e) {

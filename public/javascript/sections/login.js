@@ -15,14 +15,6 @@ define(["event", "section", "tapHandler"], function(Event, Section, TapHandler) 
         Event.trigger("login");  
       }, 400);
     },
-
-    show: function() {
-      console.log("login shown");
-    },
-
-    hide: function() {
-      console.log("login hidden");
-    }, 
   });
 
   return Login;

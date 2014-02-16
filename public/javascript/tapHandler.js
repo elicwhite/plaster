@@ -58,7 +58,6 @@ define([], function() {
 
 
     _start: function(e) {
-      //console.log("start called");
       if (e.touches) {
         // start touch is the last touch
         this._startTouchId = e.touches[e.touches.length - 1].identifier;
@@ -74,8 +73,6 @@ define([], function() {
       this._startType = "mouse";
       if (e.touches) {
         this._startType = "touch";
-        //console.log(e);
-
       }
 
       this._inTouch = true;
@@ -85,8 +82,6 @@ define([], function() {
 
       this._startX = this._lastX = e.x;
       this._startY = this._lastY = e.y;
-
-      //console.log("-start", e.x, e.y);
 
       if (this._options.start) {
         this._options.start(e);
@@ -136,11 +131,7 @@ define([], function() {
       this._endTouchHandlers();
       this._processEvent(e);
 
-      //console.log("-end", e.x, e.y, this._startX, this._startY);
-
-
       var dist = Math.sqrt(((e.x - this._startX) * (e.x - this._startX)) + ((e.y - this._startY) * (e.y - this._startY)));
-      //console.log("-dist", dist);
 
       if (dist < this._distCutoff && (e.timeStamp - this._startTime < this._timeCutoff)) {
         e.wasTap = true;
@@ -168,8 +159,6 @@ define([], function() {
         return;
       }
 
-      console.log("in a gesture");
-
       this._inGesture = true;
 
       // We need to end the touch
@@ -184,8 +173,6 @@ define([], function() {
       this._startX = this._lastX = e.x;
       this._startY = this._lastY = e.y;
 
-      //console.log("gesture started", this._startX, this._startY);
-
       this._startScale = this._lastScale = e.scale;
 
       document.addEventListener("gesturechange", this._gestureChange);
@@ -199,8 +186,6 @@ define([], function() {
       this._lastX = e.x;
       this._lastY = e.y;
       this._lastScale = e.scale;
-
-      //console.log(e.xFromLast, e.yFromLast);
 
       this._lastScale = e.scale;
 

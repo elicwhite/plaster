@@ -8,7 +8,6 @@ define(["dataBacking/baseBacking", "db"], function(BaseBacking, db) {
     _initCallbacks: null,
 
     init: function() {
-      console.log("backing file used");
       this._files = [];
 
       this._initCallbacks = [];
@@ -33,7 +32,6 @@ define(["dataBacking/baseBacking", "db"], function(BaseBacking, db) {
         }
       })
         .done((function(server) {
-          console.log("Set up files server");
           this._server = server;
 
           // Go through all our delayed callbacks
@@ -176,7 +174,7 @@ define(["dataBacking/baseBacking", "db"], function(BaseBacking, db) {
         })
         .execute()
         .done(function(results) {
-          console.log("Want to rename file", results);
+
         })
         .fail(function(e) {
           console.error("Couldn't find file", e);
@@ -192,14 +190,9 @@ define(["dataBacking/baseBacking", "db"], function(BaseBacking, db) {
       this._server.files.remove(fileId)
         .done(function(key) {
           // item removed
-          console.log("Deleted file from file table", fileId);
-
           var f = indexedDB.deleteDatabase(fileId);
-          f.onsuccess = function(e) {
-            console.log("Deleted Database for file", key);
-          }
           f.onerror = function(e) {
-            console.log("Error deleting database", e);
+            console.error("Error deleting database", e);
           }
 
           // Delete settings from local storage

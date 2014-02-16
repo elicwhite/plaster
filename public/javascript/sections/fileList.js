@@ -37,9 +37,6 @@ define(["section", "tapHandler", "event", "globals", "helpers", "data", "templat
       }
 
       Data.getFiles((function(files) {
-
-        console.log("got files", files);
-
         for (var i = 0; i < files.length; i++) {
           var file = files[i];
           this._files[file.id] = file;
@@ -190,8 +187,6 @@ define(["section", "tapHandler", "event", "globals", "helpers", "data", "templat
     },
 
     _fileRenamed: function(data) {
-      console.log("File renamed", data);
-
       this._files[data.fileId].name = data.name;
       var element = this._files[data.fileId].element;
       var fileNameElement = element.getElementsByClassName("file-name")[0];

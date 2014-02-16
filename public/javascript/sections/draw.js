@@ -189,7 +189,6 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         this._pan(dx, dy);
       } else if (this._settings.tools.scroll == "zoom") {
         if (dy != 0) {
-          //console.log(e);
           this._zoom(e.offsetX, e.offsetY, dy / 100 * this._settings.scale);
         }
       }
@@ -245,13 +244,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         tool = "pan";
       }
 
-      //debugger;
       if (tool == "pan") {
-        // Make sure there are two touches
-        if (e.touches && e.touches.length == 1) {
-          //return;
-        }
-
         this._pan(e.xFromLast, e.yFromLast);
       } else if (tool == "pencil" || tool == "eraser") {
 
@@ -263,7 +256,6 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
 
         var world = Helpers.screenToWorld(this._settings, e.distFromLeft, e.distFromTop);
 
-        //console.log("world", e, world);
         var currentStroke = this._currentAction.value;
 
         var points = currentStroke.points;
@@ -274,9 +266,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
           ((lastPoint[0] - world[0]) * (lastPoint[0] - world[0])) +
           ((lastPoint[1] - world[1]) * (lastPoint[1] - world[1]))
         );
-        //console.log("dist", dist);
 
-        //if (dist < 0.0003) {
         if (dist < 0.001) {
           return;
         }
@@ -574,9 +564,6 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
 
     _keyDown: function(e) {
       var key = String.fromCharCode(e.keyCode);
-      //console.log(e);
-      // console.log("key", key);
-      // console.log(e);
 
       if (
         ((g.isMac() && e.metaKey && e.shiftKey) && key == "Z") ||
@@ -607,7 +594,6 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
 
     _undo: function() {
       if (this._actions.length > 0) {
-        console.log("undo");
         var action = this._actions.pop();
 
         // It is impossible to delete the id off of the action, so we have to create a new object
@@ -633,7 +619,6 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
 
     _redo: function() {
       if (this._redoStack.length > 0) {
-        console.log("redo");
         var nowAction = this._redoStack.pop();
         this._saveAction(nowAction);
 
