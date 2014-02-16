@@ -12,7 +12,7 @@ fonts/icomoon.woff
 fonts/icomoon.woff?-8bxl3b
 
 javascript/main.min.js
-javascript/main.min.js.map
+#javascript/main.min.js.map
 stylesheet/total.css
 
 NETWORK:
