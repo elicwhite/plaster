@@ -197,7 +197,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
 
     _start: function(e) {
       var tool = this._settings.tools.gesture || this._settings.tools.point;
-      if (e == "middle mouse") {
+      if (e.button == 1) { // middle mouse
         tool = "pan";
       }
 
@@ -241,7 +241,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     _move: function(e) {
       var tool = this._settings.tools.gesture || this._settings.tools.point;
 
-      if (e == "middle mouse") {
+      if (e.button == 1) { // middle mouse
         tool = "pan";
       }
 

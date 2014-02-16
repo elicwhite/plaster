@@ -1,4 +1,4 @@
-require(["event", "globals", "managers/login", "realtimeData"], function(Event, g, LoginManager, RealtimeData) {
+require(["event", "globals", "managers/login"], function(Event, g, LoginManager) {
 
   function init() {
     window.log = console.log.bind(console);

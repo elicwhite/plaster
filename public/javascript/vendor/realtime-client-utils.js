@@ -402,6 +402,5 @@ define([], function() {
     });
   }
 
-  console.log("returning", rtclient);
   return rtclient;
 })
