@@ -22,7 +22,7 @@ define(["class", "dataBacking/indexedDBBacking", "dataBacking/webSQLBacking", "d
       this._driveBacking = new DriveBacking();
       window.drive = this._driveBacking;
 
-      Event.addListener("fileModified", this._fileModified.bind(this));
+      //Event.addListener("fileModified", this._fileModified.bind(this));
     },
 
     // Get the name of all the files we have
@@ -65,9 +65,9 @@ define(["class", "dataBacking/indexedDBBacking", "dataBacking/webSQLBacking", "d
       this._backing.clearAll();
     },
 
-    _fileModified: function(data) {
-      this._backing.updateFileModified(data.fileId, data.timestamp);
-    },
+    //_fileModified: function(data) {
+    //  this._backing.updateFileModified(data.fileId, data.timestamp);
+    //},
 
     // Get the stored file settings
     localFileSettings: function(fileId, settings) {

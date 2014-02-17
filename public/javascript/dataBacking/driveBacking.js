@@ -43,10 +43,6 @@ define(["dataBacking/baseBacking", "db"], function(BaseBacking, db) {
       )
     },
 
-    _getFileServer: function(fileId, callback) {
-
-    },
-
     getFileActions: function(fileId, callback) {
 
     },
@@ -79,10 +75,6 @@ define(["dataBacking/baseBacking", "db"], function(BaseBacking, db) {
     },
 
     removeAction: function(fileId, actionIndex) {
-
-    },
-
-    updateFileModified: function(fileId, timestamp) {
 
     },
 

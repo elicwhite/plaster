@@ -56,9 +56,10 @@ define(["dataBacking/baseBacking"], function(BaseBacking) {
     },
 
     renameFile: function(fileId, newFileName) {
-      this._db.transaction(function(tx) {
+      this._db.transaction((function(tx) {
         tx.executeSql('UPDATE `files` SET name = ? WHERE id = ?', [newFileName, fileId], this._success, this._error);
-      });
+        _updateFileModified(tx, fileId)
+      }).bind(this));
     },
 
     deleteFile: function(fileId) {
@@ -70,21 +71,23 @@ define(["dataBacking/baseBacking"], function(BaseBacking) {
     },
 
     addAction: function(fileId, action) {
-      this._db.transaction(function(tx) {
+      this._db.transaction((function(tx) {
         tx.executeSql('INSERT INTO `'+fileId+'` (id, type, value) VALUES (?, ?, ?)', [action.id, action.type, JSON.stringify(action.value)], this._success, this._error);
-      });
+
+        _updateFileModified(tx, fileId)
+      }).bind(this));
     },
 
     removeAction: function(fileId, actionIndex) {
-      this._db.transaction(function(tx) {
+      this._db.transaction((function(tx) {
         tx.executeSql('DELETE FROM `'+fileId+'` WHERE id = ?', [actionIndex], this._success, this._error);
-      });
+
+        _updateFileModified(tx, fileId)
+      }).bind(this));
     },
 
-    updateFileModified: function(fileId, timestamp) {
-      this._db.transaction(function(tx) {
-        tx.executeSql('UPDATE `files` SET modifiedTime = ? WHERE id = ?', [timestamp, fileId], this._success, this._error);
-      });
+    _updateFileModified: function(tx, fileId) {
+      tx.executeSql('UPDATE `files` SET modifiedTime = ? WHERE id = ?', [timestamp, fileId], this._success, this._error);
     },
 
     clearAll: function() {

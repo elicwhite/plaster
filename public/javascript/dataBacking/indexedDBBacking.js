@@ -92,14 +92,6 @@ define(["dataBacking/baseBacking", "db"], function(BaseBacking, db) {
                 keyPath: 'id',
                 autoIncrement: true
               }
-              /*,
-            indexes: {
-              type: {},
-              id: {
-                unique: true
-              }
-            }
-            */
             }
           }
         }).done((function(s) {
@@ -173,9 +165,9 @@ define(["dataBacking/baseBacking", "db"], function(BaseBacking, db) {
           name: newFileName
         })
         .execute()
-        .done(function(results) {
-
-        })
+        .done((function(results) {
+          this._updateFileModified(fileId);
+        }).bind(this))
         .fail(function(e) {
           console.error("Couldn't find file", e);
         })
@@ -208,9 +200,10 @@ define(["dataBacking/baseBacking", "db"], function(BaseBacking, db) {
       this._getFileServer(fileId, (function(server) {
         server.actions
           .add(action)
-          .done(function(item) {
+          .done((function(item) {
             // item stored
-          })
+            this._updateFileModified(fileId);
+          }).bind(this))
           .fail(function(e) {
             console.error("fail to write", e);
           });
@@ -218,28 +211,27 @@ define(["dataBacking/baseBacking", "db"], function(BaseBacking, db) {
     },
 
     removeAction: function(fileId, actionIndex) {
-      
+
       this._getFileServer(fileId, (function(server) {
         server.actions
           .remove(actionIndex)
-          .done(function(key) {
-
+          .done((function(key) {
             // item removed
-          });
+            this._updateFileModified(fileId);
+          }).bind(this));
       }).bind(this));
-      
     },
 
-    updateFileModified: function(fileId, timestamp) {
+    _updateFileModified: function(fileId) {
       if (!this._server) {
-        this._doLater(this.updateFileModified, [fileId, timestamp]);
+        this._doLater(this.updateFileModified, [fileId, Date.now()]);
         return;
       }
 
       this._server.files.query('id')
         .only(fileId)
         .modify({
-          modifiedTime: timestamp
+          modifiedTime: Date.now()
         })
         .execute()
         .done(function(results) {})
