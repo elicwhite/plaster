@@ -36,10 +36,12 @@ define(["class"], function(Class) {
       console.error("Implement this function");
     },
 
+    // local only
     updateFileModified: function(fileId, timestamp) {
       console.error("Implement this function");
     },
 
+    // local only
     clearAll: function() {
       console.error("Implement this function");
     },

@@ -3,9 +3,10 @@ TODO:
   Make data.js have the same functions 
 */
 
-define(["class", "dataBacking/indexedDBBacking", "dataBacking/webSQLBacking", "event"], function(Class, IndexedDBBacking, WebSQLBacking, Event) {
+define(["class", "dataBacking/indexedDBBacking", "dataBacking/webSQLBacking", "dataBacking/driveBacking", "event"], function(Class, IndexedDBBacking, WebSQLBacking, DriveBacking, Event) {
   var Data = Class.extend({
     _backing: null,
+    _driveBacking: null,
 
     init: function() {
       var indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.oIndexedDB || window.msIndexedDB;
@@ -18,6 +19,8 @@ define(["class", "dataBacking/indexedDBBacking", "dataBacking/webSQLBacking", "e
         this._backing = new WebSQLBacking();
       }
 
+      this._driveBacking = new DriveBacking();
+      window.drive = this._driveBacking;
 
       Event.addListener("fileModified", this._fileModified.bind(this));
     },

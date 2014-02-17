@@ -76,7 +76,6 @@ define(["dataBacking/baseBacking"], function(BaseBacking) {
     },
 
     removeAction: function(fileId, actionIndex) {
-      
       this._db.transaction(function(tx) {
         tx.executeSql('DELETE FROM `'+fileId+'` WHERE id = ?', [actionIndex], this._success, this._error);
       });
