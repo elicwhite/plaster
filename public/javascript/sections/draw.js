@@ -641,6 +641,11 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         fileId: this._fileInfo.id,
         name: name
       });
+
+      Event.trigger("fileModified", {
+        fileId: this._fileInfo.id,
+        timestamp: Date.now()
+      });
     },
 
 
