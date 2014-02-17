@@ -15,17 +15,23 @@ require(["event", "globals", "managers/login", "gauth"], function(Event, g, Logi
     window.addEventListener("resize", function() {
       // make sure we are scrolled to 0. Without this there are problems 
       // when changing device orientation
-      window.scroll(0,0);
+      window.scroll(0, 0);
       setHeight();
     });
 
     function setHeight() {
-      document.body.style.height = window.innerHeight+"px";
+      document.body.style.height = window.innerHeight + "px";
     }
 
     setHeight();
 
-    GAuth.start();
+    GAuth.start(function() {
+      console.log("guath done");
+      require(["data"], function(Data) {
+        console.log("drive callback");
+        Data.startDrive();
+      });
+    });
 
     //var realtime = new RealtimeData();
     //realtime.startRealtime();

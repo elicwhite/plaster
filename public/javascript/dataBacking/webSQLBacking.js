@@ -1,5 +1,5 @@
-define(["dataBacking/baseBacking"], function(BaseBacking) {
-  var WebSQLBacking = BaseBacking.extend({
+define(["dataBacking/localBacking"], function(LocalBacking) {
+  var WebSQLBacking = LocalBacking.extend({
     _db: null,
 
     init: function() {
@@ -34,8 +34,8 @@ define(["dataBacking/baseBacking"], function(BaseBacking) {
       }).bind(this));
     },
 
-    createFile: function(callback) {
-      var fileId = this._getGuid();
+    createFile: function(fileId, callback) {
+      var fileId = fileId || this._getGuid();
 
       this._db.transaction(function(tx) {
 

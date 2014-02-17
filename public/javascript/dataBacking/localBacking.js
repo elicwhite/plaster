@@ -1,5 +1,5 @@
-define(["class"], function(Class) {
-  var BaseBacking = Class.extend({
+define(["dataBacking/baseBacking"], function(BaseBacking) {
+  var LocalBacking = BaseBacking.extend({
     init: function() {
       throw "Do not use this class without extending it";
     },
@@ -16,7 +16,7 @@ define(["class"], function(Class) {
       console.error("Implement this function");
     },
 
-    createFile: function(callback) {
+    createFile: function(fileId, callback) {
       console.error("Implement this function");
     },
 
@@ -28,6 +28,10 @@ define(["class"], function(Class) {
       console.error("Implement this function");
     },
 
+    replaceFileId: function(oldId, newId) {
+      console.error("Implement this function");
+    },
+
     addAction: function(fileId, action) {
       console.error("Implement this function");
     },
@@ -36,10 +40,15 @@ define(["class"], function(Class) {
       console.error("Implement this function");
     },
 
+    // local only
     clearAll: function() {
       console.error("Implement this function");
     },
+
+    _getGuid: function() {
+      return 'T^' + Date.now() + "-" + Math.round(Math.random() * 1000000);
+    },
   });
 
-  return BaseBacking;
+  return LocalBacking;
 });

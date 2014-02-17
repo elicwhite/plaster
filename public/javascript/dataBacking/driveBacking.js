@@ -16,7 +16,7 @@ define(["dataBacking/baseBacking", "db"], function(BaseBacking, db) {
         gapi.client.drive.files.list({
           'q': "trashed=false and mimeType='" + this.REALTIME_MIMETYPE + '.' + this._appId + "'"
         }).execute(function(results) {
-          console.log(results);
+          console.log("files", results);
           callback(results.items);
           // actual files are in .items
         });
@@ -24,27 +24,43 @@ define(["dataBacking/baseBacking", "db"], function(BaseBacking, db) {
     },
 
     getFile: function(fileId, callback) {
-      gapi.drive.realtime.load(fileId,
-        function(doc) {
-          // file was loaded
+      gapi.client.load('drive', 'v2', (function() {
+        var request = gapi.client.drive.files.get({
+          'fileId': fileId
+        }).execute(function(result) {
+          window.r = result;
           callback({
-            id: doc.id,
-            name: doc.getModel().getRoot().get('title'),
-            modifiedTime: new Date(doc.modifiedDate).getTime()
+            id: result.id,
+            name: result.title,
+            modifiedTime: new Date(result.modifiedDate).getTime(),
           });
-        },
-        function(model) {
-          // file was created
-          var actions = model.createList();
-          var root = model.getRoot();
-          root.set('title', 'Untitled File');
-          root.set('actions', actions);
-        }
-      )
+        });
+
+      }).bind(this));
     },
 
     getFileActions: function(fileId, callback) {
+      gapi.client.load('drive', 'v2', (function() {
+        gapi.drive.realtime.load(fileId,
+          function(doc) {
+            // file was loaded
+            console.log("file", doc);
+            window.doc = doc;
 
+            var actions = doc.getModel().getRoot().get('actions');
+            window.actions = actions;
+            callback(actions.asArray());
+          },
+          function(model) {
+            console.log("new file");
+            // file was created
+            var actions = model.createList();
+            var root = model.getRoot();
+            root.set('title', 'Untitled File');
+            root.set('actions', actions);
+          }
+        );
+      }).bind(this));
     },
 
     createFile: function(callback) {
@@ -55,6 +71,7 @@ define(["dataBacking/baseBacking", "db"], function(BaseBacking, db) {
             title: this._driveFileName
           }
         }).execute((function(result) {
+          console.log("create", result);
           // we have created, a drive file, now we need to initialize it as a realtime file
           this.getFile(result.id, callback);
 
@@ -71,11 +88,16 @@ define(["dataBacking/baseBacking", "db"], function(BaseBacking, db) {
     },
 
     addAction: function(fileId, action) {
-
+      this.getFileActions(fileId, function(actions) {
+        window.actions = actions;
+        actions.insert(actions.length, action);
+      });
     },
 
     removeAction: function(fileId, actionIndex) {
-
+      this.getFileActions(fileId, function(actions) {
+        actions.remove(actionIndex);
+      })
     },
 
     clearAll: function() {

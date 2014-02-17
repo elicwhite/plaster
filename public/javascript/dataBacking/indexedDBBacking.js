@@ -1,5 +1,5 @@
-define(["dataBacking/baseBacking", "db"], function(BaseBacking, db) {
-  var IndexedDBBacking = BaseBacking.extend({
+define(["dataBacking/localBacking", "db"], function(LocalBacking, db) {
+  var IndexedDBBacking = LocalBacking.extend({
     _server: null,
     _files: null,
 
@@ -121,9 +121,9 @@ define(["dataBacking/baseBacking", "db"], function(BaseBacking, db) {
       }).bind(this));
     },
 
-    createFile: function(callback) {
+    createFile: function(fileId, callback) {
       if (!this._server) {
-        this._doLater(this.createFile, [callback]);
+        this._doLater(this.createFile, [fileId, callback]);
         return;
       }
 
@@ -131,7 +131,7 @@ define(["dataBacking/baseBacking", "db"], function(BaseBacking, db) {
         throw "You must specify a callback";
       }
 
-      var fileId = this._getGuid();
+      var fileId = fileId || this._getGuid();
 
       var file = {
         id: fileId,
@@ -194,6 +194,61 @@ define(["dataBacking/baseBacking", "db"], function(BaseBacking, db) {
         .fail(function(e) {
           console.error("Failed to delete file from file table", fileId);
         });
+    },
+
+    replaceFileId: function(oldId, newId) {
+      this.getFile(oldId, (function(oldFile) {
+
+        var newFile = {
+          id: newId,
+          name: oldFile.name,
+          modifiedTime: oldFile.modifiedTime
+        };
+
+        this._server.files.add(newFile)
+          .done((function(items) {
+            var item = items[0];
+
+            this._getFileServer(item.id, (function(newServer) {
+
+              this._getFileServer(oldId, (function(oldServer) {
+                oldServer.actions.query()
+                  .all()
+                  .execute()
+                  .done((function(oldActions) {
+                    newServer.actions
+                      .add(oldActions)
+                      .done((function(item) {
+                          
+                        console.log("copied over");
+                        this.deleteFile(oldId);
+
+                      }).bind(this))
+                      .fail(function(e) {
+                        console.error("fail to write", e);
+                      });
+                  }).bind(this));
+              }).bind(this));
+            }).bind(this));
+          }).bind(this))
+      }).bind(this));
+
+      /*
+      debugger;
+      this._server.files.query('id')
+        .only(oldId)
+        .modify({
+          id: newId
+        })
+        .execute()
+        .done(function(results) {
+          console.log("successfully changed id", results);
+        })
+        .fail(function(e) {
+          console.error("Couldn't find file", e);
+        });
+*/
+      // 
     },
 
     addAction: function(fileId, action) {

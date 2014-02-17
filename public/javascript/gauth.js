@@ -3,6 +3,8 @@ define(["class", "event"], function(Class, Event) {
     _clientId: '450627732299-2d7jlo96ious5jmdmsd9t7hpclstf7ub.apps.googleusercontent.com',
     _user: null,
 
+    _startCallback: null,
+
     INSTALL_SCOPE: 'https://www.googleapis.com/auth/drive.install',
     FILE_SCOPE: 'https://www.googleapis.com/auth/drive.file',
     OPENID_SCOPE: 'openid',
@@ -11,9 +13,12 @@ define(["class", "event"], function(Class, Event) {
       window.g = this;
     },
 
-    start: function() {
+    start: function(callback) {
       if (window.gapi) {
+        this._startCallback = callback;
+
         gapi.load('auth:client,drive-realtime,drive-share', (function() {
+          console.log("gapi loaded");
           this._authorize();
         }).bind(this));
       } else {
@@ -39,6 +44,12 @@ define(["class", "event"], function(Class, Event) {
         // logged in
         Event.trigger("login", authResult);
         this._fetchUser();
+        console.log("done");
+
+        if (this._startCallback) {
+          this._startCallback();
+        }
+
       } else {
         Event.trigger("logout", authResult);
       }

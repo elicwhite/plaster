@@ -1,4 +1,4 @@
-define(["section", "event", "managers/files", "gdata"], function(Section, Event, Files, GData) {
+define(["section", "event", "managers/files"], function(Section, Event, Files) {
 
   var Main = Section.extend({
     id: "main-container",
@@ -17,8 +17,7 @@ define(["section", "event", "managers/files", "gdata"], function(Section, Event,
       this.panes = {};
 
       this.panes.files = new Files();
-
-      Event.addListener("login", this._login.bind(this));
+      
       Event.addListener("logout", this._logout.bind(this));
 
       this._setMode();
@@ -66,11 +65,6 @@ define(["section", "event", "managers/files", "gdata"], function(Section, Event,
       Event.trigger("paneChanged", {
         pane: paneobj
       });
-    },
-
-    // We have logged into google, start grabbing files
-    _login: function() {
-      GData.start();
     },
 
     _logout: function() {

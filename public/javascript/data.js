@@ -1,8 +1,3 @@
-/*
-TODO:
-  Make data.js have the same functions 
-*/
-
 define(["class", "dataBacking/indexedDBBacking", "dataBacking/webSQLBacking", "dataBacking/driveBacking", "event"], function(Class, IndexedDBBacking, WebSQLBacking, DriveBacking, Event) {
   var Data = Class.extend({
     _backing: null,
@@ -19,10 +14,15 @@ define(["class", "dataBacking/indexedDBBacking", "dataBacking/webSQLBacking", "d
         this._backing = new WebSQLBacking();
       }
 
+      //Event.addListener("fileModified", this._fileModified.bind(this));
+    },
+
+    startDrive: function() {
+      console.log("Starting Drive Data");
       this._driveBacking = new DriveBacking();
       window.drive = this._driveBacking;
 
-      //Event.addListener("fileModified", this._fileModified.bind(this));
+      //this._useDrive = true;
     },
 
     // Get the name of all the files we have
@@ -35,28 +35,53 @@ define(["class", "dataBacking/indexedDBBacking", "dataBacking/webSQLBacking", "d
     },
 
     getFileActions: function(fileId, callback) {
-      this._backing.getFileActions(fileId, callback);
+        //this._driveBacking.getFileActions(fileId, function() {});
+        this._backing.getFileActions(fileId, callback);
     },
 
     // Create a new file and returns the file name
     createFile: function(callback) {
-      this._backing.createFile(callback);
+      this._backing.createFile(undefined, function(localFile) {
+        if (this._driveBacking) {
+          this._driveBacking.createFile(function(file) {
+            // Google saved a file, redo the id of the file locally to match drive
+
+            this._backing.replaceFileId(localFile.id, file.id)
+          });
+        }  
+      });
     },
 
     renameFile: function(fileId, newFileName) {
-      this._backing.renameFile(fileId, newFileName);
+      if (this._driveBacking) {
+        this._driveBacking.renameFile(fileId, newFileName);
+      } else {
+        this._backing.renameFile(fileId, newFileName);
+      }
     },
 
     deleteFile: function(fileId) {
-      this._backing.deleteFile(fileId);
+      if (this._driveBacking) {
+        this._driveBacking.deleteFile(fileId);
+      } else {
+        this._backing.deleteFile(fileId);
+      }
     },
 
     addAction: function(fileId, action) {
-      this._backing.addAction(fileId, action);
+      if (this._driveBacking) {
+        this._driveBacking.addAction(fileId, action);
+      } else {
+        this._backing.addAction(fileId, action);
+      }
     },
 
     removeAction: function(fileId, actionIndex) {
-      this._backing.removeAction(fileId, actionIndex);
+      if (this._driveBacking) {
+        this._driveBacking.removeAction(fileId, actionIndex);
+      } else {
+        this._backing.removeAction(fileId, actionIndex);
+      }
     },
 
     // Delete all the file rows, delete all the file databases,
