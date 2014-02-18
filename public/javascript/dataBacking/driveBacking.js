@@ -41,10 +41,10 @@ define(["dataBacking/baseBacking", "db"], function(BaseBacking, db) {
       }).bind(this));
     },
 
-    getFileActions: function(fileId, callback) {
+    _getModel: function(fileId, callback) {
       if (this._cachedFile) {
         if (this._cachedFile.getModel().getRoot().get('id') == fileId) {
-          callback(this._cachedFile.getModel().getRoot().get('actions').asArray());
+          callback(this._cachedFile.getModel().getRoot());
           return;
         }
       }
@@ -52,17 +52,11 @@ define(["dataBacking/baseBacking", "db"], function(BaseBacking, db) {
       gapi.client.load('drive', 'v2', (function() {
         gapi.drive.realtime.load(fileId, (function(doc) {
             // file was loaded
-            console.log("file", doc);
             window.doc = doc;
-
             this._cachedFile = doc;
-
-            var actions = doc.getModel().getRoot().get('actions');
-            window.actions = actions;
-            callback(actions.asArray());
+            callback(doc.getModel().getRoot());
           }).bind(this),
           function(model) {
-            console.log("new file");
             // file was created
             var actions = model.createList();
             var root = model.getRoot();
@@ -71,6 +65,12 @@ define(["dataBacking/baseBacking", "db"], function(BaseBacking, db) {
             root.set('id', fileId);
           }
         );
+      }).bind(this));
+    },
+
+    getFileActions: function(fileId, callback) {
+      this._getModel(fileId, (function(root) {
+        callback(root.get('actions').asArray());
       }).bind(this));
     },
 
@@ -90,22 +90,38 @@ define(["dataBacking/baseBacking", "db"], function(BaseBacking, db) {
     },
 
     renameFile: function(fileId, newFileName) {
+      // rename both the file itself and the file name in the 
+      // model
 
+      var body = {
+        'title': newFileName
+      };
+
+      gapi.client.load('drive', 'v2', (function() {
+        var request = gapi.client.drive.files.patch({
+          'fileId': fileId,
+          'resource': body
+        });
+        request.execute(function(resp) {
+        });
+      }).bind(this));
+
+      this._getModel(fileId, function(root) {
+        root.set("title", newFileName);
+      });
     },
 
     deleteFile: function(fileId) {
       gapi.client.load('drive', 'v2', (function() {
         var request = gapi.client.drive.files.delete({
           'fileId': fileId
-        }).execute(function(result) {
-        });
+        }).execute(function(result) {});
 
       }).bind(this));
     },
 
     addAction: function(fileId, action) {
       this.getFileActions(fileId, (function(actions) {
-        debugger;
         // If we got in here, we know cached file is set
         this._cachedFile.getModel().getRoot().get('actions').insert(actions.length, action);
       }).bind(this));
