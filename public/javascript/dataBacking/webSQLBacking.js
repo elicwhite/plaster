@@ -70,6 +70,10 @@ define(["dataBacking/localBacking"], function(LocalBacking) {
       });
     },
 
+    replaceFileIds: function(oldId, newId) {
+
+    },
+
     addAction: function(fileId, action) {
       this._db.transaction((function(tx) {
         tx.executeSql('INSERT INTO `'+fileId+'` (id, type, value) VALUES (?, ?, ?)', [action.id, action.type, JSON.stringify(action.value)], this._success, this._error);

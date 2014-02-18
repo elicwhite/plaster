@@ -128,6 +128,8 @@ define(["section", "tapHandler", "event", "globals", "helpers", "data", "templat
 
     _newDoc: function() {
       data.createFile((function(file) {
+        console.log("callback created", file);
+
         var fileTemplate = this._newFileWrapper(file);
         this._fileOrder.unshift(file.id);
         this._fileListElement.insertBefore(fileTemplate, this._fileListElement.children[1]);

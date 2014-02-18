@@ -124,7 +124,10 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         this._fileNameElement.value = this._fileInfo.name;
       }).bind(this));
 
+      console.log("getting actions");
+
       data.getFileActions(file.id, (function(results) {
+        console.log("got actions", results);
         this._actions = results;
         this._updateAll = true;
 
