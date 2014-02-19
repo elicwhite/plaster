@@ -87,7 +87,13 @@ define(["dataBacking/localBacking", "db"], function(LocalBacking, db) {
           server: fileId,
           version: 1,
           schema: {
-            actions: {
+            localActions: {
+              key: {
+                keyPath: 'id',
+                autoIncrement: true
+              }
+            },
+            remoteActions: {
               key: {
                 keyPath: 'id',
                 autoIncrement: true
@@ -112,7 +118,7 @@ define(["dataBacking/localBacking", "db"], function(LocalBacking, db) {
       }
 
       this._getFileServer(fileId, (function(server) {
-        server.actions.query()
+        server.localActions.query()
           .all()
           .execute()
           .done((function(results) {
@@ -212,21 +218,36 @@ define(["dataBacking/localBacking", "db"], function(LocalBacking, db) {
             this._getFileServer(item.id, (function(newServer) {
 
               this._getFileServer(oldId, (function(oldServer) {
-                oldServer.actions.query()
+                oldServer.localActions.query()
                   .all()
                   .execute()
                   .done((function(oldActions) {
-                    newServer.actions
-                      .add(oldActions)
-                      .done((function(item) {
-                          
-                        console.log("copied over");
-                        this.deleteFile(oldId);
 
-                      }).bind(this))
-                      .fail(function(e) {
-                        console.error("fail to write", e);
-                      });
+                    var actionsCopied = 0;
+                    console.log("final", oldActions);
+                    if (oldActions.length == 0) {
+                      this.deleteFile(oldId);
+                    }
+                    else
+                    {
+                      for (var i = 0; i < oldActions.length; i++) {
+                        newServer.localActions
+                          .add(oldActions[i])
+                          .done((function(item) {
+                            console.log("oldActions", oldActions, actionsCopied);
+                            if (actionsCopied == oldActions.length - 1) {
+                              debugger;
+                              // this is the last one
+                              this.deleteFile(oldId);
+                            }
+                            actionsCopied++;
+                          }).bind(this))
+                          .fail(function(e) {
+                            console.error("fail to write", e);
+                          });
+                      }
+                    }
+
                   }).bind(this));
               }).bind(this));
             }).bind(this));
@@ -252,9 +273,8 @@ define(["dataBacking/localBacking", "db"], function(LocalBacking, db) {
     },
 
     addAction: function(fileId, action) {
-      debugger;
       this._getFileServer(fileId, (function(server) {
-        server.actions
+        server.localActions
           .add(action)
           .done((function(item) {
             // item stored
@@ -269,7 +289,7 @@ define(["dataBacking/localBacking", "db"], function(LocalBacking, db) {
     removeAction: function(fileId, actionIndex) {
 
       this._getFileServer(fileId, (function(server) {
-        server.actions
+        server.localActions
           .remove(actionIndex)
           .done((function(key) {
             // item removed

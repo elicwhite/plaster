@@ -1,6 +1,11 @@
 require(["event", "globals", "managers/login", "gauth"], function(Event, g, LoginManager, GAuth) {
 
   function init() {
+    if (localStorage.lastActive < Date.now() - 10) {
+      console.error("You can't open multiple copies in the same browser");
+      return;
+    }
+
     window.log = console.log.bind(console);
 
     window.addEventListener("mousewheel", function(e) {
@@ -32,6 +37,10 @@ require(["event", "globals", "managers/login", "gauth"], function(Event, g, Logi
         Data.startDrive();
       });
     });
+
+    setInterval(function() {
+      localStorage.lastActive = Date.now();
+    }, 5000);
 
     //var realtime = new RealtimeData();
     //realtime.startRealtime();
