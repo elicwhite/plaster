@@ -3,7 +3,13 @@ define(["class", "dataBacking/indexedDBBacking", "dataBacking/webSQLBacking", "d
     _backing: null,
     _driveBacking: null,
 
+    _actionsAddedCallbacks: null,
+    _actionsRemovedCallbacks: null,
+
     init: function() {
+      this._actionsAddedCallbacks = [];
+      this._actionsRemovedCallbacks = [];
+
       var indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.oIndexedDB || window.msIndexedDB;
 
       if (indexedDB) {
@@ -19,7 +25,7 @@ define(["class", "dataBacking/indexedDBBacking", "dataBacking/webSQLBacking", "d
 
     startDrive: function() {
       console.log("Starting Drive Data");
-      this._driveBacking = new DriveBacking();
+      this._driveBacking = new DriveBacking(this._remoteActionsAdded.bind(this), this._remoteActionsRemoved.bind(this));
       window.drive = this._driveBacking;
 
       //this._useDrive = true;
@@ -35,6 +41,10 @@ define(["class", "dataBacking/indexedDBBacking", "dataBacking/webSQLBacking", "d
     },
 
     getFileActions: function(fileId, callback) {
+      if (this._driveBacking) {
+        this._driveBacking._getModel(fileId, function() {});
+      }
+
       //this._driveBacking.getFileActions(fileId, function() {});
       this._backing.getFileActions(fileId, callback);
     },
@@ -117,6 +127,39 @@ define(["class", "dataBacking/indexedDBBacking", "dataBacking/webSQLBacking", "d
 
       return JSON.parse(localStorage[fileId]);
     },
+
+    _remoteActionsAdded: function(e) {
+      for (var i = 0; i < this._actionsAddedCallbacks.length; i++) {
+        this._actionsAddedCallbacks[i](e);
+      }
+    },
+
+    _remoteActionsRemoved: function(e) {
+      for (var i = 0; i < this._actionsRemovedCallbacks.length; i++) {
+        this._actionsRemovedCallbacks[i](e);
+      }
+    },
+
+    addEventListener: function(type, callback) {
+      if (type == "actionsAdded") {
+        this._actionsAddedCallbacks.push(callback);
+      }
+      else if (type == "actionsRemoved") {
+        this._actionsRemovedCallbacks.push(callback);
+      }
+    },
+
+    removeEventListener: function(type, callback) {
+      var array = null;
+      if (type == "actionsAdded") {
+        array = this._actionsAddedCallbacks;
+      }
+      else if (type == "actionsRemoved") {
+        array = this._actionsRemovedCallbacks;
+      }
+
+      array.splice(array.indexOf(callback), 1);
+    }
   });
 
   var data = new Data();

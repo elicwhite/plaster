@@ -5,12 +5,20 @@ define(["dataBacking/baseBacking", "db"], function(BaseBacking, db) {
 
     _cachedFile: null,
 
+    _addedCallback: null,
+    _removedCallback: null,
+
     //application/vnd.google-apps.drive-sdk.450627732299
 
     REALTIME_MIMETYPE: 'application/vnd.google-apps.drive-sdk',
 
-    init: function() {
+    init: function(added, removed) {
       this._files = [];
+      this._addedCallback = added;
+      this._removedCallback = removed;
+
+      this._actionsAdded = this._actionsAdded.bind(this);
+      this._actionsRemoved = this._actionsRemoved.bind(this);
     },
 
     getFiles: function(callback) {
@@ -47,6 +55,13 @@ define(["dataBacking/baseBacking", "db"], function(BaseBacking, db) {
           callback(this._cachedFile.getModel().getRoot());
           return;
         }
+        else
+        {
+          // they don't match, remove our event handlers because we are going to be adding new ones
+          var actions = this._cachedFile.getModel().getRoot().get("actions");
+          actions.removeEventListener(gapi.drive.realtime.EventType.VALUES_ADDED, this._actionsAdded);
+          actions.removeEventListener(gapi.drive.realtime.EventType.VALUES_REMOVED, this._actionsRemoved);
+        }
       }
 
       gapi.client.load('drive', 'v2', (function() {
@@ -54,6 +69,11 @@ define(["dataBacking/baseBacking", "db"], function(BaseBacking, db) {
             // file was loaded
             window.doc = doc;
             this._cachedFile = doc;
+
+            var actions = doc.getModel().getRoot().get('actions');
+            actions.addEventListener(gapi.drive.realtime.EventType.VALUES_ADDED, this._actionsAdded);
+            actions.addEventListener(gapi.drive.realtime.EventType.VALUES_REMOVED, this._actionsRemoved);
+
             callback(doc.getModel().getRoot());
           }).bind(this),
           function(model) {
@@ -66,6 +86,22 @@ define(["dataBacking/baseBacking", "db"], function(BaseBacking, db) {
           }
         );
       }).bind(this));
+    },
+
+    _actionsAdded: function(e) {
+      if (e.isLocal) {
+        return;
+      }
+
+      this._addedCallback(e);
+    },
+
+    _actionsRemoved: function(e) {
+      if (e.isLocal) {
+        return;
+      }
+
+      this._removedCallback(e);
     },
 
     getFileActions: function(fileId, callback) {
@@ -123,7 +159,7 @@ define(["dataBacking/baseBacking", "db"], function(BaseBacking, db) {
     addAction: function(fileId, action) {
       this._getModel(fileId, (function(model) {
         // If we got in here, we know cached file is set
-        model.get('actions').insert(actions.length, action);
+        model.get('actions').insert(model.get('actions').length, action);
       }).bind(this));
     },
 

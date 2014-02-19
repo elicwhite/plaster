@@ -55,6 +55,8 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
 
       this._canvas = document.getElementById('canvas');
 
+      this._actionsAdded = this._actionsAdded.bind(this);
+      this._actionsRemoved = this._actionsRemoved.bind(this);
       this._resize = this._resize.bind(this);
 
       // Keep the trackpad from trigger chrome's back event
@@ -154,12 +156,29 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
       }.bind(this), 400);
 
       window.addEventListener("resize", this._resize);
+
+      data.addEventListener("actionsAdded", this._actionsAdded);
+      data.addEventListener("actionsRemoved", this._actionsRemoved);
     },
 
     hide: function() {
       this._shouldRender = false;
 
       window.removeEventListener("resize", this._resize);
+      data.removeEventListener("actionsAdded", this._actionsAdded);
+      data.removeEventListener("actionsRemoved", this._actionsRemoved);
+    },
+
+    _actionsAdded: function(e) {
+      console.log("added", e);
+      this._actions.splice.apply(this._actions, [e.index,0].concat(e.values));
+      this._updateAll = true;
+    },
+
+    _actionsRemoved: function(e) {
+      console.log("removed", e);
+      this._actions.splice(e.index, e.values.length);
+      this._updateAll = true;
     },
 
     _resize: function() {

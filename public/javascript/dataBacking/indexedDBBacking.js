@@ -252,6 +252,7 @@ define(["dataBacking/localBacking", "db"], function(LocalBacking, db) {
     },
 
     addAction: function(fileId, action) {
+      debugger;
       this._getFileServer(fileId, (function(server) {
         server.actions
           .add(action)
