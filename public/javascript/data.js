@@ -79,60 +79,48 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
     },
 
     loadFile: function(fileId, callback) {
-      if (this._cachedActions && this._cachedActions.file.id == fileId) {
+      if (this._cachedActions && this._cachedActions.file && this._cachedActions.file.id == fileId) {
         callback();
       } else {
-        console.error("Requesting a different file!");
+        // set up the cached actions to be for the file
+        this._cachedActions.file = this._cachedFiles[0];
+        //console.error("Requesting a different file!");
+        callback();
       }
     },
 
-    getFileActions: function(fileId, callback) {
-      if (this._cachedActions && this._cachedActions.file.id == fileId) {
-        return this._cachedActions.remoteActions.concat(this._cachedActions.localActions);
+    getFileActions: function() {
+      return this._cachedActions.remoteActions.concat(this._cachedActions.localActions);
+    },
+
+    addAction: function(action) {
+      console.log("adding action", action);
+      this._cachedActions.localActions.push(action);
+      Event.trigger("actionAdded", {
+        isLocal: true,
+        items: [action]
+      });
+
+      Event.trigger("fileModified", this._cachedActions.file);
+    },
+
+    undoAction: function() {
+      if (this._cachedActions.localActions.length == 0) {
+        return false; // no actions to undo
       } else {
-        console.error("Requesting a different file!");
+        var lastAction = this._cachedActions.localActions.pop();
+        this._cachedActions.redoStack.push(lastAction);
+        Event.trigger("actionRemoved");
       }
     },
 
-    addAction: function(fileId, action) {
-      if (this._cachedActions && this._cachedActions.file.id == fileId) {
-        this._cachedActions.localActions.push(action);
-        Event.trigger("actionAdded" {
-          isLocal: true
-        });
-
-        Event.trigger("fileModified", this._cachedActions.file);
-
+    redoAction: function() {
+      if (this._cachedActions.redoStack.length == 0) {
+        return false; // no actions to undo
       } else {
-        console.error("Requesting a different file!");
+        this.addAction(this._cachedActions.redoStack.pop());
       }
     },
-
-    undoAction: function(fileId) {
-      if (this._cachedActions && this._cachedActions.file.id == fileId) {
-        if (this._cachedActions.localActions.length == 0) {
-          return false; // no actions to undo
-        } else {
-          var lastAction = this._cachedActions.localAction.pop();
-          this._cachedActions.redoStack.push(lastAction);
-          Event.trigger("actionRemoved");
-        }
-      } else {
-        console.error("Requesting a different file!");
-      }
-    },
-
-    redoAction: function(fileId) {
-      if (this._cachedActions && this._cachedActions.file.id == fileId) {
-        if (this._cachedActions.redoStack.length == 0) {
-          return false; // no actions to undo
-        } else {
-          this.addAction(fileId, this._cachedActions.redoStack.pop());
-        }
-      } else {
-        console.error("Requesting a different file!");
-      }
-    }
 
     // events fileAdded(file), fileRemoved(file)
 

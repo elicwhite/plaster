@@ -25,7 +25,7 @@ define(["class", "helpers"], function(Class, Helpers) {
     },
 
     // Creates a back canvas and draws all the actions to it and renders it on the main canvas
-    doAll: function(actions) {      
+    doAll: function(actions) {
       this._backCanvas.width = this._canvas.width;
       this._backCanvas.height = this._canvas.height;
 
@@ -73,7 +73,7 @@ define(["class", "helpers"], function(Class, Helpers) {
     },
 
     render: function() {
-      this._ctx.clearRect(0,0, this._canvas.width, this._canvas.height);
+      this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
       this._ctx.drawImage(this._backCanvas, 0, 0, this._backCanvas.width, this._backCanvas.height);
       this._ctx.drawImage(this._tempCanvas, 0, 0, this._tempCanvas.width, this._tempCanvas.height);
     },

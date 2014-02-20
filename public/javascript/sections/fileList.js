@@ -63,12 +63,14 @@ define(["section", "tapHandler", "event", "globals", "helpers", "data", "templat
     show: function(fileInfo) {
       if (fileInfo) {
         // We came from draw, it is the info of the file we were just looking at
-        var file = this._files[fileInfo.id];
-        if (!file) {
-          console.error("We somehow came from a file that doesn't exist");
-        }
+        
 
-        file.thumbnail.render(file.file);
+        //var file = this._files[fileInfo.id];
+        //if (!file) {
+        //  console.error("We somehow came from a file that doesn't exist");
+        //}
+
+        //file.thumbnail.render(file.file);
       }
     },
 
@@ -137,7 +139,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "data", "templat
           }
 
           // Regular file was clicked
-          this._filesPane.setPane("draw", element.file);
+          this._filesPane.setPane("draw", parent.file);
         }
       }
     },

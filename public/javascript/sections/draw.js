@@ -21,6 +21,9 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     // If we are currently doing something like drawing, it will be here
     _currentAction: null,
 
+    // If we need to redraw but shouldn't re-render anything
+    _update: false,
+
     // Do we need to update on this frame?
     _updateAll: true,
 
@@ -133,34 +136,33 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
 
       window.addEventListener("resize", this._resize);
 
-      Event.addListener("actionsAdded", this._actionsAdded);
-      Event.addListener("actionsRemoved", this._actionsRemoved);
+      Event.addListener("actionAdded", this._actionsAdded);
+      Event.addListener("actionRemoved", this._actionsRemoved);
 
-      data.loadFile(file.id, function() {
+      data.loadFile(this._file.id, (function() {
         this._updateAll = true;
         this._shouldRender = true;
 
         this._redraw();
-      });
+      }).bind(this));
     },
 
     hide: function() {
       this._shouldRender = false;
 
       window.removeEventListener("resize", this._resize);
-      Event.removeListener("actionsAdded", this._actionsAdded);
-      Event.removeListener("actionsRemoved", this._actionsRemoved);
+      Event.removeListener("actionAdded", this._actionsAdded);
+      Event.removeListener("actionRemoved", this._actionsRemoved);
     },
 
     _actionsAdded: function(e) {
       console.log("added", e);
       if (e.isLocal) {
-        this._manipulateCanvas.addAction(action);
-      }
-      else
-      {
+        this._update = true;
+        this._manipulateCanvas.addAction(e.items[0]);
+      } else {
         this._updateAll = true;
-      }      
+      }
     },
 
     _actionsRemoved: function(e) {
@@ -307,14 +309,12 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         this._updateCurrentAction = true;
 
         this._saveAction(currentAction);
-
-        this._setDisabledUndoRedo();
       }
     },
 
     _saveAction: function(action) {
       action.id = Helpers.getGuid();
-      data.addAction(this._file.id, action);
+      data.addAction(action);
     },
 
     _gesture: function(e) {
@@ -331,11 +331,9 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
       }
 
       if (this._updateAll) {
-        data.getFileActions(this._file.id, function(actions) {
-          this._manipulateCanvas.doAll(actions);  
+        var actions = data.getFileActions();
 
-          // oh shit, this could return after
-        });
+        this._manipulateCanvas.doAll(actions);
       }
 
       if (this._updateCurrentAction && this._currentAction) {
@@ -343,9 +341,10 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
 
       }
 
-      if (this._updateAll || this._updateCurrentAction) {
+      if (this._updateAll || this._updateCurrentAction || this._update) {
         this._manipulateCanvas.render();
 
+        this._update = false;
         this._updateAll = false;
         this._updateCurrentAction = false;
       }
@@ -539,9 +538,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         ((g.isPC() && e.ctrlKey) && key == "Y")) {
         // Redo
 
-        if (this._redoStack.length > 0) {
-          this._redo();
-        }
+        this._redo();
       } else if ((
           (g.isMac() && e.metaKey) ||
           (g.isPC() && e.ctrlKey)
@@ -562,11 +559,11 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     },
 
     _undo: function() {
-      data.undoAction(this._file.id);
+      data.undoAction();
     },
 
     _redo: function() {
-      data.redoAction(this._file.id);
+      data.redoAction();
     },
 
     _fileNameKeyDown: function(e) {
