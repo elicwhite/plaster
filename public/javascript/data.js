@@ -4,20 +4,17 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
     _driveBacking: null,
 
     _cachedFiles: null,
+
+    _currentFile: null,
     _cachedActions: null,
 
+
+    // If other ops are called before getFiles is loaded, add them here and do them later
+    _loadCallbacks: null,
+
     init: function() {
-      this._actionsAddedCallbacks = [];
-      this._actionsRemovedCallbacks = [];
+      this._loadCallbacks = [];
 
-      this._cachedFiles = [];
-
-      this._cachedActions = {
-        file: this._cachedFiles[0],
-        remoteActions: [],
-        localActions: [],
-        redoStack: []
-      };
 
       var indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.oIndexedDB || window.msIndexedDB;
 
@@ -35,10 +32,20 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
     },
 
     // FILE METHODS
-
     getFiles: function(callback) {
       if (this._cachedFiles) {
-        callback(this._cachedFiles);
+        callbacks(this._cachedFiles);
+      } else {
+        this._backing.getFiles((function(files) {
+          this._cachedFiles = files;
+          callback(this._cachedFiles);
+
+          // Go through all our delayed callbacks
+          for (var i = 0; i < this._loadCallbacks.length; i++) {
+            var loadCallback = this._loadCallbacks[i];
+            loadCallback.func.apply(this, loadCallback.args);
+          }
+        }).bind(this));
       }
     },
 
@@ -52,44 +59,77 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
       this._cachedFiles.push(newFile);
 
       Event.trigger("fileAdded", newFile);
+
+      this._backing.createFile(newFile, (function(localFile) {}).bind(this));
     },
 
     deleteFile: function(fileId) {
-      for (var i = 0; i < this._cachedFiles.length; i++) {
-        if (this._cachedFiles[i].id == fileId) {
-          var file = this._cachedFiles[i];
-          delete this._cachedFiles[i];
-          Event.trigger("fileRemoved", file);
-          return;
-        }
-      }
+      var file = this._getFile(fileId);
+
+      delete this._cachedFiles[this._cachedFiles.indexOf(file)];
+
+      this._backing.deleteFile(file.id);
+
+      Event.trigger("fileRemoved", file);
+      return;
     },
 
     renameFile: function(fileId, newFileName) {
-      for (var i = 0; i < this._cachedFiles.length; i++) {
-        if (this._cachedFiles[i].id == fileId) {
-          var file = this._cachedFiles[i];
-          file.name = newFileName;
+      var file = this._getFile(fileId);
 
-          Event.trigger("fileRenamed", file);
-          Event.trigger("fileModified", file);
-          return;
-        }
-      }
+      file.name = newFileName;
+
+      this._backing.renameFile(file.id, newFileName);
+
+      Event.trigger("fileRenamed", file);
+      Event.trigger("fileModified", file);
+      return;
     },
 
     loadFile: function(fileId, callback) {
-      if (this._cachedActions && this._cachedActions.file && this._cachedActions.file.id == fileId) {
+      if (!this._cachedFiles) {
+        this._doLater(this.loadFile, [fileId, callback]);
+        return;
+      }
+
+      if (this._currentFile && this._currentFile.id == fileId) {
         callback();
       } else {
-        // set up the cached actions to be for the file
-        this._cachedActions.file = this._cachedFiles[0];
-        //console.error("Requesting a different file!");
-        callback();
+
+        console.log("Loading file", fileId);
+        var file = this._getFile(fileId);
+
+        this._currentFile = file;
+
+        var actionsObj = {
+          file: file,
+          remoteActions: [],
+          localActions: [],
+          redoStack: []
+        };
+
+        this._backing.getFileActions(fileId, (function(actions) {
+          console.log("got results for", fileId, actions);
+          actionsObj.remoteActions = actions.remote;
+          actionsObj.localActions = actions.local;
+
+          this._cachedActions = actionsObj;
+
+          callback();
+        }).bind(this));
       }
     },
 
     getFileActions: function() {
+      if (!this._cachedFiles) {
+        this._doLater(this.getFileActions, []);
+        return;
+      }
+
+      if (!this._cachedActions) {
+        debugger;
+      }
+
       return this._cachedActions.remoteActions.concat(this._cachedActions.localActions);
     },
 
@@ -101,6 +141,8 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
         items: [action]
       });
 
+      this._backing.addLocalAction(this._currentFile.id, action);
+
       Event.trigger("fileModified", this._cachedActions.file);
     },
 
@@ -110,7 +152,11 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
       } else {
         var lastAction = this._cachedActions.localActions.pop();
         this._cachedActions.redoStack.push(lastAction);
+
+        this._backing.removeLocalAction(this._currentFile.id, lastAction.id);
+
         Event.trigger("actionRemoved");
+        Event.trigger("fileModified", this._currentFile);
       }
     },
 
@@ -118,7 +164,10 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
       if (this._cachedActions.redoStack.length == 0) {
         return false; // no actions to undo
       } else {
-        this.addAction(this._cachedActions.redoStack.pop());
+        var action = this._cachedActions.redoStack.pop();
+        this.addAction(action);
+
+        this._backing.addLocalAction(this._currentFile.id, action);
       }
     },
 
@@ -255,41 +304,20 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
       return JSON.parse(localStorage[fileId]);
     },
 
-    /*
-
-        _remoteActionsAdded: function(e) {
-      for (var i = 0; i < this._actionsAddedCallbacks.length; i++) {
-        this._actionsAddedCallbacks[i](e);
+    _getFile: function(fileId) {
+      for (var i = 0; i < this._cachedFiles.length; i++) {
+        if (this._cachedFiles[i].id == fileId) {
+          return this._cachedFiles[i];
+        }
       }
     },
 
-    _remoteActionsRemoved: function(e) {
-      for (var i = 0; i < this._actionsRemovedCallbacks.length; i++) {
-        this._actionsRemovedCallbacks[i](e);
-      }
-    }
-
-    addEventListener: function(type, callback) {
-      if (type == "actionsAdded") {
-        this._actionsAddedCallbacks.push(callback);
-      }
-      else if (type == "actionsRemoved") {
-        this._actionsRemovedCallbacks.push(callback);
-      }
+    _doLater: function(func, args) {
+      this._loadCallbacks.push({
+        func: func,
+        args: args
+      })
     },
-
-    removeEventListener: function(type, callback) {
-      var array = null;
-      if (type == "actionsAdded") {
-        array = this._actionsAddedCallbacks;
-      }
-      else if (type == "actionsRemoved") {
-        array = this._actionsRemovedCallbacks;
-      }
-
-      array.splice(array.indexOf(callback), 1);
-    }
-    */
   });
 
   var data = new Data();

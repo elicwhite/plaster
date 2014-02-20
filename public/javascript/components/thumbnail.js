@@ -10,7 +10,10 @@ define(["class", "helpers", "data", "components/manipulateCanvas"], function(Cla
     render: function(file) {
       var fileInfo = file;
 
-      data.getFileActions(file.id, (function(actions) {
+      data.loadFile(file.id, (function() {
+        var actions = data.getFileActions();
+
+
         var settings = data.localFileSettings(file.id);
 
         var manipulateCanvas = new ManipulateCanvas(this._canvas, settings);

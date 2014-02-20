@@ -8,10 +8,6 @@ define(["dataBacking/baseBacking"], function(BaseBacking) {
       console.error("Implement this function");
     },
 
-    getFile: function(fileId, callback) {
-      console.error("Implement this function");
-    },
-
     getFileActions: function(fileId, callback) {
       console.error("Implement this function");
     },
@@ -37,7 +33,9 @@ define(["dataBacking/baseBacking"], function(BaseBacking) {
       console.error("Implement this function");
     },
 
-    undoLocalAction: function(fileId) {
+
+
+    removeLocalAction: function(fileId, actionId) {
       console.error("Implement this function");
     },
 

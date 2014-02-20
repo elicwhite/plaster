@@ -56,22 +56,27 @@ define(["section", "tapHandler", "event", "globals", "helpers", "data", "templat
       Event.addListener("fileRemoved", this._fileRemoved.bind(this));
       Event.addListener("fileModified", this._fileModified.bind(this));
       Event.addListener("fileRenamed", this._fileRenamed.bind(this));
-
-      window.addEventListener("resize", this._resizeAndRender);
     },
 
     show: function(fileInfo) {
+
+      window.addEventListener("resize", this._resizeAndRender);
       if (fileInfo) {
         // We came from draw, it is the info of the file we were just looking at
-        
 
-        //var file = this._files[fileInfo.id];
-        //if (!file) {
-        //  console.error("We somehow came from a file that doesn't exist");
-        //}
+        for (var i = 0; i < this._files.length; i++) {
+          if (this._files[i].element.file.id == fileInfo.id) {
+            this._files[i].thumbnail.render(this._files[i].element.file);
+            return;
+          }
+        }
 
-        //file.thumbnail.render(file.file);
+        console.error("We somehow came from a file that doesn't exist");
       }
+    },
+
+    hide: function(fileInfo) {
+      window.removeEventListener("resize", this._resizeAndRender);
     },
 
     _newFileWrapper: function(file) {
@@ -118,7 +123,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "data", "templat
       var canvasParent = file.canvas.parentElement;
       file.canvas.width = canvasParent.offsetWidth;
       file.canvas.height = canvasParent.offsetHeight;
-      //file.thumbnail.render(file.element.file);
+      file.thumbnail.render(file.element.file);
     },
 
     _docSelected: function(e) {
@@ -163,8 +168,6 @@ define(["section", "tapHandler", "event", "globals", "helpers", "data", "templat
         var element = this._files[i].element;
         if (element.file.id == file.id) {
           this._fileListElement.removeChild(element);
-
-          this._actuallyResizeAndRender();
           return;
         }
       }
@@ -173,11 +176,10 @@ define(["section", "tapHandler", "event", "globals", "helpers", "data", "templat
     _fileModified: function(file) {
       for (var i = 0; i < this._files.length; i++) {
         var element = this._files[i].element;
+
         if (element.file.id == file.id) {
           this._fileListElement.removeChild(element);
           this._fileListElement.insertBefore(element, this._fileListElement.children[1]);
-
-          this._actuallyResizeAndRender();
           return;
         }
       }

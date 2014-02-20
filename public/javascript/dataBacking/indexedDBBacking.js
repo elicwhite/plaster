@@ -1,14 +1,14 @@
 define(["helpers", "dataBacking/localBacking", "db"], function(Helpers, LocalBacking, db) {
   var IndexedDBBacking = LocalBacking.extend({
     _server: null,
-    _files: null,
+    _fileServers: null,
 
     // If we call other functions before the database is opened, 
     //these are the things we need to run
     _initCallbacks: null,
 
     init: function() {
-      this._files = [];
+      this._fileServers = [];
 
       this._initCallbacks = [];
 
@@ -65,23 +65,9 @@ define(["helpers", "dataBacking/localBacking", "db"], function(Helpers, LocalBac
         }).bind(this));
     },
 
-    getFile: function(fileId, callback) {
-      if (!this._server) {
-        this._doLater(this.getFile, [fileId, callback]);
-        return;
-      }
-
-      this._server.files.query('id')
-        .only(fileId)
-        .execute()
-        .done((function(results) {
-          callback(results[0]);
-        }).bind(this));
-    },
-
     _getFileServer: function(fileId, callback) {
-      if (this._files[fileId]) {
-        callback(this._files[fileId]);
+      if (this._fileServers[fileId]) {
+        callback(this._fileServers[fileId]);
       } else {
         db.open({
           server: fileId,
@@ -99,7 +85,7 @@ define(["helpers", "dataBacking/localBacking", "db"], function(Helpers, LocalBac
             }
           }
         }).done((function(s) {
-          this._files[fileId] = s;
+          this._fileServers[fileId] = s;
 
           callback(s);
         }).bind(this))
@@ -111,46 +97,48 @@ define(["helpers", "dataBacking/localBacking", "db"], function(Helpers, LocalBac
 
     getFileActions: function(fileId, callback) {
       if (!this._server) {
-        this._doLater(this.getFileActions, [fileId, callback]);
+        this._doLater(this.getLocalFileActions, [fileId, callback]);
         return;
       }
 
-      var action = [];
+      var actionsObj = {};
 
       this._getFileServer(fileId, (function(server) {
+        
+        server.localActions.query()
+          .all()
+          .execute()
+          .done((function(actions) {
+            actionsObj.local = actions;
+
+            if (actionsObj.local && actionsObj.remote) {
+              callback(actionsObj);
+            }
+
+          }).bind(this));
+
         server.remoteActions.query()
           .all()
           .execute()
-          .done((function(remoteActions) {
+          .done((function(actions) {
+            actionsObj.remote = actions;
 
-            server.localActions.query()
-              .all()
-              .execute()
-              .done((function(localActions) {
-
-                callback(remoteActions.concat(localActions));
-
-              }).bind(this));
+            if (actionsObj.local && actionsObj.remote) {
+              callback(actionsObj);
+            }
           }).bind(this));
+
       }).bind(this));
     },
 
-    createFile: function(fileId, callback) {
+    createFile: function(file, callback) {
       if (!this._server) {
-        this._doLater(this.createFile, [fileId, callback]);
+        this._doLater(this.createFile, [file, callback]);
         return;
       }
 
       if (!callback) {
         throw "You must specify a callback";
-      }
-
-      var fileId = fileId || Helpers.getGuid();
-
-      var file = {
-        id: fileId,
-        name: "Untitled File",
-        modifiedTime: Date.now()
       }
 
       this._server.files.add(file)
@@ -278,7 +266,7 @@ define(["helpers", "dataBacking/localBacking", "db"], function(Helpers, LocalBac
     undoLocalAction: function(fileId) {
       this._getFileServer(fileId, (function(server) {
         window.server = server;
-        
+
         /*server.localActions
           .remove(actionId)
           .done((function(key) {
