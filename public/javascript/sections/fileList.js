@@ -9,13 +9,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "data", "templat
     // The element
     _fileListElement: null,
 
-    // The set of files we are displaying on the page
-    // fileId => info
     _files: null,
-
-    // Th order the files appear on the page
-    // index => fileId
-    _fileOrder: null,
 
     _resizeTimeout: null,
 
@@ -24,9 +18,9 @@ define(["section", "tapHandler", "event", "globals", "helpers", "data", "templat
 
       this._filesPane = filesPane;
 
+      this._files = [];
+
       this._fileListElement = document.getElementById("files-list");
-      this._files = {};
-      this._fileOrder = [];
 
       this._resizeAndRender = this._resizeAndRender.bind(this);
       this._actuallyResizeAndRender = this._actuallyResizeAndRender.bind(this);
@@ -39,8 +33,6 @@ define(["section", "tapHandler", "event", "globals", "helpers", "data", "templat
       Data.getFiles((function(files) {
         for (var i = 0; i < files.length; i++) {
           var file = files[i];
-          this._files[file.id] = file;
-          this._fileOrder[i] = file.id;
           var fileTemplate = this._newFileWrapper(file);
           this._fileListElement.appendChild(fileTemplate);
         }
@@ -60,6 +52,8 @@ define(["section", "tapHandler", "event", "globals", "helpers", "data", "templat
         tap: this._docSelected.bind(this)
       });
 
+      Event.addListener("fileAdded", this._fileAdded.bind(this));
+      Event.addListener("fileRemoved", this._fileRemoved.bind(this));
       Event.addListener("fileModified", this._fileModified.bind(this));
       Event.addListener("fileRenamed", this._fileRenamed.bind(this));
 
@@ -80,6 +74,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "data", "templat
 
     _newFileWrapper: function(file) {
       var newEle = new FileListTemplate();
+      newEle.file = file;
 
       var canvas = newEle.getElementsByClassName("thumbnail")[0];
       var fileName = newEle.getElementsByClassName("file-name")[0];
@@ -89,12 +84,11 @@ define(["section", "tapHandler", "event", "globals", "helpers", "data", "templat
 
       newEle.fileId = file.id;
 
-      this._files[file.id] = {
+      this._files.push({
         element: newEle,
-        file: file,
         canvas: canvas,
         thumbnail: thumbnail
-      };
+      });
 
       return newEle;
     },
@@ -103,8 +97,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "data", "templat
     _resizeAndRender: function() {
       if (this._resizeTimeout) {
         clearTimeout(this._resizeTimeout);
-      }
-      else {
+      } else {
         // we should clear canvases here
       }
 
@@ -112,8 +105,8 @@ define(["section", "tapHandler", "event", "globals", "helpers", "data", "templat
     },
 
     _actuallyResizeAndRender: function() {
-      for (var fileId in this._files) {
-        var file = this._files[fileId];
+      for (var i = 0; i < this._files.length; i++) {
+        var file = this._files[i];
 
         this._resizeAndRenderFile(file);
       }
@@ -123,18 +116,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "data", "templat
       var canvasParent = file.canvas.parentElement;
       file.canvas.width = canvasParent.offsetWidth;
       file.canvas.height = canvasParent.offsetHeight;
-      file.thumbnail.render(file.file);
-    },
-
-    _newDoc: function() {
-      data.createFile((function(file) {
-        console.log("callback created", file);
-
-        var fileTemplate = this._newFileWrapper(file);
-        this._fileOrder.unshift(file.id);
-        this._fileListElement.insertBefore(fileTemplate, this._fileListElement.children[1]);
-        this._actuallyResizeAndRender();
-      }).bind(this));
+      //file.thumbnail.render(file.element.file);
     },
 
     _docSelected: function(e) {
@@ -145,54 +127,70 @@ define(["section", "tapHandler", "event", "globals", "helpers", "data", "templat
         if (parent.classList.contains("create")) {
           // Create was called
           this._newDoc();
-        }
-        else
-        {
-
+          return;
+        } else {
           if (element.dataset.action && element.dataset.action == "delete") {
             // Delete was clicked
-            var file = this._files[parent.fileId];
-            this._fileListElement.removeChild(file.element);
-            delete this._files[parent.fileId];
-            data.deleteFile(parent.fileId);
 
-            this._actuallyResizeAndRender();
+            data.deleteFile(parent.file.id);
             return;
           }
 
           // Regular file was clicked
-          this._filesPane.setPane("draw", this._files[parent.fileId].file);
+          this._filesPane.setPane("draw", element.file);
         }
       }
-
     },
 
-    _fileModified: function(data) {
-      var index = this._fileOrder.indexOf(data.fileId);
+    _newDoc: function() {
+      data.createFile();
+    },
 
-      // Move every element up
-      for (var i = index; i < this._files.length - 1; i++) {
-        this._fileOrder[i] = this._fileOrder[i + 1];
-      }
+    // EVENTS
+    _fileAdded: function(file) {
+      console.log("file was added", file);
+      var fileTemplate = this._newFileWrapper(file);
 
-      // Change the length to get rid of the last element
-      this._fileOrder.length = this._fileOrder.length - 1;
-
-      // Put this one at the beginning
-      this._fileOrder.unshift(data.fileId);
-
-      // Now actually take the element out and put it at the beginning too
-      var element = this._files[data.fileId].element;
-      this._fileListElement.removeChild(element);
-      this._fileListElement.insertBefore(element, this._fileListElement.children[1]);
+      this._fileListElement.insertBefore(fileTemplate, this._fileListElement.children[1]);
       this._actuallyResizeAndRender();
     },
 
+    _fileRemoved: function(file) {
+      console.log("file was removed", file);
+      for (var i = 0; i < this._files.length; i++) {
+        var element = this._files[i].element;
+        if (element.file.id == file.id) {
+          this._fileListElement.removeChild(element);
+
+          this._actuallyResizeAndRender();
+          return;
+        }
+      }
+    },
+
+    _fileModified: function(file) {
+      for (var i = 0; i < this._files.length; i++) {
+        var element = this._files[i].element;
+        if (element.file.id == file.id) {
+          this._fileListElement.removeChild(element);
+          this._fileListElement.insertBefore(element, this._fileListElement.children[1]);
+
+          this._actuallyResizeAndRender();
+          return;
+        }
+      }
+    },
+
     _fileRenamed: function(data) {
-      this._files[data.fileId].name = data.name;
-      var element = this._files[data.fileId].element;
-      var fileNameElement = element.getElementsByClassName("file-name")[0];
-      fileNameElement.innerText = data.name;
+      for (var i = 0; i < this._files.length; i++) {
+        var element = this._files[i].element;
+        if (element.file.id == file.id) {
+
+          var fileNameElement = element.getElementsByClassName("file-name")[0];
+          fileNameElement.innerText = element.file.name;
+          return;
+        }
+      }
     }
 
   });

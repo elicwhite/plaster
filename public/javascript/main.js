@@ -1,7 +1,7 @@
 require(["event", "globals", "managers/login", "gauth"], function(Event, g, LoginManager, GAuth) {
 
   function init() {
-    if (localStorage.lastActive < Date.now() - 10) {
+    if (Date.now() - localStorage.lastActive < 10) {
       console.error("You can't open multiple copies in the same browser");
       return;
     }

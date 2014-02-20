@@ -1,4 +1,4 @@
-define(["dataBacking/localBacking", "db"], function(LocalBacking, db) {
+define(["helpers", "dataBacking/localBacking", "db"], function(Helpers, LocalBacking, db) {
   var IndexedDBBacking = LocalBacking.extend({
     _server: null,
     _files: null,
@@ -89,14 +89,12 @@ define(["dataBacking/localBacking", "db"], function(LocalBacking, db) {
           schema: {
             localActions: {
               key: {
-                keyPath: 'id',
-                autoIncrement: true
+                keyPath: 'id'
               }
             },
             remoteActions: {
               key: {
-                keyPath: 'id',
-                autoIncrement: true
+                keyPath: 'id'
               }
             }
           }
@@ -117,12 +115,22 @@ define(["dataBacking/localBacking", "db"], function(LocalBacking, db) {
         return;
       }
 
+      var action = [];
+
       this._getFileServer(fileId, (function(server) {
-        server.localActions.query()
+        server.remoteActions.query()
           .all()
           .execute()
-          .done((function(results) {
-            callback(results);
+          .done((function(remoteActions) {
+
+            server.localActions.query()
+              .all()
+              .execute()
+              .done((function(localActions) {
+
+                callback(remoteActions.concat(localActions));
+
+              }).bind(this));
           }).bind(this));
       }).bind(this));
     },
@@ -137,7 +145,7 @@ define(["dataBacking/localBacking", "db"], function(LocalBacking, db) {
         throw "You must specify a callback";
       }
 
-      var fileId = fileId || this._getGuid();
+      var fileId = fileId || Helpers.getGuid();
 
       var file = {
         id: fileId,
@@ -227,9 +235,7 @@ define(["dataBacking/localBacking", "db"], function(LocalBacking, db) {
                     console.log("final", oldActions);
                     if (oldActions.length == 0) {
                       this.deleteFile(oldId);
-                    }
-                    else
-                    {
+                    } else {
                       for (var i = 0; i < oldActions.length; i++) {
                         newServer.localActions
                           .add(oldActions[i])
@@ -253,26 +259,9 @@ define(["dataBacking/localBacking", "db"], function(LocalBacking, db) {
             }).bind(this));
           }).bind(this))
       }).bind(this));
-
-      /*
-      debugger;
-      this._server.files.query('id')
-        .only(oldId)
-        .modify({
-          id: newId
-        })
-        .execute()
-        .done(function(results) {
-          console.log("successfully changed id", results);
-        })
-        .fail(function(e) {
-          console.error("Couldn't find file", e);
-        });
-*/
-      // 
     },
 
-    addAction: function(fileId, action) {
+    addLocalAction: function(fileId, action) {
       this._getFileServer(fileId, (function(server) {
         server.localActions
           .add(action)
@@ -286,11 +275,27 @@ define(["dataBacking/localBacking", "db"], function(LocalBacking, db) {
       }).bind(this));
     },
 
-    removeAction: function(fileId, actionIndex) {
+    undoLocalAction: function(fileId) {
+      this._getFileServer(fileId, (function(server) {
+        window.server = server;
+        
+        /*server.localActions
+          .remove(actionId)
+          .done((function(key) {
+            // item removed
+            this._updateFileModified(fileId);
+          }).bind(this));
+*/
+      }).bind(this));
+    },
+
+    // implement add RemoteAction
+
+    removeLocalAction: function(fileId, actionId) {
 
       this._getFileServer(fileId, (function(server) {
         server.localActions
-          .remove(actionIndex)
+          .remove(actionId)
           .done((function(key) {
             // item removed
             this._updateFileModified(fileId);

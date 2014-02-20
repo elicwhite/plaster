@@ -13,13 +13,10 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     _canvas: null,
 
     // The file we are currently rendering
-    _fileInfo: null,
+    _file: null,
 
     // Local settings such as offset and zoom
     _settings: null,
-
-    // The actions we are taking
-    _actions: null,
 
     // If we are currently doing something like drawing, it will be here
     _currentAction: null,
@@ -35,8 +32,6 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
 
     // Timeout for 
     _saveSettingsTimeout: null,
-
-    _redoStack: null,
 
     // The tap handler for the draw pane. Needed to turn on and off gestures
     _canvasTapHandler: null,
@@ -118,32 +113,13 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     },
 
     show: function(file) {
-      this._actions = [];
-      this._redoStack = [];
+      this._file = file;
+      this._fileNameElement.value = this._file.name;
 
-      data.getFile(file.id, (function(fileInfo) {
-        this._fileInfo = fileInfo;
-        this._fileNameElement.value = this._fileInfo.name;
-      }).bind(this));
+      this._settings = data.localFileSettings(this._file.id);
 
-      console.log("getting actions");
+      this._manipulateCanvas = new ManipulateCanvas(this._canvas, this._settings);
 
-      data.getFileActions(file.id, (function(results) {
-        console.log("got actions", results);
-        this._actions = results;
-        this._updateAll = true;
-
-        this._manipulateCanvas = new ManipulateCanvas(this._canvas, this._settings);
-
-        this._shouldRender = true;
-        this._redraw();
-
-        this._setDisabledUndoRedo();
-
-        //this._showModal("colorPicker");
-      }).bind(this));
-
-      this._settings = data.localFileSettings(file.id);
       this._setActiveTool();
       document.getElementById("chosenColorSwatch").style.backgroundColor = this._settings.color;
 
@@ -157,27 +133,38 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
 
       window.addEventListener("resize", this._resize);
 
-      data.addEventListener("actionsAdded", this._actionsAdded);
-      data.addEventListener("actionsRemoved", this._actionsRemoved);
+      Event.addListener("actionsAdded", this._actionsAdded);
+      Event.addListener("actionsRemoved", this._actionsRemoved);
+
+      data.loadFile(file.id, function() {
+        this._updateAll = true;
+        this._shouldRender = true;
+
+        this._redraw();
+      });
     },
 
     hide: function() {
       this._shouldRender = false;
 
       window.removeEventListener("resize", this._resize);
-      data.removeEventListener("actionsAdded", this._actionsAdded);
-      data.removeEventListener("actionsRemoved", this._actionsRemoved);
+      Event.removeListener("actionsAdded", this._actionsAdded);
+      Event.removeListener("actionsRemoved", this._actionsRemoved);
     },
 
     _actionsAdded: function(e) {
       console.log("added", e);
-      this._actions.splice.apply(this._actions, [e.index,0].concat(e.values));
-      this._updateAll = true;
+      if (e.isLocal) {
+        this._manipulateCanvas.addAction(action);
+      }
+      else
+      {
+        this._updateAll = true;
+      }      
     },
 
     _actionsRemoved: function(e) {
       console.log("removed", e);
-      this._actions.splice(e.index, e.values.length);
       this._updateAll = true;
     },
 
@@ -226,7 +213,6 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         return;
       }
 
-
       var world = Helpers.screenToWorld(this._settings, e.distFromLeft, e.distFromTop);
 
       if (this._currentAction) {
@@ -245,9 +231,6 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         }
       }
 
-      // Make sure the redo stack is empty as we are starting to draw again
-      this._redoStack = [];
-
       if (tool == "eraser") {
         this._currentAction.value.width = 30 / this._settings.scale;
         this._currentAction.value.color = "#ffffff";
@@ -255,8 +238,6 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
       } else if (this._settings.tools.point == "pencil") {
 
       }
-
-      this._setDisabledUndoRedo();
     },
 
     _move: function(e) {
@@ -332,23 +313,8 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     },
 
     _saveAction: function(action) {
-      // The id for the action is the next one in the array
-      // But 1 based indexing
-      action.id = this._actions.length + 1;
-
-      this._actions.push(action);
-
-      this._manipulateCanvas.addAction(action);
-
-      // And persist it
-      data.addAction(this._fileInfo.id, action);
-
-      Event.trigger("fileModified", {
-        fileId: this._fileInfo.id,
-        timestamp: Date.now()
-      });
-
-      this._updateAll = true;
+      action.id = Helpers.getGuid();
+      data.addAction(this._file.id, action);
     },
 
     _gesture: function(e) {
@@ -365,8 +331,11 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
       }
 
       if (this._updateAll) {
-        this._manipulateCanvas.doAll(this._actions);
+        data.getFileActions(this._file.id, function(actions) {
+          this._manipulateCanvas.doAll(actions);  
 
+          // oh shit, this could return after
+        });
       }
 
       if (this._updateCurrentAction && this._currentAction) {
@@ -389,7 +358,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         var action = e.srcElement.dataset.action;
 
         if (action == "back") {
-          this._filesPane.setPane("list", this._fileInfo);
+          this._filesPane.setPane("list", this._file);
         } else if (action == "rename") {
           e.srcElement.focus();
         } else if (action == "export") {
@@ -528,27 +497,6 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
       }
     },
 
-    _setDisabledUndoRedo: function() {
-      var undo = document.getElementById("undo-tool");
-      var redo = document.getElementById("redo-tool");
-      
-      if (this._actions.length) {
-        undo.classList.remove("disabled");
-      }
-      else
-      {
-        undo.classList.add("disabled");
-      }
-
-      if (this._redoStack.length) {
-        redo.classList.remove("disabled");
-      }
-      else
-      {
-        redo.classList.add("disabled");
-      }
-    },
-
     _setActiveTool: function() {
       var toolsElement = document.getElementById("tools");
 
@@ -556,7 +504,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
         var prevTool = toolsElement.dataset["active" + type];
         if (prevTool) {
           var toolItem = document.getElementById(prevTool);
-          toolItem.classList.remove("active-"+type);
+          toolItem.classList.remove("active-" + type);
         }
 
         var currentTool = this._settings.tools[type];
@@ -565,15 +513,13 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
 
           var currentToolId = currentTool + "-tool";
           var newToolItem = document.getElementById(currentToolId);
-          newToolItem.classList.add("active-"+type);
+          newToolItem.classList.add("active-" + type);
 
-          toolsElement.dataset["active"+type] = currentToolId;
+          toolsElement.dataset["active" + type] = currentToolId;
+        } else {
+          delete toolsElement.dataset["active" + type];
         }
-        else
-        {
-          delete toolsElement.dataset["active"+type];
-        }
-        
+
       }
 
       addRemove = addRemove.bind(this);
@@ -616,37 +562,11 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
     },
 
     _undo: function() {
-      if (this._actions.length > 0) {
-        var action = this._actions.pop();
-
-        // It is impossible to delete the id off of the action, so we have to create a new object
-        var newObj = {};
-
-        for (var prop in action) {
-          if (prop != "id") {
-            newObj[prop] = action[prop];
-          }
-        }
-
-
-        this._redoStack.push(newObj);
-
-        data.removeAction(this._fileInfo.id, action.id);
-        this._manipulateCanvas.doAll(this._actions);
-
-        this._updateAll = true;
-
-        this._setDisabledUndoRedo();
-      }
+      data.undoAction(this._file.id);
     },
 
     _redo: function() {
-      if (this._redoStack.length > 0) {
-        var nowAction = this._redoStack.pop();
-        this._saveAction(nowAction);
-
-        this._setDisabledUndoRedo();
-      }
+      data.redoAction(this._file.id);
     },
 
     _fileNameKeyDown: function(e) {
@@ -657,17 +577,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
 
     _fileNameBlur: function(e) {
       var name = e.srcElement.value;
-      data.renameFile(this._fileInfo.id, name);
-
-      Event.trigger("fileRenamed", {
-        fileId: this._fileInfo.id,
-        name: name
-      });
-
-      Event.trigger("fileModified", {
-        fileId: this._fileInfo.id,
-        timestamp: Date.now()
-      });
+      data.renameFile(this._file.id, name);
     },
 
 
@@ -680,7 +590,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
       }
 
       this._saveSettingsTimeout = setTimeout((function() {
-        data.localFileSettings(this._fileInfo.id, this._settings);
+        data.localFileSettings(this._file.id, this._settings);
         this._saveSettingsTimeout = null;
       }).bind(this), 100);
 

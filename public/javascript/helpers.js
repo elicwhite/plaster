@@ -27,6 +27,10 @@ define([], function() {
       };
     },
 
+    getGuid: function() {
+      return Date.now() +""+ Math.round(Math.random() * 1000000);
+    },
+
     getCurveControlPoints: function(knots) {
 
       function getFirstControlPoints(rhs) {

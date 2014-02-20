@@ -1,14 +1,23 @@
-define(["class", "dataBacking/indexedDBBacking", "dataBacking/webSQLBacking", "dataBacking/driveBacking", "event"], function(Class, IndexedDBBacking, WebSQLBacking, DriveBacking, Event) {
+define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBacking/webSQLBacking", "dataBacking/driveBacking", "event"], function(Class, Helpers, Event, IndexedDBBacking, WebSQLBacking, DriveBacking, Event) {
   var Data = Class.extend({
     _backing: null,
     _driveBacking: null,
 
-    _actionsAddedCallbacks: null,
-    _actionsRemovedCallbacks: null,
+    _cachedFiles: null,
+    _cachedActions: null,
 
     init: function() {
       this._actionsAddedCallbacks = [];
       this._actionsRemovedCallbacks = [];
+
+      this._cachedFiles = [];
+
+      this._cachedActions = {
+        file: this._cachedFiles[0],
+        remoteActions: [],
+        localActions: [],
+        redoStack: []
+      };
 
       var indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.oIndexedDB || window.msIndexedDB;
 
@@ -20,8 +29,114 @@ define(["class", "dataBacking/indexedDBBacking", "dataBacking/webSQLBacking", "d
         this._backing = new WebSQLBacking();
       }
 
+      window.back = this._backing;
+
       //Event.addListener("fileModified", this._fileModified.bind(this));
     },
+
+    // FILE METHODS
+
+    getFiles: function(callback) {
+      if (this._cachedFiles) {
+        callback(this._cachedFiles);
+      }
+    },
+
+    createFile: function() {
+      var newFile = {
+        id: Helpers.getGuid(),
+        name: "Untitled File",
+        modifiedTime: Date.now()
+      };
+
+      this._cachedFiles.push(newFile);
+
+      Event.trigger("fileAdded", newFile);
+    },
+
+    deleteFile: function(fileId) {
+      for (var i = 0; i < this._cachedFiles.length; i++) {
+        if (this._cachedFiles[i].id == fileId) {
+          var file = this._cachedFiles[i];
+          delete this._cachedFiles[i];
+          Event.trigger("fileRemoved", file);
+          return;
+        }
+      }
+    },
+
+    renameFile: function(fileId, newFileName) {
+      for (var i = 0; i < this._cachedFiles.length; i++) {
+        if (this._cachedFiles[i].id == fileId) {
+          var file = this._cachedFiles[i];
+          file.name = newFileName;
+
+          Event.trigger("fileRenamed", file);
+          Event.trigger("fileModified", file);
+          return;
+        }
+      }
+    },
+
+    loadFile: function(fileId, callback) {
+      if (this._cachedActions && this._cachedActions.file.id == fileId) {
+        callback();
+      } else {
+        console.error("Requesting a different file!");
+      }
+    },
+
+    getFileActions: function(fileId, callback) {
+      if (this._cachedActions && this._cachedActions.file.id == fileId) {
+        return this._cachedActions.remoteActions.concat(this._cachedActions.localActions);
+      } else {
+        console.error("Requesting a different file!");
+      }
+    },
+
+    addAction: function(fileId, action) {
+      if (this._cachedActions && this._cachedActions.file.id == fileId) {
+        this._cachedActions.localActions.push(action);
+        Event.trigger("actionAdded" {
+          isLocal: true
+        });
+
+        Event.trigger("fileModified", this._cachedActions.file);
+
+      } else {
+        console.error("Requesting a different file!");
+      }
+    },
+
+    undoAction: function(fileId) {
+      if (this._cachedActions && this._cachedActions.file.id == fileId) {
+        if (this._cachedActions.localActions.length == 0) {
+          return false; // no actions to undo
+        } else {
+          var lastAction = this._cachedActions.localAction.pop();
+          this._cachedActions.redoStack.push(lastAction);
+          Event.trigger("actionRemoved");
+        }
+      } else {
+        console.error("Requesting a different file!");
+      }
+    },
+
+    redoAction: function(fileId) {
+      if (this._cachedActions && this._cachedActions.file.id == fileId) {
+        if (this._cachedActions.redoStack.length == 0) {
+          return false; // no actions to undo
+        } else {
+          this.addAction(fileId, this._cachedActions.redoStack.pop());
+        }
+      } else {
+        console.error("Requesting a different file!");
+      }
+    }
+
+    // events fileAdded(file), fileRemoved(file)
+
+    /*
 
     startDrive: function() {
       console.log("Starting Drive Data");
@@ -31,11 +146,13 @@ define(["class", "dataBacking/indexedDBBacking", "dataBacking/webSQLBacking", "d
       //this._useDrive = true;
     },
 
-    // Get the name of all the files we have
     getFiles: function(callback) {
-      this._backing.getFiles(callback);
+      this._backing.getFiles(function(files) {
+        console.log("loading files from indexeddb", files);
+        callback(files);
+      });
     },
-
+    
     getFile: function(fileId, callback) {
       this._backing.getFile(fileId, callback);
     },
@@ -50,7 +167,7 @@ define(["class", "dataBacking/indexedDBBacking", "dataBacking/webSQLBacking", "d
     },
 
     // Create a new file and returns the file name
-    createFile: function(callback) {
+    .createFile: function(callback) {
       this._backing.createFile(undefined, (function(localFile) {
         if (this._driveBacking) {
           this._driveBacking.createFile((function(file) {
@@ -63,7 +180,7 @@ define(["class", "dataBacking/indexedDBBacking", "dataBacking/webSQLBacking", "d
       }).bind(this));
     },
 
-    renameFile: function(fileId, newFileName) {
+    .renameFile: function(fileId, newFileName) {
       if (this._driveBacking) {
         this._driveBacking.renameFile(fileId, newFileName);
       }
@@ -71,7 +188,7 @@ define(["class", "dataBacking/indexedDBBacking", "dataBacking/webSQLBacking", "d
       this._backing.renameFile(fileId, newFileName);
     },
 
-    deleteFile: function(fileId) {
+    .deleteFile: function(fileId) {
       if (this._driveBacking) {
         this._driveBacking.deleteFile(fileId);
       }
@@ -84,15 +201,35 @@ define(["class", "dataBacking/indexedDBBacking", "dataBacking/webSQLBacking", "d
         this._driveBacking.addAction(fileId, action);
       }
 
-      this._backing.addAction(fileId, action);
+      this._backing.addLocalAction(fileId, action);
     },
 
-    removeAction: function(fileId, actionIndex) {
-      if (this._driveBacking) {
-        this._driveBacking.removeAction(fileId, actionIndex);
+    undoAction: function(fileId) {
+      var online;
+
+      // remove the last action from localActions if there is one
+      this._backing.removeLastLocalAction(fileId);
+
+      if (online) {
+        // call drive undo
       }
+    },
+    
+
+    undoAction: function(fileId) {
+
+    },
+
+    removeAction: function(fileId, actionId) {
+      //if (this._driveBacking) {
+      //  this._driveBacking.removeAction(fileId, actionId);
+      //}
 
       this._backing.removeAction(fileId, actionIndex);
+    },
+
+    removeRemoteAction: function(fileId, actionId) {
+      this._backing.removeRemoteAction(fileId, actionId);
     },
 
     // Delete all the file rows, delete all the file databases,
@@ -104,6 +241,8 @@ define(["class", "dataBacking/indexedDBBacking", "dataBacking/webSQLBacking", "d
     //_fileModified: function(data) {
     //  this._backing.updateFileModified(data.fileId, data.timestamp);
     //},
+
+    */
 
     // Get the stored file settings
     localFileSettings: function(fileId, settings) {
@@ -128,7 +267,9 @@ define(["class", "dataBacking/indexedDBBacking", "dataBacking/webSQLBacking", "d
       return JSON.parse(localStorage[fileId]);
     },
 
-    _remoteActionsAdded: function(e) {
+    /*
+
+        _remoteActionsAdded: function(e) {
       for (var i = 0; i < this._actionsAddedCallbacks.length; i++) {
         this._actionsAddedCallbacks[i](e);
       }
@@ -138,7 +279,7 @@ define(["class", "dataBacking/indexedDBBacking", "dataBacking/webSQLBacking", "d
       for (var i = 0; i < this._actionsRemovedCallbacks.length; i++) {
         this._actionsRemovedCallbacks[i](e);
       }
-    },
+    }
 
     addEventListener: function(type, callback) {
       if (type == "actionsAdded") {
@@ -160,6 +301,7 @@ define(["class", "dataBacking/indexedDBBacking", "dataBacking/webSQLBacking", "d
 
       array.splice(array.indexOf(callback), 1);
     }
+    */
   });
 
   var data = new Data();
