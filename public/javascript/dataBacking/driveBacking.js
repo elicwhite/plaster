@@ -27,8 +27,11 @@ define(["dataBacking/baseBacking", "db"], function(BaseBacking, db) {
           'q': "trashed=false and mimeType='" + this.REALTIME_MIMETYPE + '.' + this._appId + "'"
         }).execute(function(results) {
           console.log("files", results);
-          callback(results.items);
-          // actual files are in .items
+          if (results.items) {
+            callback(results.items);
+          } else {
+            callback([]);
+          }
         });
       }).bind(this));
     },
