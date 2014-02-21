@@ -115,8 +115,6 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
         console.log("Loading file", fileId);
         var file = this._getFile(fileId);
 
-        this._currentFile = file;
-
         var actionsObj = {
           file: file,
           remoteActions: [],
@@ -124,9 +122,12 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
           redoStack: []
         };
 
+
         this._backing.getFileActions(fileId, (function(actions) {
           actionsObj.remoteActions = actions.remote;
           actionsObj.localActions = actions.local;
+
+          this._currentFile = file;
 
           this._cachedActions = actionsObj;
 
@@ -147,6 +148,7 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
 
       if (!this._cachedActions) {
         debugger;
+        return [];
       }
 
       return this._cachedActions.remoteActions.concat(this._cachedActions.localActions);
@@ -163,7 +165,7 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
       this._backing.addLocalAction(this._currentFile.id, action);
 
       if (this._driveBacking) {
-        this._driveBacking.addAction(fileId, action);
+        this._driveBacking.addAction(this._currentFile.id, action);
       }
 
       Event.trigger("fileModified", this._cachedActions.file);
@@ -351,7 +353,7 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
     },
 
     _getFile: function(fileId) {
-      for (var i = 0; i < this._cachedFiles.length; i++) {
+      for (var i in this._cachedFiles) {
         if (this._cachedFiles[i].id == fileId) {
           return this._cachedFiles[i];
         }

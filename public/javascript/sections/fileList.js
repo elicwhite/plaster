@@ -185,7 +185,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "data", "templat
       }
     },
 
-    _fileRenamed: function(data) {
+    _fileRenamed: function(file) {
       for (var i = 0; i < this._files.length; i++) {
         var element = this._files[i].element;
         if (element.file.id == file.id) {
