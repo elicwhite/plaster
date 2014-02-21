@@ -52,11 +52,9 @@ define(["dataBacking/baseBacking", "db"], function(BaseBacking, db) {
     _getModel: function(fileId, callback) {
       if (this._cachedFile) {
         if (this._cachedFile.getModel().getRoot().get('id') == fileId) {
-          callback(this._cachedFile.getModel().getRoot());
+          callback(this._cachedFile.getModel());
           return;
-        }
-        else
-        {
+        } else {
           // they don't match, remove our event handlers because we are going to be adding new ones
           var actions = this._cachedFile.getModel().getRoot().get("actions");
           actions.removeEventListener(gapi.drive.realtime.EventType.VALUES_ADDED, this._actionsAdded);
@@ -67,14 +65,13 @@ define(["dataBacking/baseBacking", "db"], function(BaseBacking, db) {
       gapi.client.load('drive', 'v2', (function() {
         gapi.drive.realtime.load(fileId, (function(doc) {
             // file was loaded
-            window.doc = doc;
             this._cachedFile = doc;
 
             var actions = doc.getModel().getRoot().get('actions');
             actions.addEventListener(gapi.drive.realtime.EventType.VALUES_ADDED, this._actionsAdded);
             actions.addEventListener(gapi.drive.realtime.EventType.VALUES_REMOVED, this._actionsRemoved);
 
-            callback(doc.getModel().getRoot());
+            callback(doc.getModel());
           }).bind(this),
           function(model) {
             // file was created
@@ -89,24 +86,18 @@ define(["dataBacking/baseBacking", "db"], function(BaseBacking, db) {
     },
 
     _actionsAdded: function(e) {
-      if (e.isLocal) {
-        return;
-      }
+      console.log("got actions", e);
 
       this._addedCallback(e);
     },
 
     _actionsRemoved: function(e) {
-      if (e.isLocal) {
-        return;
-      }
-
       this._removedCallback(e);
     },
 
     getFileActions: function(fileId, callback) {
-      this._getModel(fileId, (function(root) {
-        callback(root.get('actions').asArray());
+      this._getModel(fileId, (function(model) {
+        callback(model.getRoot().get('actions').asArray());
       }).bind(this));
     },
 
@@ -138,12 +129,11 @@ define(["dataBacking/baseBacking", "db"], function(BaseBacking, db) {
           'fileId': fileId,
           'resource': body
         });
-        request.execute(function(resp) {
-        });
+        request.execute(function(resp) {});
       }).bind(this));
 
-      this._getModel(fileId, function(root) {
-        root.set("title", newFileName);
+      this._getModel(fileId, function(model) {
+        model.getRoot().set("title", newFileName);
       });
     },
 
@@ -159,14 +149,26 @@ define(["dataBacking/baseBacking", "db"], function(BaseBacking, db) {
     addAction: function(fileId, action) {
       this._getModel(fileId, (function(model) {
         // If we got in here, we know cached file is set
-        model.get('actions').insert(model.get('actions').length, action);
+        model.getRoot().get('actions').insert(model.getRoot().get('actions').length, action);
       }).bind(this));
     },
 
     removeAction: function(fileId, actionIndex) {
       this._getModel(fileId, function(model) {
-        model.get('actions').remove(actionIndex);
+        model.getRoot().get('actions').remove(actionIndex);
       })
+    },
+
+    undo: function(fileId) {
+      this._getModel(fileId, function(model) {
+        model.undo();
+      });
+    },
+
+    redo: function(fileId) {
+      this._getModel(fileId, function(model) {
+        model.redo();
+      });
     },
 
     clearAll: function() {

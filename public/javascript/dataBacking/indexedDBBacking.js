@@ -81,6 +81,14 @@ define(["helpers", "dataBacking/localBacking", "db"], function(Helpers, LocalBac
             remoteActions: {
               key: {
                 keyPath: 'id'
+              },
+              indexes: {
+                id: {
+                  unique: true
+                },
+                index: {
+                  unique: true
+                }
               }
             }
           }
@@ -117,7 +125,7 @@ define(["helpers", "dataBacking/localBacking", "db"], function(Helpers, LocalBac
 
           }).bind(this));
 
-        server.remoteActions.query()
+        server.remoteActions.query('index')
           .all()
           .execute()
           .done((function(actions) {
@@ -287,21 +295,6 @@ define(["helpers", "dataBacking/localBacking", "db"], function(Helpers, LocalBac
     },
 
     removeLocalAction: function(fileId, actionId) {
-      this._getFileServer(fileId, (function(server) {
-        window.server = server;
-
-        server.localActions
-          .remove(actionId)
-          .done((function(key) {
-            // item removed
-          }).bind(this));
-
-      }).bind(this));
-    },
-
-    // implement add RemoteAction
-
-    removeLocalAction: function(fileId, actionId) {
 
       this._getFileServer(fileId, (function(server) {
         server.localActions
@@ -329,6 +322,60 @@ define(["helpers", "dataBacking/localBacking", "db"], function(Helpers, LocalBac
         .fail(function(e) {
           console.error("Couldn't find file", e);
         });
+    },
+
+    addRemoteActions: function(fileId, index, actions) {
+      // Shift all the actions up
+      this._getFileServer(fileId, (function(server) {
+        server.remoteActions
+          .query('index')
+          .lowerBound(index)
+          .modify({
+            index: function(action) {
+              return action.index + actions.length;
+            }
+          })
+          .execute()
+          .done((function(item) {
+            // item stored
+            server.remoteActions
+              .add.apply(server, actions)
+              .done(
+                (function() {
+                  this._updateFileModified(fileId);
+                }).bind(this));
+          }).bind(this))
+          .fail(function(e) {
+            console.error("fail to write", e);
+          });
+      }).bind(this));
+    },
+
+    removeRemoteActions: function(fileId, index, actions) {
+      this._getFileServer(fileId, (function(server) {
+        for (var i = 0; i < actions.length; i++) {
+
+          //server.remoteActions
+          server.remoteActions.remove(actions[i].id).done(function(key) {
+            // item removed
+          });
+        }
+
+        // it's okay that this happens async
+        // decrement all the other indexes
+        server.remoteActions
+          .query('index')
+          .lowerBound(index)
+          .modify({
+            index: function(action) {
+              return action.index - actions.length;
+            }
+          })
+          .execute()
+          .done((function(item) {
+            this._updateFileModified(fileId);
+          }).bind(this));
+      }).bind(this));
     },
 
     clearAll: function() {

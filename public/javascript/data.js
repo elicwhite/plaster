@@ -172,6 +172,11 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
     },
 
     undoAction: function() {
+      if (this._driveBacking) {
+        this._driveBacking.undo(this._currentFile.id);
+        return;
+      }
+
       if (this._cachedActions.localActions.length == 0) {
         return false; // no actions to undo
       } else {
@@ -186,6 +191,12 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
     },
 
     redoAction: function() {
+      if (this._driveBacking) {
+        this._driveBacking.redo(this._currentFile.id);
+        return;
+      }
+
+
       if (this._cachedActions.redoStack.length == 0) {
         return false; // no actions to undo
       } else {
@@ -205,11 +216,58 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
     },
 
     _remoteActionsAdded: function(data) {
-      console.log("added", data);
+      console.log("added--", data);
+      window.d = data;
+
+      if (data.isLocal) {
+        // go through each item to insert
+        for (var i = 0; i < data.values.length; i++) {
+          // delete them from local
+          for (var j = 0; j < this._cachedActions.localActions.length; j++) {
+            if (this._cachedActions.localActions[j].id == data.values[i].id) {
+              this._cachedActions.localActions.splice(j, 1);
+              break;
+            }
+          }
+
+          this._backing.removeLocalAction(this._currentFile.id, data.values[i].id);
+        }
+      }
+
+      // put the items into the remoteActions
+      Array.prototype.splice.apply(this._cachedActions.remoteActions, [data.index, 0].concat(data.values));
+
+      var items = [];
+      // put indexes on the items
+      for (var i = 0; i < data.values.length; i++) {
+        var item = Helpers.clone(data.values[i]);
+        item.index = data.index + i;
+        items.push(item);
+      }
+
+      console.log("adding to remote", items);
+
+      // insert them into storage
+      this._backing.addRemoteActions(this._currentFile.id, data.index, items);
+
+      Event.trigger("actionAdded", {
+        isLocal: data.isLocal,
+        items: items
+      });
+
+      Event.trigger("fileModified", this._currentFile);
     },
 
     _remoteActionsRemoved: function(data) {
       console.log("removed", data);
+
+      // remove it from the remoteActions
+      this._cachedActions.remoteActions.splice(data.index, data.values.length);
+
+      this._backing.removeRemoteActions(this._currentFile.id, data.index, data.values);
+
+      Event.trigger("actionRemoved");
+      Event.trigger("fileModified", this._currentFile);
     },
 
     /*
@@ -319,15 +377,6 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
     //},
 
     */
-
-    _remoteActionsAdded: function(data) {
-      console.log("added", data);
-    },
-
-    _remoteActionsRemoved: function(data) {
-      console.log("removed", data);
-    },
-
 
     // Get the stored file settings
     localFileSettings: function(fileId, settings) {

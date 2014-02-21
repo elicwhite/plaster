@@ -33,24 +33,21 @@ define(["dataBacking/baseBacking"], function(BaseBacking) {
       console.error("Implement this function");
     },
 
-
-
     removeLocalAction: function(fileId, actionId) {
       console.error("Implement this function");
     },
+
+
+
+
 
     // a remote action came in, save it to index
     // making sure everything else is in order
-    addRemoteAction: function(fileId, index, action) {
+    addRemoteActions: function(fileId, index, actions) {
       console.error("Implement this function");
     },
 
-    // remove the last action
-    removeLocalAction: function(fileId, actionId) {
-      console.error("Implement this function");
-    },
-
-    removeRemoteAction: function(fileId, actionId) {
+    removeRemoteActions: function(fileId, index, actions) {
       console.error("Implement this function");
     },
 

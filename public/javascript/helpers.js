@@ -31,6 +31,15 @@ define([], function() {
       return Date.now() +""+ Math.round(Math.random() * 1000000);
     },
 
+    clone: function(obj) {
+      var newObj = {};
+      for (var prop in obj) {
+        newObj[prop] = obj[prop];
+      }
+
+      return newObj;
+    },
+
     getCurveControlPoints: function(knots) {
 
       function getFirstControlPoints(rhs) {
