@@ -104,7 +104,7 @@ define(["helpers", "dataBacking/localBacking", "db"], function(Helpers, LocalBac
       var actionsObj = {};
 
       this._getFileServer(fileId, (function(server) {
-        
+
         server.localActions.query()
           .all()
           .execute()
@@ -198,55 +198,78 @@ define(["helpers", "dataBacking/localBacking", "db"], function(Helpers, LocalBac
         });
     },
 
-    replaceFileId: function(oldId, newId) {
-      this.getFile(oldId, (function(oldFile) {
+    // Make this work
+    replaceFileId: function(oldFile, newId) {
+      this.getFileActions(oldFile.id, (function(oldActions) {
 
-        var newFile = {
-          id: newId,
-          name: oldFile.name,
-          modifiedTime: oldFile.modifiedTime
-        };
+        // store the old id
+        var oldId = oldFile.id;
+
+        // and update it
+        oldFile.id = newId;
+
+        // new variable name
+        var newFile = oldFile;
+
 
         this._server.files.add(newFile)
           .done((function(items) {
             var item = items[0];
 
             this._getFileServer(item.id, (function(newServer) {
-
               this._getFileServer(oldId, (function(oldServer) {
-                oldServer.localActions.query()
-                  .all()
-                  .execute()
-                  .done((function(oldActions) {
-
-                    var actionsCopied = 0;
-                    console.log("final", oldActions);
-                    if (oldActions.length == 0) {
-                      this.deleteFile(oldId);
-                    } else {
-                      for (var i = 0; i < oldActions.length; i++) {
-                        newServer.localActions
-                          .add(oldActions[i])
-                          .done((function(item) {
-                            console.log("oldActions", oldActions, actionsCopied);
-                            if (actionsCopied == oldActions.length - 1) {
-                              debugger;
-                              // this is the last one
-                              this.deleteFile(oldId);
-                            }
-                            actionsCopied++;
-                          }).bind(this))
-                          .fail(function(e) {
-                            console.error("fail to write", e);
-                          });
-                      }
-                    }
-
-                  }).bind(this));
+                this._copyServer(oldServer, newServer, (function() {
+                  // Done copying
+                  console.log("ID Changed");
+                  this.deleteFile(oldId);
+                }).bind(this));
               }).bind(this));
             }).bind(this));
           }).bind(this))
       }).bind(this));
+    },
+
+    _copyServer: function(fromServer, toServer, callback) {
+      var copied = 0;
+
+      this._copyActions(fromServer.localActions, toServer.localActions, copyDone);
+      this._copyActions(fromServer.remoteActions, toServer.remoteActions, copyDone);
+
+      function copyDone() {
+        copied++;
+
+        // If we have copied everything
+        if (copied == 2) {
+          callback();
+          return;
+        }
+      }
+    },
+
+    _copyActions: function(fromServer, toServer, callback) {
+      fromServer.query()
+        .all()
+        .execute()
+        .done(function(fromResults) {
+          var resultsCopied = 0;
+
+          if (fromResults.length == 0) {
+            callback();
+          } else {
+            for (var i = 0; i < fromResults.length; i++) {
+              toServer
+                .add(fromResults[i])
+                .done(function(newItem) {
+                  if (resultsCopied == fromResults.length - 1) {
+                    callback();
+                    return;
+                  }
+
+                  resultsCopied++;
+                });
+            }
+          }
+        });
     },
 
     addLocalAction: function(fileId, action) {
@@ -263,17 +286,16 @@ define(["helpers", "dataBacking/localBacking", "db"], function(Helpers, LocalBac
       }).bind(this));
     },
 
-    undoLocalAction: function(fileId) {
+    removeLocalAction: function(fileId, actionId) {
       this._getFileServer(fileId, (function(server) {
         window.server = server;
 
-        /*server.localActions
+        server.localActions
           .remove(actionId)
           .done((function(key) {
             // item removed
-            this._updateFileModified(fileId);
           }).bind(this));
-*/
+
       }).bind(this));
     },
 

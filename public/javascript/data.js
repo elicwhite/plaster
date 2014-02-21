@@ -60,7 +60,15 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
 
       Event.trigger("fileAdded", newFile);
 
-      this._backing.createFile(newFile, (function(localFile) {}).bind(this));
+      this._backing.createFile(newFile, (function(localFile) {
+        if (this._driveBacking) {
+          this._driveBacking.createFile((function(file) {
+            // Google saved a file, redo the id of the file locally to match drive
+
+            this._backing.replaceFileId(newFile, file.id)
+          }).bind(this));
+        }
+      }).bind(this));
     },
 
     deleteFile: function(fileId) {
@@ -69,6 +77,10 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
       delete this._cachedFiles[this._cachedFiles.indexOf(file)];
 
       this._backing.deleteFile(file.id);
+
+      if (this._driveBacking) {
+        this._driveBacking.deleteFile(file.id);
+      }
 
       Event.trigger("fileRemoved", file);
       return;
@@ -80,6 +92,10 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
       file.name = newFileName;
 
       this._backing.renameFile(file.id, newFileName);
+
+      if (this._driveBacking) {
+        this._driveBacking.renameFile(file.id, newFileName);
+      }
 
       Event.trigger("fileRenamed", file);
       Event.trigger("fileModified", file);
@@ -109,7 +125,6 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
         };
 
         this._backing.getFileActions(fileId, (function(actions) {
-          console.log("got results for", fileId, actions);
           actionsObj.remoteActions = actions.remote;
           actionsObj.localActions = actions.local;
 
@@ -117,6 +132,10 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
 
           callback();
         }).bind(this));
+
+        if (this._driveBacking) {
+          this._driveBacking._getModel(fileId, function() {});
+        }
       }
     },
 
@@ -142,6 +161,10 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
       });
 
       this._backing.addLocalAction(this._currentFile.id, action);
+
+      if (this._driveBacking) {
+        this._driveBacking.addAction(fileId, action);
+      }
 
       Event.trigger("fileModified", this._cachedActions.file);
     },
@@ -171,7 +194,21 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
       }
     },
 
-    // events fileAdded(file), fileRemoved(file)
+
+
+    startDrive: function() {
+      console.log("Starting Drive Data");
+      this._driveBacking = new DriveBacking(this._remoteActionsAdded.bind(this), this._remoteActionsRemoved.bind(this));
+      window.drive = this._driveBacking;
+    },
+
+    _remoteActionsAdded: function(data) {
+      console.log("added", data);
+    },
+
+    _remoteActionsRemoved: function(data) {
+      console.log("removed", data);
+    },
 
     /*
 
@@ -280,6 +317,15 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
     //},
 
     */
+
+    _remoteActionsAdded: function(data) {
+      console.log("added", data);
+    },
+
+    _remoteActionsRemoved: function(data) {
+      console.log("removed", data);
+    },
+
 
     // Get the stored file settings
     localFileSettings: function(fileId, settings) {
