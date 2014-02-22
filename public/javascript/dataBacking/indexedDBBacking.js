@@ -353,6 +353,7 @@ define(["helpers", "dataBacking/localBacking", "db"], function(Helpers, LocalBac
 
     removeRemoteActions: function(fileId, index, actions) {
       this._getFileServer(fileId, (function(server) {
+        window.s = server;
         for (var i = 0; i < actions.length; i++) {
 
           //server.remoteActions

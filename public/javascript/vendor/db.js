@@ -311,9 +311,10 @@ define([], function() {
     var IndexQuery = function ( table , db , indexName ) {
         var that = this;
         var modifyObj = false;
+        var removeObj = false;
 
         var runQuery = function ( type, args , cursorType , direction, limitRange, filters , mapper ) {
-            var transaction = db.transaction( table, modifyObj ? transactionModes.readwrite : transactionModes.readonly ),
+            var transaction = db.transaction( table, modifyObj || removeObj ? transactionModes.readwrite : transactionModes.readonly ),
                 store = transaction.objectStore( table ),
                 index = indexName ? store.index( indexName ) : store,
                 keyRange = type ? IDBKeyRange[ type ].apply( null, args ) : null,
@@ -339,6 +340,11 @@ define([], function() {
                     record[key] = val;
                 }
                 return record;
+            };
+
+            var removeFn = (removeObj instanceof Function) ? removeObj : false;
+            var removeRecord = function(record) {
+                return removeFn ? removeFn(record) : false;
             };
 
             index[cursorType].apply( index , indexArgs ).onsuccess = function ( e ) {
@@ -372,6 +378,12 @@ define([], function() {
                             if(modifyObj) {
                                 result = modifyRecord(result);
                                 cursor.update(result);
+                            }
+
+                            if (removeObj) {
+                                if (removeFn(result)) {
+                                    cursor.delete(result);
+                                }
                             }
                         }
                         cursor.continue();
@@ -442,6 +454,7 @@ define([], function() {
                     desc: desc,
                     distinct: distinct,
                     modify: modify,
+                    remove: remove,
                     limit: limit,
                     map: map
                 };
@@ -455,6 +468,7 @@ define([], function() {
                     filter: filter,
                     distinct: distinct,
                     modify: modify,
+                    remove: remove,
                     map: map
                 };
             };
@@ -467,11 +481,23 @@ define([], function() {
                     filter: filter,
                     desc: desc,
                     modify: modify,
+                    remove: remove,
                     map: map
                 };
             };
             var modify = function(update) {
                 modifyObj = update;
+                return {
+                    execute: execute
+                };
+            };
+            var remove = function(update) {
+                if (typeof(update) == "undefined") {
+                    removeObj = function(item) { return true; }
+                } else {
+                    removeObj = update;
+                }
+
                 return {
                     execute: execute
                 };
@@ -487,6 +513,7 @@ define([], function() {
                     desc: desc,
                     distinct: distinct,
                     modify: modify,
+                    remove: remove,
                     limit: limit,
                     map: map
                 };
@@ -500,6 +527,7 @@ define([], function() {
                 desc: desc,
                 distinct: distinct,
                 modify: modify,
+                remove: remove,
                 limit: limit,
                 map: map
             };

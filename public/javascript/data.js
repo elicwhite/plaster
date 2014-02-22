@@ -308,7 +308,12 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
 
     // Called when we initialize drive. Grab everything new from drive and put it into 
     // storage
-    _loadFromDrive: function() {
+    _loadFromDrive: function(callback) {
+      // Look for new files on drive
+      // add them and all their actions
+
+      // all local files, look for actions that are currently on files on drive and sync them
+
       console.log("checking drive for new files");
       this._driveBacking.getFiles((function(remoteFiles) {
         this._backing.getFiles((function(localFiles) {
@@ -326,10 +331,9 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
               }
             }
 
+            var file = remoteFiles[i];
+
             if (!found) {
-
-              var file = remoteFiles[i];
-
               console.log("File", remoteFiles[i].id, "is new on drive");
 
               var newFile = {
@@ -362,7 +366,46 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
                   Event.trigger("fileAdded", newFile);
                 }).bind(this));
               }).bind(this));
+            } else {
+              // we have this file on both local and server
+              // make sure we have all the remote actions
+
+              this._driveBacking.getFileActions(file.id, (function(actions) {
+                this._backing.getFileActions(file.id, (function(localActions) {
+                  
+                  console.log("got both actions", actions, localActions);
+                  
+                  // if local is shorter, then something was added to remote
+                  // if remote is shorter, then something was removed from remote
+
+                  var shorter = actions.length < localActions.remote.length ? actions : localActions.remote;
+                  var diverges = -1;
+
+                  for (var j = 0; j < shorter.length; j++) {
+                    if (actions[j].id != localActions.remote[j].id) {
+                      console.log("diverges at", j);
+                      diverges = j;
+                    }
+                  }
+
+                  if (diverges == -1) {
+                    console.log("never diverge");
+                  }
+
+
+
+                  if (actions.length != localActions.remote.length) {
+                    console.log("Different number of actions on the server");
+                  }
+                  
+
+                }).bind(this));
+              }).bind(this));
+
+              // and the remote has all the local actions
             }
+
+
           }
 
         }).bind(this));
