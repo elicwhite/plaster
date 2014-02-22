@@ -1,7 +1,7 @@
+@import "mixins.scss";
+
 *, *:before, *:after {
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
+  @include box-sizing(border-box);
 }
 
 * {
@@ -139,7 +139,7 @@ body {
 }
 
 .ani4 {
-  transition: all .4s;
+  @include transition(.4s, all);
 }
 
 @import "design.scss";

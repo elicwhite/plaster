@@ -12,7 +12,7 @@
           .thumbnail-wrapper {
             .overlay {
               .delete {
-                transition: .3s opacity;
+                @include transition(.3s, opacity);
                 opacity: 0;
                 cursor: pointer;
               }
@@ -76,8 +76,8 @@
           left: 0;
 
           opacity: 0;
-          transition: .4s all;
-          -webkit-transform: translate(95px, -10px);
+          @include transition(.4s, all);
+          @include transform("translate(95px, -10px)");
 
           &.visible, &:hover {
             opacity: 1;
@@ -99,8 +99,6 @@
                 width: $swatchSize;
                 height: $swatchSize;
                 margin: auto;
-
-                //border-radius: $swatchSize / 4;
 
                 margin-right: $swatchSpacing;
                 margin-bottom: $swatchSpacing;
@@ -162,7 +160,7 @@
         left: 50%;
 
         opacity: 0;
-        transition: .3s opacity;
+        @include transition(.3s, opacity);
 
         &.visible {
           opacity: 1;
@@ -181,7 +179,7 @@
 
         background-color: rgba(255, 255, 255, 1);
 
-        border-radius: $swatchSize / 2;
+        @include border-radius($swatchSize / 2);
         border: 1px solid $veryLightGray;
         //box-shadow: 0px 1px 2px $veryLightGray;
 
@@ -204,7 +202,7 @@
               height: $swatchSize;
               margin: auto;
 
-              border-radius: $swatchSize / 2;
+              @include border-radius($swatchSize / 2);
 
               margin-right: $swatchSpacing;
               margin-bottom: $swatchSpacing;
@@ -304,7 +302,7 @@
           left: 50%;
 
           opacity: 0;
-          transition: .3s opacity;
+          @include transition(.3s, opacity);
 
           &.visible {
             opacity: 1;

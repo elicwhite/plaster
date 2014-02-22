@@ -57,7 +57,7 @@ body, input {
 
         background-color: white;
 
-        border-radius: 2px;
+        @include border-radius(2px);
         border: 1px solid $veryLightGray;
         box-shadow: 0px 1px 2px $veryLightGray;
 
@@ -103,7 +103,8 @@ body, input {
               top: 10px;
               left: 10px;
               padding: 2px;
-              border-radius: 8px;
+
+              @include border-radius(8px);
             }
 
             .delete {
@@ -251,7 +252,7 @@ body, input {
         border: 0;
         background-color: white;
         padding: 5px 15px;
-        border-radius: 10px;
+        @include border-radius(10px);
 
         max-width: 250px;
       }

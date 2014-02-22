@@ -8,7 +8,7 @@ define(["class", "dataBacking/indexedDBBacking", "dataBacking/webSQLBacking", "e
     _backing: null,
 
     init: function() {
-      var indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.oIndexedDB || window.msIndexedDB;
+      var indexedDB = window.indexedDB;
 
       if (indexedDB) {
         console.log("Using IndexedDB as data store");

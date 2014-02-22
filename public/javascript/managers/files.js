@@ -1,4 +1,4 @@
-define(["section", "event", "sections/fileList", "sections/draw"], function(Section, Event, FileList, Draw) {
+define(["section", "event", "platform", "sections/fileList", "sections/draw"], function(Section, Event, Platform, FileList, Draw) {
 
   var Files = Section.extend({
     id: "files",
@@ -29,7 +29,7 @@ define(["section", "event", "sections/fileList", "sections/draw"], function(Sect
       this._windowResized = this._windowResized.bind(this);
       this._finishedSliding = this._finishedSliding.bind(this);
 
-      this._paneWrapper.addEventListener("webkitTransitionEnd", this._finishedSliding);
+      this._paneWrapper.addEventListener(Platform.transitionEnd, this._finishedSliding);
 
       this.panes = {};
 
@@ -43,7 +43,7 @@ define(["section", "event", "sections/fileList", "sections/draw"], function(Sect
         pane: new Draw(this)
       };
 
-      this.panes.draw.pane.element.style.webkitTransform = 'translate(' + this._screenWidth + "px, 0px)";
+      this.panes.draw.pane.element.style[Platform.transform] = 'translate(' + this._screenWidth + "px, 0px)";
 
       var state = {
         pane: "list",
@@ -101,9 +101,9 @@ define(["section", "event", "sections/fileList", "sections/draw"], function(Sect
       var totalPane = this.panes[pane];
 
       var translate = "translate(" + (-1 * totalPane.offsetX) + "px, 0px)";
-      if (this._paneWrapper.style.webkitTransform != translate) {
+      if (this._paneWrapper.style[Platform.transform] != translate) {
         this._paneWrapper.classList.add("ani4");
-        this._paneWrapper.style.webkitTransform = translate;
+        this._paneWrapper.style[Platform.transform] = translate;
       }
 
 
@@ -118,7 +118,7 @@ define(["section", "event", "sections/fileList", "sections/draw"], function(Sect
     },
 
     _finishedSliding: function(e) {
-      if (e.srcElement != this._paneWrapper) {
+      if (e.target != this._paneWrapper) {
         return;
       }
 
@@ -151,11 +151,11 @@ define(["section", "event", "sections/fileList", "sections/draw"], function(Sect
       var startX = -1 * currentIndex * this._screenWidth;
       for (var pane in this.panes) {
         this.panes[pane].offsetX = startX;
-        this.panes[pane].pane.element.style.webkitTransform = 'translate(' + startX + "px, 0px)";
+        this.panes[pane].pane.element.style[Platform.transform] = 'translate(' + startX + "px, 0px)";
         startX += this._screenWidth;
       }
 
-      this._paneWrapper.style.webkitTransform = "";
+      this._paneWrapper.style[Platform.transform] = "";
     }
   });
 
