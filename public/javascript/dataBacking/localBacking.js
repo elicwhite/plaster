@@ -38,7 +38,7 @@ define(["dataBacking/baseBacking"], function(BaseBacking) {
     },
 
 
-    
+
 
 
     // a remote action came in, save it to index
@@ -47,7 +47,7 @@ define(["dataBacking/baseBacking"], function(BaseBacking) {
       console.error("Implement this function");
     },
 
-    removeRemoteActions: function(fileId, index, actions) {
+    removeRemoteActions: function(fileId, index, length) {
       console.error("Implement this function");
     },
 

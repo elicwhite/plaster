@@ -343,7 +343,10 @@ define(["helpers", "dataBacking/localBacking", "db"], function(Helpers, LocalBac
               .done(
                 (function() {
                   this._updateFileModified(fileId);
-                }).bind(this));
+                }).bind(this))
+              .fail(function(e) {
+                console.error("failed to add actions", e);
+              });
           }).bind(this))
           .fail(function(e) {
             console.error("fail to write", e);
@@ -351,16 +354,19 @@ define(["helpers", "dataBacking/localBacking", "db"], function(Helpers, LocalBac
       }).bind(this));
     },
 
-    removeRemoteActions: function(fileId, index, actions) {
+    removeRemoteActions: function(fileId, index, length) {
       this._getFileServer(fileId, (function(server) {
         window.s = server;
-        for (var i = 0; i < actions.length; i++) {
 
-          //server.remoteActions
-          server.remoteActions.remove(actions[i].id).done(function(key) {
+        //server.remoteActions
+        server.remoteActions.query('index')
+          .lowerBound(index)
+          .limit(length)
+          .remove()
+          .execute()
+          .done(function(key) {
             // item removed
           });
-        }
 
         // it's okay that this happens async
         // decrement all the other indexes
@@ -369,7 +375,7 @@ define(["helpers", "dataBacking/localBacking", "db"], function(Helpers, LocalBac
           .lowerBound(index)
           .modify({
             index: function(action) {
-              return action.index - actions.length;
+              return action.index - length;
             }
           })
           .execute()

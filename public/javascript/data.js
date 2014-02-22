@@ -261,7 +261,7 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
       // remove it from the remoteActions
       this._cachedActions.remoteActions.splice(data.index, data.values.length);
 
-      this._backing.removeRemoteActions(this._currentFile.id, data.index, data.values);
+      this._backing.removeRemoteActions(this._currentFile.id, data.index, data.values.length);
 
       Event.trigger("actionRemoved");
       Event.trigger("fileModified", this._currentFile);
@@ -303,6 +303,18 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
         func: func,
         args: args
       })
+    },
+
+    _indexify: function(actions, startIndex) {
+      var items = [];
+      // put indexes on the items
+      for (var i = 0; i < actions.length; i++) {
+        var item = Helpers.clone(actions[i]);
+        item.index = i + startIndex;
+        items.push(item);
+      }
+
+      return items;
     },
 
 
@@ -350,15 +362,8 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
                   console.log("got actions", actions);
 
 
-                  // clone and add indexes
-                  var items = [];
-                  // put indexes on the items
-                  for (var i = 0; i < actions.length; i++) {
-                    var item = Helpers.clone(actions[i]);
-                    item.index = i;
-                    items.push(item);
-                  }
-
+                  var items = this._indexify(actions, 0);
+                  
                   console.log("got remote actions, saving", items);
 
                   this._backing.addRemoteActions(file.id, 0, items);
@@ -370,42 +375,60 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
               // we have this file on both local and server
               // make sure we have all the remote actions
 
-              this._driveBacking.getFileActions(file.id, (function(actions) {
+              this._driveBacking.getFileActions(file.id, (function(remoteActions) {
                 this._backing.getFileActions(file.id, (function(localActions) {
-                  
-                  console.log("got both actions", actions, localActions);
-                  
                   // if local is shorter, then something was added to remote
                   // if remote is shorter, then something was removed from remote
 
-                  var shorter = actions.length < localActions.remote.length ? actions : localActions.remote;
+                  var shorter = remoteActions.length < localActions.remote.length ? remoteActions : localActions.remote;
                   var diverges = -1;
 
                   for (var j = 0; j < shorter.length; j++) {
-                    if (actions[j].id != localActions.remote[j].id) {
-                      console.log("diverges at", j);
+                    if (remoteActions[j].id != localActions.remote[j].id) {
                       diverges = j;
+                      break;
                     }
                   }
 
-                  if (diverges == -1) {
-                    console.log("never diverge");
+                  // Only modify things if we need to
+                  if (diverges !== -1 || remoteActions.length != localActions.remote.length) {
+                    console.log("differences between remote and local actions");
+
+                    debugger;
+                    if (diverges != -1) {
+                      // get the remote actions after the diverge
+                      var remoteActionsAfterDiverge = remoteActions.slice(diverges);
+
+                      // remove the actions in local after the diverge
+                      this._backing.removeRemoteActions(file.id, diverges, localActions.remote.length - diverges);
+                      
+                      // we need to add indexes to these items
+                      var items = this._indexify(remoteActionsAfterDiverge, diverges);
+                      this._backing.addRemoteActions(file.id, diverges, remoteActionsAfterDiverge);
+                      // insert the remote actions after diverge into local actions
+                    } else if (shorter == remoteActions) {
+                      // remove the actions after diverge from local
+                      this._backing.removeRemoteActions(file.id, remote.length, localActions.remote.length - remoteActions.length);
+                    } else {
+                      // shorter must be the local one
+                      // add the remote actions after the local ones
+                      var remoteActionsAfterLocal = remoteActions.slice(localActions.remote.length);
+
+                      var items = this._indexify(remoteActionsAfterLocal, localActions.remote.length);
+                      this._backing.addRemoteActions(file.id, localActions.remote.length, items);
+                    }
+
+                    Event.trigger("actionAdded", {
+                      isLocal: false,
+                      items: []
+                    });
                   }
-
-
-
-                  if (actions.length != localActions.remote.length) {
-                    console.log("Different number of actions on the server");
-                  }
-                  
 
                 }).bind(this));
               }).bind(this));
 
               // and the remote has all the local actions
             }
-
-
           }
 
         }).bind(this));
