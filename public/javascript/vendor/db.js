@@ -422,7 +422,9 @@ define([], function() {
                 }
 
                 return {
-                    execute: execute
+                    execute: execute,
+                    modify: modify,
+                    remove: remove
                 };
             };
             var count = function () {
