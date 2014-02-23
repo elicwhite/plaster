@@ -26,7 +26,6 @@ define(["dataBacking/baseBacking", "db"], function(BaseBacking, db) {
         gapi.client.drive.files.list({
           'q': "trashed=false and mimeType='" + this.REALTIME_MIMETYPE + '.' + this._appId + "'"
         }).execute(function(results) {
-          console.log("files", results);
           if (results.items) {
             callback(results.items);
           } else {
