@@ -213,9 +213,6 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
     },
 
     _remoteActionsAdded: function(data) {
-      console.log("added--", data);
-      window.d = data;
-
       if (data.isLocal) {
         // go through each item to insert
         for (var i = 0; i < data.values.length; i++) {
@@ -236,7 +233,7 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
 
       var items = this._indexify(data.values, data.index);
 
-      console.log("adding to remote", items);
+      console.log("adding to remote", this._currentFile.id, items);
 
       // insert them into storage
       this._backing.addRemoteActions(this._currentFile.id, data.index, items);
@@ -410,9 +407,11 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
               this._backing.addRemoteActions(file.id, diverges, items);
               // insert the remote actions after diverge into local actions
             } else if (shorter == remoteActions) {
+              console.log("remote actions 2", remoteActions);
               // remove the actions after diverge from local
               this._backing.removeRemoteActions(file.id, remoteActions.length, localActions.remote.length - remoteActions.length);
             } else {
+              console.log("remote actions 1", remoteActions, localActions.remote);
               // shorter must be the local one
               // add the remote actions after the local ones
               var remoteActionsAfterLocal = remoteActions.slice(localActions.remote.length);
