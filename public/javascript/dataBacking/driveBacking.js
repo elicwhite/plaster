@@ -56,16 +56,25 @@ define(["dataBacking/baseBacking", "db"], function(BaseBacking, db) {
         if (this._cachedFile.getModel().getRoot().get('id') == fileId) {
           callback(this._cachedFile.getModel());
           return;
-        } else {
-          // they don't match, remove our event handlers because we are going to be adding new ones
-          var actions = this._cachedFile.getModel().getRoot().get("actions");
-          actions.removeEventListener(gapi.drive.realtime.EventType.VALUES_ADDED, this._actionsAdded);
-          actions.removeEventListener(gapi.drive.realtime.EventType.VALUES_REMOVED, this._actionsRemoved);
         }
       }
 
+      console.log("switching file models");
+      // they don't match, remove our event handlers because we are going to be adding new ones
+
+
       gapi.client.load('drive', 'v2', (function() {
         gapi.drive.realtime.load(fileId, (function(doc) {
+            // we have a ached file, but it's the wrong one.
+            if (this._cachedFile) {
+              if (this._cachedFile.getModel().getRoot().get('id') != fileId) {
+                console.log("removing drive handlers");  
+                var actions = this._cachedFile.getModel().getRoot().get("actions");
+                actions.removeEventListener(gapi.drive.realtime.EventType.VALUES_ADDED, this._actionsAdded);
+                actions.removeEventListener(gapi.drive.realtime.EventType.VALUES_REMOVED, this._actionsRemoved);
+              }
+            }
+
             // file was loaded
             this._cachedFile = doc;
 

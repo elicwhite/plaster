@@ -347,6 +347,9 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
               // we have this file on both local and server
               // make sure we have all the remote actions
               this._syncRemoteActionsFromDrive(file);
+
+              // sync title and modified time
+              // send up local actions
             }
           }
 
@@ -408,7 +411,7 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
               // insert the remote actions after diverge into local actions
             } else if (shorter == remoteActions) {
               // remove the actions after diverge from local
-              this._backing.removeRemoteActions(file.id, remote.length, localActions.remote.length - remoteActions.length);
+              this._backing.removeRemoteActions(file.id, remoteActions.length, localActions.remote.length - remoteActions.length);
             } else {
               // shorter must be the local one
               // add the remote actions after the local ones
