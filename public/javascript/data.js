@@ -34,7 +34,7 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
     // FILE METHODS
     getFiles: function(callback) {
       if (this._cachedFiles) {
-        callbacks(this._cachedFiles);
+        callback(this._cachedFiles);
       } else {
         this._backing.getFiles((function(files) {
           this._cachedFiles = files;

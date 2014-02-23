@@ -1,4 +1,4 @@
-require(["event", "globals", "managers/login", "gauth"], function(Event, g, LoginManager, GAuth) {
+require(["event", "globals", "managers/login", "gauth", "dataLayer/data"], function(Event, g, LoginManager, GAuth, Data) {
 
   function init() {
     if (Date.now() - localStorage.lastActive < 10) {
@@ -41,6 +41,9 @@ require(["event", "globals", "managers/login", "gauth"], function(Event, g, Logi
     setInterval(function() {
       localStorage.lastActive = Date.now();
     }, 5000);
+
+    var d = Data;
+    window.db = d;
 
     //var realtime = new RealtimeData();
     //realtime.startRealtime();
