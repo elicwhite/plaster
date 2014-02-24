@@ -34,12 +34,6 @@ define(["class", "event"], function(Class, Event) {
           callback();
         }).bind(this));
       }).bind(this));
-
-      if (this._driveBacking) {
-        this._driveBacking.load(fileId, function() {
-          // file loaded from drive
-        });
-      }
     },
 
     create: function(file, callback) {
@@ -48,25 +42,9 @@ define(["class", "event"], function(Class, Event) {
       */
 
       this._backing.create(file, (function() {
-        if (this._driveBacking) {
-          this._driveBacking.create(file, (function(newFile) {
-            // Google saved a file, redo the id of the file locally to match drive
-            this._backing.replaceFileId(newFile.id, (function() {
-              this.load(file.id, function() {
-                callback();
-              });
-
-              Event.trigger("fileIdChanged", {
-                oldId: file.id,
-                newFile: this.fileInfo
-              });
-            }).bind(this));
-          }).bind(this));
-        } else {
-          this.load(file.id, function() {
-            callback();
-          });
-        }
+        this.load(file.id, function() {
+          callback();
+        });
       }).bind(this));
     },
 
@@ -85,7 +63,116 @@ define(["class", "event"], function(Class, Event) {
     startDrive: function(driveBacking) {
       // process things on drive for updates
       this._driveBacking = driveBacking;
+
+      // if this fileId exists on drive, great, it's a match
+      // if it doesn't, then it either has never been uploaded, or was deleted on the server
+      // regardless, it's open, so we should upload it to drive
+
+      this._driveBacking.getFiles((function(driveFiles) {
+        
+        var found = false;
+        for (var i in driveFiles) {
+          if (driveFiles[i].id == this.fileInfo.id) {
+            found = i;
+            break;
+          }
+        }
+
+        if (found !== false) {
+          console.log("Found file", this.fileInfo.id, "on drive");
+          // the file was found on drive
+          // load it and sync actions
+          // sync actions
+          this._syncRemoteActionsFromDrive();
+          this._driveBacking.load(this.fileInfo.id, (function() {
+
+          }).bind(this));
+        } else {
+          console.log("File not found on drive", this.fileInfo.id);
+          // this file was not found
+          // so we will create a new file on drive, 
+          // and then copy everything over to it
+
+          this._driveBacking.create(this.fileInfo, (function(newFile) {
+            // Google saved a file, redo the id of the file locally to match drive
+            this._backing.replaceFileId(newFile.id, (function() {
+              Event.trigger("fileIdChanged", {
+                oldId: file.id,
+                newFile: this.fileInfo
+              });
+
+              this.load(file.id, function() {
+
+              });
+            }).bind(this));
+          }).bind(this));
+        }
+
+      }).bind(this));
     },
+
+    _syncRemoteActionsFromDrive: function() {
+      this._driveBacking.load(this.fileInfo.id, (function() {
+        this._driveBacking.getActions((function(remoteActions) {
+          var localActions = this.getActions();
+
+          // if local is shorter, then something was added to remote
+          // if remote is shorter, then something was removed from remote
+
+          var shorter = remoteActions.length < localActions.remote.length ? remoteActions : localActions.remote;
+          var diverges = -1;
+
+          for (var j = 0; j < shorter.length; j++) {
+            if (remoteActions[j].id != localActions.remote[j].id) {
+              diverges = j;
+              break;
+            }
+          }
+
+          //TODO: Make these also update the cached actions
+
+          // Only modify things if we need to
+          if (diverges !== -1 || remoteActions.length != localActions.remote.length) {
+            console.log("differences between remote and local actions", this.fileInfo.id);
+
+            if (diverges != -1) {
+              // get the remote actions after the diverge
+              var remoteActionsAfterDiverge = remoteActions.slice(diverges);
+
+              // remove the actions in local after the diverge
+              this._backing.removeRemoteActions(diverges, localActions.remote.length - diverges);
+
+              // we need to add indexes to these items
+              var items = this._indexify(remoteActionsAfterDiverge, diverges);
+              this._backing.addRemoteActions(diverges, items);
+              // insert the remote actions after diverge into local actions
+            } else if (shorter == remoteActions) {
+              // remove the actions after diverge from local
+              this._backing.removeRemoteActions(remoteActions.length, localActions.remote.length - remoteActions.length);
+            } else {
+              // shorter must be the local one
+              // add the remote actions after the local ones
+              var remoteActionsAfterLocal = remoteActions.slice(localActions.remote.length);
+
+              var items = this._indexify(remoteActionsAfterLocal, localActions.remote.length);
+              this._backing.addRemoteActions(localActions.remote.length, items);
+            }
+
+            Event.trigger("actionAdded", {
+              isLocal: false,
+              items: []
+            });
+          }
+
+          // send all of the local actions
+          for (var j = 0; j < localActions.local.length; j++) {
+            this._driveBacking.addAction(localActions.local[j]);
+          }
+        }).bind(this));
+      }).bind(this));
+
+      // and the remote has all the local actions
+    }
 
 
     getActions: function() {

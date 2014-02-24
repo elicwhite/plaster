@@ -28,21 +28,15 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
 
       var file = new File(new this._backing.instance(this._backing));
 
-      if (this._driveBacking) {
-        file.startDrive(this._newDriveInstance());
-      }
-
       // Create a new file for this
       file.create(newFile, (function() {
         this._cachedFiles.unshift(file);
         Event.trigger("fileAdded", newFile);
       }).bind(this));
-    },
 
-    deleteFile: function(fileId) {
-      this._backing.deleteFile(fileId);
-
-      Event.trigger("fileRemoved", fileId);
+      if (this._driveBacking) {
+        file.startDrive(this._newDriveInstance());
+      }
     },
 
     loadFile: function(fileId, callback) {
@@ -61,14 +55,20 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
       // file was not found
       file = new File(new this._backing.instance(this._backing));
 
-      if (this._driveBacking) {
-        file.startDrive(this._newDriveInstance());
-      }
-
       file.load(fileId, (function() {
         this._cachedFiles.unshift(file);
         callback(file);
       }).bind(this));
+
+      if (this._driveBacking) {
+        file.startDrive(this._newDriveInstance());
+      }
+    },
+
+    deleteFile: function(fileId) {
+      this._backing.deleteFile(fileId);
+
+      Event.trigger("fileRemoved", fileId);
     },
 
     close: function(file) {

@@ -79,7 +79,7 @@ define(["class", "helpers"], function(Class, Helpers) {
     },
 
     undo: function(fileId) {
-        this._doc.getModel().undo();
+      this._doc.getModel().undo();
     },
 
     redo: function(fileId) {
@@ -92,22 +92,29 @@ define(["class", "helpers"], function(Class, Helpers) {
     _appId: 450627732299,
     REALTIME_MIMETYPE: 'application/vnd.google-apps.drive-sdk',
 
-
     init: function() {
 
     },
 
     getFiles: function(callback) {
+
+      var currentTime = (new Date()).getTime();
+      if ((currentTime this._filesCache.lastChecked) / 1000 < 10) {
+        return this._filesCache.files;
+      }
+
       gapi.client.load('drive', 'v2', (function() {
         gapi.client.drive.files.list({
           'q': "trashed=false and mimeType='" + this.REALTIME_MIMETYPE + '.' + this._appId + "'"
-        }).execute(function(results) {
+        }).execute((function(results) {
+          var items = [];
+
           if (results.items) {
-            callback(results.items);
-          } else {
-            callback([]);
+            items = results.items; 
           }
-        });
+
+          callback(items);
+        }).bind(this));
       }).bind(this));
     },
 
