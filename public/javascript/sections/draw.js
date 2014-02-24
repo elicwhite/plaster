@@ -1,4 +1,4 @@
-define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "components/manipulateCanvas"], function(Section, g, Event, Helpers, TapHandler, db, Data, ManipulateCanvas) {
+define(["section", "globals", "event", "helpers", "tapHandler", "db", "dataLayer/data", "components/manipulateCanvas"], function(Section, g, Event, Helpers, TapHandler, db, Data, ManipulateCanvas) {
 
   var Draw = Section.extend({
     id: "draw",
@@ -115,16 +115,25 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
       this._fileNameElement.addEventListener("blur", this._fileNameBlur.bind(this));
     },
 
-    show: function(file) {
-      this._file = file;
-      this._fileNameElement.value = this._file.name;
+    show: function(fileInfo) {
+      debugger;
 
-      this._settings = data.localFileSettings(this._file.id);
+      Data.loadFile(fileInfo.id, (function(file) {
 
-      this._manipulateCanvas = new ManipulateCanvas(this._canvas, this._settings);
+        this._file = file;
+        this._fileNameElement.value = file.fileInfo.name;
+        this._settings = file.localSettings();
 
-      this._setActiveTool();
-      document.getElementById("chosenColorSwatch").style.backgroundColor = this._settings.color;
+        this._manipulateCanvas = new ManipulateCanvas(this._canvas, this._settings);
+        document.getElementById("chosenColorSwatch").style.backgroundColor = this._settings.color;
+
+        this._setActiveTool();
+
+        this._updateAll = true;
+        this._shouldRender = true;
+
+        this._redraw();
+      }).bind(this));
 
       // We don't need data to resize
       this._resize();
@@ -138,13 +147,6 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "data", "c
 
       Event.addListener("actionAdded", this._actionsAdded);
       Event.addListener("actionRemoved", this._actionsRemoved);
-
-      data.loadFile(this._file.id, (function() {
-        this._updateAll = true;
-        this._shouldRender = true;
-
-        this._redraw();
-      }).bind(this));
     },
 
     hide: function() {

@@ -438,7 +438,7 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
   });
 
   var data = new Data();
-  window.data = data
+  //window.data = data
 
-  return data;
+  //return data;
 });
