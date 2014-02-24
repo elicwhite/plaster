@@ -64,7 +64,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
       if (fileInfo) {
         // We came from draw, it is the info of the file we were just looking at
 
-        for (var i = 0; i < this._files.length; i++) {
+        for (var i in this._files) {
           if (this._files[i].element.fileInfo.id == fileInfo.id) {
             this._files[i].thumbnail.render(this._files[i].element.fileInfo);
             return;
@@ -110,7 +110,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
     },
 
     _actuallyResizeAndRender: function() {
-      for (var i = 0; i < this._files.length; i++) {
+      for (var i in this._files) {
         var file = this._files[i];
 
         this._resizeAndRenderFile(file);
@@ -161,17 +161,18 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
 
     _fileRemoved: function(fileId) {
       console.log("file was removed", fileId);
-      for (var i = 0; i < this._files.length; i++) {
+      for (var i in this._files) {
         var element = this._files[i].element;
         if (element.fileInfo.id == fileId) {
           this._fileListElement.removeChild(element);
+          delete this._files[i]
           return;
         }
       }
     },
 
     _fileModified: function(file) {
-      for (var i = 0; i < this._files.length; i++) {
+      for (var i in this._files) {
         var element = this._files[i].element;
 
         if (element.fileInfo.id == file.id) {
@@ -183,7 +184,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
     },
 
     _fileRenamed: function(file) {
-      for (var i = 0; i < this._files.length; i++) {
+      for (var i in this._files) {
         var element = this._files[i].element;
         if (element.fileInfo.id == file.id) {
 
