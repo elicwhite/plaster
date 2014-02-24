@@ -97,12 +97,6 @@ define(["class", "helpers"], function(Class, Helpers) {
     },
 
     getFiles: function(callback) {
-
-      var currentTime = (new Date()).getTime();
-      if ((currentTime this._filesCache.lastChecked) / 1000 < 10) {
-        return this._filesCache.files;
-      }
-
       gapi.client.load('drive', 'v2', (function() {
         gapi.client.drive.files.list({
           'q': "trashed=false and mimeType='" + this.REALTIME_MIMETYPE + '.' + this._appId + "'"
@@ -110,7 +104,7 @@ define(["class", "helpers"], function(Class, Helpers) {
           var items = [];
 
           if (results.items) {
-            items = results.items; 
+            items = results.items;
           }
 
           callback(items);

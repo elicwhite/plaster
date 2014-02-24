@@ -13,10 +13,6 @@ define(["class", "event"], function(Class, Event) {
     },
 
     load: function(fileId, callback) {
-      /*
-        populate _cachedActions from indexedDB
-      */
-
       this._backing.load(fileId, (function(fileInfo) {
         var actionsObj = {
           remoteActions: [],
@@ -37,10 +33,6 @@ define(["class", "event"], function(Class, Event) {
     },
 
     create: function(file, callback) {
-      /*
-        create a file in indexeddb with the info from file, and then load it
-      */
-
       this._backing.create(file, (function() {
         this.load(file.id, function() {
           callback();
@@ -61,6 +53,7 @@ define(["class", "event"], function(Class, Event) {
     },
 
     startDrive: function(driveBacking) {
+      console.log("Starting drive for", this.fileInfo.id)
       // process things on drive for updates
       this._driveBacking = driveBacking;
 
@@ -68,8 +61,8 @@ define(["class", "event"], function(Class, Event) {
       // if it doesn't, then it either has never been uploaded, or was deleted on the server
       // regardless, it's open, so we should upload it to drive
 
-      this._driveBacking.getFiles((function(driveFiles) {
-        
+      this._driveBacking._parent.getFiles((function(driveFiles) {
+
         var found = false;
         for (var i in driveFiles) {
           if (driveFiles[i].id == this.fileInfo.id) {
@@ -93,21 +86,20 @@ define(["class", "event"], function(Class, Event) {
           // so we will create a new file on drive, 
           // and then copy everything over to it
 
+          var oldId = this.fileInfo.id;
+
           this._driveBacking.create(this.fileInfo, (function(newFile) {
             // Google saved a file, redo the id of the file locally to match drive
             this._backing.replaceFileId(newFile.id, (function() {
-              Event.trigger("fileIdChanged", {
-                oldId: file.id,
-                newFile: this.fileInfo
-              });
-
-              this.load(file.id, function() {
-
-              });
+              this.load(fnewFile.id, (function() {
+                Event.trigger("fileIdChanged", {
+                  oldId: oldId,
+                  newFile: this.fileInfo
+                });
+              }).bind(this));
             }).bind(this));
           }).bind(this));
         }
-
       }).bind(this));
     },
 
@@ -172,7 +164,7 @@ define(["class", "event"], function(Class, Event) {
       }).bind(this));
 
       // and the remote has all the local actions
-    }
+    },
 
 
     getActions: function() {
