@@ -1,6 +1,7 @@
 define(["class"], function(Class) {
   var File = Class.extend({
-    _fileInfo: null,
+    fileInfo: null,
+
     _cachedActions: null,
 
     _backing: null,
@@ -10,24 +11,23 @@ define(["class"], function(Class) {
       this._backing = backing;
     },
 
-    load: function(file, callback) {
+    load: function(fileId, callback) {
       /*
         populate _cachedActions from indexedDB
       */
 
-      this._backing.load(file.id, (function() {
+      this._backing.load(fileId, (function(fileInfo) {
         var actionsObj = {
-          file: file,
           remoteActions: [],
           localActions: [],
           redoStack: []
         };
 
-        this._backing.getFileActions((function(actions) {
+        this._backing.getActions((function(actions) {
           actionsObj.remoteActions = actions.remote;
           actionsObj.localActions = actions.local;
 
-          this._currentFile = file;
+          this.fileInfo = fileInfo;
           this._cachedActions = actionsObj;
 
           callback();
@@ -41,7 +41,7 @@ define(["class"], function(Class) {
       */
 
       this._backing.create(file, (function() {
-        this.load(file, function() {
+        this.load(file.id, function() {
           callback();
         });
       }).bind(this));
@@ -52,17 +52,17 @@ define(["class"], function(Class) {
     },
 
 
-    getFileActions: function(fileId, callback) {
+    getActions: function() {
       return this._cachedActions.remoteActions.concat(this._cachedActions.localActions);
     },
 
     localSettings: function(settings) {
       if (settings) {
-        localStorage[this._fileInfo.id] = JSON.stringify(settings);
+        localStorage[this.fileInfo.id] = JSON.stringify(settings);
       }
 
-      if (!localStorage[this._fileInfo.id]) {
-        localStorage[this._fileInfo.id] = JSON.stringify({
+      if (!localStorage[this.fileInfo.id]) {
+        localStorage[this.fileInfo.id] = JSON.stringify({
           offsetX: 0,
           offsetY: 0,
           scale: 1,
@@ -75,7 +75,7 @@ define(["class"], function(Class) {
         });
       }
 
-      return JSON.parse(localStorage[this._fileInfo.id]);
+      return JSON.parse(localStorage[this.fileInfo.id]);
     },
 
     undo: function() {
@@ -88,7 +88,7 @@ define(["class"], function(Class) {
         this._backing.removeLocalAction(lastAction.id);
 
         Event.trigger("actionRemoved");
-        Event.trigger("fileModified", this._fileInfo);
+        Event.trigger("fileModified", this.fileInfo);
       }
     },
 

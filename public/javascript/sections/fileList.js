@@ -1,4 +1,4 @@
-define(["section", "tapHandler", "event", "globals", "helpers", "data", "templates/fileList", "components/thumbnail"], function(Section, TapHandler, Event, g, Helpers, Data, FileListTemplate, Thumbnail) {
+define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data", "templates/fileList", "components/thumbnail"], function(Section, TapHandler, Event, g, Helpers, Data, FileListTemplate, Thumbnail) {
 
   var FileList = Section.extend({
     id: "files-list-container",
@@ -32,8 +32,8 @@ define(["section", "tapHandler", "event", "globals", "helpers", "data", "templat
 
       Data.getFiles((function(files) {
         for (var i = 0; i < files.length; i++) {
-          var file = files[i];
-          var fileTemplate = this._newFileWrapper(file);
+          var fileInfo = files[i];
+          var fileTemplate = this._newFileWrapper(fileInfo);
           this._fileListElement.appendChild(fileTemplate);
         }
 
@@ -79,17 +79,15 @@ define(["section", "tapHandler", "event", "globals", "helpers", "data", "templat
       window.removeEventListener("resize", this._resizeAndRender);
     },
 
-    _newFileWrapper: function(file) {
+    _newFileWrapper: function(fileInfo) {
       var newEle = new FileListTemplate();
-      newEle.file = file;
+      newEle.fileInfo = fileInfo;
 
       var canvas = newEle.getElementsByClassName("thumbnail")[0];
       var fileName = newEle.getElementsByClassName("file-name")[0];
 
       var thumbnail = new Thumbnail(canvas);
-      fileName.innerText = file.name;
-
-      newEle.fileId = file.id;
+      fileName.innerText = fileInfo.name;
 
       this._files.push({
         element: newEle,
@@ -123,7 +121,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "data", "templat
       var canvasParent = file.canvas.parentElement;
       file.canvas.width = canvasParent.offsetWidth;
       file.canvas.height = canvasParent.offsetHeight;
-      file.thumbnail.render(file.element.file);
+      file.thumbnail.render(file.element.fileInfo);
     },
 
     _docSelected: function(e) {
@@ -138,19 +136,19 @@ define(["section", "tapHandler", "event", "globals", "helpers", "data", "templat
         } else {
           if (element.dataset.action && element.dataset.action == "delete") {
             // Delete was clicked
-
-            data.deleteFile(parent.file.id);
+            debugger;
+            Data.deleteFile(parent.fileInfo.id);
             return;
           }
 
           // Regular file was clicked
-          this._filesPane.setPane("draw", parent.file);
+          this._filesPane.setPane("draw", parent.fileInfo);
         }
       }
     },
 
     _newDoc: function() {
-      data.createFile();
+      Data.createFile();
     },
 
     // EVENTS
@@ -162,11 +160,11 @@ define(["section", "tapHandler", "event", "globals", "helpers", "data", "templat
       this._actuallyResizeAndRender();
     },
 
-    _fileRemoved: function(file) {
-      console.log("file was removed", file);
+    _fileRemoved: function(fileId) {
+      console.log("file was removed", fileId);
       for (var i = 0; i < this._files.length; i++) {
         var element = this._files[i].element;
-        if (element.file.id == file.id) {
+        if (element.fileInfo.id == file.id) {
           this._fileListElement.removeChild(element);
           return;
         }
@@ -177,7 +175,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "data", "templat
       for (var i = 0; i < this._files.length; i++) {
         var element = this._files[i].element;
 
-        if (element.file.id == file.id) {
+        if (element.fileInfo.id == file.id) {
           this._fileListElement.removeChild(element);
           this._fileListElement.insertBefore(element, this._fileListElement.children[1]);
           return;
@@ -188,10 +186,10 @@ define(["section", "tapHandler", "event", "globals", "helpers", "data", "templat
     _fileRenamed: function(file) {
       for (var i = 0; i < this._files.length; i++) {
         var element = this._files[i].element;
-        if (element.file.id == file.id) {
+        if (element.fileInfo.id == file.id) {
 
           var fileNameElement = element.getElementsByClassName("file-name")[0];
-          fileNameElement.innerText = element.file.name;
+          fileNameElement.innerText = element.fileInfo.name;
           return;
         }
       }

@@ -13,13 +13,9 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
 
     // FILE METHODS
     getFiles: function(callback) {
-      if (this._cachedFiles) {
-        callback(this._cachedFiles);
-      } else {
-        this._backing.getFiles((function(files) {
-          callback(files);
-        }).bind(this));
-      }
+      this._backing.getFiles((function(files) {
+        callback(files);
+      }).bind(this));
     },
 
     createFile: function() {
@@ -34,18 +30,14 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
       // Create a new file for this
       file.create(newFile, (function() {
         this._cachedFiles.unshift(file);
-        Event.trigger("fileAdded", file);
+        Event.trigger("fileAdded", newFile);
       }).bind(this));
     },
 
     deleteFile: function(fileId) {
-      var file = this._getFile(fileId);
+      this._backing.deleteFile(fileId);
       
-      delete this._cachedFiles[this._cachedFiles.indexOf(file)];
-
-      file.delete();
-
-      Event.trigger("fileRemoved", file);
+      Event.trigger("fileRemoved", fileId);
     },
 
     loadFile: function(fileId, callback) {
@@ -78,7 +70,7 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
 
     _getFile: function(fileId) {
       for (var i in this._cachedFiles) {
-        if (this._cachedFiles.fileInfo[i].id == fileId) {
+        if (this._cachedFiles[i].fileInfo.id == fileId) {
 
           var file = this._cachedFiles[i];
           delete this._cachedFiles[i];

@@ -9,6 +9,10 @@ define(["class", "helpers", "db"], function(Class, Helpers, db) {
     },
 
     load: function(fileId, callback) {
+      if (!fileId) {
+        debugger;
+      }
+      
       db.open({
         server: fileId,
         version: 1,
@@ -35,7 +39,9 @@ define(["class", "helpers", "db"], function(Class, Helpers, db) {
       }).done((function(s) {
         this._fileServer = s;
 
-        callback();
+        this._parent._getFileInfo(fileId, function(fileInfo) {
+          callback(fileInfo);
+        });
       }).bind(this))
         .fail(function(e) {
           console.error("Failed to create file database", e);
@@ -43,8 +49,8 @@ define(["class", "helpers", "db"], function(Class, Helpers, db) {
     },
 
     create: function(file, callback) {
-      this._parent._addFile(file, (function(fileInfo) {
-        this.load(file.id, function(newFile) {
+      this._parent._addFile(file, (function() {
+        this.load(file.id, function(fileInfo) {
           callback(fileInfo);
         });
       }).bind(this));
@@ -72,18 +78,6 @@ define(["class", "helpers", "db"], function(Class, Helpers, db) {
             callback(actionsObj);
           }
         }).bind(this));
-    },
-
-    delete: function() {
-      this._parent._deleteFile(this._fileInfo.id, function() {
-        var f = indexedDB.deleteDatabase(this._fileInfo.id);
-        f.onerror = function(e) {
-          console.error("Error deleting database", e);
-        }
-
-        // Delete settings from local storage
-        delete localStorage[this._fileInfo.id];
-      });
     },
 
     rename: function(newName) {
@@ -161,7 +155,7 @@ define(["class", "helpers", "db"], function(Class, Helpers, db) {
               this._parent._updateFileModified(this._fileInfo.id);
             }).bind(this));
         });
-    },
+    }
   });
 
   var IndexedDBBacking = Class.extend({
@@ -205,6 +199,21 @@ define(["class", "helpers", "db"], function(Class, Helpers, db) {
         });
     },
 
+    getFiles: function(callback) {
+      if (!this._server) {
+        this._doLater(this.getFiles, [callback]);
+        return;
+      }
+
+      this._server.files.query('modifiedTime')
+        .all()
+        .desc()
+        .execute()
+        .done((function(results) {
+          callback(results);
+        }).bind(this));
+    },
+
     _addFile: function(file, callback) {
       if (!this._server) {
         this._doLater(this._addFile, [file, callback]);
@@ -213,9 +222,8 @@ define(["class", "helpers", "db"], function(Class, Helpers, db) {
 
       this._server.files.add(file)
         .done((function(items) {
-          var item = items[0];
 
-          callback(item);
+          callback();
 
         }).bind(this))
         .fail(function(e) {
@@ -238,13 +246,28 @@ define(["class", "helpers", "db"], function(Class, Helpers, db) {
         })
     },
 
-    _deleteFile: function(fileId, callback) {
+    deleteFile: function(fileId) {
       this._server.files.remove(fileId)
         .done(function(key) {
-          callback();
+          var f = indexedDB.deleteDatabase(fileId);
+          f.onerror = function(e) {
+            console.error("Error deleting database", e);
+          }
+
+          // Delete settings from local storage
+          delete localStorage[fileId];
         })
         .fail(function(e) {
           console.error("Failed to delete file from file table", fileId);
+        });
+    },
+
+    _getFileInfo: function(fileId, callback) {
+      this._server.files.query('id')
+        .only(fileId)
+        .execute()
+        .done(function(results) {
+          callback(results[0]);
         });
     },
 

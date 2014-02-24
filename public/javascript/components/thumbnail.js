@@ -1,4 +1,4 @@
-define(["class", "helpers", "data", "components/manipulateCanvas"], function(Class, Helpers, Data, ManipulateCanvas) {
+define(["class", "helpers", "dataLayer/data", "components/manipulateCanvas"], function(Class, Helpers, Data, ManipulateCanvas) {
 
   var Thumbnail = Class.extend({
     _canvas: null,
@@ -7,14 +7,10 @@ define(["class", "helpers", "data", "components/manipulateCanvas"], function(Cla
       this._canvas = canvas;
     },
 
-    render: function(file) {
-      var fileInfo = file;
-
-      data.loadFile(file.id, (function() {
-        var actions = data.getFileActions();
-
-
-        var settings = data.localFileSettings(file.id);
+    render: function(fileInfo) {
+      Data.loadFile(fileInfo.id, (function(file) {
+        var actions = file.getActions();
+        var settings = file.localSettings();
 
         var manipulateCanvas = new ManipulateCanvas(this._canvas, settings);
 
