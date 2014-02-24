@@ -49,7 +49,7 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
       this._backing.rename(newName);
 
       if (this._driveBacking) {
-        this._driveBacking.rename(newFileName);
+        this._driveBacking.rename(newName);
       }
 
       Event.trigger("fileRenamed", this.fileInfo);
@@ -59,15 +59,14 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
     startDrive: function(driveBacking) {
       console.log("Starting drive for", this.fileInfo.id)
       // process things on drive for updates
-      this._driveBacking = driveBacking;
 
-      this._driveBacking.listen(this._remoteActionsAdded.bind(this), this._remoteActionsRemoved.bind(this));
+      driveBacking.listen(this._remoteActionsAdded.bind(this), this._remoteActionsRemoved.bind(this));
 
       // if this fileId exists on drive, great, it's a match
       // if it doesn't, then it either has never been uploaded, or was deleted on the server
       // regardless, it's open, so we should upload it to drive
 
-      this._driveBacking._parent.getFiles((function(driveFiles) {
+      driveBacking._parent.getFiles((function(driveFiles) {
 
         var found = false;
         for (var i in driveFiles) {
@@ -82,6 +81,7 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
           // the file was found on drive
           // load it and sync actions
           // sync actions
+          this._driveBacking = driveBacking;
           this._syncRemoteActionsFromDrive();
         } else {
           console.log("File not found on drive", this.fileInfo.id);
@@ -91,7 +91,9 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
 
           var oldId = this.fileInfo.id;
 
-          this._driveBacking.create(this.fileInfo, (function(newFile) {
+          driveBacking.create(this.fileInfo, (function(newFile) {
+            this._driveBacking = driveBacking;
+
             // Google saved a file, redo the id of the file locally to match drive
             this._backing.replaceFileId(newFile.id, (function() {
               this.load(newFile.id, (function() {

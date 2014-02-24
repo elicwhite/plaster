@@ -6,10 +6,12 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
     _driveBacking: null,
 
     init: function() {
-      this._cachedFiles = [];
+      this._cachedFiles = {};
 
       console.log("Using IndexedDB as data store");
       this._backing = new IndexedDBBacking();
+
+      Event.addListener("fileIdChanged", this._fileIdChanged.bind(this));
     },
 
     // FILE METHODS
@@ -30,7 +32,7 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
 
       // Create a new file for this
       file.create(newFile, (function() {
-        this._cachedFiles.unshift(file);
+        this._cachedFiles[file.fileInfo.id] = file;
         Event.trigger("fileAdded", newFile);
 
         if (this._driveBacking) {
@@ -40,28 +42,24 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
     },
 
     loadFile: function(fileId, callback) {
-      for (var i in this._cachedFiles) {
-        if (this._cachedFiles[i].fileInfo.id == fileId) {
 
-          var file = this._cachedFiles[i];
-          delete this._cachedFiles[i];
-          this._cachedFiles.unshift(file);
 
-          callback(file);
-          return;
-        }
+      if (this._cachedFiles[fileId]) {
+        callback(this._cachedFiles[fileId]);
+        return;
       }
+
 
       // file was not found
       file = new File(new this._backing.instance(this._backing));
 
       file.load(fileId, (function() {
-        this._cachedFiles.unshift(file);
+        this._cachedFiles[fileId] = file;
 
         if (this._driveBacking) {
           file.startDrive(this._newDriveInstance());
         }
-        
+
         callback(file);
       }).bind(this));
 
@@ -76,7 +74,7 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
 
     close: function(file) {
       file.close();
-      delete this._cachedFiles[this._cachedFiles.indexOf(file)];
+      delete this._cachedFiles[file.fileInfo.id];
     },
 
     startDrive: function() {
@@ -86,6 +84,13 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
       // add drive to our open files
       for (var i in this._cachedFiles) {
         this._cachedFiles[i].startDrive(this._newDriveInstance());
+      }
+    },
+
+    _fileIdChanged: function(e) {
+      if (this._cachedFiles[e.oldId]) {
+        this._cachedFiles[e.newId] = this._cachedFiles[e.oldId];
+        delete this._cachedFiles[e.oldId];
       }
     },
 
