@@ -5,6 +5,7 @@ define(["class", "event"], function(Class, Event) {
     _cachedActions: null,
 
     _backing: null,
+    _driveBacking: null,
 
     init: function(backing) {
       // Create our backing instance
@@ -33,6 +34,12 @@ define(["class", "event"], function(Class, Event) {
           callback();
         }).bind(this));
       }).bind(this));
+
+      if (this._driveBacking) {
+        this._driveBacking.load(fileId, function() {
+          // file loaded from drive
+        });
+      }
     },
 
     create: function(file, callback) {
@@ -41,9 +48,25 @@ define(["class", "event"], function(Class, Event) {
       */
 
       this._backing.create(file, (function() {
-        this.load(file.id, function() {
-          callback();
-        });
+        if (this._driveBacking) {
+          this._driveBacking.create(file, (function(newFile) {
+            // Google saved a file, redo the id of the file locally to match drive
+            this._backing.replaceFileId(newFile.id, (function() {
+              this.load(file.id, function() {
+                callback();
+              });
+
+              Event.trigger("fileIdChanged", {
+                oldId: file.id,
+                newFile: this.fileInfo
+              });
+            }).bind(this));
+          }).bind(this));
+        } else {
+          this.load(file.id, function() {
+            callback();
+          });
+        }
       }).bind(this));
     },
 
@@ -51,12 +74,17 @@ define(["class", "event"], function(Class, Event) {
       this.fileInfo.name = newName;
       this._backing.rename(newName);
 
+      if (this._driveBacking) {
+        this._driveBacking.rename(newFileName);
+      }
+
       Event.trigger("fileRenamed", this.fileInfo);
       Event.trigger("fileModified", this.fileInfo);
     },
 
-    connectDrive: function() {
+    startDrive: function(driveBacking) {
       // process things on drive for updates
+      this._driveBacking = driveBacking;
     },
 
 

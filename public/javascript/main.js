@@ -1,4 +1,4 @@
-require(["event", "globals", "managers/login", "gauth", "dataLayer/data"], function(Event, g, LoginManager, GAuth, Data) {
+require(["event", "globals", "managers/login", "gauth"], function(Event, g, LoginManager, GAuth) {
 
   function init() {
     if (Date.now() - localStorage.lastActive < 10) {
@@ -32,7 +32,7 @@ require(["event", "globals", "managers/login", "gauth", "dataLayer/data"], funct
 
     GAuth.start(function() {
       console.log("guath done");
-      require(["data"], function(Data) {
+      require(["dataLayer/data"], function(Data) {
         console.log("drive callback");
         Data.startDrive();
       });
@@ -41,9 +41,6 @@ require(["event", "globals", "managers/login", "gauth", "dataLayer/data"], funct
     setInterval(function() {
       localStorage.lastActive = Date.now();
     }, 5000);
-
-    var d = Data;
-    window.db = d;
 
     //var realtime = new RealtimeData();
     //realtime.startRealtime();

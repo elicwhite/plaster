@@ -61,7 +61,10 @@ define(["class", "helpers", "db"], function(Class, Helpers, db) {
     },
 
     getActions: function(callback) {
-      var actionsObj = {};
+      var actionsObj = {
+        local: null,
+        remote: null,
+      };
 
       this._fileServer.localActions.query()
         .all()
@@ -159,7 +162,65 @@ define(["class", "helpers", "db"], function(Class, Helpers, db) {
               this._parent._updateFileModified(this._fileInfo.id);
             }).bind(this));
         });
-    }
+    },
+
+    replaceFileId: function(newId, callback) {
+      this.getActions((function(oldActions) {
+
+        var oldId = this._fileInfo.id;
+        this._fileInfo.id = newId;
+        var newFile = this._fileInfo;
+
+        this._parent._addFile(newFile, (function() {
+          this.load(newId, (function() {
+            this._copyAllActions(oldActions, (function() {
+              // Done copying
+              console.log("ID Changed");
+              this._parent.deleteFile(oldId);
+              callback();
+            }).bind(this));
+          }).bind(this));
+        }).bind(this));
+      }).bind(this));
+    },
+
+    _copyAllActions: function(oldActions, callback) {
+      var copied = 0;
+
+      this._copyActions(oldActions.local, this._fileServer.localActions, copyDone);
+      this._copyActions(oldActions.remote, this._fileServer.remoteActions, copyDone);
+
+      function copyDone() {
+        copied++;
+
+        // If we have copied everything
+        if (copied == 2) {
+          callback();
+          return;
+        }
+      }
+    },
+
+    _copyActions: function(actions, toServer, callback) {
+      var actionsCopied = 0;
+
+      if (actions.length == 0) {
+        callback();
+      } else {
+        for (var i = 0; i < actions.length; i++) {
+          toServer
+            .add(actions[i])
+            .done(function(newItem) {
+              if (actionsCopied == actions.length - 1) {
+                callback();
+                return;
+              }
+
+              actionsCopied++;
+            });
+        }
+      }
+    },
   });
 
   var IndexedDBBacking = Class.extend({
