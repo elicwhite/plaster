@@ -65,8 +65,8 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
         // We came from draw, it is the info of the file we were just looking at
 
         for (var i = 0; i < this._files.length; i++) {
-          if (this._files[i].element.file.id == fileInfo.id) {
-            this._files[i].thumbnail.render(this._files[i].element.file);
+          if (this._files[i].element.fileInfo.id == fileInfo.id) {
+            this._files[i].thumbnail.render(this._files[i].element.fileInfo);
             return;
           }
         }

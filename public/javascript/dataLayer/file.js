@@ -1,4 +1,4 @@
-define(["class"], function(Class) {
+define(["class", "event"], function(Class, Event) {
   var File = Class.extend({
     fileInfo: null,
 
@@ -45,6 +45,14 @@ define(["class"], function(Class) {
           callback();
         });
       }).bind(this));
+    },
+
+    rename: function(newName) {
+      this.fileInfo.name = newName;
+      this._backing.rename(newName);
+
+      Event.trigger("fileRenamed", this.fileInfo);
+      Event.trigger("fileModified", this.fileInfo);
     },
 
     connectDrive: function() {
@@ -113,7 +121,7 @@ define(["class"], function(Class) {
 
       this._backing.addLocalAction(action);
 
-      Event.trigger("fileModified", this._cachedActions.file);
+      Event.trigger("fileModified", this.fileInfo);
     },
 
     delete: function() {

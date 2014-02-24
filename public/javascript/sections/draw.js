@@ -116,8 +116,6 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "dataLayer
     },
 
     show: function(fileInfo) {
-      debugger;
-
       Data.loadFile(fileInfo.id, (function(file) {
 
         this._file = file;
@@ -316,7 +314,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "dataLayer
 
     _saveAction: function(action) {
       action.id = Helpers.getGuid();
-      data.addAction(action);
+      this._file.addAction(action);
     },
 
     _gesture: function(e) {
@@ -333,7 +331,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "dataLayer
       }
 
       if (this._updateAll) {
-        var actions = data.getFileActions();
+        var actions = this._file.getActions();
 
         this._manipulateCanvas.doAll(actions);
       }
@@ -359,7 +357,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "dataLayer
         var action = e.srcElement.dataset.action;
 
         if (action == "back") {
-          this._filesPane.setPane("list", this._file);
+          this._filesPane.setPane("list", this._file.fileInfo);
         } else if (action == "rename") {
           e.srcElement.focus();
         } else if (action == "export") {
@@ -561,11 +559,11 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "dataLayer
     },
 
     _undo: function() {
-      data.undoAction();
+      this._file.undo();
     },
 
     _redo: function() {
-      data.redoAction();
+      this._file.redo();
     },
 
     _fileNameKeyDown: function(e) {
@@ -576,7 +574,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "dataLayer
 
     _fileNameBlur: function(e) {
       var name = e.srcElement.value;
-      data.renameFile(this._file.id, name);
+      this._file.rename(name);
     },
 
 
@@ -589,7 +587,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "dataLayer
       }
 
       this._saveSettingsTimeout = setTimeout((function() {
-        data.localFileSettings(this._file.id, this._settings);
+        this._file.localSettings(this._settings);
         this._saveSettingsTimeout = null;
       }).bind(this), 100);
 

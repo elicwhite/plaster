@@ -2,6 +2,8 @@ define(["class", "helpers", "db"], function(Class, Helpers, db) {
   var instance = Class.extend({
     _parent: null,
 
+    _fileInfo: null,
+
     _fileServer: null,
 
     init: function(parent) {
@@ -12,7 +14,7 @@ define(["class", "helpers", "db"], function(Class, Helpers, db) {
       if (!fileId) {
         debugger;
       }
-      
+
       db.open({
         server: fileId,
         version: 1,
@@ -37,11 +39,13 @@ define(["class", "helpers", "db"], function(Class, Helpers, db) {
           }
         }
       }).done((function(s) {
+
         this._fileServer = s;
 
-        this._parent._getFileInfo(fileId, function(fileInfo) {
+        this._parent._getFileInfo(fileId, (function(fileInfo) {
+          this._fileInfo = fileInfo;
           callback(fileInfo);
-        });
+        }).bind(this));
       }).bind(this))
         .fail(function(e) {
           console.error("Failed to create file database", e);
@@ -85,14 +89,14 @@ define(["class", "helpers", "db"], function(Class, Helpers, db) {
     },
 
     addLocalAction: function(action) {
-      this.fileServer.localActions
+      this._fileServer.localActions
         .add(action)
         .done((function(item) {
           // item stored
           this._parent._updateFileModified(this._fileInfo.id);
         }).bind(this))
-        .fail(function(e) {
-          console.error("fail to write", e);
+        .done(function(item) {
+          console.log("added item", item);
         });
     },
 
@@ -235,7 +239,7 @@ define(["class", "helpers", "db"], function(Class, Helpers, db) {
       this._server.files.query('id')
         .only(fileId)
         .modify({
-          name: newFileName
+          name: newName
         })
         .execute()
         .done((function(results) {
