@@ -32,11 +32,11 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
       file.create(newFile, (function() {
         this._cachedFiles.unshift(file);
         Event.trigger("fileAdded", newFile);
-      }).bind(this));
 
-      if (this._driveBacking) {
-        file.startDrive(this._newDriveInstance());
-      }
+        if (this._driveBacking) {
+          file.startDrive(this._newDriveInstance());
+        }
+      }).bind(this));
     },
 
     loadFile: function(fileId, callback) {
@@ -57,12 +57,15 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
 
       file.load(fileId, (function() {
         this._cachedFiles.unshift(file);
+
+        if (this._driveBacking) {
+          file.startDrive(this._newDriveInstance());
+        }
+        
         callback(file);
       }).bind(this));
 
-      if (this._driveBacking) {
-        file.startDrive(this._newDriveInstance());
-      }
+
     },
 
     deleteFile: function(fileId) {

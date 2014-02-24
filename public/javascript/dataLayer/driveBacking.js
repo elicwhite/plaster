@@ -4,11 +4,19 @@ define(["class", "helpers"], function(Class, Helpers) {
 
     _doc: null,
 
+    _addedCallback: null,
+    _removedCallback: null,
+
     init: function(parent) {
       this._parent = parent;
 
       this._actionsAdded = this._actionsAdded.bind(this);
       this._actionsRemoved = this._actionsRemoved.bind(this);
+    },
+
+    listen: function(addedCallback, removedCallback) {
+      this._addedCallback = addedCallback;
+      this._removedCallback = removedCallback;
     },
 
     load: function(fileId, callback) {

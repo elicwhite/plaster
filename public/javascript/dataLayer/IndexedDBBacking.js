@@ -43,6 +43,10 @@ define(["class", "helpers", "db"], function(Class, Helpers, db) {
         this._fileServer = s;
 
         this._parent._getFileInfo(fileId, (function(fileInfo) {
+          if (typeof(fileInfo) == "undefined") {
+            debugger;
+          }
+          
           this._fileInfo = fileInfo;
           callback(fileInfo);
         }).bind(this));
@@ -125,15 +129,16 @@ define(["class", "helpers", "db"], function(Class, Helpers, db) {
         .execute()
         .done((function(item) {
           // item stored
-          server.remoteActions
-            .add.apply(server, actions)
+          this._fileServer.remoteActions
+            .add.apply(this._fileServer, actions)
             .done(
-              (function() {
+              (function(items) {
+                console.log("Added remote actions", this._fileInfo.id, items);
                 this._parent._updateFileModified(this._fileInfo.id);
               }).bind(this))
-            .fail(function(e) {
-              console.error("failed to add actions", e);
-            });
+            .fail((function(e) {
+              console.error("Failed to add remote actions", this._fileInfo.id, e);
+            }).bind(this));
         }).bind(this))
         .fail(function(e) {
           console.error("fail to write", e);

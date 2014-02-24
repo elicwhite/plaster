@@ -1,4 +1,4 @@
-define(["class", "event"], function(Class, Event) {
+define(["class", "event", "helpers"], function(Class, Event, Helpers) {
   var File = Class.extend({
     fileInfo: null,
 
@@ -23,6 +23,10 @@ define(["class", "event"], function(Class, Event) {
         this._backing.getActions((function(actions) {
           actionsObj.remoteActions = actions.remote;
           actionsObj.localActions = actions.local;
+
+          if (typeof(fileInfo) == "undefined") {
+            debugger;
+          }
 
           this.fileInfo = fileInfo;
           this._cachedActions = actionsObj;
@@ -57,6 +61,8 @@ define(["class", "event"], function(Class, Event) {
       // process things on drive for updates
       this._driveBacking = driveBacking;
 
+      this._driveBacking.listen(this._remoteActionsAdded.bind(this), this._remoteActionsRemoved.bind(this));
+
       // if this fileId exists on drive, great, it's a match
       // if it doesn't, then it either has never been uploaded, or was deleted on the server
       // regardless, it's open, so we should upload it to drive
@@ -77,9 +83,6 @@ define(["class", "event"], function(Class, Event) {
           // load it and sync actions
           // sync actions
           this._syncRemoteActionsFromDrive();
-          this._driveBacking.load(this.fileInfo.id, (function() {
-
-          }).bind(this));
         } else {
           console.log("File not found on drive", this.fileInfo.id);
           // this file was not found
@@ -91,10 +94,13 @@ define(["class", "event"], function(Class, Event) {
           this._driveBacking.create(this.fileInfo, (function(newFile) {
             // Google saved a file, redo the id of the file locally to match drive
             this._backing.replaceFileId(newFile.id, (function() {
-              this.load(fnewFile.id, (function() {
+              this.load(newFile.id, (function() {
+
+                this._moveSettings(oldId);
+
                 Event.trigger("fileIdChanged", {
                   oldId: oldId,
-                  newFile: this.fileInfo
+                  newId: this.fileInfo.id
                 });
               }).bind(this));
             }).bind(this));
@@ -102,70 +108,6 @@ define(["class", "event"], function(Class, Event) {
         }
       }).bind(this));
     },
-
-    _syncRemoteActionsFromDrive: function() {
-      this._driveBacking.load(this.fileInfo.id, (function() {
-        this._driveBacking.getActions((function(remoteActions) {
-          var localActions = this.getActions();
-
-          // if local is shorter, then something was added to remote
-          // if remote is shorter, then something was removed from remote
-
-          var shorter = remoteActions.length < localActions.remote.length ? remoteActions : localActions.remote;
-          var diverges = -1;
-
-          for (var j = 0; j < shorter.length; j++) {
-            if (remoteActions[j].id != localActions.remote[j].id) {
-              diverges = j;
-              break;
-            }
-          }
-
-          //TODO: Make these also update the cached actions
-
-          // Only modify things if we need to
-          if (diverges !== -1 || remoteActions.length != localActions.remote.length) {
-            console.log("differences between remote and local actions", this.fileInfo.id);
-
-            if (diverges != -1) {
-              // get the remote actions after the diverge
-              var remoteActionsAfterDiverge = remoteActions.slice(diverges);
-
-              // remove the actions in local after the diverge
-              this._backing.removeRemoteActions(diverges, localActions.remote.length - diverges);
-
-              // we need to add indexes to these items
-              var items = this._indexify(remoteActionsAfterDiverge, diverges);
-              this._backing.addRemoteActions(diverges, items);
-              // insert the remote actions after diverge into local actions
-            } else if (shorter == remoteActions) {
-              // remove the actions after diverge from local
-              this._backing.removeRemoteActions(remoteActions.length, localActions.remote.length - remoteActions.length);
-            } else {
-              // shorter must be the local one
-              // add the remote actions after the local ones
-              var remoteActionsAfterLocal = remoteActions.slice(localActions.remote.length);
-
-              var items = this._indexify(remoteActionsAfterLocal, localActions.remote.length);
-              this._backing.addRemoteActions(localActions.remote.length, items);
-            }
-
-            Event.trigger("actionAdded", {
-              isLocal: false,
-              items: []
-            });
-          }
-
-          // send all of the local actions
-          for (var j = 0; j < localActions.local.length; j++) {
-            this._driveBacking.addAction(localActions.local[j]);
-          }
-        }).bind(this));
-      }).bind(this));
-
-      // and the remote has all the local actions
-    },
-
 
     getActions: function() {
       return this._cachedActions.remoteActions.concat(this._cachedActions.localActions);
@@ -191,6 +133,13 @@ define(["class", "event"], function(Class, Event) {
       }
 
       return JSON.parse(localStorage[this.fileInfo.id]);
+    },
+
+    _moveSettings: function(oldId) {
+      if (localStorage[oldId]) {
+        localStorage[this.fileInfo.id] = localStorage[oldId];
+        delete localStorage[oldId];
+      }
     },
 
     undo: function() {
@@ -242,6 +191,128 @@ define(["class", "event"], function(Class, Event) {
 
     clearAll: function() {
       console.error("Implement this function");
+    },
+
+    _syncRemoteActionsFromDrive: function() {
+      this._driveBacking.load(this.fileInfo.id, (function() {
+        this._driveBacking.getActions((function(remoteActions) {
+          this._backing.getActions((function(localActions) {
+
+            // if local is shorter, then something was added to remote
+            // if remote is shorter, then something was removed from remote
+
+            var shorter = remoteActions.length < localActions.remote.length ? remoteActions : localActions.remote;
+            var diverges = -1;
+
+            for (var j = 0; j < shorter.length; j++) {
+              if (remoteActions[j].id != localActions.remote[j].id) {
+                diverges = j;
+                break;
+              }
+            }
+
+            //TODO: Make these also update the cached actions
+
+            // Only modify things if we need to
+            if (diverges !== -1 || remoteActions.length != localActions.remote.length) {
+              console.log("differences between remote and local actions", this.fileInfo.id);
+
+              if (diverges != -1) {
+                // get the remote actions after the diverge
+                var remoteActionsAfterDiverge = remoteActions.slice(diverges);
+
+                // remove the actions in local after the diverge
+                this._backing.removeRemoteActions(diverges, localActions.remote.length - diverges);
+
+                // we need to add indexes to these items
+                var items = this._indexify(remoteActionsAfterDiverge, diverges);
+                this._backing.addRemoteActions(diverges, items);
+                // insert the remote actions after diverge into local actions
+              } else if (shorter == remoteActions) {
+                // remove the actions after diverge from local
+                this._backing.removeRemoteActions(remoteActions.length, localActions.remote.length - remoteActions.length);
+              } else {
+                // shorter must be the local one
+                // add the remote actions after the local ones
+                var remoteActionsAfterLocal = remoteActions.slice(localActions.remote.length);
+
+                var items = this._indexify(remoteActionsAfterLocal, localActions.remote.length);
+                this._backing.addRemoteActions(localActions.remote.length, items);
+              }
+
+              Event.trigger("actionAdded", {
+                isLocal: false,
+                items: []
+              });
+            }
+
+            // send all of the local actions
+            for (var j = 0; j < localActions.local.length; j++) {
+              this._driveBacking.addAction(localActions.local[j]);
+            }
+          }).bind(this));
+        }).bind(this));
+      }).bind(this));
+
+      // and the remote has all the local actions
+    },
+
+    _remoteActionsAdded: function(data) {
+      if (data.isLocal) {
+        // go through each item to insert
+        for (var i = 0; i < data.values.length; i++) {
+          // delete them from local
+          for (var j = 0; j < this._cachedActions.localActions.length; j++) {
+            if (this._cachedActions.localActions[j].id == data.values[i].id) {
+              this._cachedActions.localActions.splice(j, 1);
+              break;
+            }
+          }
+
+          this._backing.removeLocalAction(data.values[i].id);
+        }
+      }
+
+      // put the items into the remoteActions
+      Array.prototype.splice.apply(this._cachedActions.remoteActions, [data.index, 0].concat(data.values));
+
+      var items = this._indexify(data.values, data.index);
+
+      console.log("adding to remote", this.fileInfo.id, items);
+
+      // insert them into storage
+      this._backing.addRemoteActions(data.index, items);
+
+      Event.trigger("actionAdded", {
+        isLocal: data.isLocal,
+        items: items
+      });
+
+      Event.trigger("fileModified", this.fileInfo);
+    },
+
+    _remoteActionsRemoved: function(data) {
+      console.log("removed", data);
+
+      // remove it from the remoteActions
+      this._cachedActions.remoteActions.splice(data.index, data.values.length);
+
+      this._backing.removeRemoteActions(data.index, data.values.length);
+
+      Event.trigger("actionRemoved");
+      Event.trigger("fileModified", this.fileInfo);
+    },
+
+    _indexify: function(actions, startIndex) {
+      var items = [];
+      // put indexes on the items
+      for (var i = 0; i < actions.length; i++) {
+        var item = Helpers.clone(actions[i]);
+        item.index = i + startIndex;
+        items.push(item);
+      }
+
+      return items;
     },
   });
 

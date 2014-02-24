@@ -56,6 +56,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
       Event.addListener("fileRemoved", this._fileRemoved.bind(this));
       Event.addListener("fileModified", this._fileModified.bind(this));
       Event.addListener("fileRenamed", this._fileRenamed.bind(this));
+      Event.addListener("fileIdChanged", this._fileIdChanged.bind(this));
     },
 
     show: function(fileInfo) {
@@ -191,6 +192,17 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
           var fileNameElement = element.getElementsByClassName("file-name")[0];
           fileNameElement.innerText = element.fileInfo.name;
           return;
+        }
+      }
+    },
+
+    _fileIdChanged: function(e) {
+      for (var i in this._files) {
+        var element = this._files[i].element;
+        if (element.fileInfo.id == e.oldId) {
+          console.log("Changing file id in fileList from ", e.oldId, "to", e.newId);
+          element.fileInfo.id = e.newId;
+          break;
         }
       }
     }
