@@ -136,7 +136,6 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
         } else {
           if (element.dataset.action && element.dataset.action == "delete") {
             // Delete was clicked
-            debugger;
             Data.deleteFile(parent.fileInfo.id);
             return;
           }
@@ -164,7 +163,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
       console.log("file was removed", fileId);
       for (var i = 0; i < this._files.length; i++) {
         var element = this._files[i].element;
-        if (element.fileInfo.id == file.id) {
+        if (element.fileInfo.id == fileId) {
           this._fileListElement.removeChild(element);
           return;
         }
