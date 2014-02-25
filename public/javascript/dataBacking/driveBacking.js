@@ -40,7 +40,6 @@ define(["dataBacking/baseBacking", "db"], function(BaseBacking, db) {
         var request = gapi.client.drive.files.get({
           'fileId': fileId
         }).execute(function(result) {
-          window.r = result;
           callback({
             id: result.id,
             name: result.title,

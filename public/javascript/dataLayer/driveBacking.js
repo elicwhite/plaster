@@ -81,16 +81,16 @@ define(["class", "helpers"], function(Class, Helpers) {
       actions.insert(actions.length, action);
     },
 
-    removeAction: function(fileId, actionIndex) {
+    removeAction: function(actionIndex) {
       var actions = this._doc.getModel().getRoot().get('actions');
       actions.remove(actionIndex);
     },
 
-    undo: function(fileId) {
+    undo: function() {
       this._doc.getModel().undo();
     },
 
-    redo: function(fileId) {
+    redo: function() {
       this._doc.getModel().redo();
     }
   });

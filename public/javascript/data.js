@@ -26,8 +26,6 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
         this._backing = new WebSQLBacking();
       }
 
-      window.back = this._backing;
-
       //Event.addListener("fileModified", this._fileModified.bind(this));
     },
 
@@ -207,7 +205,6 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
     startDrive: function() {
       console.log("Starting Drive Data");
       this._driveBacking = new DriveBacking(this._remoteActionsAdded.bind(this), this._remoteActionsRemoved.bind(this));
-      window.drive = this._driveBacking;
 
       this._loadFromDrive();
     },
@@ -323,9 +320,6 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
       this._driveBacking.getFiles((function(remoteFiles) {
         this._backing.getFiles((function(localFiles) {
 
-          window.rem = remoteFiles;
-          window.loc = localFiles;
-
           for (var i = 0; i < remoteFiles.length; i++) {
             var found = false;
 
@@ -438,7 +432,6 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
   });
 
   var data = new Data();
-  //window.data = data
 
   //return data;
 });

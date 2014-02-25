@@ -130,8 +130,6 @@ define(["section", "event", "sections/fileList", "sections/draw"], function(Sect
     },
 
     _redoOffsets: function() {
-      window.current = this;
-
       this._screenWidth = window.innerWidth;
 
       // Set the offsets on all the panes so that the current pane is 0,0

@@ -7,9 +7,16 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
     _backing: null,
     _driveBacking: null,
 
+    _addedCallback: null,
+    _removedCallback: null,
+
+    _loadCallbacks: null,
+
     init: function(backing) {
       // Create our backing instance
       this._backing = backing;
+
+      this._loadCallbacks = [];
     },
 
     load: function(fileId, callback) {
@@ -28,6 +35,15 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
           this._cachedActions = actionsObj;
 
           callback();
+
+          console.log("loaded for", this.fileInfo.id);
+
+          // now that we have loaded, make sure we call all the things that
+          // want to know when we are loaded
+          for (var i = 0; i < this._loadCallbacks.length; i++) {
+            var loadCallback = this._loadCallbacks[i];
+            loadCallback.func.apply(this, loadCallback.args);
+          }
         }).bind(this));
       }).bind(this));
     },
@@ -38,6 +54,24 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
           callback();
         });
       }).bind(this));
+    },
+
+    afterLoad: function(callback) {
+      // If we have already loaded, call the callback immediately
+      if (this.fileInfo) {
+        callback();
+        return;
+      }
+
+      this._doAfterLoad(callback, []);
+    },
+
+    _doAfterLoad: function(func, args) {
+      console.log("Do after load", func, args);
+      this._loadCallbacks.push({
+        func: func,
+        args: args
+      })
     },
 
     rename: function(newName) {
@@ -53,6 +87,13 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
     },
 
     startDrive: function(driveBacking) {
+      console.log("Want to start drive for", this.fileInfo.id);
+
+      if (!this.fileInfo) {
+        this._doAfterLoad(this.startDrive, [driveBacking]);
+        return;
+      }
+
       console.log("Starting drive for", this.fileInfo.id)
       // process things on drive for updates
 
@@ -77,6 +118,7 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
           // the file was found on drive
           // load it and sync actions
           // sync actions
+
           this._driveBacking = driveBacking;
           this._syncRemoteActionsFromDrive();
         } else {
@@ -105,6 +147,16 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
           }).bind(this));
         }
       }).bind(this));
+    },
+
+    listen: function(addedCallback, removedCallback) {
+      this._addedCallback = addedCallback;
+      this._removedCallback = removedCallback;
+    },
+
+    stopListening: function() {
+      this._addedCallback = null;
+      this._removedCallback = null;
     },
 
     getActions: function() {
@@ -141,6 +193,11 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
     },
 
     undo: function() {
+      if (this._driveBacking) {
+        this._driveBacking.undo();
+        return;
+      }
+
       if (this._cachedActions.localActions.length == 0) {
         return false; // no actions to undo
       } else {
@@ -155,6 +212,11 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
     },
 
     redo: function() {
+      if (this._driveBacking) {
+        this._driveBacking.redo();
+        return;
+      }
+
       if (this._cachedActions.redoStack.length == 0) {
         return false; // no actions to undo
       } else {
@@ -168,12 +230,17 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
     addAction: function(action) {
       console.log("adding action", action);
       this._cachedActions.localActions.push(action);
+
       Event.trigger("actionAdded", {
         isLocal: true,
         items: [action]
       });
 
       this._backing.addLocalAction(action);
+
+      if (this._driveBacking) {
+        this._driveBacking.addAction(action);
+      }
 
       Event.trigger("fileModified", this.fileInfo);
     },
@@ -279,10 +346,12 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
       // insert them into storage
       this._backing.addRemoteActions(data.index, items);
 
-      Event.trigger("actionAdded", {
-        isLocal: data.isLocal,
-        items: items
-      });
+      if (this._addedCallback) {
+        this._addedCallback({
+          isLocal: data.isLocal,
+          items: items
+        });
+      }
 
       Event.trigger("fileModified", this.fileInfo);
     },
@@ -295,7 +364,10 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
 
       this._backing.removeRemoteActions(data.index, data.values.length);
 
-      Event.trigger("actionRemoved");
+      if (this._removedCallback) {
+        this._removdCallback();
+      }
+
       Event.trigger("fileModified", this.fileInfo);
     },
 

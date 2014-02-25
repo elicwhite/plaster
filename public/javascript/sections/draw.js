@@ -119,6 +119,9 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "dataLayer
       Data.loadFile(fileInfo.id, (function(file) {
 
         this._file = file;
+
+        file.listen(this._actionsAdded, this._actionsRemoved);
+
         this._fileNameElement.value = file.fileInfo.name;
         this._settings = file.localSettings();
 
@@ -142,17 +145,14 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "dataLayer
       }.bind(this), 400);
 
       window.addEventListener("resize", this._resize);
-
-      Event.addListener("actionAdded", this._actionsAdded);
-      Event.addListener("actionRemoved", this._actionsRemoved);
     },
 
     hide: function() {
       this._shouldRender = false;
 
       window.removeEventListener("resize", this._resize);
-      Event.removeListener("actionAdded", this._actionsAdded);
-      Event.removeListener("actionRemoved", this._actionsRemoved);
+
+      this._file.stopListening();
     },
 
     _actionsAdded: function(e) {

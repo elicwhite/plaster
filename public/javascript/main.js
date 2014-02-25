@@ -15,7 +15,6 @@ require(["event", "globals", "managers/login", "gauth"], function(Event, g, Logi
     g.setHTMLDevices();
 
     var loginManager = new LoginManager();
-    window.login = loginManager;
 
     window.addEventListener("resize", function() {
       // make sure we are scrolled to 0. Without this there are problems 

@@ -44,17 +44,17 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
 
     loadFile: function(fileId, callback) {
       if (this._cachedFiles[fileId]) {
-        callback(this._cachedFiles[fileId]);
+        this._cachedFiles[fileId].afterLoad((function() {
+          callback(this._cachedFiles[fileId]);
+        }).bind(this));
         return;
       }
 
-
       // file was not found
       var file = new File(new this._backing.instance(this._backing));
+      this._cachedFiles[fileId] = file;
 
       file.load(fileId, (function() {
-        this._cachedFiles[fileId] = file;
-
         if (this._driveBacking) {
           file.startDrive(this._newDriveInstance());
         }
@@ -100,13 +100,6 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
     _newDriveInstance: function() {
       return new this._driveBacking.instance(this._driveBacking);
     },
-
-    _doLater: function(func, args) {
-      this._loadCallbacks.push({
-        func: func,
-        args: args
-      })
-    }
   });
 
   var data = new Data();

@@ -10,7 +10,6 @@ define(["class", "event"], function(Class, Event) {
     OPENID_SCOPE: 'openid',
 
     init: function() {
-      window.g = this;
     },
 
     start: function(callback) {
