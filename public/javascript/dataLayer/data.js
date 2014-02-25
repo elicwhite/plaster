@@ -29,6 +29,10 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
         modifiedTime: Date.now()
       };
 
+      this._createFile(newFile);
+    },
+
+    _createFile: function(fileInfo) {
       var file = new File(new this._backing.instance(this._backing));
 
       // Create a new file for this
@@ -88,6 +92,46 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
       for (var i in this._cachedFiles) {
         this._cachedFiles[i].startDrive(this._newDriveInstance());
       }
+
+      this._driveBacking.getFiles((function(remoteFiles) {
+        this._backing.getFiles((function(localFiles) {
+
+          for (var i = 0; i < remoteFiles.length; i++) {
+            var found = false;
+
+            for (var j = 0; j < localFiles.length; j++) {
+              if (remoteFiles[i].id == localFiles[j].id) {
+                found = true;
+                break;
+              }
+            }
+
+            var file = remoteFiles[i];
+
+            if (!found) {
+
+              // File wasn't found locally, make a file with the same
+              // id and then it will sync
+              var newFile = {
+                id: file.id,
+                name: file.title,
+                modifiedTime: new Date(result.modifiedDate).getTime()
+              };
+
+              this._createFile(newFile);
+
+            } else {
+
+              // we have this file on both local and server
+              // make sure we have all the remote actions
+              this.loadFile(file.id, function() {
+
+              });
+            }
+          }
+
+        }).bind(this));
+      }).bind(this));
     },
 
     _fileIdChanged: function(e) {
