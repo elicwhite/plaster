@@ -24,10 +24,6 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
           actionsObj.remoteActions = actions.remote;
           actionsObj.localActions = actions.local;
 
-          if (typeof(fileInfo) == "undefined") {
-            debugger;
-          }
-
           this.fileInfo = fileInfo;
           this._cachedActions = actionsObj;
 
@@ -212,8 +208,6 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
                 break;
               }
             }
-
-            //TODO: Make these also update the cached actions
 
             // Only modify things if we need to
             if (diverges !== -1 || remoteActions.length != localActions.remote.length) {

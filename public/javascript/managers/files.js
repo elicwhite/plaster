@@ -7,20 +7,14 @@ define(["section", "event", "sections/fileList", "sections/draw"], function(Sect
 
     _screenWidth: 0,
 
-    _defaultSettings: {},
-
     panes: null,
 
     currentPaneName: null,
 
+    _currentState: null,
+
     init: function() {
       this._super();
-
-      this._defaultSettings = {
-        title: {
-          text: "Photos"
-        }
-      };
 
       this._screenWidth = window.innerWidth;
 
@@ -45,19 +39,19 @@ define(["section", "event", "sections/fileList", "sections/draw"], function(Sect
 
       this.panes.draw.pane.element.style.webkitTransform = 'translate(' + this._screenWidth + "px, 0px)";
 
-      var state = {
+      this._currentState = {
         pane: "list",
         details: null
       };
+
       if (localStorage.filesPane) {
-        state = JSON.parse(localStorage.filesPane);
+        this._currentState = JSON.parse(localStorage.filesPane);
       }
 
-      this.setPane(state.pane, state.details);
+      this.setPane(this._currentState.pane, this._currentState.details);
       this._redoOffsets();
 
-
-      window.files = this;
+      Event.addListener("fileIdChanged", this._fileIdChanged.bind(this));
     },
 
     show: function() {
@@ -107,14 +101,17 @@ define(["section", "event", "sections/fileList", "sections/draw"], function(Sect
       }
 
 
-      if (pane == "list") {
-        delete localStorage["filesPane"];
-      } else {
-        localStorage.filesPane = JSON.stringify({
-          pane: pane,
-          details: details
-        });
+      this._currentState = {
+        pane: "list",
+        details: null
+      };
+
+      if (pane != "list") {
+        this._currentState.pane = pane;
+        this._currentState.details = details;
       }
+
+      localStorage.filesPane = JSON.stringify(this._currentState);
     },
 
     _finishedSliding: function(e) {
@@ -156,7 +153,14 @@ define(["section", "event", "sections/fileList", "sections/draw"], function(Sect
       }
 
       this._paneWrapper.style.webkitTransform = "";
-    }
+    },
+
+    _fileIdChanged: function(e) {      
+      if (this._currentState.details && this._currentState.details.id == e.oldId) {
+        this._currentState.details.id = e.newId;
+        localStorage.filesPane = JSON.stringify(this._currentState);
+      }
+    },
   });
 
   return Files;

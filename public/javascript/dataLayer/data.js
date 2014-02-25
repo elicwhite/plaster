@@ -22,6 +22,7 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
     },
 
     createFile: function() {
+
       var newFile = {
         id: Helpers.getGuid(),
         name: "Untitled File",
@@ -42,8 +43,6 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
     },
 
     loadFile: function(fileId, callback) {
-
-
       if (this._cachedFiles[fileId]) {
         callback(this._cachedFiles[fileId]);
         return;
@@ -51,7 +50,7 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
 
 
       // file was not found
-      file = new File(new this._backing.instance(this._backing));
+      var file = new File(new this._backing.instance(this._backing));
 
       file.load(fileId, (function() {
         this._cachedFiles[fileId] = file;
