@@ -96,6 +96,7 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
       this._driveBacking.getFiles((function(remoteFiles) {
         this._backing.getFiles((function(localFiles) {
 
+          // Check for files that are on drive and not saved locally
           for (var i = 0; i < remoteFiles.length; i++) {
             var found = false;
 
@@ -124,9 +125,26 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
 
               // we have this file on both local and server
               // make sure we have all the remote actions
-              this.loadFile(file.id, function() {
+              this.loadFile(file.id, function() {});
+            }
+          }
 
-              });
+
+          for (var i = 0; i < localFiles.length; i++) {
+            var found = false;
+
+            for (var j = 0; j < remoteFiles.length; j++) {
+              if (localFiles[i].id == remoteFiles[j].id) {
+                found = true;
+                break;
+              }
+            }
+
+            if (!found) {
+              // we don't have it on the remote
+
+              // load it and let it sync
+              this.loadFile(localFiles[i].id, function() {});
             }
           }
 
