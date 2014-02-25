@@ -68,6 +68,10 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
     deleteFile: function(fileId) {
       this._backing.deleteFile(fileId);
 
+      if (this._driveBacking) {
+        this._driveBacking.deleteFile(fileId);
+      }
+
       Event.trigger("fileRemoved", fileId);
     },
 

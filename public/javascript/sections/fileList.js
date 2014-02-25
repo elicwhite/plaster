@@ -184,7 +184,6 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
     },
 
     _fileRenamed: function(file) {
-      debugger;
       for (var i in this._files) {
         var element = this._files[i].element;
         if (element.fileInfo.id == file.id) {
