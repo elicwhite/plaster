@@ -116,7 +116,7 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
               var newFile = {
                 id: file.id,
                 name: file.title,
-                modifiedTime: new Date(result.modifiedDate).getTime()
+                modifiedTime: new Date(file.modifiedDate).getTime()
               };
 
               this._createFile(newFile);
