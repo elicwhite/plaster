@@ -154,8 +154,9 @@ define(["section", "event", "sections/fileList", "sections/draw"], function(Sect
     },
 
     _fileIdChanged: function(e) {      
-      if (this._currentState.details && this._currentState.details.id == e.oldId) {
-        this._currentState.details.id = e.newId;
+      // the current state details is a reference, so the id will change out from under us
+      // if it is the new id, then save it
+      if (this._currentState.details && this._currentState.details.id == e.newId) {
         localStorage.filesPane = JSON.stringify(this._currentState);
       }
     },

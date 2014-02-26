@@ -36,9 +36,9 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
       var file = new File(new this._backing.instance(this._backing));
 
       // Create a new file for this
-      file.create(newFile, (function() {
+      file.create(fileInfo, (function() {
         this._cachedFiles[file.fileInfo.id] = file;
-        Event.trigger("fileAdded", newFile);
+        Event.trigger("fileAdded", file.fileInfo);
 
         if (this._driveBacking) {
           file.startDrive(this._newDriveInstance());

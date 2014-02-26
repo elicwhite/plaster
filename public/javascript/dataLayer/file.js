@@ -94,7 +94,7 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
         return;
       }
 
-      console.log("Starting drive for", this.fileInfo.id)
+      console.log("Starting drive for", this.fileInfo.id);
       // process things on drive for updates
 
       driveBacking.listen(this._remoteActionsAdded.bind(this), this._remoteActionsRemoved.bind(this));
@@ -135,7 +135,6 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
             // Google saved a file, redo the id of the file locally to match drive
             this._backing.replaceFileId(newFile.id, (function() {
               this.load(newFile.id, (function() {
-
                 this._moveSettings(oldId);
 
                 Event.trigger("fileIdChanged", {
