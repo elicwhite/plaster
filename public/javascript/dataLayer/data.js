@@ -26,7 +26,7 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
       var newFile = {
         id: Helpers.getGuid(),
         name: "Untitled File",
-        modifiedTime: Date.now()
+        modifiedTime: Date.now(),
       };
 
       this._createFile(newFile);
@@ -65,15 +65,17 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
 
         callback(file);
       }).bind(this));
-
-
     },
 
-    deleteFile: function(fileId) {
-      this._backing.deleteFile(fileId);
+    deleteFile: function(fileId, updateDrive) {
+      this._backing.markFileAsDeleted(fileId);
 
-      if (this._driveBacking) {
-        this._driveBacking.deleteFile(fileId);
+      if (typeof(updateDrive) == "undefined" || updateDrive) {
+        if (this._driveBacking) {
+          this._driveBacking.deleteFile(fileId, (function() {
+            this._backing.deleteMarkedFile(fileId);
+          }).bind(this));
+        }
       }
 
       Event.trigger("fileRemoved", fileId);
@@ -93,63 +95,9 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
         this._cachedFiles[i].startDrive(this._newDriveInstance());
       }
 
-      this._driveBacking.getFiles((function(remoteFiles) {
-        this._backing.getFiles((function(localFiles) {
+      // Check for updates from drive every 30 seconds
 
-          // Check for files that are on drive and not saved locally
-          for (var i = 0; i < remoteFiles.length; i++) {
-            var found = false;
-
-            for (var j = 0; j < localFiles.length; j++) {
-              if (remoteFiles[i].id == localFiles[j].id) {
-                found = true;
-                break;
-              }
-            }
-
-            var file = remoteFiles[i];
-
-            if (!found) {
-
-              // File wasn't found locally, make a file with the same
-              // id and then it will sync
-              var newFile = {
-                id: file.id,
-                name: file.title,
-                modifiedTime: new Date(file.modifiedDate).getTime()
-              };
-
-              this._createFile(newFile);
-
-            } else {
-
-              // we have this file on both local and server
-              // make sure we have all the remote actions
-              this.loadFile(file.id, function() {});
-            }
-          }
-
-
-          for (var i = 0; i < localFiles.length; i++) {
-            var found = false;
-
-            for (var j = 0; j < remoteFiles.length; j++) {
-              if (localFiles[i].id == remoteFiles[j].id) {
-                found = true;
-                break;
-              }
-            }
-
-            if (!found) {
-              // we don't have it on the remote
-
-              // load it and let it sync
-              this.loadFile(localFiles[i].id, function() {});
-            }
-          }
-
-        }).bind(this));
-      }).bind(this));
+      this._checkForUpdates(false);
     },
 
     _fileIdChanged: function(e) {
@@ -162,6 +110,105 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
     _newDriveInstance: function() {
       return new this._driveBacking.instance(this._driveBacking);
     },
+
+    _checkForUpdates: function(updateOnlyFileChanges) {
+      console.log("Checking for file updates on drive");
+      this._driveBacking.getFiles((function(remoteFiles) {
+        this._backing.getFiles((function(localFiles) {
+          this._backing.getDeletedFiles((function(filesDeletedLocally) {
+            var fileIdsDeletedLocally = filesDeletedLocally.map(function(item) { return item.id});
+            debugger;
+
+            // Check for files that are on drive and not saved locally
+            for (var i = 0; i < remoteFiles.length; i++) {
+              var found = false;
+
+              for (var j = 0; j < localFiles.length; j++) {
+                if (remoteFiles[i].id == localFiles[j].id) {
+                  found = true;
+                  break;
+                }
+              }
+
+              var file = remoteFiles[i];
+
+              if (!found) {
+                var deletedLocally = fileIdsDeletedLocally.indexOf(file.id) !== -1;
+
+                if (deletedLocally) {
+                  // delete it on the remote
+                  this.deleteFile(file.id);
+                  break;
+                }
+
+
+                // File wasn't found locally, make a file with the same
+                // id and then it will sync
+                var newFile = {
+                  id: file.id,
+                  name: file.title,
+                  modifiedTime: new Date(file.modifiedDate).getTime(),
+                };
+
+                this._createFile(newFile);
+
+              } else {
+                // we have this file on both local and server
+
+                if (updateOnlyFileChanges) {
+                  // We only want to update file name changes
+                } else {
+
+                  // make sure we have all the remote actions
+                  this.loadFile(file.id, (function() {
+
+                  }).bind(this));
+                }
+              }
+            }
+
+
+            // look for local files that are not on remote
+            for (var i = 0; i < localFiles.length; i++) {
+              var found = false;
+
+              for (var j = 0; j < remoteFiles.length; j++) {
+                if (localFiles[i].id == remoteFiles[j].id) {
+                  found = true;
+                  break;
+                }
+              }
+
+              if (!found) {
+                // we don't have it on the remote
+
+                // TODO: check if we deleted it remotely
+                var deletedRemotely = !Helpers.isLocalGuid(localFiles[i].id);
+
+                if (deletedRemotely) {
+                  this.deleteFile(localFiles[i].id, false);
+                  break;
+                }
+
+                // load it and let it sync
+                this.loadFile(localFiles[i].id, (function() {}).bind(this));
+                break;
+              }
+            }
+          }).bind(this));
+        }).bind(this));
+      }).bind(this));
+    },
+
+    _checkForFileChanges: function() {
+
+    },
+
+    _scheduleUpdate: function() {
+      setTimeout((function() {
+        this._checkForUpdates(true);
+      }).bind(this), 30 * 1000);
+    }
   });
 
   var data = new Data();

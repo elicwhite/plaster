@@ -181,7 +181,7 @@ define(["class", "helpers", "db"], function(Class, Helpers, db) {
             this._copyAllActions(oldActions, (function() {
               // Done copying
               console.log("ID Changed");
-              this._parent.deleteFile(oldId);
+              this._parent._actuallyDeleteFile(oldId);
               callback();
             }).bind(this));
           }).bind(this));
@@ -249,7 +249,7 @@ define(["class", "helpers", "db"], function(Class, Helpers, db) {
               },
               modifiedTime: {
                 //keyPath: 'modifiedTime'
-              }
+              },
             }
           }
         }
@@ -277,6 +277,9 @@ define(["class", "helpers", "db"], function(Class, Helpers, db) {
 
       this._server.files.query('modifiedTime')
         .all()
+        .filter(function(file) {
+          return !file.deleted;
+        })
         .desc()
         .execute()
         .done((function(results) {
@@ -313,19 +316,52 @@ define(["class", "helpers", "db"], function(Class, Helpers, db) {
         }).bind(this))
         .fail(function(e) {
           console.error("Couldn't find file", e);
+        });
+    },
+
+    _actuallyDeleteFile: function(fileId) {
+      this.markFileAsDeleted(fileId);
+      this.deleteMarkedFile(fileId);
+    },
+
+    getDeletedFiles: function(callback) {
+      this._server.files.query()
+        .filter(function(file) {
+          return file.deleted;
+        })
+        .execute()
+        .done(function(results) {
+          callback(results);
+        })
+        .fail(function(e) {
+        });
+    },
+
+    markFileAsDeleted: function(fileId) {
+      var f = indexedDB.deleteDatabase(fileId);
+
+      this._server.files.query('id')
+        .only(fileId)
+        .modify({
+          deleted: true
+        })
+        .execute()
+        .done((function(results) {
+          // Delete settings from local storage
+          delete localStorage[fileId];
+        }).bind(this))
+        .fail(function(e) {
+          console.error("Couldn't find file", e);
         })
     },
 
-    deleteFile: function(fileId) {
-      this._server.files.remove(fileId)
+    deleteMarkedFile: function(fileId) {
+      this._server.files.query('id')
+        .only(fileId)
+        .remove()
+        .execute()
         .done(function(key) {
-          var f = indexedDB.deleteDatabase(fileId);
-          f.onerror = function(e) {
-            console.error("Error deleting database", e);
-          }
-
-          // Delete settings from local storage
-          delete localStorage[fileId];
+          console.log("Deleted marked file");
         })
         .fail(function(e) {
           console.error("Failed to delete file from file table", fileId);

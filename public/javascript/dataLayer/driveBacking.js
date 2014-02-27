@@ -166,11 +166,13 @@ define(["class", "helpers"], function(Class, Helpers) {
       }).bind(this));
     },
 
-    deleteFile: function(fileId) {
+    deleteFile: function(fileId, callback) {
       gapi.client.load('drive', 'v2', (function() {
         var request = gapi.client.drive.files.delete({
           'fileId': fileId
-        }).execute(function(result) {});
+        }).execute(function(result) {
+          callback();
+        });
 
       }).bind(this));
     },

@@ -28,7 +28,11 @@ define([], function() {
     },
 
     getGuid: function() {
-      return Date.now() +""+ Math.round(Math.random() * 1000000);
+      return "T^" + Date.now() + "" + Math.round(Math.random() * 1000000);
+    },
+
+    isLocalGuid: function(id) {
+      return id.indexOf("T^") === 0;
     },
 
     clone: function(obj) {
@@ -134,8 +138,7 @@ define([], function() {
           ];
         } else {
           secondControlPoints[i] = [
-            (knots[n][0] + x[n - 1]) / 2,
-            (knots[n][1] + y[n - 1]) / 2
+            (knots[n][0] + x[n - 1]) / 2, (knots[n][1] + y[n - 1]) / 2
           ];
         }
       }
