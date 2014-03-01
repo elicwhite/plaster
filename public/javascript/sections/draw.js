@@ -161,7 +161,6 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "dataLayer
     },
 
     _actionsAdded: function(e) {
-      console.log("added", e);
       if (e.isLocal) {
         this._update = true;
         this._manipulateCanvas.addAction(e.items[0]);
@@ -171,7 +170,6 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "dataLayer
     },
 
     _actionsRemoved: function(e) {
-      console.log("removed", e);
       this._updateAll = true;
     },
 
@@ -340,7 +338,6 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "dataLayer
 
       if (this._updateAll) {
         var actions = this._file.getActions();
-        console.log("get actions", actions); 
 
         this._manipulateCanvas.doAll(actions);
       }
@@ -463,7 +460,6 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "dataLayer
     },
 
     _toolChanged: function(e) {
-      console.log("tool clicked");
       var parent = Helpers.parentEleWithClassname(e.srcElement, "toolitem");
 
       if (parent && parent.tagName == "LI") {

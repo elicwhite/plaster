@@ -67,8 +67,6 @@ define(["class", "helpers"], function(Class, Helpers) {
     },
 
     _actionsAdded: function(e) {
-      console.log("got actions", e);
-
       this._addedCallback(e);
     },
 

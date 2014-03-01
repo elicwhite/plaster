@@ -30,9 +30,8 @@ require(["event", "globals", "managers/login", "gauth"], function(Event, g, Logi
     setHeight();
 
     GAuth.start(function() {
-      console.log("guath done");
+      console.log("GAuth Loaded");
       require(["dataLayer/data"], function(Data) {
-        console.log("drive callback");
         Data.startDrive();
       });
     });

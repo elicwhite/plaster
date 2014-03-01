@@ -93,7 +93,7 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
     },
 
     startDrive: function() {
-      console.log("drive connected");
+      console.log("Drive connected");
       this._driveBacking = new DriveBacking();
 
       // add drive to our open files

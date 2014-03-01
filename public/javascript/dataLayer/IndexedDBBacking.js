@@ -103,7 +103,6 @@ define(["class", "helpers", "db"], function(Class, Helpers, db) {
           this._parent._updateFileModified(this._fileInfo.id);
         }).bind(this))
         .done(function(item) {
-          console.log("added item", item);
         });
     },
 
@@ -133,7 +132,6 @@ define(["class", "helpers", "db"], function(Class, Helpers, db) {
             .add.apply(this._fileServer, actions)
             .done(
               (function(items) {
-                console.log("Added remote actions", this._fileInfo.id, items);
                 this._parent._updateFileModified(this._fileInfo.id);
               }).bind(this))
             .fail((function(e) {
@@ -151,7 +149,7 @@ define(["class", "helpers", "db"], function(Class, Helpers, db) {
         .limit(length)
         .remove()
         .execute()
-        .done(function(key) {
+        .done((function(key) {
           // item removed
 
           this._fileServer.remoteActions
@@ -166,7 +164,7 @@ define(["class", "helpers", "db"], function(Class, Helpers, db) {
             .done((function(item) {
               this._parent._updateFileModified(this._fileInfo.id);
             }).bind(this));
-        });
+        }).bind(this));
     },
 
     replaceFileId: function(newId, callback) {

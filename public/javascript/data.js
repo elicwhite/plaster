@@ -110,7 +110,6 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
         callback();
       } else {
 
-        console.log("Loading file", fileId);
         var file = this._getFile(fileId);
 
         var actionsObj = {
@@ -148,7 +147,6 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
     },
 
     addAction: function(action) {
-      console.log("adding action", action);
       this._cachedActions.localActions.push(action);
       Event.trigger("actionAdded", {
         isLocal: true,
@@ -230,8 +228,6 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
 
       var items = this._indexify(data.values, data.index);
 
-      console.log("adding to remote", this._currentFile.id, items);
-
       // insert them into storage
       this._backing.addRemoteActions(this._currentFile.id, data.index, items);
 
@@ -244,8 +240,6 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
     },
 
     _remoteActionsRemoved: function(data) {
-      console.log("removed", data);
-
       // remove it from the remoteActions
       this._cachedActions.remoteActions.splice(data.index, data.values.length);
 
@@ -387,7 +381,7 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
 
           // Only modify things if we need to
           if (diverges !== -1 || remoteActions.length != localActions.remote.length) {
-            console.log("differences between remote and local actions", file.id);
+            console.log("File doesn't match remote", file.id);
 
             if (diverges != -1) {
               // get the remote actions after the diverge
@@ -401,11 +395,9 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
               this._backing.addRemoteActions(file.id, diverges, items);
               // insert the remote actions after diverge into local actions
             } else if (shorter == remoteActions) {
-              console.log("remote actions 2", remoteActions);
               // remove the actions after diverge from local
               this._backing.removeRemoteActions(file.id, remoteActions.length, localActions.remote.length - remoteActions.length);
             } else {
-              console.log("remote actions 1", remoteActions, localActions.remote);
               // shorter must be the local one
               // add the remote actions after the local ones
               var remoteActionsAfterLocal = remoteActions.slice(localActions.remote.length);

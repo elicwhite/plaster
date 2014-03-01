@@ -17,7 +17,6 @@ define(["class", "event"], function(Class, Event) {
         this._startCallback = callback;
 
         gapi.load('auth:client,drive-realtime,drive-share', (function() {
-          console.log("gapi loaded");
           this._authorize();
         }).bind(this));
       } else {
@@ -43,7 +42,6 @@ define(["class", "event"], function(Class, Event) {
         // logged in
         Event.trigger("login", authResult);
         this._fetchUser();
-        console.log("done");
 
         if (this._startCallback) {
           this._startCallback();

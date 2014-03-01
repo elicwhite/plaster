@@ -152,7 +152,6 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
 
     // EVENTS
     _fileAdded: function(file) {
-      console.log("file was added", file);
       var fileTemplate = this._newFileWrapper(file);
 
       this._fileListElement.insertBefore(fileTemplate, this._fileListElement.children[1]);
@@ -160,7 +159,6 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
     },
 
     _fileRemoved: function(fileId) {
-      console.log("file was removed", fileId);
       for (var i in this._files) {
         var element = this._files[i].element;
         if (element.fileInfo.id == fileId) {

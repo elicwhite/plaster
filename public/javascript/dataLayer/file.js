@@ -63,8 +63,6 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
 
           callback();
 
-          console.log("loaded for", this.fileInfo.id);
-
           // now that we have loaded, make sure we call all the things that
           // want to know when we are loaded
           for (var i = 0; i < this._loadCallbacks.length; i++) {
@@ -94,7 +92,6 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
     },
 
     _doAfterLoad: function(func, args) {
-      console.log("Do after load", func, args);
       this._loadCallbacks.push({
         func: func,
         args: args
@@ -114,16 +111,12 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
     },
 
     startDrive: function(driveBacking) {
-      console.log("Want to start drive for", this.fileInfo.id);
-
       if (!this.fileInfo) {
         this._doAfterLoad(this.startDrive, [driveBacking]);
         return;
       }
 
-      console.log("Starting drive for", this.fileInfo.id);
       // process things on drive for updates
-
       driveBacking.listen(this._remoteActionsAdded.bind(this), this._remoteActionsRemoved.bind(this));
 
       this.sync(driveBacking);
@@ -267,7 +260,6 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
     },
 
     addAction: function(action) {
-      console.log("adding action", action);
       this._cachedActions.localActions.push(action);
 
       Event.trigger("actionAdded", {
@@ -293,10 +285,6 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
 
     },
 
-    clearAll: function() {
-      console.error("Implement this function");
-    },
-
     _syncRemoteActionsFromDrive: function() {
       this._driveBacking.load(this.fileInfo.id, (function() {
         this._driveBacking.getActions((function(remoteActions) {
@@ -317,7 +305,7 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
 
             // Only modify things if we need to
             if (diverges !== -1 || remoteActions.length != localActions.remote.length) {
-              console.log("differences between remote and local actions", this.fileInfo.id);
+              console.log("Differences between remote and local actions", this.fileInfo.id);
 
               if (diverges != -1) {
                 // get the remote actions after the diverge
@@ -380,8 +368,6 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
 
       var items = this._indexify(data.values, data.index);
 
-      console.log("adding to remote", this.fileInfo.id, items);
-
       // insert them into storage
       this._backing.addRemoteActions(data.index, items);
 
@@ -396,15 +382,13 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
     },
 
     _remoteActionsRemoved: function(data) {
-      console.log("removed", data);
-
       // remove it from the remoteActions
       this._cachedActions.remoteActions.splice(data.index, data.values.length);
 
       this._backing.removeRemoteActions(data.index, data.values.length);
 
       if (this._removedCallback) {
-        this._removdCallback();
+        this._removedCallback();
       }
 
       Event.trigger("fileModified", this.fileInfo);
