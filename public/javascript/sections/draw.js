@@ -313,6 +313,9 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "dataLayer
 
         this._updateCurrentAction = true;
 
+        // the actions is done, we should redraw everything.
+        this._updateAll = true;
+
         this._saveAction(currentAction);
       }
     },
@@ -337,6 +340,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "dataLayer
 
       if (this._updateAll) {
         var actions = this._file.getActions();
+        console.log("get actions", actions); 
 
         this._manipulateCanvas.doAll(actions);
       }
