@@ -48,8 +48,14 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
 
     loadFile: function(fileId, callback) {
       if (this._cachedFiles[fileId]) {
-        this._cachedFiles[fileId].afterLoad((function() {
-          callback(this._cachedFiles[fileId]);
+        var file = this._cachedFiles[fileId];
+        file.afterLoad((function() {
+
+          //if (file._driveBacking) {
+          //  file.sync();
+          //}
+
+          callback(file);
         }).bind(this));
         return;
       }
@@ -73,7 +79,7 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
       if (typeof(updateDrive) == "undefined" || updateDrive) {
         if (this._driveBacking) {
           this._driveBacking.deleteFile(fileId, (function() {
-            this._backing.deleteMarkedFile(fileId);
+            this._backing.deleteFile(fileId);
           }).bind(this));
         }
       }
@@ -116,8 +122,9 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
       this._driveBacking.getFiles((function(remoteFiles) {
         this._backing.getFiles((function(localFiles) {
           this._backing.getDeletedFiles((function(filesDeletedLocally) {
-            var fileIdsDeletedLocally = filesDeletedLocally.map(function(item) { return item.id});
-            debugger;
+            var fileIdsDeletedLocally = filesDeletedLocally.map(function(item) {
+              return item.id
+            });
 
             // Check for files that are on drive and not saved locally
             for (var i = 0; i < remoteFiles.length; i++) {
@@ -136,26 +143,44 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
                 var deletedLocally = fileIdsDeletedLocally.indexOf(file.id) !== -1;
 
                 if (deletedLocally) {
-                  // delete it on the remote
-                  this.deleteFile(file.id);
-                  break;
+                  // we need to see if the file remote actions match to 
+                  // know whether we should actually delete it remotely.
+                  var tempFile = new File(new this._backing.instance(this._backing));
+                  tempFile.remoteActionsMatch(file.id, this._newDriveInstance(), (function(actionsMatch) {
+                    if (actionsMatch) {
+                      // delete it on the remote
+                      this.deleteFile(file.id);
+                    } else {
+                      // unmark as deleted and load it so it will sync
+                      this._backing.unmarkFileAsDeleted(file.id);
+
+                      this.loadFile(file.id, (function() {
+
+                      }).bind(this));
+                    }
+                  }).bind(this));
+                } else {
+                  // File wasn't found locally, make a file with the same
+                  // id and then it will sync
+                  var newFile = {
+                    id: file.id,
+                    name: file.title,
+                    modifiedTime: new Date(file.modifiedDate).getTime(),
+                  };
+
+                  this._createFile(newFile);
                 }
-
-
-                // File wasn't found locally, make a file with the same
-                // id and then it will sync
-                var newFile = {
-                  id: file.id,
-                  name: file.title,
-                  modifiedTime: new Date(file.modifiedDate).getTime(),
-                };
-
-                this._createFile(newFile);
-
               } else {
                 // we have this file on both local and server
 
                 if (updateOnlyFileChanges) {
+                  // File names don't match
+                  if (file.title != localFiles[j].name) {
+
+                    this.loadFile(file.id, (function(fileObj) {
+                      fileObj.rename(file.title);
+                    }).bind(this));
+                  }
                   // We only want to update file name changes
                 } else {
 
@@ -187,14 +212,17 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
 
                 if (deletedRemotely) {
                   this.deleteFile(localFiles[i].id, false);
-                  break;
+                  continue;
                 }
 
                 // load it and let it sync
                 this.loadFile(localFiles[i].id, (function() {}).bind(this));
-                break;
+                continue;
               }
             }
+
+            // This is going to run potentially before everything else finishes, where else could it go?
+            this._scheduleUpdate();
           }).bind(this));
         }).bind(this));
       }).bind(this));
@@ -207,7 +235,7 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
     _scheduleUpdate: function() {
       setTimeout((function() {
         this._checkForUpdates(true);
-      }).bind(this), 30 * 1000);
+      }).bind(this), 10 * 1000);
     }
   });
 

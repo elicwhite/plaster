@@ -7,8 +7,12 @@ define(["class", "helpers"], function(Class, Helpers) {
     _addedCallback: null,
     _removedCallback: null,
 
+    _loadCallbacks: null,
+
     init: function(parent) {
       this._parent = parent;
+
+      this._loadCallbacks = [];
 
       this._actionsAdded = this._actionsAdded.bind(this);
       this._actionsRemoved = this._actionsRemoved.bind(this);
@@ -45,6 +49,11 @@ define(["class", "helpers"], function(Class, Helpers) {
           actions.addEventListener(gapi.drive.realtime.EventType.VALUES_REMOVED, this._actionsRemoved);
 
           callback();
+
+          for (var i = 0; i < this._loadCallbacks.length; i++) {
+            var loadCallback = this._loadCallbacks[i];
+            loadCallback.func.apply(this, loadCallback.args);
+          }
         }).bind(this),
         function(model) {
           // file was created
@@ -72,6 +81,11 @@ define(["class", "helpers"], function(Class, Helpers) {
     },
 
     rename: function(newName) {
+      if (!this._doc) {
+        this._doAfterLoad(this.rename, [newName]);
+        return;
+      }
+
       this._parent._renameFile(this._doc.getModel().getRoot().get('id'), newName)
       this._doc.getModel().getRoot().set("title", newName);
     },
@@ -92,7 +106,14 @@ define(["class", "helpers"], function(Class, Helpers) {
 
     redo: function() {
       this._doc.getModel().redo();
-    }
+    },
+
+    _doAfterLoad: function(func, args) {
+      this._loadCallbacks.push({
+        func: func,
+        args: args
+      })
+    },
   });
 
   var DriveBacking = Class.extend({

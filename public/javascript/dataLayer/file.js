@@ -19,6 +19,33 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
       this._loadCallbacks = [];
     },
 
+    remoteActionsMatch: function(fileId, driveBacking, callback) {
+      this._backing.load(fileId, (function(localInfo) {
+        driveBacking.load(fileId, (function() {
+          this._backing.getActions((function(localActions) {
+            driveBacking.getActions((function(remoteActions) {
+
+              // If the lengths don't match, they aren't equal
+              if (localActions.remote.length != remoteActions) {
+                callback(false);
+                return;
+              }
+
+              for (var i = 0; i < localActions.remote.length; i++) {
+                if (localActions.remote[i].id != remoteActions[i]) {
+                  callback(false);
+                  return;
+                }
+              }
+
+              callback(true);
+              return;
+            }).bind(this));
+          }).bind(this));
+        }).bind(this));
+      }).bind(this));
+    },
+
     load: function(fileId, callback) {
       this._backing.load(fileId, (function(fileInfo) {
         var actionsObj = {
@@ -99,6 +126,13 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
 
       driveBacking.listen(this._remoteActionsAdded.bind(this), this._remoteActionsRemoved.bind(this));
 
+      this.sync(driveBacking);
+
+    },
+
+    sync: function(driveBacking) {
+      driveBacking = this._driveBacking || driveBacking;
+
       // if this fileId exists on drive, great, it's a match
       // if it doesn't, then it either has never been uploaded, or was deleted on the server
       // regardless, it's open, so we should upload it to drive
@@ -120,6 +154,12 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
           // sync actions
 
           this._driveBacking = driveBacking;
+
+          if (driveFiles[i].title != this.fileInfo.name) {
+            // File names don't match, remote wins
+            this.rename(driveFiles[i].title);
+          }
+
           this._syncRemoteActionsFromDrive();
         } else {
           console.log("File not found on drive", this.fileInfo.id);
