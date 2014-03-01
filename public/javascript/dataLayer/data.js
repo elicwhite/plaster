@@ -205,7 +205,13 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
               }
 
               if (!found) {
-                // we don't have it on the remote
+
+                // we don't have it on remote, and we also marked it as deleted locally
+                var deletedLocally = fileIdsDeletedLocally.indexOf(localFiles[i].id) !== -1;
+                if (deletedLocally) {
+                  this.deleteFile(localFiles[i].id, false);
+                  continue;
+                }
 
                 // TODO: check if we deleted it remotely
                 var deletedRemotely = !Helpers.isLocalGuid(localFiles[i].id);

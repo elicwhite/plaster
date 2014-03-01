@@ -1,4 +1,4 @@
-define(["class", "helpers", "db"], function(Class, Helpers, db) {
+define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) {
   var instance = Class.extend({
     _parent: null,
 
@@ -354,7 +354,8 @@ define(["class", "helpers", "db"], function(Class, Helpers, db) {
         })
         .execute()
         .done((function(results) {
-          // Delete settings from local storage
+
+          Event.trigger("fileAdded", results[0]);
           
         }).bind(this))
         .fail(function(e) {
