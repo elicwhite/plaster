@@ -56,6 +56,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "dataLayer
       this._actionsAdded = this._actionsAdded.bind(this);
       this._actionsRemoved = this._actionsRemoved.bind(this);
       this._resize = this._resize.bind(this);
+      this._fileRenamed = this._fileRenamed.bind(this);
 
       // Keep the trackpad from trigger chrome's back event
       this.element.addEventListener("touchmove", function(e) {
@@ -113,6 +114,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "dataLayer
       this._fileNameElement = document.getElementById("fileName");
       this._fileNameElement.addEventListener("keydown", this._fileNameKeyDown.bind(this));
       this._fileNameElement.addEventListener("blur", this._fileNameBlur.bind(this));
+
     },
 
     show: function(fileInfo) {
@@ -134,6 +136,8 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "dataLayer
         this._shouldRender = true;
 
         this._redraw();
+
+        Event.addListener("fileRenamed", this._fileRenamed);
       }).bind(this));
 
       // We don't need data to resize
@@ -150,6 +154,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "dataLayer
     hide: function() {
       this._shouldRender = false;
 
+      Event.removeListener("fileRenamed", this._fileRenamed);
       window.removeEventListener("resize", this._resize);
 
       this._file.stopListening();
@@ -591,6 +596,12 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "dataLayer
         this._saveSettingsTimeout = null;
       }).bind(this), 100);
 
+    },
+
+    _fileRenamed: function(file) {
+      if (this._file.fileInfo.id == file.id) {
+        this._fileNameElement.value = file.name;
+      }
     },
   });
 
