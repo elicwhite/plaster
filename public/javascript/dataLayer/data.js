@@ -235,7 +235,7 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
     _scheduleUpdate: function() {
       setTimeout((function() {
         this._checkForUpdates(true);
-      }).bind(this), 10 * 1000);
+      }).bind(this), 30 * 1000);
     }
   });
 
