@@ -23,7 +23,7 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
       this._backing.load(fileId, (function(localInfo) {
 
         this.fileInfo = localInfo;
-        
+
         driveBacking.load(fileId, (function() {
           this._backing.getActions((function(localActions) {
             driveBacking.getActions((function(remoteActions) {
@@ -285,7 +285,12 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
     },
 
     close: function() {
+      console.log("Closing file", this.fileInfo.id);
+      this._backing.close();
 
+      if (this._driveBacking) {
+        this._driveBacking.close();
+      }
     },
 
     _syncRemoteActionsFromDrive: function() {

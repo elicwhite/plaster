@@ -187,6 +187,11 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
       }).bind(this));
     },
 
+    close: function() {
+      // What happens if this is called before load callbacks happen
+      this._fileServer.close();
+    },
+
     _copyAllActions: function(oldActions, callback) {
       var copied = 0;
 

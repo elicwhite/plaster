@@ -74,9 +74,18 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
     },
 
     deleteFile: function(fileId, updateDrive) {
+      // If it is in the cached files, close the file and remove it
+      if (this._cachedFiles[fileId]) {
+        var file = this._cachedFiles[fileId];
+        file.afterLoad((function() {
+          file.close();
+          delete this._cachedFiles[fileId];
+        }).bind(this));
+      }
+
       this._backing.markFileAsDeleted(fileId);
 
-      if (typeof(updateDrive) == "undefined" || updateDrive) {
+      if (updateDrive !== false) { // could be true or undefined9
         if (this._driveBacking) {
           this._driveBacking.deleteFile(fileId, (function() {
             this._backing.deleteFile(fileId);

@@ -106,6 +106,10 @@ define(["class", "helpers"], function(Class, Helpers) {
       this._doc.getModel().redo();
     },
 
+    close: function() {
+      this._doc.close();
+    },
+
     _doAfterLoad: function(func, args) {
       this._loadCallbacks.push({
         func: func,
