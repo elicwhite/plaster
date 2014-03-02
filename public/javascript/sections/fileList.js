@@ -54,7 +54,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
 
       Event.addListener("fileAdded", this._fileAdded.bind(this));
       Event.addListener("fileRemoved", this._fileRemoved.bind(this));
-      Event.addListener("fileModified", this._fileModified.bind(this));
+      //Event.addListener("fileModified", this._fileModified.bind(this));
       Event.addListener("fileRenamed", this._fileRenamed.bind(this));
     },
 

@@ -140,36 +140,7 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
               var file = remoteFiles[i];
 
               if (!found) {
-                var deletedLocally = fileIdsDeletedLocally.indexOf(file.id) !== -1;
-
-                if (deletedLocally) {
-                  // we need to see if the file remote actions match to 
-                  // know whether we should actually delete it remotely.
-                  var tempFile = new File(new this._backing.instance(this._backing));
-                  tempFile.remoteActionsMatch(file.id, this._newDriveInstance(), (function(actionsMatch) {
-                    if (actionsMatch) {
-                      // delete it on the remote
-                      this.deleteFile(file.id);
-                    } else {
-                      // unmark as deleted and load it so it will sync
-                      this._backing.unmarkFileAsDeleted(file.id);
-
-                      this.loadFile(file.id, (function() {
-
-                      }).bind(this));
-                    }
-                  }).bind(this));
-                } else {
-                  // File wasn't found locally, make a file with the same
-                  // id and then it will sync
-                  var newFile = {
-                    id: file.id,
-                    name: file.title,
-                    modifiedTime: new Date(file.modifiedDate).getTime(),
-                  };
-
-                  this._createFile(newFile);
-                }
+                this._fileNotFoundOnDrive(fileIdsDeletedLocally, file);
               } else {
                 // we have this file on both local and server
 
@@ -177,9 +148,11 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
                   // File names don't match
                   if (file.title != localFiles[j].name) {
 
-                    this.loadFile(file.id, (function(fileObj) {
-                      fileObj.rename(file.title);
-                    }).bind(this));
+                    // Wrap this so we keep the context of file
+                    this.loadFile(file.id, (function(remoteFile, fileObj) {
+                      fileObj.rename(remoteFile.title);
+                    }).bind(this, file));
+
                   }
                   // We only want to update file name changes
                 } else {
@@ -233,6 +206,43 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
         }).bind(this));
       }).bind(this));
     },
+
+    _fileNotFoundOnDrive: function(fileIdsDeletedLocally, file) {
+      var deletedLocally = fileIdsDeletedLocally.indexOf(file.id) !== -1;
+
+      if (deletedLocally) {
+        console.log(file.id, "was deleted");
+        // we need to see if the file remote actions match to 
+        // know whether we should actually delete it remotely.
+        var tempFile = new File(new this._backing.instance(this._backing));
+        tempFile.remoteActionsMatch(file.id, this._newDriveInstance(), (function(actionsMatch) {
+          console.log("inside for", tempFile.fileInfo.id);
+          if (actionsMatch) {
+            // delete it on the remote
+            this.deleteFile(file.id);
+          } else {
+            // unmark as deleted and load it so it will sync
+            this._backing.unmarkFileAsDeleted(file.id);
+
+            this.loadFile(file.id, (function() {
+
+            }).bind(this));
+          }
+        }).bind(this));
+      } else {
+        // File wasn't found locally, make a file with the same
+        // id and then it will sync
+        var newFile = {
+          id: file.id,
+          name: file.title,
+          modifiedTime: new Date(file.modifiedDate).getTime(),
+        };
+
+        this._createFile(newFile);
+      }
+    },
+
+
 
     _checkForFileChanges: function() {
 

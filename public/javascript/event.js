@@ -37,6 +37,8 @@ define([], function() {
         return false;
       }
 
+      console.log("Triggering", event, data);
+
       function callListener(listener) {
         setTimeout(function() {
           listener(data);

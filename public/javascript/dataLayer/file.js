@@ -21,6 +21,9 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
 
     remoteActionsMatch: function(fileId, driveBacking, callback) {
       this._backing.load(fileId, (function(localInfo) {
+
+        this.fileInfo = localInfo;
+        
         driveBacking.load(fileId, (function() {
           this._backing.getActions((function(localActions) {
             driveBacking.getActions((function(remoteActions) {
