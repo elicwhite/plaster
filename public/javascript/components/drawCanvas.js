@@ -111,7 +111,7 @@ define(["class", "helpers"], function(Class, Helpers) {
       }
 
       ctx.lineWidth = lineWidth;
-      ctx.setStrokeColor(stroke.color);
+      ctx.strokeStyle = stroke.color;
 
       ctx.beginPath();
       ctx.moveTo(point.x, point.y);

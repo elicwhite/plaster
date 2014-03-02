@@ -1,4 +1,4 @@
-define(["section", "globals", "event", "helpers", "tapHandler", "db", "dataLayer/data", "components/manipulateCanvas"], function(Section, g, Event, Helpers, TapHandler, db, Data, ManipulateCanvas) {
+define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db", "dataLayer/data", "components/manipulateCanvas"], function(Section, g, Event, Helpers, TapHandler, Platform, db, Data, ManipulateCanvas) {
 
   var Draw = Section.extend({
     id: "draw",
@@ -108,7 +108,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "dataLayer
       this._overlay.addEventListener("mousedown", this._hideModal.bind(this));
       this._overlay.addEventListener("touchstart", this._hideModal.bind(this));
 
-      this.element.addEventListener("mousewheel", this._mouseWheel.bind(this));
+      this.element.addEventListener(Platform.mouseWheel, this._mouseWheel.bind(this));
       this.element.addEventListener("keydown", this._keyDown.bind(this));
 
       this._fileNameElement = document.getElementById("fileName");
@@ -127,6 +127,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "dataLayer
         this._fileNameElement.value = file.fileInfo.name;
         this._settings = file.localSettings();
 
+        this._settings = data.localFileSettings(file.id);
         this._manipulateCanvas = new ManipulateCanvas(this._canvas, this._settings);
         document.getElementById("chosenColorSwatch").style.backgroundColor = this._settings.color;
 
@@ -195,15 +196,16 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "dataLayer
     },
 
     _mouseWheel: function(e) {
+      //console.log(e);
       // deltaX is chrome, wheelDelta is safari
-      var dx = -e.deltaX || (e.wheelDeltaX / 5);
-      var dy = -e.deltaY || (e.wheelDeltaY / 5);
+      var dx = !isNaN(e.deltaX) ? -e.deltaX : (e.wheelDeltaX / 5);
+      var dy = !isNaN(e.deltaY) ? -e.deltaY : (e.wheelDeltaY / 5);
 
       if (this._settings.tools.scroll == "pan") {
         this._pan(dx, dy);
       } else if (this._settings.tools.scroll == "zoom") {
         if (dy != 0) {
-          this._zoom(e.offsetX, e.offsetY, dy / 100 * this._settings.scale);
+          this._zoom(e.clientX, e.clientY, dy / 100.0 * this._settings.scale);
         }
       }
     },
@@ -359,13 +361,13 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "dataLayer
     },
 
     _menuTapped: function(e) {
-      if (e.srcElement.tagName == "LI") {
-        var action = e.srcElement.dataset.action;
+      if (e.target.tagName == "LI") {
+        var action = e.target.dataset.action;
 
         if (action == "back") {
           this._filesPane.setPane("list", this._file.fileInfo);
         } else if (action == "rename") {
-          e.srcElement.focus();
+          e.target.focus();
         } else if (action == "export") {
           var dataURL = this._canvas.toDataURL();
           window.open(dataURL);
@@ -389,7 +391,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "dataLayer
     },
 
     _hideModal: function(e) {
-      if (e && e.srcElement != this._overlay) {
+      if (e && e.target != this._overlay) {
         // overlay was explicitly tapped
         return;
       }
@@ -409,7 +411,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "dataLayer
     },
 
     _colorPicked: function(e) {
-      parent = Helpers.parentEleWithClassname(e.srcElement, "swatch");
+      parent = Helpers.parentEleWithClassname(e.target, "swatch");
       if (parent) {
         var color = parent.style.backgroundColor;
         this._settings.color = color;
@@ -424,10 +426,10 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "dataLayer
 
     _toolStart: function(e) {
 
-      var tool = e.srcElement.dataset.tool;
-      var action = e.srcElement.dataset.action;
+      var tool = e.target.dataset.tool;
+      var action = e.target.dataset.action;
 
-      if (e.srcElement.tagName == "LI" && tool) {
+      if (e.target.tagName == "LI" && tool) {
         if (tool == "pan" || tool == "eraser" || tool == "pencil") {
           this._settings.tools.gesture = tool;
 
@@ -444,9 +446,9 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "dataLayer
 
     _toolEnd: function(e) {
       if (e) {
-        var tool = e.srcElement.dataset.tool;
+        var tool = e.target.dataset.tool;
 
-        if (e.srcElement.tagName == "LI" && tool) {
+        if (e.target.tagName == "LI" && tool) {
           if (tool == "pan" || tool == "eraser" || tool == "pencil") {
             this._settings.tools.gesture = null;
 
@@ -460,7 +462,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "dataLayer
     },
 
     _toolChanged: function(e) {
-      var parent = Helpers.parentEleWithClassname(e.srcElement, "toolitem");
+      var parent = Helpers.parentEleWithClassname(e.target, "toolitem");
 
       if (parent && parent.tagName == "LI") {
         var action = parent.dataset.action;
@@ -578,7 +580,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "db", "dataLayer
     },
 
     _fileNameBlur: function(e) {
-      var name = e.srcElement.value;
+      var name = e.target.value;
       this._file.rename(name);
     },
 

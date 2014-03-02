@@ -5,6 +5,10 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON('package.json'),
     sass: {
       dist: {
+        options: {
+          style: "compressed",
+
+        },
         files: [{
           /*expand: true,
           cwd: 'public/stylesheet',

@@ -15,8 +15,7 @@ define(["class", "helpers", "event", "dataBacking/indexedDBBacking", "dataBackin
     init: function() {
       this._loadCallbacks = [];
 
-
-      var indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.oIndexedDB || window.msIndexedDB;
+      var indexedDB = window.indexedDB;
 
       if (indexedDB) {
         console.log("Using IndexedDB as data store");

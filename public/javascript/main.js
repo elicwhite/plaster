@@ -1,17 +1,11 @@
-require(["event", "globals", "managers/login", "gauth"], function(Event, g, LoginManager, GAuth) {
+function init() {
+  window.log = console.log.bind(console);
 
-  function init() {
-    if (Date.now() - localStorage.lastActive < 10) {
-      console.error("You can't open multiple copies in the same browser");
-      return;
-    }
+  window.addEventListener("wheel", function(e) {
+    e.preventDefault();
+  });
 
-    window.log = console.log.bind(console);
-
-    window.addEventListener("mousewheel", function(e) {
-      e.preventDefault();
-    });
-
+  require(["event", "globals", "managers/login"], function(Event, g, LoginManager) {
     g.setHTMLDevices();
 
     var loginManager = new LoginManager();
@@ -42,11 +36,11 @@ require(["event", "globals", "managers/login", "gauth"], function(Event, g, Logi
 
     //var realtime = new RealtimeData();
     //realtime.startRealtime();
-  }
+  });
+}
 
-  if (document.readyState === "interactive" || document.readyState === "complete") {
-    init();
-  } else {
-    document.addEventListener("DOMContentLoaded", init, false);
-  }
-});
+if (document.readyState === "interactive" || document.readyState === "complete") {
+  init();
+} else {
+  document.addEventListener("DOMContentLoaded", init, false);
+}

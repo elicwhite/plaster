@@ -40,7 +40,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
         this._actuallyResizeAndRender();
       }).bind(this));
 
-      this.element.addEventListener("mousewheel", function(e) {
+      this.element.addEventListener("wheel", function(e) {
         e.stopPropagation();
       });
 
@@ -125,8 +125,8 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
     },
 
     _docSelected: function(e) {
-      var element = e.srcElement;
-      var parent = Helpers.parentEleWithClassname(e.srcElement, "file-info");
+      var element = e.target;
+      var parent = Helpers.parentEleWithClassname(element, "file-info");
 
       if (parent) {
         if (parent.classList.contains("create")) {
