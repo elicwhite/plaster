@@ -167,8 +167,7 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
                 } else {
 
                   // make sure we have all the remote actions
-                  this.loadFile(file.id, (function() {
-
+                  this.loadFile(file.id, (function(fileObj) {
                   }).bind(this));
                 }
               }

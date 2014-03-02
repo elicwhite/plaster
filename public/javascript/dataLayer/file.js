@@ -301,6 +301,8 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
             // if local is shorter, then something was added to remote
             // if remote is shorter, then something was removed from remote
 
+            this._cachedActions.remoteActions = remoteActions;
+
             var shorter = remoteActions.length < localActions.remote.length ? remoteActions : localActions.remote;
             var diverges = -1;
 
