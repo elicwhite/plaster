@@ -39,15 +39,9 @@ define([], function() {
 
       console.log("Triggering", event, data);
 
-      function callListener(listener) {
-        setTimeout(function() {
-          listener(data);
-        }, 0);
-      }
-
-      for(var i = 0; i < this.listeners[event].length; i++) {
-        callListener(this.listeners[event][i]);
-      }
+      this.listeners[event].forEach(function(listener) {
+        listener(data);
+      });
 
       return true;
     }

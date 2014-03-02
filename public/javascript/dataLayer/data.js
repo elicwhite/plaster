@@ -83,17 +83,17 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
         }).bind(this));
       }
 
+      Event.trigger("fileRemoved", fileId);
+
       this._backing.markFileAsDeleted(fileId);
 
-      if (updateDrive !== false) { // could be true or undefined9
+      if (updateDrive !== false) { // could be true or undefined
         if (this._driveBacking) {
           this._driveBacking.deleteFile(fileId, (function() {
             this._backing.deleteFile(fileId);
           }).bind(this));
         }
       }
-
-      Event.trigger("fileRemoved", fileId);
     },
 
     close: function(file) {
@@ -131,9 +131,24 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
       this._driveBacking.getFiles((function(remoteFiles) {
         this._backing.getFiles((function(localFiles) {
           this._backing.getDeletedFiles((function(filesDeletedLocally) {
-            var fileIdsDeletedLocally = filesDeletedLocally.map(function(item) {
-              return item.id
+
+            function getFileId(file) {
+              return file.id;
+            }
+
+            var localFileIds = localFiles.map(getFileId);
+            var remoteFileIds = remoteFiles.map(getFileId);
+
+            var fileIdsDeletedLocally = filesDeletedLocally.map(getFileId);
+            var fileIdsDeletedOnBoth = fileIdsDeletedLocally.filter(function(id) {
+              return remoteFileIds.indexOf(id) === -1;
             });
+
+            // Delete all the files that were deleted on both local and remote
+            fileIdsDeletedOnBoth.map((function(id) {
+              this._backing.deleteFile(id);
+            }).bind(this));
+
 
             // Check for files that are on drive and not saved locally
             for (var i = 0; i < remoteFiles.length; i++) {
@@ -149,7 +164,7 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
               var file = remoteFiles[i];
 
               if (!found) {
-                this._fileNotFoundOnDrive(fileIdsDeletedLocally, file);
+                this._fileNotFoundLocally(fileIdsDeletedLocally, file);
               } else {
                 // we have this file on both local and server
 
@@ -167,8 +182,7 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
                 } else {
 
                   // make sure we have all the remote actions
-                  this.loadFile(file.id, (function(fileObj) {
-                  }).bind(this));
+                  this.loadFile(file.id, (function(fileObj) {}).bind(this));
                 }
               }
             }
@@ -190,6 +204,7 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
                 // we don't have it on remote, and we also marked it as deleted locally
                 var deletedLocally = fileIdsDeletedLocally.indexOf(localFiles[i].id) !== -1;
                 if (deletedLocally) {
+                  debugger;
                   this.deleteFile(localFiles[i].id, false);
                   continue;
                 }
@@ -215,7 +230,7 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
       }).bind(this));
     },
 
-    _fileNotFoundOnDrive: function(fileIdsDeletedLocally, file) {
+    _fileNotFoundLocally: function(fileIdsDeletedLocally, file) {
       var deletedLocally = fileIdsDeletedLocally.indexOf(file.id) !== -1;
 
       if (deletedLocally) {
@@ -259,7 +274,7 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
     _scheduleUpdate: function() {
       setTimeout((function() {
         this._checkForUpdates(true);
-      }).bind(this), 30 * 1000);
+      }).bind(this), 5 * 1000);
     }
   });
 
