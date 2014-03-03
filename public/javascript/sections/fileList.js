@@ -30,15 +30,16 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
         this._fileListElement.innerHTML = "";
       }
 
-      Data.getFiles((function(files) {
-        for (var i = 0; i < files.length; i++) {
-          var fileInfo = files[i];
-          var fileTemplate = this._newFileWrapper(fileInfo);
-          this._fileListElement.appendChild(fileTemplate);
-        }
+      Data.getFiles()
+        .then((function(files) {
+          for (var i = 0; i < files.length; i++) {
+            var fileInfo = files[i];
+            var fileTemplate = this._newFileWrapper(fileInfo);
+            this._fileListElement.appendChild(fileTemplate);
+          }
 
-        this._actuallyResizeAndRender();
-      }).bind(this));
+          this._actuallyResizeAndRender();
+        }).bind(this));
 
       this.element.addEventListener("wheel", function(e) {
         e.stopPropagation();

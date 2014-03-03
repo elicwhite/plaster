@@ -2,243 +2,239 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
   var instance = Class.extend({
     _parent: null,
 
-    _fileInfo: null,
-
-    _fileServer: null,
+    _fileInfoPromise: null,
+    _fileServerPromise: null,
 
     init: function(parent) {
       this._parent = parent;
     },
 
-    load: function(fileId, callback) {
-      if (!fileId) {
-        debugger;
-      }
-
-      db.open({
-        server: fileId,
-        version: 1,
-        schema: {
-          localActions: {
-            key: {
-              keyPath: 'id'
-            }
-          },
-          remoteActions: {
-            key: {
-              keyPath: 'id'
+    load: function(fileId) {
+      this._fileServerPromise = Promise.cast(
+        db.open({
+          server: fileId,
+          version: 1,
+          schema: {
+            localActions: {
+              key: {
+                keyPath: 'id'
+              }
             },
-            indexes: {
-              id: {
-                unique: true
+            remoteActions: {
+              key: {
+                keyPath: 'id'
               },
-              index: {
-                unique: true
+              indexes: {
+                id: {
+                  unique: true
+                },
+                index: {
+                  unique: true
+                }
               }
             }
           }
-        }
-      }).done((function(s) {
+        }));
 
-        this._fileServer = s;
+      return this._fileServerPromise
+        .then((function(server) {
+          this._fileInfoPromise = this._parent._getFileInfo(fileId);
 
-        this._parent._getFileInfo(fileId, (function(fileInfo) {
-          if (typeof(fileInfo) == "undefined") {
-            debugger;
-          }
-          
-          this._fileInfo = fileInfo;
-          callback(fileInfo);
+          return this._fileInfoPromise;
         }).bind(this));
-      }).bind(this))
-        .fail(function(e) {
-          console.error("Failed to create file database", e);
-        });
     },
 
-    create: function(file, callback) {
-      this._parent._addFile(file, (function() {
-        this.load(file.id, function(fileInfo) {
-          callback(fileInfo);
-        });
+    create: function(file) {
+      return this._parent._addFile(file)
+        .then((function() {
+          return this.load(file.id);
+        }).bind(this));
+    },
+
+    getActions: function() {
+      return this._fileServerPromise.then((function(server) {
+
+        var localPromise = Promise.cast(
+          server.localActions.query()
+          .all()
+          .execute()
+        );
+
+        var remotePromise = Promise.cast(
+          server.remoteActions.query('index')
+          .all()
+          .execute()
+        );
+
+        return Promise.all([localPromise, remotePromise])
+          .then(function(results) {
+            return {
+              local: results[0],
+              remote: results[1],
+            };
+          });
       }).bind(this));
     },
 
-    getActions: function(callback) {
-      var actionsObj = {
-        local: null,
-        remote: null,
-      };
-
-      this._fileServer.localActions.query()
-        .all()
-        .execute()
-        .done((function(actions) {
-          actionsObj.local = actions;
-          if (actionsObj.local && actionsObj.remote) {
-            callback(actionsObj);
-          }
-        }).bind(this));
-
-      this._fileServer.remoteActions.query('index')
-        .all()
-        .execute()
-        .done((function(actions) {
-          actionsObj.remote = actions;
-          if (actionsObj.local && actionsObj.remote) {
-            callback(actionsObj);
-          }
-        }).bind(this));
-    },
-
     rename: function(newName) {
-      this._parent._renameFile(this._fileInfo.id, newName);
+      return this._fileInfoPromise.then((function(fileInfo) {
+        return this._parent._renameFile(fileInfo.id, newName)
+          .then(function(newFile) {
+            this._fileInfoPromise = Promise.cast(newFile);
+          });
+      }).bind(this));
+
     },
 
     addLocalAction: function(action) {
-      this._fileServer.localActions
-        .add(action)
-        .done((function(item) {
-          // item stored
-          this._parent._updateFileModified(this._fileInfo.id);
-        }).bind(this))
-        .done(function(item) {
-        });
+      return this._fileServerPromise.then(function(server) {
+        var addPromise = Promise.cast(server.localActions.add(action));
+        var updatePromise = this._fileInfoPromise
+          .then((function(fileInfo) {
+            return this._parent._updateFileModified(fileInfo.id);
+          }).bind(this));
+
+        return Promise.all([addPromise, updatePromise])
+          .then(function(results) {
+            return results[0];
+          });
+      });
     },
 
     removeLocalAction: function(actionId) {
-      this._fileServer.localActions
-        .remove(actionId)
-        .done((function(key) {
-          // item removed
-          this._parent._updateFileModified(this._fileInfo.id);
-        }).bind(this));
+      return this._fileServerPromise.then(function(server) {
+        var addPromise = Promise.cast(server.localActions.remove(actionId));
+        var updatePromise = this._fileInfoPromise
+          .then((function(fileInfo) {
+            return this._parent._updateFileModified(fileInfo.id);
+          }).bind(this));
+
+        return Promise.all([addPromise, updatePromise])
+          .then(function(results) {
+            return results[0];
+          });
+      });
     },
 
     addRemoteActions: function(index, actions) {
-      // Shift all the actions up
-      this._fileServer.remoteActions
-        .query('index')
-        .lowerBound(index)
-        .modify({
-          index: function(action) {
-            return action.index + actions.length;
-          }
-        })
-        .execute()
-        .done((function(item) {
-          // item stored
-          this._fileServer.remoteActions
-            .add.apply(this._fileServer, actions)
-            .done(
-              (function(items) {
-                this._parent._updateFileModified(this._fileInfo.id);
-              }).bind(this))
-            .fail((function(e) {
-              console.error("Failed to add remote actions", this._fileInfo.id, e);
-            }).bind(this));
-        }).bind(this))
-        .fail(function(e) {
-          console.error("fail to write", e);
-        });
+      return this._fileServerPromise.then(function(server) {
+        var addPromise = Promise.cast(server.remoteActions
+          .query('index')
+          .lowerBound(index)
+          .modify({
+            index: function(action) {
+              return action.index + actions.length;
+            }
+          })
+          .execute()
+        )
+          .then(function() {
+            return Promise.cast(server.remoteActions.add.apply(server, actions))
+          });
+
+        var updatePromise = this._fileInfoPromise
+          .then((function(fileInfo) {
+            return this._parent._updateFileModified(fileInfo.id);
+          }).bind(this));
+
+        return Promise.all([addPromise, updatePromise])
+          .then(function(results) {
+            return results[0];
+          });
+      });
     },
 
     removeRemoteActions: function(index, length) {
-      this._fileServer.remoteActions.query('index')
-        .lowerBound(index)
-        .limit(length)
-        .remove()
-        .execute()
-        .done((function(key) {
-          // item removed
 
-          this._fileServer.remoteActions
-            .query('index')
-            .lowerBound(index)
-            .modify({
-              index: function(action) {
-                return action.index - length;
-              }
-            })
-            .execute()
-            .done((function(item) {
-              this._parent._updateFileModified(this._fileInfo.id);
-            }).bind(this));
-        }).bind(this));
+      return this._fileServerPromise.then(function(server) {
+        var removePromise = Promise.cast(server.remoteActions
+          .query('index')
+          .lowerBound(index)
+          .limit(length)
+          .remove()
+          .execute()
+        )
+          .then(function() {
+            return Promise.cast(server
+              .remoteActions
+              .query('index')
+              .lowerBound(index)
+              .modify({
+                index: function(action) {
+                  return action.index - length;
+                }
+              })
+              .execute())
+          });
+
+        var updatePromise = this._fileInfoPromise
+          .then((function(fileInfo) {
+            return this._parent._updateFileModified(fileInfo.id);
+          }).bind(this));
+
+        return Promise.all([removePromise, updatePromise])
+          .then(function(results) {
+            return results[0];
+          });
+      });
     },
 
-    replaceFileId: function(newId, callback) {
-      this.getActions((function(oldActions) {
+    replaceFileId: function(newId) {
+      return this._fileInfoPromise.then((function(fileInfo) {
 
-        var oldId = this._fileInfo.id;
-        this._fileInfo.id = newId;
-        var newFile = this._fileInfo;
+        var oldActionsPromise = this.getActions();
 
-        this._parent._addFile(newFile, (function() {
-          this.load(newId, (function() {
-            this._copyAllActions(oldActions, (function() {
-              // Done copying
-              console.log("ID Changed");
-              this._parent.deleteFile(oldId);
-              callback();
-            }).bind(this));
+        var oldId = fileInfo.id;
+        fileInfo.id = newId;
+        var newFile = fileInfo;
+
+        this._fileInfoPromise = Promise.cast(fileInfo);
+
+        return Promise.all([oldActionsPromise, this._fileInfoPromise])
+          .then((function(results) {
+            var oldActions = results[0];
+            var newInfo = results[1];
+
+            var createFilePromise = this._parent._addFile(newInfo)
+              .then(function(newFile) {
+                debugger; // do we get an array, or just one item?
+                return this.load(newFile.id);
+              })
+              .then((function() {
+                return this._copyAllActions(oldActions);
+              }).bind(this));
+
+            var deleteOldFilePromise = this._parent.deleteFile(oldId);
+
+            return Promise.all([createFilePromise, deleteOldFilePromise])
+              .then(function() {
+                return newInfo;
+              });
           }).bind(this));
-        }).bind(this));
       }).bind(this));
     },
 
     close: function() {
       // What happens if this is called before load callbacks happen
-      this._fileServer.close();
+      return this._fileServer.close();
     },
 
-    _copyAllActions: function(oldActions, callback) {
-      var copied = 0;
-
-      this._copyActions(oldActions.local, this._fileServer.localActions, copyDone);
-      this._copyActions(oldActions.remote, this._fileServer.remoteActions, copyDone);
-
-      function copyDone() {
-        copied++;
-
-        // If we have copied everything
-        if (copied == 2) {
-          callback();
-          return;
-        }
-      }
-    },
-
-    _copyActions: function(actions, toServer, callback) {
-      var actionsCopied = 0;
-
-      if (actions.length == 0) {
-        callback();
-      } else {
-        for (var i = 0; i < actions.length; i++) {
-          toServer
-            .add(actions[i])
-            .done(function(newItem) {
-              if (actionsCopied == actions.length - 1) {
-                callback();
-                return;
-              }
-
-              actionsCopied++;
-            });
-        }
-      }
+    _copyAllActions: function(oldActions) {
+      return this._fileServerPromise.then(function(server) {
+        return Promise.all(
+          [
+            Promise.all(oldActions.local.map(server.localActions.add)),
+            Promise.all(oldActions.remote.map(server.remoteActions.add)),
+          ]);
+      });
     },
   });
 
   var IndexedDBBacking = Class.extend({
-    _server: null,
-    _initCallbacks: null,
+    _serverPromise: null,
 
     init: function() {
-      this._initCallbacks = [];
-
-      db.open({
+      this._serverPromise = Promise.cast(db.open({
         server: 'draw',
         version: 1,
         schema: {
@@ -256,160 +252,129 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
             }
           }
         }
-      })
-        .done((function(server) {
-          this._server = server;
-
-          // Go through all our delayed callbacks
-          for (var i = 0; i < this._initCallbacks.length; i++) {
-            var callback = this._initCallbacks[i];
-            callback.func.apply(this, callback.args);
-          }
-
-        }).bind(this))
-        .fail(function(e) {
-          console.error("Failed setting up database", e);
-        });
+      }));
     },
 
-    getFiles: function(callback) {
-      if (!this._server) {
-        this._doLater(this.getFiles, [callback]);
-        return;
-      }
 
-      this._server.files.query('modifiedTime')
-        .all()
-        .filter(function(file) {
-          return !file.deleted;
-        })
-        .desc()
-        .execute()
-        .done((function(results) {
-          callback(results);
-        }).bind(this));
+    getFiles: function() {
+      return this._serverPromise.then(function(server) {
+        return Promise.cast(server.files.query('modifiedTime')
+          .all()
+          .filter(function(file) {
+            return !file.deleted;
+          })
+          .desc()
+          .execute()
+        )
+      });
     },
 
-    _addFile: function(file, callback) {
-      if (!this._server) {
-        this._doLater(this._addFile, [file, callback]);
-        return;
-      }
-
-      this._server.files.add(file)
-        .done((function(items) {
-
-          callback();
-
-        }).bind(this))
-        .fail(function(e) {
-          console.error("fail to add file to file list", e);
-        });
+    _addFile: function(file) {
+      return this._serverPromise.then(function(server) {
+        return Promise.cast(
+          server.files.add(file)
+        );
+      });
     },
 
     _renameFile: function(fileId, newName) {
-      this._server.files.query('id')
-        .only(fileId)
-        .modify({
-          name: newName
-        })
-        .execute()
-        .done((function(results) {
-          this._updateFileModified(fileId);
-        }).bind(this))
-        .fail(function(e) {
-          console.error("Couldn't find file", e);
-        });
+      return this._serverPromise.then(function(server) {
+
+        return Promise.cast(server.files.query('id')
+          .only(fileId)
+          .modify({
+            name: newName
+          })
+          .execute()
+        )
+          .then((function(results) {
+            this._updateFileModified(fileId);
+
+            return results;
+          }).bind(this));
+      });
     },
 
     getDeletedFiles: function(callback) {
-      this._server.files.query()
-        .filter(function(file) {
-          return file.deleted;
-        })
-        .execute()
-        .done(function(results) {
-          callback(results);
-        })
-        .fail(function(e) {
-        });
+      return this._serverPromise.then(function(server) {
+        return Promise.cast(server.files.query()
+          .filter(function(file) {
+            return file.deleted;
+          })
+          .execute()
+        );
+      });
     },
 
     markFileAsDeleted: function(fileId) {
-      this._server.files.query('id')
-        .only(fileId)
-        .modify({
-          deleted: true
-        })
-        .execute()
-        .done((function(results) {
-          // Delete settings from local storage
-          
-        }).bind(this))
-        .fail(function(e) {
-          console.error("Couldn't find file", e);
-        })
+      return this._serverPromise.then(function(server) {
+
+        return Promise.cast(server.files.query('id')
+          .only(fileId)
+          .modify({
+            deleted: true
+          })
+          .execute()
+        )
+      });
     },
 
     unmarkFileAsDeleted: function(fileId) {
-      this._server.files.query('id')
-        .only(fileId)
-        .modify({
-          deleted: false
-        })
-        .execute()
-        .done((function(results) {
+      return this._serverPromise.then(function(server) {
+        return Promise.cast(server.files.query('id')
+          .only(fileId)
+          .modify({
+            deleted: false
+          })
+          .execute()
+        )
+          .then(function(results) {
 
-          Event.trigger("fileAdded", results[0]);
-          
-        }).bind(this))
-        .fail(function(e) {
-          console.error("Couldn't find file", e);
-        })
+            Event.trigger("fileAdded", results[0]);
+            return results;
+          });
+      });
     },
 
     deleteFile: function(fileId) {
-      this._server.files.query('id')
-        .only(fileId)
-        .remove()
-        .execute()
-        .done(function(key) {
-          console.log("Deleted marked file");
-          var f = indexedDB.deleteDatabase(fileId);
-          delete localStorage[fileId];
-        })
-        .fail(function(e) {
-          console.error("Failed to delete file from file table", fileId);
-        });
+      return this._serverPromise.then(function(server) {
+
+        return Promise.cast(server.files.query('id')
+          .only(fileId)
+          .remove()
+          .execute()
+        )
+          .then(function(results) {
+            console.log("Deleted marked file");
+            var f = indexedDB.deleteDatabase(fileId);
+            delete localStorage[fileId];
+
+            return results;
+          });
+      });
     },
 
     _getFileInfo: function(fileId, callback) {
-      this._server.files.query('id')
-        .only(fileId)
-        .execute()
-        .done(function(results) {
-          callback(results[0]);
+      return this._serverPromise.then(function(server) {
+        return Promise.cast(server.files.query('id')
+          .only(fileId)
+          .execute()
+        ).then(function(results) {
+          return results[0];
         });
+      });
     },
 
     _updateFileModified: function(fileId) {
-      this._server.files.query('id')
-        .only(fileId)
-        .modify({
-          modifiedTime: Date.now()
-        })
-        .execute()
-        .done(function(results) {})
-        .fail(function(e) {
-          console.error("Couldn't find file", e);
-        });
-    },
-
-    _doLater: function(func, args) {
-      this._initCallbacks.push({
-        func: func,
-        args: args
-      })
+      return this._serverPromise.then(function(server) {
+        return Promise.cast(server.files.query('id')
+          .only(fileId)
+          .modify({
+            modifiedTime: Date.now()
+          })
+          .execute()
+        );
+      });
     },
 
     instance: instance,
