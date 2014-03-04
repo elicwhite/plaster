@@ -41,7 +41,10 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
           if (this._driveBacking) {
             return file.startDrive(this._newDriveInstance());
           }
-        }).bind(this, fileInfo));
+        }).bind(this, fileInfo))
+        .catch(function(error) {
+          console.error(error, error.stack, error.message);
+        });
 
     },
 
@@ -245,7 +248,13 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
               this._scheduleUpdate();
             }).bind(this));
 
-        }).bind(this));
+        }).bind(this))
+        .catch (function(error) {
+          console.error(error.stack, error.message);
+        })
+        .then(function() {
+          console.log("Completed checking for Drive updates");
+        });
     },
 
     _fileNotFoundLocally: function(fileIdsDeletedLocally, file) {

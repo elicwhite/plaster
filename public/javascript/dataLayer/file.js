@@ -146,14 +146,14 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
 
             promises.push(this._syncRemoteActionsFromDrive());
           } else {
-            console.log("File not found on drive", this.fileInfo.id);
+            console.log("File not found on drive", fileInfo.id);
             // this file was not found
             // so we will create a new file on drive, 
             // and then copy everything over to it
 
-            var oldId = this.fileInfo.id;
+            var oldId = fileInfo.id;
 
-            promises.push(driveBacking.create(this.fileInfo)
+            promises.push(driveBacking.create(fileInfo)
               .then((function(newFile) {
                 this._driveBacking = driveBacking;
 
@@ -168,16 +168,23 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
                     // TODO: I might be able to move this higher
                     Event.trigger("fileIdChanged", {
                       oldId: oldId,
-                      newId: this.fileInfo.id
+                      newId: newFile.id
                     });
                   }).bind(this));
               }).bind(this)));
           }
 
           return Promise.all(promises);
-        }).bind(this));
-
-
+        }).bind(this))
+        .catch (function(error) {
+          console.error(error.stack, error.message);
+        })
+        .then((function() {
+          return this.fileInfoPromise;  
+        }).bind(this))
+        .then(function(fileInfo) {
+          console.log("Completed file sync", fileInfo.id);
+        });
     },
 
     listen: function(addedCallback, removedCallback) {

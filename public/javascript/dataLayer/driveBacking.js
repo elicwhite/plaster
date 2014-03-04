@@ -30,6 +30,9 @@ define(["class", "helpers"], function(Class, Helpers) {
       return this._parent._add(file)
         .then((function(fileInfo) {
           return this._openForRealtime(fileInfo.id)
+            .then(function() {
+              return fileInfo;
+            })
         }).bind(this));
     },
 
@@ -127,7 +130,7 @@ define(["class", "helpers"], function(Class, Helpers) {
     },
 
     getFiles: function() {
-      return new Promise(function(resolve, reject) {
+      return new Promise((function(resolve, reject) {
         gapi.client.load('drive', 'v2', (function() {
           gapi.client.drive.files.list({
             'q': "trashed=false and mimeType='" + this.REALTIME_MIMETYPE + '.' + this._appId + "'"
@@ -146,12 +149,12 @@ define(["class", "helpers"], function(Class, Helpers) {
             }
           });
         }).bind(this));
-      });
+      }).bind(this));
     },
 
     _open: function(fileId) {
       return new Promise(function(resolve, reject) {
-        gapi.client.load('drive', 'v2', (function() {
+        gapi.client.load('drive', 'v2', function() {
           var request = gapi.client.drive.files.get({
             'fileId': fileId
           }).execute(function(resp) {
@@ -162,23 +165,23 @@ define(["class", "helpers"], function(Class, Helpers) {
               resolve({
                 id: resp.id,
                 name: resp.title,
-                modifiedTime: new Date(resrespult.modifiedDate).getTime(),
+                modifiedTime: new Date(resp.modifiedDate).getTime(),
               });
             }
           });
-        }).bind(this));
+        });
       });
     },
 
     _add: function(file) {
-      return new Promise(function(resolve, reject) {
+      return new Promise((function(resolve, reject) {
         gapi.client.load('drive', 'v2', (function() {
           gapi.client.drive.files.insert({
             'resource': {
               mimeType: this.REALTIME_MIMETYPE,
               title: file.name
             }
-          }).execute((function(result) {
+          }).execute(function(resp) {
             if (resp.error) {
               reject(resp);
             } else {
@@ -188,9 +191,9 @@ define(["class", "helpers"], function(Class, Helpers) {
                 modifiedTime: new Date(resp.modifiedDate).getTime(),
               });
             }
-          }).bind(this));
+          });
         }).bind(this));
-      });
+      }).bind(this));
     },
 
     _renameFile: function(fileId, newName) {
@@ -200,7 +203,7 @@ define(["class", "helpers"], function(Class, Helpers) {
           'title': newName
         };
 
-        gapi.client.load('drive', 'v2', (function() {
+        gapi.client.load('drive', 'v2', function() {
           var request = gapi.client.drive.files.patch({
             'fileId': fileId,
             'resource': body
@@ -212,7 +215,7 @@ define(["class", "helpers"], function(Class, Helpers) {
               resolve(resp);
             }
           });
-        }).bind(this));
+        });
 
       });
     },
@@ -220,7 +223,7 @@ define(["class", "helpers"], function(Class, Helpers) {
     deleteFile: function(fileId) {
       return new Promise(function(resolve, reject) {
 
-        gapi.client.load('drive', 'v2', (function() {
+        gapi.client.load('drive', 'v2', function() {
           var request = gapi.client.drive.files.delete({
             'fileId': fileId
           }).execute(function(resp) {
@@ -230,8 +233,7 @@ define(["class", "helpers"], function(Class, Helpers) {
               resolve(resp);
             }
           });
-
-        }).bind(this));
+        });
       });
     },
 

@@ -196,10 +196,9 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
             var newInfo = results[1];
 
             var createFilePromise = this._parent._addFile(newInfo)
-              .then(function(newFile) {
-                debugger; // do we get an array, or just one item?
-                return this.load(newFile.id);
-              })
+              .then((function(newFile) {
+                return this.load(newFile[0].id);
+              }).bind(this))
               .then((function() {
                 return this._copyAllActions(oldActions);
               }).bind(this));
