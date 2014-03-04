@@ -8,42 +8,45 @@ define(["class", "helpers", "dataLayer/data", "components/manipulateCanvas"], fu
     },
 
     render: function(fileInfo) {
-      Data.loadFile(fileInfo.id, (function(file) {
-        var actions = file.getActions();
-        var settings = file.localSettings();
+      return Data.loadFile(fileInfo.id)
+        .then((function(file) {
+          return file.localSettings().then((function(file, settings) {
+            var actions = file.getActions();
+            var manipulateCanvas = new ManipulateCanvas(this._canvas, settings);
 
-        var manipulateCanvas = new ManipulateCanvas(this._canvas, settings);
+            // Find out what world point is in the middle
+            var centerScreen = {
+              x: window.innerWidth / 2,
+              y: window.innerHeight / 2
+            };
+            var centerWorld = Helpers.screenToWorld(settings, centerScreen.x, centerScreen.y);
 
-        // Find out what world point is in the middle
-        var centerScreen = {
-          x: window.innerWidth / 2,
-          y: window.innerHeight / 2
-        };
-        var centerWorld = Helpers.screenToWorld(settings, centerScreen.x, centerScreen.y);
+            var scale = Math.min(this._canvas.width / window.innerWidth, this._canvas.height / window.innerHeight);
+            var zoomDiff = (settings.scale * scale) - settings.scale;
+            manipulateCanvas.zoom(0, 0, zoomDiff);
 
-        var scale = Math.min(this._canvas.width / window.innerWidth, this._canvas.height / window.innerHeight);
-        var zoomDiff = (settings.scale * scale) - settings.scale;
-        manipulateCanvas.zoom(0, 0, zoomDiff);
+            // Now that we have zoomed, find the middle of the canvas
+            var centerScreenAfter = {
+              x: this._canvas.width / 2,
+              y: this._canvas.height / 2
+            };
 
-        // Now that we have zoomed, find the middle of the canvas
-        var centerScreenAfter = {
-          x: this._canvas.width / 2,
-          y: this._canvas.height / 2
-        };
+            // And where the middle point was from before
+            var centerScreenPointAfter = Helpers.worldToScreen(settings, centerWorld.x, centerWorld.y);
 
-        // And where the middle point was from before
-        var centerScreenPointAfter = Helpers.worldToScreen(settings, centerWorld.x, centerWorld.y);
+            // pan the difference
+            var diffScreen = {
+              x: centerScreenAfter.x - centerScreenPointAfter.x,
+              y: centerScreenAfter.y - centerScreenPointAfter.y
+            };
+            manipulateCanvas.pan(diffScreen.x, diffScreen.y);
 
-        // pan the difference
-        var diffScreen = {
-          x: centerScreenAfter.x - centerScreenPointAfter.x,
-          y: centerScreenAfter.y - centerScreenPointAfter.y
-        };
-        manipulateCanvas.pan(diffScreen.x, diffScreen.y);
+            manipulateCanvas.doAll(actions);
+            manipulateCanvas.render();
 
-        manipulateCanvas.doAll(actions);
-        manipulateCanvas.render();
-      }).bind(this));
+          }).bind(this, file));
+
+        }).bind(this));
     }
   });
 

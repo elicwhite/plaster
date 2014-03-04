@@ -42,9 +42,10 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
             return file.startDrive(this._newDriveInstance());
           }
         }).bind(this, fileInfo))
-        .catch(function(error) {
-          console.error(error, error.stack, error.message);
-        });
+        .
+      catch (function(error) {
+        console.error(error, error.stack, error.message);
+      });
 
     },
 
@@ -112,21 +113,29 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
 
     startDrive: function() {
       console.log("Drive connected");
-      this._driveBacking = new DriveBacking();
+
+      var driveBacking = new DriveBacking();
 
       var promises = [];
 
       // add drive to our open files
       for (var i in this._cachedFiles) {
-        promises.push(this._cachedFiles[i].startDrive(this._newDriveInstance()));
+        var driveInstance = new driveBacking.instance(driveBacking);
+        promises.push(this._cachedFiles[i].startDrive(driveInstance));
       }
 
       return Promise.all(promises)
         .then((function() {
+          this._driveBacking = driveBacking;
+        }).bind(this))
+        .then((function() {
           // Check for updates from drive every 30 seconds
           // after the open files are synced
           this._checkForUpdates(false);
-        }).bind(this));
+        }).bind(this))
+        .catch (function(e) {
+          console.error(e, e.stack, e.message);
+        });
     },
 
     _fileIdChanged: function(e) {
@@ -136,7 +145,7 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
       }
     },
 
-    _newDriveInstance: function() {
+    _newDriveInstance: function(driveBacking) {
       return new this._driveBacking.instance(this._driveBacking);
     },
 
@@ -243,15 +252,16 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
             }
           }
 
-          Promise.all(promises)
+          return Promise.all(promises)
             .then((function() {
               this._scheduleUpdate();
             }).bind(this));
 
         }).bind(this))
-        .catch (function(error) {
-          console.error(error.stack, error.message);
-        })
+        .
+      catch (function(error) {
+        console.error(error.stack, error.message);
+      })
         .then(function() {
           console.log("Completed checking for Drive updates");
         });

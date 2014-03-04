@@ -37,7 +37,7 @@ define(["class", "helpers"], function(Class, Helpers) {
     },
 
     _openForRealtime: function(fileId) {
-      return new Promise(function(resolve, reject) {
+      return new Promise((function(resolve, reject) {
 
         gapi.drive.realtime.load(fileId, (function(doc) {
             // file was loaded
@@ -63,7 +63,7 @@ define(["class", "helpers"], function(Class, Helpers) {
             reject(error);
           }
         );
-      });
+      }).bind(this));
     },
 
     _actionsAdded: function(e) {

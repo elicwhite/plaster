@@ -22,7 +22,7 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
     remoteActionsMatch: function(fileId, driveBacking) {
       return Promise.all([this._backing.load(fileId), driveBacking.load(fileId)])
         .then((function() {
-
+          debugger;
           var localActionsPromise = this._backing.getActions();
           var remoteActionsPromise = driveBacking.getActions();
 
@@ -137,14 +137,12 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
             // load it and sync actions
             // sync actions
 
-            this._driveBacking = driveBacking;
-
             if (driveFiles[i].title != fileInfo.name) {
               // File names don't match, remote wins
               promises.push(this.rename(driveFiles[i].title));
             }
 
-            promises.push(this._syncRemoteActionsFromDrive());
+            promises.push(this._syncRemoteActionsFromDrive(driveBacking));
           } else {
             console.log("File not found on drive", fileInfo.id);
             // this file was not found
@@ -155,7 +153,6 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
 
             promises.push(driveBacking.create(fileInfo)
               .then((function(newFile) {
-                this._driveBacking = driveBacking;
 
                 // Google saved a file, redo the id of the file locally to match drive
                 this._backing.replaceFileId(newFile.id)
@@ -163,7 +160,7 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
                     return this.load(newFile.id);
                   }).bind(this))
                   .then((function() {
-                    this._moveSettings(oldId);
+                    return this._moveSettings(oldId);
 
                     // TODO: I might be able to move this higher
                     Event.trigger("fileIdChanged", {
@@ -174,13 +171,21 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
               }).bind(this)));
           }
 
-          return Promise.all(promises);
+          return Promise.all(promises)
+            .
+          catch (function(error) {
+            console.error(error, error.stack, error.message);
+          })
+            .then((function() {
+              this._driveBacking = driveBacking;
+            }).bind(this));
         }).bind(this))
-        .catch (function(error) {
-          console.error(error.stack, error.message);
-        })
+        .
+      catch (function(error) {
+        console.error(error.stack, error.message);
+      })
         .then((function() {
-          return this.fileInfoPromise;  
+          return this.fileInfoPromise;
         }).bind(this))
         .then(function(fileInfo) {
           console.log("Completed file sync", fileInfo.id);
@@ -202,32 +207,41 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
     },
 
     localSettings: function(settings) {
-      if (settings) {
-        localStorage[this.fileInfo.id] = JSON.stringify(settings);
-      }
+      return this.fileInfoPromise
+        .then((function(fileInfo) {
 
-      if (!localStorage[this.fileInfo.id]) {
-        localStorage[this.fileInfo.id] = JSON.stringify({
-          offsetX: 0,
-          offsetY: 0,
-          scale: 1,
-          color: "#000",
-          tools: {
-            point: "pencil",
-            gesture: null,
-            scroll: "pan"
+          if (settings) {
+            localStorage[fileInfo.id] = JSON.stringify(settings);
           }
-        });
-      }
 
-      return JSON.parse(localStorage[this.fileInfo.id]);
+          if (!localStorage[fileInfo.id]) {
+            localStorage[fileInfo.id] = JSON.stringify({
+              offsetX: 0,
+              offsetY: 0,
+              scale: 1,
+              color: "#000",
+              tools: {
+                point: "pencil",
+                gesture: null,
+                scroll: "pan"
+              }
+            });
+          }
+
+          return JSON.parse(localStorage[fileInfo.id]);
+        }).bind(this));
     },
 
     _moveSettings: function(oldId) {
       if (localStorage[oldId]) {
-        localStorage[this.fileInfo.id] = localStorage[oldId];
-        delete localStorage[oldId];
+        return this.fileInfoPromise
+          .then(function(fileInfo) {
+            localStorage[fileInfo.id] = localStorage[oldId];
+            delete localStorage[oldId];
+          });
       }
+
+      return Promise.resolve();
     },
 
     undo: function() {
@@ -242,7 +256,10 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
         this._cachedActions.redoStack.push(lastAction);
 
         Event.trigger("actionRemoved");
-        Event.trigger("fileModified", this.fileInfo);
+
+        this.fileInfoPromise.then(function(fileInfo) {
+          Event.trigger("fileModified", fileInfo);
+        });
 
         return this._backing.removeLocalAction(lastAction.id);
       }
@@ -269,7 +286,10 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
         items: [action]
       });
 
-      Event.trigger("fileModified", this.fileInfo);
+
+      this.fileInfoPromise.then(function(fileInfo) {
+        Event.trigger("fileModified", fileInfo);
+      });
 
       var promises = [];
 
@@ -279,7 +299,11 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
         promises.push(this._driveBacking.addAction(action));
       }
 
-      return Promise.all(promises);
+      return Promise.all(promises)
+        .
+      catch (function(error) {
+        console.error(error.stack, error.message);
+      });
     },
 
     delete: function() {
@@ -288,7 +312,9 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
     },
 
     close: function() {
-      console.log("Closing file", this.fileInfo.id);
+      this.fileInfoPromise.then(function(fileInfo) {
+        console.log("Closing file", fileInfo.id);
+      });
 
       var promises = [];
 
@@ -301,20 +327,24 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
       return Promise.all(promises);
     },
 
-    _syncRemoteActionsFromDrive: function() {
+    _syncRemoteActionsFromDrive: function(driveBacking) {
 
       return this.fileInfoPromise.then((function(fileInfo) {
 
-        var driveActionsPromise = this._driveBacking.load(fileInfo.id)
-          .then(this._driveBacking.getActions);
+        var driveActionsPromise = driveBacking.load(fileInfo.id)
+          .then((function() {
+            return driveBacking.getActions()
+          }).bind(this));
+
 
         var localActionsPromise = this._backing.getActions();
 
-        return Promise.all([driveActionsPromise, localActionsPromise]);
+        return Promise.all([fileInfo, driveActionsPromise, localActionsPromise]);
       }).bind(this))
         .then((function(results) {
-          var remoteActions = results[0];
-          var localActions = results[1];
+          var fileInfo = results[0]
+          var remoteActions = results[1];
+          var localActions = results[2];
 
           var promises = [];
 
@@ -331,7 +361,7 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
 
           // Only modify things if we need to
           if (diverges !== -1 || remoteActions.length != localActions.remote.length) {
-            console.log("Differences between remote and local actions", this.fileInfo.id);
+            console.log("Differences between remote and local actions", fileInfo.id);
 
             if (diverges != -1) {
               // get the remote actions after the diverge
@@ -350,7 +380,7 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
             } else {
               // shorter must be the local one
               // add the remote actions after the local ones
-              var remoteActionsAfterLocal = remoteActions.slice(localActions.remote.length);
+              var remoteActionsAfterLocal = remoteActions.slice(localActions.remote.length + 1);
 
               var items = this._indexify(remoteActionsAfterLocal, localActions.remote.length);
               promises.push(this._backing.addRemoteActions(localActions.remote.length, items));
@@ -364,7 +394,7 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
 
           // send all of the local actions
           for (var j = 0; j < localActions.local.length; j++) {
-            promises.push(this._driveBacking.addAction(localActions.local[j]));
+            promises.push(driveBacking.addAction(localActions.local[j]));
           }
 
           return Promise.all(promises);
@@ -404,7 +434,9 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
         });
       }
 
-      Event.trigger("fileModified", this.fileInfo);
+      promises.push(this.fileInfoPromise.then(function(fileInfo) {
+        Event.trigger("fileModified", fileInfo);
+      }));
 
       return Promise.all(promises);
     },
@@ -413,14 +445,16 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
       // remove it from the remoteActions
       this._cachedActions.remoteActions.splice(data.index, data.values.length);
 
-      Event.trigger("fileModified", this.fileInfo);
-
       var promises = [];
       promises.push(this._backing.removeRemoteActions(data.index, data.values.length));
 
       if (this._removedCallback) {
         promises.push(this._removedCallback());
       }
+
+      promises.push(this.fileInfoPromise.then(function(fileInfo) {
+        Event.trigger("fileModified", fileInfo);
+      }));
 
       return Promise.all(promises);
     },

@@ -118,28 +118,32 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
     },
 
     show: function(fileInfo) {
-      Data.loadFile(fileInfo.id, (function(file) {
+      Data.loadFile(fileInfo.id)
+        .then((function(file) {
 
-        this._file = file;
+          this._file = file;
 
-        file.listen(this._actionsAdded, this._actionsRemoved);
+          file.listen(this._actionsAdded, this._actionsRemoved);
 
-        this._fileNameElement.value = file.fileInfo.name;
-        this._settings = file.localSettings();
+          file.fileInfoPromise.then((function(fileInfo) {
+            this._fileNameElement.value = fileInfo.name;
+          }).bind(this));
 
-        this._settings = data.localFileSettings(file.id);
-        this._manipulateCanvas = new ManipulateCanvas(this._canvas, this._settings);
-        document.getElementById("chosenColorSwatch").style.backgroundColor = this._settings.color;
+          file.localSettings().then((function(settings) {
+            this._settings = settings;
+            document.getElementById("chosenColorSwatch").style.backgroundColor = this._settings.color;
 
-        this._setActiveTool();
+            this._setActiveTool();
+            this._manipulateCanvas = new ManipulateCanvas(this._canvas, this._settings);
 
-        this._updateAll = true;
-        this._shouldRender = true;
+            this._redraw();
+          }).bind(this));
 
-        this._redraw();
+          this._updateAll = true;
+          this._shouldRender = true;
 
-        Event.addListener("fileRenamed", this._fileRenamed);
-      }).bind(this));
+          Event.addListener("fileRenamed", this._fileRenamed);
+        }).bind(this));
 
       // We don't need data to resize
       this._resize();
@@ -322,7 +326,10 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
 
     _saveAction: function(action) {
       action.id = Helpers.getGuid();
-      this._file.addAction(action);
+      this._file.addAction(action)
+      .catch (function(e) {
+        console.error(e, e.stack, e.message);
+      });
     },
 
     _gesture: function(e) {
@@ -365,7 +372,9 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
         var action = e.target.dataset.action;
 
         if (action == "back") {
-          this._filesPane.setPane("list", this._file.fileInfo);
+          this._file.fileInfoPromise.then((function(fileInfo) {
+            this._filesPane.setPane("list", fileInfo);
+          }).bind(this));
         } else if (action == "rename") {
           e.target.focus();
         } else if (action == "export") {
@@ -595,15 +604,16 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
 
       this._saveSettingsTimeout = setTimeout((function() {
         this._file.localSettings(this._settings);
-        this._saveSettingsTimeout = null;
       }).bind(this), 100);
 
     },
 
     _fileRenamed: function(file) {
-      if (this._file.fileInfo.id == file.id) {
-        this._fileNameElement.value = file.name;
-      }
+      this._file.fileInfoPromise.then((function(fileInfo) {
+        if (fileInfo.id == file.id) {
+          this._fileNameElement.value = file.name;
+        }
+      }).bind(this));
     },
   });
 

@@ -36,12 +36,12 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
           }
         }));
 
-      return this._fileServerPromise
-        .then((function(server) {
-          this._fileInfoPromise = this._parent._getFileInfo(fileId);
+      this._fileInfoPromise = this._parent._getFileInfo(fileId);
 
-          return this._fileInfoPromise;
-        }).bind(this));
+      return Promise.all([this._fileServerPromise, this._fileInfoPromise])
+        .then(function(results) {
+          return results[1]
+        });
     },
 
     create: function(file) {
@@ -87,7 +87,7 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
     },
 
     addLocalAction: function(action) {
-      return this._fileServerPromise.then(function(server) {
+      return this._fileServerPromise.then((function(server) {
         var addPromise = Promise.cast(server.localActions.add(action));
         var updatePromise = this._fileInfoPromise
           .then((function(fileInfo) {
@@ -98,11 +98,11 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
           .then(function(results) {
             return results[0];
           });
-      });
+      }).bind(this));
     },
 
     removeLocalAction: function(actionId) {
-      return this._fileServerPromise.then(function(server) {
+      return this._fileServerPromise.then((function(server) {
         var addPromise = Promise.cast(server.localActions.remove(actionId));
         var updatePromise = this._fileInfoPromise
           .then((function(fileInfo) {
@@ -113,11 +113,11 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
           .then(function(results) {
             return results[0];
           });
-      });
+      }).bind(this));
     },
 
     addRemoteActions: function(index, actions) {
-      return this._fileServerPromise.then(function(server) {
+      return this._fileServerPromise.then((function(server) {
         var addPromise = Promise.cast(server.remoteActions
           .query('index')
           .lowerBound(index)
@@ -141,12 +141,12 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
           .then(function(results) {
             return results[0];
           });
-      });
+      }).bind(this));
     },
 
     removeRemoteActions: function(index, length) {
 
-      return this._fileServerPromise.then(function(server) {
+      return this._fileServerPromise.then((function(server) {
         var removePromise = Promise.cast(server.remoteActions
           .query('index')
           .lowerBound(index)
@@ -176,7 +176,7 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
           .then(function(results) {
             return results[0];
           });
-      });
+      }).bind(this));
     },
 
     replaceFileId: function(newId) {
