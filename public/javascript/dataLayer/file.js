@@ -160,13 +160,15 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
                     return this.load(newFile.id);
                   }).bind(this))
                   .then((function() {
-                    return this._moveSettings(oldId);
 
-                    // TODO: I might be able to move this higher
-                    Event.trigger("fileIdChanged", {
-                      oldId: oldId,
-                      newId: newFile.id
-                    });
+                    return this._moveSettings(oldId)
+                      .then(function() {
+                        Event.trigger("fileIdChanged", {
+                          oldId: oldId,
+                          newId: newFile.id
+                        });
+                      });
+                      
                   }).bind(this));
               }).bind(this)));
           }

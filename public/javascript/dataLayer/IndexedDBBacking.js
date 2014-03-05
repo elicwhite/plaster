@@ -214,8 +214,9 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
     },
 
     close: function() {
-      // What happens if this is called before load callbacks happen
-      return this._fileServer.close();
+      return this._fileServerPromise.then(function(server) {
+        return server.close();
+      });
     },
 
     _copyAllActions: function(oldActions) {
