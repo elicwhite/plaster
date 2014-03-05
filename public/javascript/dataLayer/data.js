@@ -12,6 +12,8 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
       this._backing = new IndexedDBBacking();
 
       Event.addListener("fileIdChanged", this._fileIdChanged.bind(this));
+
+      window.dtd = this;
     },
 
     // FILE METHODS
@@ -37,7 +39,8 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
           Event.trigger("fileAdded", fileInfo);
           return file;
         }).bind(this, fileInfo))
-        .catch (function(error) {
+        .
+      catch (function(error) {
         console.error(error, error.stack, error.message);
       });
 
@@ -88,7 +91,8 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
           }).bind(this)));
       }
 
-      promises.push(this._backing.markFileAsDeleted(fileId));
+      var markDeleted = this._backing.markFileAsDeleted(fileId);
+      promises.push(markDeleted);
 
       if (updateDrive !== false) { // could be true or undefined
         if (this._driveBacking) {
@@ -97,6 +101,11 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
               return this._backing.deleteFile(fileId);
             }).bind(this)));
         }
+      } else {
+        // We don't want to update drive first, just delete it
+        promises.push(markDeleted.then((function() {
+          promises.push(this._backing.deleteFile(fileId));
+        }).bind(this)));
       }
 
       return Promise.all(promises);

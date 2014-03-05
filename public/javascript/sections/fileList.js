@@ -59,6 +59,8 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
       Event.addListener("fileRenamed", this._fileRenamed.bind(this));
       Event.addListener("fileIdChanged", this._fileIdChanged.bind(this));
       Event.addListener("fileModifiedRemotely", this._fileModifiedRemotely.bind(this));
+
+      window.fls = this;
     },
 
     show: function(fileInfo) {

@@ -209,7 +209,11 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
               .then(function() {
                 return newInfo;
               });
-          }).bind(this));
+          }).bind(this))
+          .
+        catch (function(error) {
+          console.error("Failed modifying id", error, error.stack, error.message);
+        });;
       }).bind(this));
     },
 
@@ -223,9 +227,13 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
       return this._fileServerPromise.then(function(server) {
         return Promise.all(
           [
-            Promise.all(oldActions.local.map(server.localActions.add)),
-            Promise.all(oldActions.remote.map(server.remoteActions.add)),
-          ]);
+            Promise.all(oldActions.local.map(function(action) {return server.localActions.add(action) })),
+            Promise.all(oldActions.remote.map(function(action) {return server.remoteActions.add(action) })),
+          ])
+          .
+        catch (function(error) {
+          console.error("Failed copying actions", error, error.stack, error.message);
+        });
       });
     },
   });
