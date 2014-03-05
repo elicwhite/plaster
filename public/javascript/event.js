@@ -33,11 +33,11 @@ define([], function() {
     },
 
     trigger: function(event, data) {
+      console.log("Triggering", event, data, this.listeners[event] ? this.listeners[event].length : 0, "listeners");
+
       if (!this.listeners[event]) {
         return false;
       }
-
-      console.log("Triggering", event, data);
 
       this.listeners[event].forEach(function(listener) {
         listener(data);

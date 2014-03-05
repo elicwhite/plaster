@@ -32,45 +32,45 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
     _createFile: function(fileInfo) {
       var file = new File(new this._backing.instance(this._backing));
 
-      // Create a new file for this
-      return file.create(fileInfo)
+      this._cachedFiles[fileInfo.id] = file.create(fileInfo)
         .then((function(fileInfo, file) {
-          this._cachedFiles[fileInfo.id] = file;
           Event.trigger("fileAdded", fileInfo);
-
-          if (this._driveBacking) {
-            return file.startDrive(this._newDriveInstance());
-          }
+          return file;
         }).bind(this, fileInfo))
-        .
-      catch (function(error) {
+        .catch (function(error) {
         console.error(error, error.stack, error.message);
       });
 
+      if (this._driveBacking) {
+        this._cachedFiles[fileInfo.id].then((function() {
+          file.startDrive(this._newDriveInstance());
+        }).bind(this));
+      }
     },
 
-    loadFile: function(fileId, callback) {
+    loadFile: function(fileId) {
       if (this._cachedFiles[fileId]) {
-        var file = this._cachedFiles[fileId];
-
-        return file.fileInfoPromise
-          .then(function() {
-            return file;
-          });
+        return this._cachedFiles[fileId];
       }
 
       // file was not found
       var file = new File(new this._backing.instance(this._backing));
-      this._cachedFiles[fileId] = file;
 
-      return file.load(fileId)
+
+      this._cachedFiles[fileId] = file.load(fileId)
         .then((function() {
-          if (this._driveBacking) {
-            return file.startDrive(this._newDriveInstance());
-          }
-
           return file;
         }).bind(this));
+
+      if (this._driveBacking) {
+
+        // If we have drive, start drive outside of this promise
+        this._cachedFiles[fileId].then((function() {
+          file.startDrive(this._newDriveInstance());
+        }).bind(this));
+      }
+
+      return this._cachedFiles[fileId];
     },
 
     deleteFile: function(fileId, updateDrive) {
@@ -80,9 +80,9 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
 
       // If it is in the cached files, close the file and remove it
       if (this._cachedFiles[fileId]) {
-        var file = this._cachedFiles[fileId];
-        promises.push(file.fileInfoPromise
-          .then((function() {
+
+        promises.push(this._cachedFiles[fileId]
+          .then((function(file) {
             delete this._cachedFiles[fileId];
             return file.close();
           }).bind(this)));
@@ -120,8 +120,11 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
 
       // add drive to our open files
       for (var i in this._cachedFiles) {
-        var driveInstance = new driveBacking.instance(driveBacking);
-        promises.push(this._cachedFiles[i].startDrive(driveInstance));
+        promises.push(this._cachedFiles[i]
+          .then(function(file) {
+            var driveInstance = new driveBacking.instance(driveBacking);
+            file.startDrive(driveInstance);
+          }));
       }
 
       return Promise.all(promises)
@@ -133,9 +136,10 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
           // after the open files are synced
           this._checkForUpdates(false);
         }).bind(this))
-        .catch (function(e) {
-          console.error(e, e.stack, e.message);
-        });
+        .
+      catch (function(e) {
+        console.error(e, e.stack, e.message);
+      });
     },
 
     _fileIdChanged: function(e) {
@@ -277,16 +281,17 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
         // know whether we should actually delete it remotely.
         var tempFile = new File(new this._backing.instance(this._backing));
         return tempFile.remoteActionsMatch(file.id, this._newDriveInstance())
-          .then((function(actionsMatch) {
-            console.log("inside for", tempFile.fileInfo.id);
-            if (actionsMatch) {
-              // delete it on the remote
-              return this.deleteFile(file.id);
-            } else {
-              // unmark as deleted and load it so it will sync
-              return Promise.all([this._backing.unmarkFileAsDeleted(file.id), this.loadFile(file.id)]);
-            }
-          }).bind(this));
+
+        .then((function(actionsMatch) {
+          console.log("inside for", file.id);
+          if (actionsMatch) {
+            // delete it on the remote
+            return this.deleteFile(file.id);
+          } else {
+            // unmark as deleted and load it so it will sync
+            return Promise.all([this._backing.unmarkFileAsDeleted(file.id), this.loadFile(file.id)]);
+          }
+        }).bind(this));
       } else {
         // File wasn't found locally, make a file with the same
         // id and then it will sync

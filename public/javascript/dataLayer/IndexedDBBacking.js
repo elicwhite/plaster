@@ -278,7 +278,7 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
     },
 
     _renameFile: function(fileId, newName) {
-      return this._serverPromise.then(function(server) {
+      return this._serverPromise.then((function(server) {
 
         return Promise.cast(server.files.query('id')
           .only(fileId)
@@ -292,7 +292,7 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
 
             return results;
           }).bind(this));
-      });
+      }).bind(this));
     },
 
     getDeletedFiles: function(callback) {

@@ -22,7 +22,6 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
     remoteActionsMatch: function(fileId, driveBacking) {
       return Promise.all([this._backing.load(fileId), driveBacking.load(fileId)])
         .then((function() {
-          debugger;
           var localActionsPromise = this._backing.getActions();
           var remoteActionsPromise = driveBacking.getActions();
 
@@ -48,9 +47,9 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
     },
 
     load: function(fileId, callback) {
-      this.fileInfoPromise = this._backing.load(fileId);
+      var fileInfoPromise = this._backing.load(fileId);
 
-      return this.fileInfoPromise
+      return fileInfoPromise
         .then((function() {
           return this._backing.getActions()
         }).bind(this))
@@ -66,6 +65,8 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
 
           this._cachedActions = actionsObj;
 
+          this.fileInfoPromise = fileInfoPromise;
+
           return this;
         }).bind(this));
     },
@@ -76,7 +77,6 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
           return this.load(file.id);
         }).bind(this));
     },
-
 
     rename: function(newName) {
 
@@ -124,6 +124,10 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
 
           var found = false;
           for (var i in driveFiles) {
+            if (!driveFiles[i] || !fileInfo) {
+              debugger;
+            }
+
             if (driveFiles[i].id == fileInfo.id) {
               found = i;
               break;
@@ -168,7 +172,7 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
                           newId: newFile.id
                         });
                       });
-                      
+
                   }).bind(this));
               }).bind(this)));
           }
@@ -257,8 +261,6 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
         var lastAction = this._cachedActions.localActions.pop();
         this._cachedActions.redoStack.push(lastAction);
 
-        Event.trigger("actionRemoved");
-
         this.fileInfoPromise.then(function(fileInfo) {
           Event.trigger("fileModified", fileInfo);
         });
@@ -283,15 +285,10 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
     addAction: function(action) {
       this._cachedActions.localActions.push(action);
 
-      Event.trigger("actionAdded", {
-        isLocal: true,
-        items: [action]
-      });
-
-
       this.fileInfoPromise.then(function(fileInfo) {
         Event.trigger("fileModified", fileInfo);
       });
+
 
       var promises = [];
 
@@ -302,6 +299,9 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
       }
 
       return Promise.all(promises)
+        .then((function() {
+          return this.fileInfoPromise;
+        }).bind(this))
         .
       catch (function(error) {
         console.error(error.stack, error.message);
@@ -361,21 +361,29 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
             }
           }
 
+          // Did we get new changes from drive that we should notify about
+          var sendUpdate = false;
+
           // Only modify things if we need to
           if (diverges !== -1 || remoteActions.length != localActions.remote.length) {
             console.log("Differences between remote and local actions", fileInfo.id);
+            sendUpdate = true;
 
             if (diverges != -1) {
               // get the remote actions after the diverge
               var remoteActionsAfterDiverge = remoteActions.slice(diverges);
 
-              // remove the actions in local after the diverge
-              promises.push(this._backing.removeRemoteActions(diverges, localActions.remote.length - diverges));
-
               // we need to add indexes to these items
               var items = this._indexify(remoteActionsAfterDiverge, diverges);
-              promises.push(this._backing.addRemoteActions(diverges, items));
-              // insert the remote actions after diverge into local actions
+
+              // remove the actions in local after the diverge
+              promises.push(this._backing.removeRemoteActions(diverges, localActions.remote.length - diverges)
+                .then((function() {
+
+                  // insert the remote actions after diverge into local actions
+                  this._backing.addRemoteActions(diverges, items);
+                }).bind(this)));
+
             } else if (shorter == remoteActions) {
               // remove the actions after diverge from local
               promises.push(this._backing.removeRemoteActions(remoteActions.length, localActions.remote.length - remoteActions.length));
@@ -388,10 +396,8 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
               promises.push(this._backing.addRemoteActions(localActions.remote.length, items));
             }
 
-            Event.trigger("actionAdded", {
-              isLocal: false,
-              items: []
-            });
+            // there was a difference, lets fix our cachedActions
+            this._cachedActions.remoteActions = remoteActions;
           }
 
           // send all of the local actions
@@ -399,7 +405,12 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
             promises.push(driveBacking.addAction(localActions.local[j]));
           }
 
-          return Promise.all(promises);
+          return Promise.all(promises)
+            .then(function() {
+              if (sendUpdate) {
+                Event.trigger("fileModifiedRemotely", fileInfo);
+              }
+            });
         }).bind(this));
     },
 
@@ -437,6 +448,7 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
       }
 
       promises.push(this.fileInfoPromise.then(function(fileInfo) {
+        Event.trigger("fileModifiedRemotely", fileInfo);
         Event.trigger("fileModified", fileInfo);
       }));
 

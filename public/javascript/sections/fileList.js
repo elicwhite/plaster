@@ -58,6 +58,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
       Event.addListener("fileModified", this._fileModified.bind(this));
       Event.addListener("fileRenamed", this._fileRenamed.bind(this));
       Event.addListener("fileIdChanged", this._fileIdChanged.bind(this));
+      Event.addListener("fileModifiedRemotely", this._fileModifiedRemotely.bind(this));
     },
 
     show: function(fileInfo) {
@@ -176,6 +177,8 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
       for (var i in this._files) {
         var file = this._files[i];
         if (file.fileInfo.id == fileInfo.id) {
+          file.fileInfo.modifiedTime = fileInfo.modifiedTime;
+
           this._fileListElement.removeChild(file.element);
           this._fileListElement.insertBefore(file.element, this._fileListElement.children[1]);
           return;
@@ -187,8 +190,10 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
       for (var i in this._files) {
         var file = this._files[i];
         if (file.fileInfo.id == fileInfo.id) {
+          file.fileInfo.name = fileInfo.name;
+
           var fileNameElement = file.element.getElementsByClassName("file-name")[0];
-          fileNameElement.innerText = file.name;
+          fileNameElement.innerText = fileInfo.name;
           return;
         }
       }
@@ -199,11 +204,18 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
         var file = this._files[i];
         if (file.fileInfo.id == e.oldId) {
           file.fileInfo.id = e.newId;
+          break;
         }
       }
+    },
 
-      if (this._currentState.details && this._currentState.details.id == e.newId) {
-        localStorage.filesPane = JSON.stringify(this._currentState);
+    _fileModifiedRemotely: function(fileInfo) {
+      for (var i in this._files) {
+        var file = this._files[i];
+        if (file.fileInfo.id == fileInfo.id) {
+          this._resizeAndRenderFile(file);
+          return;
+        }
       }
     },
   });
