@@ -103,7 +103,16 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
       // process things on drive for updates
       driveBacking.listen(this._remoteActionsAdded.bind(this), this._remoteActionsRemoved.bind(this));
 
-      return this.sync(driveBacking);
+      return this.sync(driveBacking)
+        .then((function() {
+          this._driveBacking = driveBacking;
+        }).bind(this))
+        .then((function() {
+          return this.fileInfoPromise;
+        }).bind(this))
+        .then(function(fileInfo) {
+          console.log("Completed file sync", fileInfo.id);
+        });
     },
 
     sync: function(driveBacking) {
@@ -159,43 +168,36 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
               .then((function(newFile) {
 
                 // Google saved a file, redo the id of the file locally to match drive
-                this._backing.replaceFileId(newFile.id)
+                return this._backing.replaceFileId(newFile.id)
                   .then((function() {
                     return this.load(newFile.id);
                   }).bind(this))
                   .then((function() {
 
                     return this._moveSettings(oldId)
-                      .then(function() {
-                        Event.trigger("fileIdChanged", {
-                          oldId: oldId,
-                          newId: newFile.id
-                        });
-                      });
-
+                  }).bind(this))
+                  .then(function() {
+                    Event.trigger("fileIdChanged", {
+                      oldId: oldId,
+                      newId: newFile.id
+                    });
+                  })
+                  .then((function() {
+                    return this._backing.getActions();
+                  }).bind(this))
+                  .then((function(localActions) {
+                    return this._sendAllActions(localActions.local, driveBacking)
                   }).bind(this));
+
               }).bind(this)));
           }
 
           return Promise.all(promises)
-            .
-          catch (function(error) {
-            console.error(error, error.stack, error.message);
-          })
-            .then((function() {
-              this._driveBacking = driveBacking;
-            }).bind(this));
         }).bind(this))
         .
       catch (function(error) {
         console.error(error.stack, error.message);
-      })
-        .then((function() {
-          return this.fileInfoPromise;
-        }).bind(this))
-        .then(function(fileInfo) {
-          console.log("Completed file sync", fileInfo.id);
-        });
+      });
     },
 
     listen: function(addedCallback, removedCallback) {
@@ -400,10 +402,7 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
             this._cachedActions.remoteActions = remoteActions;
           }
 
-          // send all of the local actions
-          for (var j = 0; j < localActions.local.length; j++) {
-            promises.push(driveBacking.addAction(localActions.local[j]));
-          }
+          promises.push(this._sendAllActions(localActions.local, driveBacking));
 
           return Promise.all(promises)
             .then(function() {
@@ -412,6 +411,16 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
               }
             });
         }).bind(this));
+    },
+
+    _sendAllActions: function(actions, driveBacking) {
+      var promises = [];
+
+      for (var j = 0; j < actions.length; j++) {
+        promises.push(driveBacking.addAction(actions[j]));
+      }
+
+      return Promise.all(promises);
     },
 
     _remoteActionsAdded: function(data) {
