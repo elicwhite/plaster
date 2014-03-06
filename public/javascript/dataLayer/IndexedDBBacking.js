@@ -210,10 +210,6 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
                 return newInfo;
               });
           }).bind(this))
-          .
-        catch (function(error) {
-          console.error("Failed modifying id", error, error.stack, error.message);
-        });;
       }).bind(this));
     },
 

@@ -24,12 +24,13 @@ define([], function() {
         return false;
       }
 
-      for(var i = 0; i < this.listeners[event].length; i++) {
-        if (this.listeners[event][i] == callback) {
-          this.listeners[event] = this.listeners[event].splice(i, 1);
-          return true;
-        }
+      var index = this.listeners[event].indexOf(callback);
+      if (index !== -1) {
+        delete this.listeners[event][index];
+        return true;
       }
+
+      return false;
     },
 
     trigger: function(event, data) {

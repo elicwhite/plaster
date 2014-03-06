@@ -17,14 +17,14 @@ define(["class", "event"], function(Class, Event) {
         this._startCallback = callback;
 
         gapi.load('auth:client,drive-realtime,drive-share', (function() {
-          this._authorize();
+          this.authorize();
         }).bind(this));
       } else {
         console.log("Offline mode");
       }
     },
 
-    _authorize: function() {
+    authorize: function() {
       // Try with no popups first.
       gapi.auth.authorize({
         client_id: this._clientId,

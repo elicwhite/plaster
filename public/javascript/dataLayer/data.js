@@ -132,7 +132,7 @@ define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacki
         promises.push(this._cachedFiles[i]
           .then(function(file) {
             var driveInstance = new driveBacking.instance(driveBacking);
-            file.startDrive(driveInstance);
+            return file.startDrive(driveInstance);
           }));
       }
 

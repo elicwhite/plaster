@@ -1,4 +1,4 @@
-define(["class", "helpers"], function(Class, Helpers) {
+define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
   var instance = Class.extend({
     _parent: null,
 
@@ -23,7 +23,10 @@ define(["class", "helpers"], function(Class, Helpers) {
       return this._parent._open(fileId)
         .then((function(fileInfo) {
           return this._openForRealtime(fileInfo.id);
-        }).bind(this));
+        }).bind(this))
+        .catch(function(error) {
+          console.error(error, error.stack, error.message);
+        });
     },
 
     create: function(file) {
@@ -33,7 +36,10 @@ define(["class", "helpers"], function(Class, Helpers) {
             .then(function() {
               return fileInfo;
             })
-        }).bind(this));
+        }).bind(this))
+        .catch(function(error) {
+          console.error(error, error.stack, error.message);
+        });
     },
 
     _openForRealtime: function(fileId) {
@@ -60,6 +66,17 @@ define(["class", "helpers"], function(Class, Helpers) {
             root.set('id', fileId);
           },
           function(error) {
+
+            if (error.type == gapi.drive.realtime.ErrorType.TOKEN_REFRESH_REQUIRED) {
+              console.warn("Token expired, reauthorizing");
+              GAuth.authorize();
+              //reject(error);
+            } else if (error.type == gapi.drive.realtime.ErrorType.CLIENT_ERROR) {
+              //reject(error);
+            } else if (error.type == gapi.drive.realtime.ErrorType.NOT_FOUND) {
+              //alert("The file was not found. It does not exist or you do not have read access to the file.");
+            }
+
             reject(error);
           }
         );

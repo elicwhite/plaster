@@ -196,7 +196,7 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
         }).bind(this))
         .
       catch (function(error) {
-        console.error(error.stack, error.message);
+        console.error(error, error.stack, error.message);
       });
     },
 
