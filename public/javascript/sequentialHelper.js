@@ -2,8 +2,6 @@ define(["event"], function(Event) {
 
   function SequentialHelper() {
     this.init();
-
-    window.seq = this;
   }
 
   SequentialHelper.prototype = {

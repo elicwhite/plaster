@@ -57,6 +57,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
       this._actionsRemoved = this._actionsRemoved.bind(this);
       this._resize = this._resize.bind(this);
       this._fileRenamed = this._fileRenamed.bind(this);
+      this._redraw = this._redraw.bind(this);
 
       // Keep the trackpad from trigger chrome's back event
       this.element.addEventListener("touchmove", function(e) {
@@ -346,9 +347,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
       }
 
       if (this._updateAll) {
-        var actions = this._file.getActions();
-
-        this._manipulateCanvas.doAll(actions);
+        this._manipulateCanvas.doAll(this._file.getActions());
       }
 
       if (this._updateCurrentAction && this._currentAction) {
@@ -364,7 +363,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
         this._updateCurrentAction = false;
       }
 
-      requestAnimationFrame(this._redraw.bind(this));
+      requestAnimationFrame(this._redraw);
     },
 
     _menuTapped: function(e) {

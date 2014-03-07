@@ -14,8 +14,6 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
       this._backing = new IndexedDBBacking();
 
       Event.addListener("fileIdChanged", this._fileIdChanged.bind(this));
-
-      window.dtd = this;
     },
 
     // FILE METHODS
@@ -335,7 +333,5 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
   });
 
   var data = new Data();
-  window.dataLayer = data
-
   return data;
 });
