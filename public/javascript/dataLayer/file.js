@@ -1,4 +1,4 @@
-define(["class", "event", "helpers"], function(Class, Event, Helpers) {
+define(["class", "event", "helpers", "sequentialHelper"], function(Class, Event, Helpers, SequentialHelper) {
   var File = Class.extend({
     fileInfoPromise: null,
 
@@ -81,6 +81,8 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
     rename: function(newName) {
 
       return this.fileInfoPromise.then((function(fileInfo) {
+
+
         fileInfo.name = newName;
         Event.trigger("fileRenamed", fileInfo);
         Event.trigger("fileModified", fileInfo);
@@ -102,17 +104,28 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
     startDrive: function(driveBacking) {
       // process things on drive for updates
       driveBacking.listen(this._remoteActionsAdded.bind(this), this._remoteActionsRemoved.bind(this));
+      console.log("Starting drive for file");
+      
+      return this.fileInfoPromise
+        .then((function(fileInfo) {
+          return SequentialHelper.startLockedAction(fileInfo.id)
+            .then((function() {
+              return this.sync(driveBacking);
+            }).bind(this))
+            .then((function() {
+              this._driveBacking = driveBacking;
+            }).bind(this))
+            .then(function() {
+              SequentialHelper.endLockedAction(fileInfo.id);
+            })
+            .catch(function(error) {
+              console.error(error.stack, error.message);
+            })
+            .then(function() {
+              console.log("Completed file sync", fileInfo.id);
+            });
 
-      return this.sync(driveBacking)
-        .then((function() {
-          this._driveBacking = driveBacking;
         }).bind(this))
-        .then((function() {
-          return this.fileInfoPromise;
-        }).bind(this))
-        .then(function(fileInfo) {
-          console.log("Completed file sync", fileInfo.id);
-        });
     },
 
     sync: function(driveBacking) {
