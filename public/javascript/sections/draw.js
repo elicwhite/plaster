@@ -56,6 +56,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
       this._actionsAdded = this._actionsAdded.bind(this);
       this._actionsRemoved = this._actionsRemoved.bind(this);
       this._resize = this._resize.bind(this);
+      this._fileModifiedRemotely = this._fileModifiedRemotely.bind(this);
       this._fileRenamed = this._fileRenamed.bind(this);
       this._redraw = this._redraw.bind(this);
 
@@ -143,6 +144,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
           this._updateAll = true;
           this._shouldRender = true;
 
+          Event.addListener("fileModifiedRemotely", this._fileModifiedRemotely);
           Event.addListener("fileRenamed", this._fileRenamed);
         }).bind(this));
 
@@ -158,12 +160,19 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
     },
 
     hide: function() {
-      this._shouldRender = false;
-
-      Event.removeListener("fileRenamed", this._fileRenamed);
-      window.removeEventListener("resize", this._resize);
 
       this._file.stopListening();
+      Data.close(this._file)
+        .
+      catch (function(error) {
+        console.error(error.stack, error.message);
+      });
+
+      this._shouldRender = false;
+
+      Event.removeListener("fileModifiedRemotely", this._fileModifiedRemotely);
+      Event.removeListener("fileRenamed", this._fileRenamed);
+      window.removeEventListener("resize", this._resize);
     },
 
     _actionsAdded: function(e) {
@@ -328,7 +337,8 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
     _saveAction: function(action) {
       action.id = Helpers.getGuid();
       this._file.addAction(action)
-      .catch (function(e) {
+        .
+      catch (function(e) {
         console.error(e, e.stack, e.message);
       });
     },
@@ -347,7 +357,8 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
       }
 
       if (this._updateAll) {
-        this._manipulateCanvas.doAll(this._file.getActions());
+        var actions = this._file.getActions();
+        this._manipulateCanvas.doAll(actions);
       }
 
       if (this._updateCurrentAction && this._currentAction) {
@@ -605,6 +616,14 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
         this._file.localSettings(this._settings);
       }).bind(this), 100);
 
+    },
+
+    _fileModifiedRemotely: function(fileInfo) {
+      this._file.fileInfoPromise.then((function(fileInfo) {
+        if (fileInfo.id == file.id) {
+          this._updateAll = false;
+        }
+      }).bind(this));
     },
 
     _fileRenamed: function(file) {

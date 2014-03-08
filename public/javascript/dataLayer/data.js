@@ -98,10 +98,11 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
 
       // If it is in the cached files, close the file and remove it
       if (this._cachedFiles[fileId]) {
+        var filePromise = this._cachedFiles[fileId];
+        delete this._cachedFiles[fileId];
 
-        promises.push(this._cachedFiles[fileId]
+        promises.push(filePromise
           .then((function(file) {
-            delete this._cachedFiles[fileId];
             return this._close(file);
           }).bind(this)));
       }
@@ -139,9 +140,8 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
           } else {
             // it is equal to 0
             delete this._fileReferences[fileInfo.id];
-
-
             delete this._cachedFiles[fileInfo.id];
+
             return file.close();
 
           }
@@ -178,7 +178,7 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
         .then((function() {
           // Check for updates from drive every 30 seconds
           // after the open files are synced
-          this._checkForUpdates(false);
+          this._checkForUpdates();
         }).bind(this))
         .
       catch (function(e) {
@@ -200,7 +200,7 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
       return new this._driveBacking.instance(this._driveBacking);
     },
 
-    _checkForUpdates: function(updateOnlyFileChanges) {
+    _checkForUpdates: function() {
       if (SequentialHelper.hasActions()) {
         setTimeout((function() {
           this._checkForUpdates();
@@ -269,35 +269,31 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
                 } else {
                   // we have this file on both local and server
 
-                  if (updateOnlyFileChanges) {
-                    // File names don't match
-                    if (file.title != localFiles[j].name) {
+                  // File names don't match
+                  if (file.title != localFiles[j].name) {
 
-                      // Wrap this so we keep the context of file
-
-                      sequence = sequence.then((function(file) {
-                        return this.loadFile(file.id, true)
-                          .then((function(remoteFile, fileObj) {
-
-                            return fileObj.rename(remoteFile.title)
-                              .then((function(fileObj) {
-                                return this.close(fileObj);
-                              }).bind(this, fileObj))
-                          }).bind(this, file))
-                      }).bind(this, file));
-
-                    }
-                    // We only want to update file name changes
-                  } else {
-                    // make sure we have all the remote actions
+                    // Wrap this so we keep the context of file
                     sequence = sequence.then((function(file) {
+                      return this.loadFile(file.id, true)
+                        .then((function(remoteFile, fileObj) {
 
-                      return this.loadFile(file.id)
-                        .then((function(fileObj) {
-                          return this.close(fileObj);
-                        }).bind(this))
-                    }).bind(this, file))
+                          return fileObj.rename(remoteFile.title)
+                            .then((function(fileObj) {
+                              return this.close(fileObj);
+                            }).bind(this, fileObj))
+                        }).bind(this, file))
+                    }).bind(this, file));
+
                   }
+
+                  // make sure we have all the remote actions
+                  sequence = sequence.then((function(file) {
+
+                    return this.loadFile(file.id)
+                      .then((function(fileObj) {
+                        return this.close(fileObj);
+                      }).bind(this))
+                  }).bind(this, file))
                 }
               }
 
@@ -404,8 +400,8 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
 
     _scheduleUpdate: function() {
       setTimeout((function() {
-        this._checkForUpdates(true);
-      }).bind(this), 13 * 1000);
+        this._checkForUpdates();
+      }).bind(this), 30 * 1000);
     }
   });
 
