@@ -214,9 +214,11 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
     },
 
     close: function() {
-      return this._fileServerPromise.then(function(server) {
+      return this._fileServerPromise.then((function(server) {
+        this._fileServerPromise = Promise.reject(new Error("File Server has been closed"));
+        this._fileInfoPromise = Promise.reject(new Error("File has been closed"));
         return server.close();
-      });
+      }).bind(this));;
     },
 
     _copyAllActions: function(oldActions) {

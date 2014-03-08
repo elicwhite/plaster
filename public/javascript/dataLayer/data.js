@@ -1,14 +1,14 @@
-define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "dataLayer/IndexedDBBacking", "dataLayer/DriveBacking"], function(Class, Helpers, Event, SequentialHelper, File, IndexedDBBacking, DriveBacking) {
+define(["class", "helpers", "event", "dataLayer/file", "dataLayer/IndexedDBBacking", "dataLayer/DriveBacking"], function(Class, Helpers, Event, File, IndexedDBBacking, DriveBacking) {
   var Data = Class.extend({
     _backing: null,
     _cachedFiles: null,
+    _fileReferences: null,
 
     _driveBacking: null,
 
-    _runningActions: null,
-
     init: function() {
       this._cachedFiles = {};
+      this._fileReferences = {};
 
       console.log("Using IndexedDB as data store");
       this._backing = new IndexedDBBacking();
@@ -34,6 +34,8 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
     _createFile: function(fileInfo) {
       var file = new File(new this._backing.instance(this._backing));
 
+      this._fileReferences[fileInfo.id] = 0;
+
       this._cachedFiles[fileInfo.id] = file.create(fileInfo)
         .then((function(fileInfo, file) {
           Event.trigger("fileAdded", fileInfo);
@@ -51,14 +53,16 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
       }
     },
 
-    loadFile: function(fileId) {
+    loadFile: function(fileId, waitForSync) {
       if (this._cachedFiles[fileId]) {
+        this._fileReferences[fileId]++;
         return this._cachedFiles[fileId];
       }
 
       // file was not found
       var file = new File(new this._backing.instance(this._backing));
 
+      this._fileReferences[fileId] = 1;
 
       this._cachedFiles[fileId] = file.load(fileId)
         .then((function() {
@@ -70,7 +74,11 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
 
         // If we have drive, start drive outside of this promise
         this._cachedFiles[fileId].then((function() {
-          file.startDrive(this._newDriveInstance());
+          var startingDrive = file.startDrive(this._newDriveInstance());
+          
+          if (waitForSync) {
+            return startingDrive;
+          }
         }).bind(this));
       }
 
@@ -82,13 +90,17 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
 
       Event.trigger("fileRemoved", fileId);
 
+      if (this._fileReferences[fileId]) {
+        delete this._fileReferences[fileId];
+      }
+
       // If it is in the cached files, close the file and remove it
       if (this._cachedFiles[fileId]) {
 
         promises.push(this._cachedFiles[fileId]
           .then((function(file) {
             delete this._cachedFiles[fileId];
-            return file.close();
+            return this._close(file);
           }).bind(this)));
       }
 
@@ -115,10 +127,23 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
     close: function(file) {
       return file.fileInfoPromise
         .then((function(fileInfo) {
-          delete this._cachedFiles[file.fileInfo.id];
-          return file.close();
-        }).bind(this));
+          if (this._fileReferences[fileInfo.id]) {
+            this._fileReferences[fileInfo.id]--;
+          }
 
+          if (this._fileReferences[fileInfo.id] > 0) {
+            // Not actually closing
+            return Promise.resolve();
+          } else {
+            // it is equal to 0
+            delete this._fileReferences[fileInfo.id];
+
+
+            delete this._cachedFiles[fileInfo.id];
+            return file.close();
+
+          }
+        }).bind(this));
     },
 
     startDrive: function() {
@@ -128,14 +153,21 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
 
       var promises = [];
 
-      // add drive to our open files
+      var self = this;
+      var sequence = Promise.resolve();
+
       for (var i in this._cachedFiles) {
-        promises.push(this._cachedFiles[i]
+
+        sequence = sequence.then((function(i) {
+          return this._cachedFiles[i];
+        }).bind(this, i))
           .then(function(file) {
             var driveInstance = new driveBacking.instance(driveBacking);
             return file.startDrive(driveInstance);
-          }));
+          });
       }
+
+      promises.push(sequence);
 
       return Promise.all(promises)
         .then((function() {
@@ -154,6 +186,9 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
 
     _fileIdChanged: function(e) {
       if (this._cachedFiles[e.oldId]) {
+        this._fileReferences[e.newId] = this._fileReferences[e.oldId];
+        delete this._fileReferences[e.oldId];
+
         this._cachedFiles[e.newId] = this._cachedFiles[e.oldId];
         delete this._cachedFiles[e.oldId];
       }
@@ -174,106 +209,127 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
       var localFilesPromise = this._backing.getFiles();
       var locallyDeletedFilesPromise = this._backing.getDeletedFiles();
 
-      SequentialHelper.startGlobalAction()
-        .then((function() {
-          return Promise.all([driveFilesPromise, localFilesPromise, locallyDeletedFilesPromise])
-            .then((function(results) {
-              var remoteFiles = results[0];
-              var localFiles = results[1];
-              var filesDeletedLocally = results[2];
+      return Promise.all([driveFilesPromise, localFilesPromise, locallyDeletedFilesPromise])
+        .then((function(results) {
+          var remoteFiles = results[0];
+          var localFiles = results[1];
+          var filesDeletedLocally = results[2];
 
-              var localFileIds = localFiles.map(getFileId);
-              var remoteFileIds = remoteFiles.map(getFileId);
+          var localFileIds = localFiles.map(getFileId);
+          var remoteFileIds = remoteFiles.map(getFileId);
 
-              var fileIdsDeletedLocally = filesDeletedLocally.map(getFileId);
-              var fileIdsDeletedOnBoth = fileIdsDeletedLocally.filter(function(id) {
-                return remoteFileIds.indexOf(id) === -1;
-              });
+          var fileIdsDeletedLocally = filesDeletedLocally.map(getFileId);
+          var fileIdsDeletedOnBoth = fileIdsDeletedLocally.filter(function(id) {
+            return remoteFileIds.indexOf(id) === -1;
+          });
 
-              var promises = [];
+          var promises = [];
 
-              // Delete all the files that were deleted on both local and remote
-              fileIdsDeletedOnBoth.map((function(id) {
-                promises.push(this._backing.deleteFile(id));
-              }).bind(this));
+          // Delete all the files that were deleted on both local and remote
+          fileIdsDeletedOnBoth.map((function(id) {
+            promises.push(this._backing.deleteFile(id));
+          }).bind(this));
 
-              // Check for files that are on drive and not saved locally
-              for (var i = 0; i < remoteFiles.length; i++) {
-                var found = false;
+          var sequence = Promise.resolve();
+          promises.push(sequence);
 
-                for (var j = 0; j < localFiles.length; j++) {
-                  if (remoteFiles[i].id == localFiles[j].id) {
-                    found = true;
-                    break;
-                  }
+
+          // Check for files that are on drive and not saved locally
+          for (var i = 0; i < remoteFiles.length; i++) {
+            var found = false;
+
+            for (var j = 0; j < localFiles.length; j++) {
+              if (remoteFiles[i].id == localFiles[j].id) {
+                found = true;
+                break;
+              }
+            }
+
+            var file = remoteFiles[i];
+
+            if (!found) {
+              sequence = sequence.then((function(file) {
+                return this._fileNotFoundLocally(fileIdsDeletedLocally, file);
+              }).bind(this, file));
+
+            } else {
+              // we have this file on both local and server
+
+              if (updateOnlyFileChanges) {
+                // File names don't match
+                if (file.title != localFiles[j].name) {
+
+                  // Wrap this so we keep the context of file
+
+                  sequence = sequence.then((function(file) {
+                    return this.loadFile(file.id, true)
+                      .then((function(remoteFile, fileObj) {
+
+                        return fileObj.rename(remoteFile.title)
+                          .then((function(fileObj) {
+                            return this.close(fileObj);
+                          }).bind(this, fileObj))
+                      }).bind(this, file))
+                  }).bind(this, file));
+
                 }
+                // We only want to update file name changes
+              } else {
+                // make sure we have all the remote actions
+                sequence = sequence.then((function(file) {
 
-                var file = remoteFiles[i];
+                  return this.loadFile(file.id)
+                    .then((function(fileObj) {
+                      return this.close(fileObj);
+                    }).bind(this))
+                }).bind(this, file))
+              }
+            }
+          }
 
-                if (!found) {
-                  promises.push(this._fileNotFoundLocally(fileIdsDeletedLocally, file));
-                } else {
-                  // we have this file on both local and server
+          // look for local files that are not on remote
+          for (var i = 0; i < localFiles.length; i++) {
+            var found = false;
 
-                  if (updateOnlyFileChanges) {
-                    // File names don't match
-                    if (file.title != localFiles[j].name) {
+            for (var j = 0; j < remoteFiles.length; j++) {
+              if (localFiles[i].id == remoteFiles[j].id) {
+                found = true;
+                break;
+              }
+            }
 
-                      // Wrap this so we keep the context of file
-                      promises.push(this.loadFile(file.id)
-                        .then((function(remoteFile, fileObj) {
-                          return fileObj.rename(remoteFile.title);
-                        }).bind(this, file)));
-                    }
-                    // We only want to update file name changes
-                  } else {
-                    // make sure we have all the remote actions
-                    promises.push(this.loadFile(file.id));
-                  }
-                }
+            if (!found) {
+
+              // we don't have it on remote, and we also marked it as deleted locally
+              var deletedLocally = fileIdsDeletedLocally.indexOf(localFiles[i].id) !== -1;
+              if (deletedLocally) {
+                promises.push(this.deleteFile(localFiles[i].id, false));
+                continue;
               }
 
-              // look for local files that are not on remote
-              for (var i = 0; i < localFiles.length; i++) {
-                var found = false;
+              // TODO: check if we deleted it remotely
+              var deletedRemotely = !Helpers.isLocalGuid(localFiles[i].id);
 
-                for (var j = 0; j < remoteFiles.length; j++) {
-                  if (localFiles[i].id == remoteFiles[j].id) {
-                    found = true;
-                    break;
-                  }
-                }
-
-                if (!found) {
-
-                  // we don't have it on remote, and we also marked it as deleted locally
-                  var deletedLocally = fileIdsDeletedLocally.indexOf(localFiles[i].id) !== -1;
-                  if (deletedLocally) {
-                    promises.push(this.deleteFile(localFiles[i].id, false));
-                    continue;
-                  }
-
-                  // TODO: check if we deleted it remotely
-                  var deletedRemotely = !Helpers.isLocalGuid(localFiles[i].id);
-
-                  if (deletedRemotely) {
-                    promises.push(this.deleteFile(localFiles[i].id, false));
-                    continue;
-                  }
-
-                  // load it and let it sync
-                  promises.push(this.loadFile(localFiles[i].id));
-                  continue;
-                }
+              if (deletedRemotely) {
+                promises.push(this.deleteFile(localFiles[i].id, false));
+                continue;
               }
 
-              return Promise.all(promises)
+              // load it and let it sync
+              sequence = sequence.then((function(fileId) {
+                return this.loadFile(fileId)
+                  .then((function(file) {
+                    return this.close(file);
+                  }).bind(this));
+              }).bind(this, localFiles[i].id));
+              continue;
+            }
+          }
 
-            }).bind(this))
+          return Promise.all(promises)
         }).bind(this))
         .then(function() {
           console.log("Removing sync lock");
-          SequentialHelper.endGlobalAction();
         })
         .
       catch (function(error) {
@@ -309,7 +365,12 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
             return this.deleteFile(file.id);
           } else {
             // unmark as deleted and load it so it will sync
-            return Promise.all([this._backing.unmarkFileAsDeleted(file.id), this.loadFile(file.id)]);
+            var loadClose = this.loadFile(file.id)
+              .then((function(file) {
+                return this.close(file);
+              }).bind(this));
+
+            return Promise.all([this._backing.unmarkFileAsDeleted(file.id), loadClose]);
           }
         }).bind(this));
       } else {
@@ -321,7 +382,10 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
           modifiedTime: new Date(file.modifiedDate).getTime(),
         };
 
-        return this._createFile(newFile);
+        return this._createFile(newFile)
+          .then((function(file) {
+            return this.close(file);
+          }).bind(this));
       }
     },
 

@@ -1,4 +1,4 @@
-define(["class", "event", "helpers", "sequentialHelper"], function(Class, Event, Helpers, SequentialHelper) {
+define(["class", "event", "helpers"], function(Class, Event, Helpers) {
   var File = Class.extend({
     fileInfoPromise: null,
 
@@ -11,6 +11,8 @@ define(["class", "event", "helpers", "sequentialHelper"], function(Class, Event,
     _removedCallback: null,
 
     _loadCallbacks: null,
+
+    _syncPromise: null,
 
     init: function(backing) {
       // Create our backing instance
@@ -66,7 +68,6 @@ define(["class", "event", "helpers", "sequentialHelper"], function(Class, Event,
           this._cachedActions = actionsObj;
 
           this.fileInfoPromise = fileInfoPromise;
-
           return this;
         }).bind(this));
     },
@@ -104,23 +105,19 @@ define(["class", "event", "helpers", "sequentialHelper"], function(Class, Event,
     startDrive: function(driveBacking) {
       // process things on drive for updates
       driveBacking.listen(this._remoteActionsAdded.bind(this), this._remoteActionsRemoved.bind(this));
-      console.log("Starting drive for file");
-      
+
+
       return this.fileInfoPromise
         .then((function(fileInfo) {
-          return SequentialHelper.startLockedAction(fileInfo.id)
-            .then((function() {
-              return this.sync(driveBacking);
-            }).bind(this))
+          console.log("Starting drive for file", fileInfo.id);
+          return this.sync(driveBacking)
             .then((function() {
               this._driveBacking = driveBacking;
             }).bind(this))
-            .then(function() {
-              SequentialHelper.endLockedAction(fileInfo.id);
-            })
-            .catch(function(error) {
-              console.error(error.stack, error.message);
-            })
+            .
+          catch (function(error) {
+            console.error(error.stack, error.message);
+          })
             .then(function() {
               console.log("Completed file sync", fileInfo.id);
             });
@@ -137,10 +134,12 @@ define(["class", "event", "helpers", "sequentialHelper"], function(Class, Event,
       // if it doesn't, then it either has never been uploaded, or was deleted on the server
       // regardless, it's open, so we should upload it to drive
 
-      return Promise.all([this.fileInfoPromise, driveBacking._parent.getFiles()])
+      this._syncPromise = Promise.all([this.fileInfoPromise, driveBacking._parent.getFiles()])
         .then((function(results) {
-          fileInfo = results[0];
-          driveFiles = results[1];
+          var fileInfo = results[0];
+          var driveFiles = results[1];
+
+          console.log("Starting file sync", fileInfo.id);
 
           var promises = [];
 
@@ -207,10 +206,15 @@ define(["class", "event", "helpers", "sequentialHelper"], function(Class, Event,
 
           return Promise.all(promises)
         }).bind(this))
+        .then((function() {
+          this._syncPromise = null;
+        }).bind(this))
         .
       catch (function(error) {
         console.error(error, error.stack, error.message);
       });
+
+      return this._syncPromise;
     },
 
     listen: function(addedCallback, removedCallback) {
@@ -329,19 +333,29 @@ define(["class", "event", "helpers", "sequentialHelper"], function(Class, Event,
     },
 
     close: function() {
-      this.fileInfoPromise.then(function(fileInfo) {
-        console.log("Closing file", fileInfo.id);
-      });
+      var prom = Promise.resolve();
 
-      var promises = [];
-
-      promises.push(this._backing.close());
-
-      if (this._driveBacking) {
-        promises.push(this._driveBacking.close());
+      // Only close after sync is done, if sync is running
+      if (this._syncPromise) {
+        prom = this._syncPromise;
       }
 
-      return Promise.all(promises);
+      return prom.then((function() {
+        this.fileInfoPromise.then((function(fileInfo) {
+          console.log("Closing file", fileInfo.id);
+          this.fileInfoPromise = Promise.reject(new Error("File has been closed"));
+        }).bind(this));
+
+        var promises = [];
+
+        promises.push(this._backing.close());
+
+        if (this._driveBacking) {
+          promises.push(this._driveBacking.close());
+        }
+
+        return Promise.all(promises);
+      }).bind(this))
     },
 
     _syncRemoteActionsFromDrive: function(driveBacking) {
@@ -354,6 +368,7 @@ define(["class", "event", "helpers", "sequentialHelper"], function(Class, Event,
           }).bind(this));
 
 
+        // TODO: THIS LINE SUCKS! the file is already closed, can't get the actions
         var localActionsPromise = this._backing.getActions();
 
         return Promise.all([fileInfo, driveActionsPromise, localActionsPromise]);

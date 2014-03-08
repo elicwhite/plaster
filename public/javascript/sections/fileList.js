@@ -1,4 +1,4 @@
-define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data", "templates/fileList", "components/thumbnail"], function(Section, TapHandler, Event, g, Helpers, Data, FileListTemplate, Thumbnail) {
+define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data", "templates/fileList"], function(Section, TapHandler, Event, g, Helpers, Data, FileListTemplate) {
 
   var FileList = Section.extend({
     id: "files-list-container",
@@ -11,8 +11,6 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
 
     _files: null,
 
-    _resizeTimeout: null,
-
     init: function(filesPane) {
       this._super();
 
@@ -21,9 +19,6 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
       this._files = [];
 
       this._fileListElement = document.getElementById("files-list");
-
-      this._resizeAndRender = this._resizeAndRender.bind(this);
-      this._actuallyResizeAndRender = this._actuallyResizeAndRender.bind(this);
 
       // Don't have the big create button on phone
       if (g.isPhone()) {
@@ -37,8 +32,6 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
             var fileTemplate = this._newFileWrapper(fileInfo);
             this._fileListElement.appendChild(fileTemplate);
           }
-
-          this._actuallyResizeAndRender();
         }).bind(this));
 
       this.element.addEventListener("wheel", function(e) {
@@ -59,29 +52,6 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
       Event.addListener("fileRenamed", this._fileRenamed.bind(this));
       Event.addListener("fileIdChanged", this._fileIdChanged.bind(this));
       Event.addListener("fileModifiedRemotely", this._fileModifiedRemotely.bind(this));
-
-      window.fls = this;
-    },
-
-    show: function(fileInfo) {
-
-      window.addEventListener("resize", this._resizeAndRender);
-      if (fileInfo) {
-        // We came from draw, it is the info of the file we were just looking at
-
-        for (var i in this._files) {
-          if (this._files[i].element.fileInfo.id == fileInfo.id) {
-            this._files[i].thumbnail.render(this._files[i].element.fileInfo);
-            return;
-          }
-        }
-
-        console.error("We somehow came from a file that doesn't exist");
-      }
-    },
-
-    hide: function(fileInfo) {
-      window.removeEventListener("resize", this._resizeAndRender);
     },
 
     _newFileWrapper: function(fileInfo) {
@@ -90,46 +60,16 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
       // The element has a reference to fileInfo
       newEle.fileInfo = fileInfo;
 
-      var canvas = newEle.getElementsByClassName("thumbnail")[0];
       var fileName = newEle.getElementsByClassName("file-name")[0];
 
-      var thumbnail = new Thumbnail(canvas);
       fileName.innerText = fileInfo.name;
 
       this._files.push({
         fileInfo: fileInfo,
         element: newEle,
-        canvas: canvas,
-        thumbnail: thumbnail
       });
 
       return newEle;
-    },
-
-    // Resize every thumbnail canvas and re-render them
-    _resizeAndRender: function() {
-      if (this._resizeTimeout) {
-        clearTimeout(this._resizeTimeout);
-      } else {
-        // we should clear canvases here
-      }
-
-      this._resizeTimeout = setTimeout(this._actuallyResizeAndRender.bind(this), 500);
-    },
-
-    _actuallyResizeAndRender: function() {
-      for (var i in this._files) {
-        var file = this._files[i];
-
-        this._resizeAndRenderFile(file);
-      }
-    },
-
-    _resizeAndRenderFile: function(file) {
-      var canvasParent = file.canvas.parentElement;
-      file.canvas.width = canvasParent.offsetWidth;
-      file.canvas.height = canvasParent.offsetHeight;
-      file.thumbnail.render(file.fileInfo);
     },
 
     _docSelected: function(e) {
@@ -161,7 +101,6 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
       var fileTemplate = this._newFileWrapper(fileInfo);
 
       this._fileListElement.insertBefore(fileTemplate, this._fileListElement.children[1]);
-      this._actuallyResizeAndRender();
     },
 
     _fileRemoved: function(fileId) {
@@ -212,6 +151,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
     },
 
     _fileModifiedRemotely: function(fileInfo) {
+      /*
       for (var i in this._files) {
         var file = this._files[i];
         if (file.fileInfo.id == fileInfo.id) {
@@ -219,6 +159,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
           return;
         }
       }
+      */
     },
   });
 

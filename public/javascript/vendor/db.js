@@ -130,7 +130,7 @@ define([], function() {
 
         this.add = function( table ) {
             if ( closed ) {
-                throw 'Database has been closed';
+                throw new Error('Database has been closed');
             }
 
             var records = [];
@@ -170,17 +170,19 @@ define([], function() {
                 deferred.resolve( records , that );
             };
             transaction.onerror = function ( e ) {
-                deferred.reject( records , e );
+                //deferred.reject( records , e );
+                deferred.reject( e );
             };
             transaction.onabort = function ( e ) {
-                deferred.reject( records , e );
+                //deferred.reject( records , e );
+                deferred.reject( e );
             };
             return deferred.promise();
         };
 
         this.update = function( table ) {
             if ( closed ) {
-                throw 'Database has been closed';
+                throw new Error('Database has been closed');
             }
 
             var records = [];
@@ -212,17 +214,19 @@ define([], function() {
                 deferred.resolve( records , that );
             };
             transaction.onerror = function ( e ) {
-                deferred.reject( records , e );
+                //deferred.reject( records , e );
+                deferred.reject( e );
             };
             transaction.onabort = function ( e ) {
-                deferred.reject( records , e );
+                //deferred.reject( records , e );
+                deferred.reject( e );
             };
             return deferred.promise();
         };
         
         this.remove = function ( table , key ) {
             if ( closed ) {
-                throw 'Database has been closed';
+                throw new Error('Database has been closed');
             }
             var transaction = db.transaction( table , transactionModes.readwrite ),
                 store = transaction.objectStore( table ),
@@ -240,7 +244,7 @@ define([], function() {
 
         this.clear = function ( table ) {
             if ( closed ) {
-                throw 'Database has been closed';
+                throw new Error('Database has been closed');
             }
             var transaction = db.transaction( table , transactionModes.readwrite ),
                 store = transaction.objectStore( table ),
@@ -258,7 +262,7 @@ define([], function() {
         
         this.close = function ( ) {
             if ( closed ) {
-                throw 'Database has been closed';
+                throw new Error('Database has been closed');
             }
             db.close();
             closed = true;
@@ -267,7 +271,7 @@ define([], function() {
 
         this.get = function ( table , id ) {
             if ( closed ) {
-                throw 'Database has been closed';
+                throw new Error('Database has been closed');
             }
             var transaction = db.transaction( table ),
                 store = transaction.objectStore( table ),
@@ -285,7 +289,7 @@ define([], function() {
 
         this.query = function ( table , index ) {
             if ( closed ) {
-                throw 'Database has been closed';
+                throw new Error('Database has been closed');
             }
             return new IndexQuery( table , db , index );
         };
