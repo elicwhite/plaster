@@ -79,7 +79,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
       if (parent) {
         if (parent.classList.contains("create")) {
           // Create was called
-          return this._newDoc();
+          this._newDoc();
         } else {
           if (element.dataset.action && element.dataset.action == "delete") {
             // Delete was clicked
@@ -93,7 +93,9 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
     },
 
     _newDoc: function() {
-      return Data.createFile();
+      return Data.createFile((function(fileInfo) {
+        this._filesPane.setPane("draw", fileInfo);
+      }).bind(this));
     },
 
     // EVENTS

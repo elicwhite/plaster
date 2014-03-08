@@ -1,4 +1,4 @@
-define(["class", "event", "helpers"], function(Class, Event, Helpers) {
+define(["class", "event", "helpers", "sequentialHelper"], function(Class, Event, Helpers, SequentialHelper) {
   var File = Class.extend({
     fileInfoPromise: null,
 
@@ -95,7 +95,14 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
         promises.push(this._backing.rename(newName));
 
         if (this._driveBacking) {
-          promises.push(this._driveBacking.rename(newName));
+          promises.push(SequentialHelper.startLockedAction(fileInfo.id)
+            .then((function() {
+              return this._driveBacking.rename(newName);
+            }).bind(this))
+            .then((function() {
+              SequentialHelper.endLockedAction(fileInfo.id);
+            }).bind(this)))
+
         }
 
         return Promise.all(promises)
@@ -176,9 +183,12 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
 
             var oldId = fileInfo.id;
 
-            promises.push(driveBacking.create(fileInfo)
+            promises.push(
+              SequentialHelper.startLockedAction(oldId)
+              .then(function() {
+                return driveBacking.create(fileInfo)
+              })
               .then((function(newFile) {
-
                 // Google saved a file, redo the id of the file locally to match drive
                 return this._backing.replaceFileId(newFile.id)
                   .then((function() {
@@ -199,7 +209,10 @@ define(["class", "event", "helpers"], function(Class, Event, Helpers) {
                   }).bind(this))
                   .then((function(localActions) {
                     return this._sendAllActions(localActions.local, driveBacking)
-                  }).bind(this));
+                  }).bind(this))
+                  .then(function() {
+                    SequentialHelper.endLockedAction(newFile.id);
+                  });
 
               }).bind(this)));
           }
