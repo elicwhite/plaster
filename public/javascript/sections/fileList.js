@@ -93,9 +93,14 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
     },
 
     _newDoc: function() {
-      return Data.createFile((function(fileInfo) {
-        this._filesPane.setPane("draw", fileInfo);
-      }).bind(this));
+      return Data.createFile()
+        .then(function(file) {
+          return file.fileInfoPromise;
+        })
+        .then((function(fileInfo) {
+          console.log("Showing draw for", fileInfo);
+          this._filesPane.setPane("draw", fileInfo);
+        }).bind(this));
     },
 
     // EVENTS

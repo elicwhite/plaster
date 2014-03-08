@@ -28,8 +28,6 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
         modifiedTime: Date.now(),
       };
 
-      callback(newFile);
-
       return this._createFile(newFile);
     },
 
