@@ -30,35 +30,6 @@ function init() {
       });
     });
 
-    //var realtime = new RealtimeData();
-    //realtime.startRealtime();
-
-    /*
-    var o = (localStorage.fail !== "true");
-    localStorage.fail = o;
-    console.log("status", localStorage.fail);
-
-    var promise = new Promise(function(resolve, reject) {
-        if (o) {
-          resolve(40);
-        }else {
-          reject(new Error("blah"));
-        }
-    });
-
-
-    promise
-    .then(function(result) {
-      console.log("success", result);
-    })
-    .then(function(result) {
-      console.log("result 2", result);
-    })
-    .catch(function(err) {
-      console.error("error", err);
-    });
-    */
-
   });
 }
 
