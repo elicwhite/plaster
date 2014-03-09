@@ -334,19 +334,8 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
                     var localFileInfo = files.local;
 
                     // TODO: short circuit if the drive modified time hasn't changed
-                    if (driveFileInfo.title != localFileInfo.name) {
-
-                      return this.loadFile(localFileInfo.id, true)
-                        .then((function(driveFileInfo, file) {
-                          return file.rename(remoteFile.title)
-                            .then((function(file) {
-                              return this.close(file);
-                            }).bind(this, file))
-
-                        }).bind(this, driveFileInfo))
-                    }
-  
-                    // make sure we have all the remote actions
+                    
+                    // Let the file check to make sure it is named properly and has all the actions
                     return this.loadFile(localFileInfo.id, true)
                       .then((function(fileObj) {
                         return this.close(fileObj);

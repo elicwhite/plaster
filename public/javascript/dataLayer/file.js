@@ -135,8 +135,6 @@ define(["class", "event", "helpers", "sequentialHelper", "components/thumbnail"]
     sync: function(driveBacking) {
       driveBacking = this._driveBacking || driveBacking;
 
-
-
       // if this fileId exists on drive, great, it's a match
       // if it doesn't, then it either has never been uploaded, or was deleted on the server
       // regardless, it's open, so we should upload it to drive
