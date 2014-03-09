@@ -74,6 +74,7 @@ body, input {
 
         &.create {
           .thumbnail-wrapper {
+
             background-color: #ececec;
             position: relative;
 
@@ -93,7 +94,12 @@ body, input {
         }
 
         .thumbnail-wrapper {
+          width: 260px;
+          height: 200px;
+
           .thumbnail {
+            width: 260px;
+            height: 200px;
             position: absolute; 
           }
 
@@ -126,6 +132,7 @@ body, input {
         }
       }
 
+      /*
       // phone
       @media (max-width: 470px) { 
         & {
@@ -217,6 +224,7 @@ body, input {
           }
         }
       }
+      */
     }
   }
 
