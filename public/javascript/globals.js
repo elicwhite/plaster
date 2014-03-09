@@ -1,5 +1,27 @@
-define([], function() {
-  return {
+define(["event"], function(Event) {
+  var Globals = function Globals() {
+    this.init();
+  };
+
+  Globals.prototype = {
+    _online: null,
+
+    init: function() {
+      this._online = false;
+
+      Event.addListener("onlineStatusChanged", this._onlineStatusChanged.bind(this));
+    },
+
+    _onlineStatusChanged: function(e) {
+      this._online = e.online;
+    },
+
+    isOnline: function() {
+      return this._online;
+    },
+
+
+
     isiOS: function() {
       return this.hasDeviceType("iOS");
     },
@@ -68,4 +90,6 @@ define([], function() {
       body.className = devices.join(" ");
     }
   }
+
+  return new Globals();
 });

@@ -178,14 +178,16 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
           this._driveBacking = driveBacking;
         }).bind(this))
         .then((function() {
-          // Check for updates from drive every 30 seconds
-          // after the open files are synced
-          this._checkForUpdates();
+          Event.trigger("onlineStatusChanged", {online: true});
         }).bind(this))
         .
       catch (function(e) {
         console.error(e, e.stack, e.message);
       });
+    },
+
+    isOnline: function() {
+      return !!this._backing;
     },
 
     _fileIdChanged: function(e) {
@@ -202,24 +204,22 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
       return new this._driveBacking.instance(this._driveBacking);
     },
 
-    _checkForUpdates: function() {
-      if (SequentialHelper.hasActions()) {
-        setTimeout((function() {
-          this._checkForUpdates();
-        }).bind(this), 3 * 1000);
 
-        console.log("Actions currently running, delaying checking for updates");
-        return;
+    checkForUpdates: function() {
+      if (SequentialHelper.hasActions()) {
+        return Promise.reject("Actions currently running, can't sync");
       }
 
-      console.log("Checking for file updates on drive");
+      
 
       function getFileId(file) {
         return file.id;
       }
 
-      SequentialHelper.startGlobalAction()
+      return SequentialHelper.startGlobalAction()
         .then((function() {
+
+          console.log("Checking for file updates on drive");
 
           var driveFilesPromise = this._driveBacking.getFiles();
           var localFilesPromise = this._backing.getFiles();
@@ -246,8 +246,8 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
                 promises.push(this._backing.deleteFile(id));
               }).bind(this));
 
+
               var sequence = Promise.resolve();
-              promises.push(sequence);
 
 
               // Check for files that are on drive and not saved locally
@@ -290,11 +290,14 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
 
                   // make sure we have all the remote actions
                   sequence = sequence.then((function(file) {
-
-                    return this.loadFile(file.id)
+                    console.log("Updating Actions");
+                    return this.loadFile(file.id, true)
                       .then((function(fileObj) {
                         return this.close(fileObj);
                       }).bind(this))
+                      .then(function() {
+                        console.log("Done updating actions");
+                      })
                   }).bind(this, file))
                 }
               }
@@ -329,7 +332,7 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
 
                   // load it and let it sync
                   sequence = sequence.then((function(fileId) {
-                    return this.loadFile(fileId)
+                    return this.loadFile(fileId, true)
                       .then((function(file) {
                         return this.close(file);
                       }).bind(this));
@@ -337,6 +340,8 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
                   continue;
                 }
               }
+              
+              promises.push(sequence);
 
               return Promise.all(promises)
             }).bind(this))
@@ -346,7 +351,6 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
           })
             .then((function() {
               console.log("Completed checking for Drive updates");
-              this._scheduleUpdate();
             }).bind(this))
             .
           catch (function(error) {
@@ -400,12 +404,6 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
             return this.close(file);
           }).bind(this));
       }
-    },
-
-    _scheduleUpdate: function() {
-      setTimeout((function() {
-        this._checkForUpdates();
-      }).bind(this), 30 * 1000);
     }
   });
 

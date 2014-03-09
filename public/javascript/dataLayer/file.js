@@ -433,7 +433,7 @@ define(["class", "event", "helpers", "sequentialHelper", "components/thumbnail"]
             } else {
               // shorter must be the local one
               // add the remote actions after the local ones
-              var remoteActionsAfterLocal = remoteActions.slice(localActions.remote.length + 1);
+              var remoteActionsAfterLocal = remoteActions.slice(localActions.remote.length);
 
               var items = this._indexify(remoteActionsAfterLocal, localActions.remote.length);
               promises.push(this._backing.addRemoteActions(localActions.remote.length, items));

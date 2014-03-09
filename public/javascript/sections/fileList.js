@@ -11,6 +11,9 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
 
     _files: null,
 
+    // The timer we use to schedule updates
+    _updateTimeout: null,
+
     init: function(filesPane) {
       this._super();
 
@@ -24,6 +27,9 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
       if (g.isPhone()) {
         this._fileListElement.innerHTML = "";
       }
+
+      this._scheduleUpdate = this._scheduleUpdate.bind(this);
+      this._onlineStatusChanged = this._onlineStatusChanged.bind(this);
 
       Data.getFiles()
         .then((function(files) {
@@ -53,7 +59,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
       Event.addListener("fileIdChanged", this._fileIdChanged.bind(this));
       Event.addListener("fileModifiedRemotely", this._fileModifiedRemotely.bind(this));
       Event.addListener("thumbnailUpdated", this._thumbnailUpdated.bind(this));
-
+      Event.addListener("onlineStatusChanged", this._onlineStatusChanged.bind(this));
     },
 
     _newFileWrapper: function(fileInfo) {
@@ -75,7 +81,47 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
 
       return newEle;
     },
-    
+
+    show: function() {
+      console.log("Showing file list");
+
+
+      // This could happen if we are online and then navigate to this page
+      if (g.isOnline()) {
+        Data.checkForUpdates()
+          .then((function() {
+            this._scheduleUpdate()
+          }).bind(this));
+      }
+    },
+
+    hide: function() {
+      if (this._updateTimeout) {
+        clearTimeout(this._updateTimeout);
+      }
+    },
+
+    _onlineStatusChanged: function() {
+      // check for updates if we come online while looking at this page
+      if (this._visible) {
+        Data.checkForUpdates()
+          .then((function() {
+            this._scheduleUpdate()
+          }).bind(this))
+          .catch(function(error) {
+            console.error(error.stack, error.message);
+          });
+      }
+    },
+
+    _scheduleUpdate: function() {
+      this._updateTimeout = setTimeout((function() {
+        Data.checkForUpdates().then((function() {
+          this._scheduleUpdate()
+        }).bind(this));
+      }).bind(this), 15 * 1000);
+    },
+
     _docSelected: function(e) {
       var element = e.target;
       var parent = Helpers.parentEleWithClassname(element, "file-info");
