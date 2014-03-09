@@ -110,8 +110,10 @@ define(["class", "helpers"], function(Class, Helpers) {
         lineWidth /= this._settings.scale;
       }
 
+      ctx.lineJoin = "round";
       ctx.lineWidth = lineWidth;
       ctx.strokeStyle = stroke.color;
+      ctx.lineCap = "round";
 
       ctx.beginPath();
       ctx.moveTo(point.x, point.y);
@@ -123,9 +125,6 @@ define(["class", "helpers"], function(Class, Helpers) {
         ctx.bezierCurveTo(cp1[0], cp1[1], cp2[0], cp2[1], point[0], point[1]);
       }
 
-
-      //ctx.lineJoin = "round";
-      ctx.lineCap = "round";
       ctx.stroke();
     },
   });

@@ -160,9 +160,12 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
     },
 
     hide: function() {
-
       this._file.stopListening();
-      Data.close(this._file)
+
+      this._file.updateThumbnail()
+        .then((function(file) {
+          return Data.close(file);
+        }).bind(this, this._file))
         .
       catch (function(error) {
         console.error(error.stack, error.message);

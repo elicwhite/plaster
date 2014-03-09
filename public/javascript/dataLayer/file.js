@@ -1,4 +1,4 @@
-define(["class", "event", "helpers", "sequentialHelper"], function(Class, Event, Helpers, SequentialHelper) {
+define(["class", "event", "helpers", "sequentialHelper", "components/thumbnail"], function(Class, Event, Helpers, SequentialHelper, Thumbnail) {
   var File = Class.extend({
     fileInfoPromise: null,
 
@@ -446,11 +446,13 @@ define(["class", "event", "helpers", "sequentialHelper"], function(Class, Event,
           promises.push(this._sendAllActions(localActions.local, driveBacking));
 
           return Promise.all(promises)
-            .then(function() {
+            .then((function() {
               if (sendUpdate) {
                 Event.trigger("fileModifiedRemotely", fileInfo);
+
+                return this.updateThumbnail();
               }
-            });
+            }).bind(this));
         }).bind(this));
     },
 
@@ -502,7 +504,9 @@ define(["class", "event", "helpers", "sequentialHelper"], function(Class, Event,
         Event.trigger("fileModified", fileInfo);
       }));
 
-      return Promise.all(promises);
+      return Promise.all(promises).then((function() {
+        return this.updateThumbnail();
+      }).bind(this));
     },
 
     _remoteActionsRemoved: function(data) {
@@ -520,7 +524,24 @@ define(["class", "event", "helpers", "sequentialHelper"], function(Class, Event,
         Event.trigger("fileModified", fileInfo);
       }));
 
-      return Promise.all(promises);
+      return Promise.all(promises).then((function() {
+        return this.updateThumbnail();
+      }).bind(this));
+    },
+
+    updateThumbnail: function() {
+      return this.localSettings()
+        .then((function(settings) {
+          var dataURL = Thumbnail.render(settings, this.getActions());
+
+          return this.fileInfoPromise.then((function(fileInfo) {
+            fileInfo.thumbnail = dataURL;
+            Event.trigger("thumbnailUpdated", fileInfo);
+            this.fileInfoPromise = Promise.cast(fileInfo);
+
+            return this._backing.updateThumbnail(dataURL);
+          }).bind(this))
+        }).bind(this));
     },
 
     _indexify: function(actions, startIndex) {

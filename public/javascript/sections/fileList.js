@@ -52,6 +52,8 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
       Event.addListener("fileRenamed", this._fileRenamed.bind(this));
       Event.addListener("fileIdChanged", this._fileIdChanged.bind(this));
       Event.addListener("fileModifiedRemotely", this._fileModifiedRemotely.bind(this));
+      Event.addListener("thumbnailUpdated", this._thumbnailUpdated.bind(this));
+
     },
 
     _newFileWrapper: function(fileInfo) {
@@ -61,8 +63,10 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
       newEle.fileInfo = fileInfo;
 
       var fileName = newEle.getElementsByClassName("file-name")[0];
+      var thumbnail = newEle.getElementsByClassName("thumbnail")[0];
 
       fileName.innerText = fileInfo.name;
+      thumbnail.src = fileInfo.thumbnail;
 
       this._files.push({
         fileInfo: fileInfo,
@@ -71,7 +75,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
 
       return newEle;
     },
-
+    
     _docSelected: function(e) {
       var element = e.target;
       var parent = Helpers.parentEleWithClassname(element, "file-info");
@@ -167,6 +171,20 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
         }
       }
       */
+    },
+
+    _thumbnailUpdated: function(fileInfo) {
+      for (var i in this._files) {
+        var file = this._files[i];
+        if (file.fileInfo.id == fileInfo.id) {
+
+          file.fileInfo.thumbnail = fileInfo.thumbnail;
+
+          var thumbnailElement = file.element.getElementsByClassName("thumbnail")[0];
+          thumbnailElement.src = fileInfo.thumbnail;
+          return;
+        }
+      }
     },
   });
 

@@ -3,7 +3,7 @@ define([], function() {
   function FileList() {
     var template = '<li class="file-info">'+
                       '<div class="thumbnail-wrapper">'+
-                        '<canvas class="thumbnail"></canvas>'+
+                        '<img class="thumbnail" />'+
                         '<div class="overlay">'+
                           '<span class="file-name"></span>'+
                           '<span class="delete icon-close" data-action="delete"></span>'+

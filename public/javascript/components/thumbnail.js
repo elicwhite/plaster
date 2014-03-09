@@ -3,52 +3,51 @@ define(["class", "helpers", "dataLayer/data", "components/manipulateCanvas"], fu
   var Thumbnail = Class.extend({
     _canvas: null,
 
-    init: function(canvas) {
+    init: function() {
+      var canvas = document.createElement("canvas");
+      canvas.width = 260;
+      canvas.height = 200;
+
       this._canvas = canvas;
     },
 
-    render: function(fileInfo) {
-      return Data.loadFile(fileInfo.id)
-        .then((function(file) {
-          return file.localSettings().then((function(file, settings) {
-            var actions = file.getActions();
-            var manipulateCanvas = new ManipulateCanvas(this._canvas, settings);
+    render: function(settings, actions) {
 
-            // Find out what world point is in the middle
-            var centerScreen = {
-              x: window.innerWidth / 2,
-              y: window.innerHeight / 2
-            };
-            var centerWorld = Helpers.screenToWorld(settings, centerScreen.x, centerScreen.y);
+      var manipulateCanvas = new ManipulateCanvas(this._canvas, settings);
 
-            var scale = Math.min(this._canvas.width / window.innerWidth, this._canvas.height / window.innerHeight);
-            var zoomDiff = (settings.scale * scale) - settings.scale;
-            manipulateCanvas.zoom(0, 0, zoomDiff);
+      // Find out what world point is in the middle
+      var centerScreen = {
+        x: window.innerWidth / 2,
+        y: window.innerHeight / 2
+      };
+      var centerWorld = Helpers.screenToWorld(settings, centerScreen.x, centerScreen.y);
 
-            // Now that we have zoomed, find the middle of the canvas
-            var centerScreenAfter = {
-              x: this._canvas.width / 2,
-              y: this._canvas.height / 2
-            };
+      var scale = Math.min(this._canvas.width / window.innerWidth, this._canvas.height / window.innerHeight);
+      var zoomDiff = (settings.scale * scale) - settings.scale;
+      manipulateCanvas.zoom(0, 0, zoomDiff);
 
-            // And where the middle point was from before
-            var centerScreenPointAfter = Helpers.worldToScreen(settings, centerWorld.x, centerWorld.y);
+      // Now that we have zoomed, find the middle of the canvas
+      var centerScreenAfter = {
+        x: this._canvas.width / 2,
+        y: this._canvas.height / 2
+      };
 
-            // pan the difference
-            var diffScreen = {
-              x: centerScreenAfter.x - centerScreenPointAfter.x,
-              y: centerScreenAfter.y - centerScreenPointAfter.y
-            };
-            manipulateCanvas.pan(diffScreen.x, diffScreen.y);
+      // And where the middle point was from before
+      var centerScreenPointAfter = Helpers.worldToScreen(settings, centerWorld.x, centerWorld.y);
 
-            manipulateCanvas.doAll(actions);
-            manipulateCanvas.render();
+      // pan the difference
+      var diffScreen = {
+        x: centerScreenAfter.x - centerScreenPointAfter.x,
+        y: centerScreenAfter.y - centerScreenPointAfter.y
+      };
+      manipulateCanvas.pan(diffScreen.x, diffScreen.y);
 
-          }).bind(this, file));
+      manipulateCanvas.doAll(actions);
+      manipulateCanvas.render();
 
-        }).bind(this));
+      return this._canvas.toDataURL("image/png");
     }
   });
 
-  return Thumbnail;
+  return new Thumbnail();
 });

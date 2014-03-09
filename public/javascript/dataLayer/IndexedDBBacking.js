@@ -83,7 +83,12 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
             this._fileInfoPromise = Promise.cast(newFile);
           });
       }).bind(this));
+    },
 
+    updateThumbnail: function(dataURL) {
+      return this._fileInfoPromise.then((function(fileInfo) {
+        return this._parent._updateThumbnail(fileInfo.id, dataURL);
+      }).bind(this));
     },
 
     addLocalAction: function(action) {
@@ -296,6 +301,21 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
           .then((function(results) {
             this._updateFileModified(fileId);
 
+            return results;
+          }).bind(this));
+      }).bind(this));
+    },
+
+    _updateThumbnail: function(fileId, dataURL) {
+      return this._serverPromise.then((function(server) {
+        return Promise.cast(server.files.query('id')
+          .only(fileId)
+          .modify({
+            thumbnail: dataURL
+          })
+          .execute()
+        )
+          .then((function(results) {
             return results;
           }).bind(this));
       }).bind(this));
