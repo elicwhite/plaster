@@ -93,37 +93,19 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
 
     addLocalAction: function(action) {
       return this._fileServerPromise.then((function(server) {
-        var addPromise = Promise.cast(server.localActions.add(action));
-        var updatePromise = this._fileInfoPromise
-          .then((function(fileInfo) {
-            return this._parent._updateFileModified(fileInfo.id);
-          }).bind(this));
-
-        return Promise.all([addPromise, updatePromise])
-          .then(function(results) {
-            return results[0];
-          });
+        return Promise.cast(server.localActions.add(action));
       }).bind(this));
     },
 
     removeLocalAction: function(actionId) {
       return this._fileServerPromise.then((function(server) {
-        var addPromise = Promise.cast(server.localActions.remove(actionId));
-        var updatePromise = this._fileInfoPromise
-          .then((function(fileInfo) {
-            return this._parent._updateFileModified(fileInfo.id);
-          }).bind(this));
-
-        return Promise.all([addPromise, updatePromise])
-          .then(function(results) {
-            return results[0];
-          });
+        return Promise.cast(server.localActions.remove(actionId));
       }).bind(this));
     },
 
     addRemoteActions: function(index, actions) {
       return this._fileServerPromise.then((function(server) {
-        var addPromise = Promise.cast(server.remoteActions
+        return Promise.cast(server.remoteActions
           .query('index')
           .lowerBound(index)
           .modify({
@@ -136,23 +118,13 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
           .then(function() {
             return Promise.cast(server.remoteActions.add.apply(server, actions))
           });
-
-        var updatePromise = this._fileInfoPromise
-          .then((function(fileInfo) {
-            return this._parent._updateFileModified(fileInfo.id);
-          }).bind(this));
-
-        return Promise.all([addPromise, updatePromise])
-          .then(function(results) {
-            return results[0];
-          });
       }).bind(this));
     },
 
     removeRemoteActions: function(index, length) {
 
       return this._fileServerPromise.then((function(server) {
-        var removePromise = Promise.cast(server.remoteActions
+        return Promise.cast(server.remoteActions
           .query('index')
           .lowerBound(index)
           .limit(length)
@@ -170,16 +142,6 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
                 }
               })
               .execute())
-          });
-
-        var updatePromise = this._fileInfoPromise
-          .then((function(fileInfo) {
-            return this._parent._updateFileModified(fileInfo.id);
-          }).bind(this));
-
-        return Promise.all([removePromise, updatePromise])
-          .then(function(results) {
-            return results[0];
           });
       }).bind(this));
     },
@@ -224,6 +186,24 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
         this._fileInfoPromise = Promise.reject(new Error("File has been closed"));
         return server.close();
       }).bind(this));;
+    },
+
+    updateLocalModifiedTime: function(time) {
+      return this._fileInfoPromise
+        .then((function(fileInfo) {
+          fileInfo.localModifiedTime = time;
+          this._fileInfoPromise = Promise.resolve(fileInfo);
+          return this._parent.updateLocalModifiedTime(fileInfo.id, time);
+        }).bind(this))
+    },
+
+    updateDriveModifiedTime: function(time) {
+      return this._fileInfoPromise
+        .then((function(fileInfo) {
+          fileInfo.driveModifiedTime = time;
+          this._fileInfoPromise = Promise.resolve(fileInfo);
+          return this._parent.updateDriveModifiedTime(fileInfo.id, time);
+        }).bind(this));
     },
 
     _copyAllActions: function(oldActions) {
@@ -299,8 +279,6 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
           .execute()
         )
           .then((function(results) {
-            this._updateFileModified(fileId);
-
             return results;
           }).bind(this));
       }).bind(this));
@@ -391,12 +369,24 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
       });
     },
 
-    _updateFileModified: function(fileId) {
+    updateLocalModifiedTime: function(fileId, time) {
       return this._serverPromise.then(function(server) {
         return Promise.cast(server.files.query('id')
           .only(fileId)
           .modify({
-            modifiedTime: Date.now()
+            localModifiedTime: time
+          })
+          .execute()
+        );
+      });
+    },
+
+    updateDriveModifiedTime: function(fileId, time) {
+      return this._serverPromise.then(function(server) {
+        return Promise.cast(server.files.query('id')
+          .only(fileId)
+          .modify({
+            driveModifiedTime: time
           })
           .execute()
         );

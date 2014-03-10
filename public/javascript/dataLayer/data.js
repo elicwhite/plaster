@@ -25,7 +25,8 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
       var newFile = {
         id: Helpers.getGuid(),
         name: "Untitled File",
-        modifiedTime: Date.now(),
+        localModifiedTime: Date.now(),
+        driveModifiedTime: "",
         // I don't like this, but it is a 1px transparent png
         thumbnail: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==",
       };
@@ -397,7 +398,9 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
         var newFile = {
           id: fileInfo.id,
           name: fileInfo.title,
-          modifiedTime: new Date(fileInfo.modifiedDate).getTime(),
+          localModifiedTime: Date.now(),
+          driveModifiedTime: fileInfo.modifiedDate,
+
           // I don't like this, but it is a 1px transparent png
           thumbnail: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==",
         };

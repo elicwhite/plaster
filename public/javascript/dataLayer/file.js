@@ -82,13 +82,16 @@ define(["class", "event", "helpers", "sequentialHelper", "components/thumbnail"]
     rename: function(newName) {
 
       return this.fileInfoPromise.then((function(fileInfo) {
-
+        var newTime = Date.now();
 
         fileInfo.name = newName;
+        fileInfo.localModifiedTime = newTime;
         Event.trigger("fileRenamed", fileInfo);
         Event.trigger("fileModified", fileInfo);
 
-        this.fileInfoPromise = Promise.cast(fileInfo);
+        this.fileInfoPromise = Promise.cast(fileInfo).then((function() {
+          return this._backing.updateLocalModifiedTime(newTime);
+        }).bind(this));
 
         var promises = [];
         promises.push(this.fileInfoPromise);
@@ -286,16 +289,22 @@ define(["class", "event", "helpers", "sequentialHelper", "components/thumbnail"]
       }
 
       if (this._cachedActions.localActions.length == 0) {
-        return Promise.cast(false); // no actions to undo
+        return Promise.resolve(false); // no actions to undo
       } else {
         var lastAction = this._cachedActions.localActions.pop();
         this._cachedActions.redoStack.push(lastAction);
 
-        this.fileInfoPromise.then(function(fileInfo) {
-          Event.trigger("fileModified", fileInfo);
-        });
+        return this._backing.removeLocalAction(lastAction.id)
+          .then((function() {
+            return this.fileInfoPromise;
+          }).bind(this))
+          .then((function(fileInfo) {
+            fileInfo.localModifiedTime = Date.now();
+            this.fileInfoPromise = Promise.resolve(fileInfo);
+            Event.trigger("fileModified", fileInfo);
 
-        return this._backing.removeLocalAction(lastAction.id);
+            return this._backing.updateLocalModifiedTime(fileInfo.localModifiedTime);
+          }).bind(this));
       }
     },
 
@@ -305,7 +314,7 @@ define(["class", "event", "helpers", "sequentialHelper", "components/thumbnail"]
       }
 
       if (this._cachedActions.redoStack.length == 0) {
-        return Promise.cast(false); // no actions to undo
+        return Promise.resolve(false); // no actions to undo
       } else {
         var action = this._cachedActions.redoStack.pop();
         return this.addAction(action);
@@ -315,12 +324,15 @@ define(["class", "event", "helpers", "sequentialHelper", "components/thumbnail"]
     addAction: function(action) {
       this._cachedActions.localActions.push(action);
 
-      this.fileInfoPromise.then(function(fileInfo) {
-        Event.trigger("fileModified", fileInfo);
-      });
-
-
       var promises = [];
+
+      promises.push(this.fileInfoPromise.then((function(fileInfo) {
+        fileInfo.localModifiedTime = Date.now();
+        this.fileInfoPromise = Promise.resolve(fileInfo);
+        Event.trigger("fileModified", fileInfo);
+
+        return this._backing.updateLocalModifiedTime(fileInfo.localModifiedTime);
+      }).bind(this)));
 
       promises.push(this._backing.addLocalAction(action));
 
@@ -339,7 +351,7 @@ define(["class", "event", "helpers", "sequentialHelper", "components/thumbnail"]
     },
 
     delete: function() {
-      this.close()
+      return this.close()
         .then(this._backing.delete);
     },
 
@@ -497,10 +509,15 @@ define(["class", "event", "helpers", "sequentialHelper", "components/thumbnail"]
         });
       }
 
-      promises.push(this.fileInfoPromise.then(function(fileInfo) {
+      promises.push(this.fileInfoPromise.then((function(fileInfo) {
         Event.trigger("fileModifiedRemotely", fileInfo);
+
+        fileInfo.localModifiedTime = Date.now();
+        this.fileInfoPromise = Promise.resolve(fileInfo);
         Event.trigger("fileModified", fileInfo);
-      }));
+
+        return this._backing.updateLocalModifiedTime(fileInfo.localModifiedTime);
+      }).bind(this)));
 
       return Promise.all(promises).then((function() {
         return this.updateThumbnail();
@@ -519,7 +536,11 @@ define(["class", "event", "helpers", "sequentialHelper", "components/thumbnail"]
       }
 
       promises.push(this.fileInfoPromise.then(function(fileInfo) {
+        fileInfo.localModifiedTime = Date.now();
+        this.fileInfoPromise = Promise.resolve(fileInfo);
         Event.trigger("fileModified", fileInfo);
+
+        return this._backing.updateLocalModifiedTime(fileInfo.localModifiedTime);
       }));
 
       return Promise.all(promises).then((function() {

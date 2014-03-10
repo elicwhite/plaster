@@ -116,6 +116,10 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
 
     _scheduleUpdate: function() {
       this._updateTimeout = setTimeout((function() {
+        if (!this._visible) {
+          return;
+        }
+
         Data.checkForUpdates().then((function() {
           this._scheduleUpdate()
         }).bind(this));
