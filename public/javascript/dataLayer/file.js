@@ -21,6 +21,16 @@ define(["class", "event", "helpers", "sequentialHelper", "components/thumbnail"]
       this._loadCallbacks = [];
     },
 
+    hasLocalActions: function(fileId) {
+      return this._backing.load(fileId)
+        .then((function(fileInfo) {
+          return this._backing.getActions()
+        }).bind(this))
+        .then(function(actions) {
+          return actions.local.length !== 0;
+        });
+    },
+
     remoteActionsMatch: function(fileId, driveBacking) {
       return Promise.all([this._backing.load(fileId), driveBacking.load(fileId)])
         .then((function() {
@@ -89,12 +99,16 @@ define(["class", "event", "helpers", "sequentialHelper", "components/thumbnail"]
         Event.trigger("fileRenamed", fileInfo);
         Event.trigger("fileModified", fileInfo);
 
-        this.fileInfoPromise = Promise.cast(fileInfo).then((function() {
-          return this._backing.updateLocalModifiedTime(newTime);
-        }).bind(this));
+        this.fileInfoPromise = Promise.resolve(fileInfo);
+
+
 
         var promises = [];
-        promises.push(this.fileInfoPromise);
+
+        promises.push(this.fileInfoPromise.then((function() {
+          return this._backing.updateLocalModifiedTime(newTime);
+        }).bind(this)));
+
         promises.push(this._backing.rename(newName));
 
         if (this._driveBacking) {
@@ -129,9 +143,6 @@ define(["class", "event", "helpers", "sequentialHelper", "components/thumbnail"]
       catch (function(error) {
         console.error(error.stack, error.message);
       })
-        .then(function() {
-          console.log("Completed file sync", fileInfo.id);
-        });
     },
 
     sync: function(driveBacking) {
@@ -225,7 +236,13 @@ define(["class", "event", "helpers", "sequentialHelper", "components/thumbnail"]
         .
       catch (function(error) {
         console.error(error, error.stack, error.message);
-      });
+      })
+        .then((function() {
+          return this.fileInfoPromise;
+        }).bind(this))
+        .then(function(fileInfo) {
+          console.log("Completed file sync", fileInfo.id);
+        });
 
       return this._syncPromise;
     },
@@ -547,6 +564,10 @@ define(["class", "event", "helpers", "sequentialHelper", "components/thumbnail"]
       }).bind(this));
     },
 
+    updateDriveModifiedTime: function(time) {
+      return this._backing.updateDriveModifiedTime(time);
+    },
+
     updateThumbnail: function() {
       return this.localSettings()
         .then((function(settings) {
@@ -555,7 +576,7 @@ define(["class", "event", "helpers", "sequentialHelper", "components/thumbnail"]
           return this.fileInfoPromise.then((function(fileInfo) {
             fileInfo.thumbnail = dataURL;
             Event.trigger("thumbnailUpdated", fileInfo);
-            this.fileInfoPromise = Promise.cast(fileInfo);
+            this.fileInfoPromise = Promise.resolve(fileInfo);
 
             return this._backing.updateThumbnail(dataURL);
           }).bind(this))

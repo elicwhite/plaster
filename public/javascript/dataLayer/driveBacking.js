@@ -7,11 +7,15 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
     _addedCallback: null,
     _removedCallback: null,
 
+    // Delay if we need to change the file modified time of a file
+    _updateFileTimeout: null,
+
     init: function(parent) {
       this._parent = parent;
 
       this._actionsAdded = this._actionsAdded.bind(this);
       this._actionsRemoved = this._actionsRemoved.bind(this);
+      this._saveStateChanged = this._saveStateChanged.bind(this);
     },
 
     listen: function(addedCallback, removedCallback) {
@@ -24,9 +28,10 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
         .then((function(fileInfo) {
           return this._openForRealtime(fileInfo.id);
         }).bind(this))
-        .catch(function(error) {
-          console.error(error, error.stack, error.message);
-        });
+        .
+      catch (function(error) {
+        console.error(error, error.stack, error.message);
+      });
     },
 
     create: function(file) {
@@ -37,9 +42,10 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
               return fileInfo;
             })
         }).bind(this))
-        .catch(function(error) {
-          console.error(error, error.stack, error.message);
-        });
+        .
+      catch (function(error) {
+        console.error(error, error.stack, error.message);
+      });
     },
 
     _openForRealtime: function(fileId) {
@@ -53,6 +59,8 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
               var actions = doc.getModel().getRoot().get('actions');
               actions.addEventListener(gapi.drive.realtime.EventType.VALUES_ADDED, this._actionsAdded);
               actions.addEventListener(gapi.drive.realtime.EventType.VALUES_REMOVED, this._actionsRemoved);
+
+              doc.addEventListener(gapi.drive.realtime.EventType.DOCUMENT_SAVE_STATE_CHANGED, this._saveStateChanged);
 
               resolve(this._docPromise);
             }).bind(this));
@@ -89,6 +97,27 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
 
     _actionsRemoved: function(e) {
       this._removedCallback(e);
+    },
+
+    _saveStateChanged: function(e) {
+      if (this._updateFileTimeout) {
+
+        // Clear it and set a new one
+        clearTimeout(this._updateFileTimeout);
+      }
+
+      // one second delay
+      this._updateFileTimeout = setTimeout((function() {
+        this._docPromise.then((function(doc) {
+          this._parent.touchFile(doc.getModel().getRoot().get('id'))
+          .then(function(result) {
+            console.log("Touched file", result);
+          })
+          .catch(function(e) {
+            console.error("Error touching file", e);
+          });
+        }).bind(this));
+      }).bind(this), 1000);
     },
 
     getActions: function() {
@@ -181,8 +210,6 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
             } else {
               resolve({
                 id: resp.id,
-                name: resp.title,
-                modifiedTime: new Date(resp.modifiedDate).getTime(),
               });
             }
           });
@@ -204,8 +231,6 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
             } else {
               resolve({
                 id: resp.id,
-                name: resp.title,
-                modifiedTime: new Date(resp.modifiedDate).getTime(),
               });
             }
           });
@@ -242,6 +267,22 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
 
         gapi.client.load('drive', 'v2', function() {
           var request = gapi.client.drive.files.delete({
+            'fileId': fileId
+          }).execute(function(resp) {
+            if (resp.error) {
+              reject(resp);
+            } else {
+              resolve(resp);
+            }
+          });
+        });
+      });
+    },
+
+    touchFile: function(fileId) {
+      return new Promise(function(resolve, reject) {
+        gapi.client.load('drive', 'v2', function() {
+          var request = gapi.client.drive.files.touch({
             'fileId': fileId
           }).execute(function(resp) {
             if (resp.error) {

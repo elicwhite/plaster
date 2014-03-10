@@ -311,7 +311,7 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
                 return sequence.then((function(driveFileInfo) {
                   var deletedLocally = fileIdsDeletedLocally.indexOf(driveFileInfo.id) !== -1;
                   return this._fileNotFoundLocally(driveFileInfo, deletedLocally);
-                  }).bind(this, driveFileInfo));
+                }).bind(this, driveFileInfo));
 
               }).bind(this), sequence);
 
@@ -334,18 +334,33 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
                     var driveFileInfo = files.drive;
                     var localFileInfo = files.local;
 
-                    // TODO: short circuit if the drive modified time hasn't changed
-                    
-                    // Let the file check to make sure it is named properly and has all the actions
-                    return this.loadFile(localFileInfo.id, true)
-                      .then((function(fileObj) {
-                        return this.close(fileObj);
-                      }).bind(this))
+
+                    var tempFile = new File(new this._backing.instance(this._backing));
+                    var hasLocalActionsPromise = tempFile.hasLocalActions(localFileInfo.id);
+
+                    return hasLocalActionsPromise.then((function(hasLocalActions) {
+
+                      if (
+                        driveFileInfo.modifiedDate != localFileInfo.driveModifiedTime ||
+                        hasLocalActions ||
+                        driveFileInfo.title != localFileInfo.name) {
+
+                        // Let the file check to make sure it is named properly and has all the actions
+                        return this.loadFile(localFileInfo.id, true)
+                          .then((function(fileObj) {
+                            
+                            return fileObj.updateDriveModifiedTime(driveFileInfo.modifiedDate)
+                              .then((function() {
+                                return this.close(fileObj);
+                              }).bind(this));
+                          }).bind(this));
+                      } else {
+                        console.log("No local changes, skipping", localFileInfo.id);
+                      }
+                    }).bind(this));
+
                   }).bind(this, files));
-
               }).bind(this), sequence);
-
-          
 
               promises.push(sequence);
 
@@ -376,22 +391,22 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
         // know whether we should actually delete it remotely.
         var tempFile = new File(new this._backing.instance(this._backing));
         return tempFile.remoteActionsMatch(fileInfo.id, this._newDriveInstance())
+          .then((function(actionsMatch) {
+            if (actionsMatch) {
+              console.log("Deleting", fileInfo.id, "on remote");
+              // delete it on the remote
+              return this.deleteFile(fileInfo.id);
+            } else {
+              // unmark as deleted and load it so it will sync
+              console.log("Readding", fileInfo.id, "on remote");
+              var loadClose = this.loadFile(fileInfo.id)
+                .then((function(file) {
+                  return this.close(file);
+                }).bind(this));
 
-        .then((function(actionsMatch) {
-          console.log("inside for", fileInfo.id);
-          if (actionsMatch) {
-            // delete it on the remote
-            return this.deleteFile(fileInfo.id);
-          } else {
-            // unmark as deleted and load it so it will sync
-            var loadClose = this.loadFile(fileInfo.id)
-              .then((function(file) {
-                return this.close(file);
-              }).bind(this));
-
-            return Promise.all([this._backing.unmarkFileAsDeleted(fileInfo.id), loadClose]);
-          }
-        }).bind(this));
+              return Promise.all([this._backing.unmarkFileAsDeleted(fileInfo.id), loadClose]);
+            }
+          }).bind(this));
       } else {
         // File wasn't found locally, make a file with the same
         // id and then it will sync
@@ -405,6 +420,7 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
           thumbnail: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==",
         };
 
+        console.log("Creating file on drive again");
         return this._createFile(newFile)
           .then((function(file) {
             return this.close(file);

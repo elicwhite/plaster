@@ -622,9 +622,9 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
     },
 
     _fileModifiedRemotely: function(fileInfo) {
-      this._file.fileInfoPromise.then((function(fileInfo) {
+      this._file.fileInfoPromise.then((function(file) {
         if (fileInfo.id == file.id) {
-          this._updateAll = false;
+          this._updateAll = true;
         }
       }).bind(this));
     },

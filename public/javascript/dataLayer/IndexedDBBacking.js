@@ -237,8 +237,7 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
               id: {
                 unique: true
               },
-              modifiedTime: {
-                //keyPath: 'modifiedTime'
+              localModifiedTime: {
               },
             }
           }
@@ -249,7 +248,7 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
 
     getFiles: function() {
       return this._serverPromise.then(function(server) {
-        return Promise.cast(server.files.query('modifiedTime')
+        return Promise.cast(server.files.query('localModifiedTime')
           .all()
           .filter(function(file) {
             return !file.deleted;

@@ -171,10 +171,12 @@ define([], function() {
             };
             transaction.onerror = function ( e ) {
                 //deferred.reject( records , e );
+                e.records = records;
                 deferred.reject( e );
             };
             transaction.onabort = function ( e ) {
                 //deferred.reject( records , e );
+                e.records = records;
                 deferred.reject( e );
             };
             return deferred.promise();
@@ -215,10 +217,12 @@ define([], function() {
             };
             transaction.onerror = function ( e ) {
                 //deferred.reject( records , e );
+                e.records = records;
                 deferred.reject( e );
             };
             transaction.onabort = function ( e ) {
                 //deferred.reject( records , e );
+                e.records = records;
                 deferred.reject( e );
             };
             return deferred.promise();
