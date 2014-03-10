@@ -212,15 +212,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
     },
 
     _fileModifiedRemotely: function(fileInfo) {
-      /*
-      for (var i in this._files) {
-        var file = this._files[i];
-        if (file.fileInfo.id == fileInfo.id) {
-          this._resizeAndRenderFile(file);
-          return;
-        }
-      }
-      */
+      
     },
 
     _thumbnailUpdated: function(fileInfo) {

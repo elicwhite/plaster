@@ -121,18 +121,17 @@ define(["class", "event", "helpers", "sequentialHelper", "components/thumbnail"]
         .then((function(fileInfo) {
           console.log("Starting drive for file", fileInfo.id);
           return this.sync(driveBacking)
-            .then((function() {
-              this._driveBacking = driveBacking;
-            }).bind(this))
-            .
-          catch (function(error) {
-            console.error(error.stack, error.message);
-          })
-            .then(function() {
-              console.log("Completed file sync", fileInfo.id);
-            });
-
         }).bind(this))
+        .then((function() {
+          this._driveBacking = driveBacking;
+        }).bind(this))
+        .
+      catch (function(error) {
+        console.error(error.stack, error.message);
+      })
+        .then(function() {
+          console.log("Completed file sync", fileInfo.id);
+        });
     },
 
     sync: function(driveBacking) {
