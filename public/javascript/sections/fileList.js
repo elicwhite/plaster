@@ -71,7 +71,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
       var fileName = newEle.getElementsByClassName("file-name")[0];
       var thumbnail = newEle.getElementsByClassName("thumbnail")[0];
 
-      fileName.innerText = fileInfo.name;
+      fileName.textContent = fileInfo.name;
       thumbnail.src = fileInfo.thumbnail;
 
       this._files.push({
@@ -195,7 +195,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
           file.fileInfo.name = fileInfo.name;
 
           var fileNameElement = file.element.getElementsByClassName("file-name")[0];
-          fileNameElement.innerText = fileInfo.name;
+          fileNameElement.textContent = fileInfo.name;
           return;
         }
       }
