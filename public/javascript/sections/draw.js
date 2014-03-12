@@ -162,14 +162,17 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
     hide: function() {
       this._file.stopListening();
 
-      this._file.updateThumbnail()
-        .then((function(file) {
-          return Data.close(file);
-        }).bind(this, this._file))
-        .
-      catch (function(error) {
-        console.error(error.stack, error.message);
-      });
+      // Close the file after we have left, keep it from stuttering.
+      window.setTimeout((function() {
+        this._file.updateThumbnail()
+          .then((function(file) {
+            return Data.close(file);
+          }).bind(this, this._file))
+          .
+        catch (function(error) {
+          console.error(error.stack, error.message);
+        });
+      }).bind(this), 600);
 
       this._shouldRender = false;
 
