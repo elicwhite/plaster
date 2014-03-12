@@ -59,7 +59,6 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
       Event.addListener("fileIdChanged", this._fileIdChanged.bind(this));
       Event.addListener("fileModifiedRemotely", this._fileModifiedRemotely.bind(this));
       Event.addListener("thumbnailUpdated", this._thumbnailUpdated.bind(this));
-      Event.addListener("onlineStatusChanged", this._onlineStatusChanged.bind(this));
     },
 
     _newFileWrapper: function(fileInfo) {
@@ -93,28 +92,35 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
             this._scheduleUpdate()
           }).bind(this));
       }
+
+      Event.addListener("onlineStatusChanged", this._onlineStatusChanged);
     },
 
     hide: function() {
       if (this._updateTimeout) {
         clearTimeout(this._updateTimeout);
       }
+
+      Event.removeListener("onlineStatusChanged", this._onlineStatusChanged);
     },
 
     _onlineStatusChanged: function() {
       // check for updates if we come online while looking at this page
-      if (this._visible) {
-        Data.checkForUpdates()
-          .then((function() {
-            this._scheduleUpdate()
-          }).bind(this))
-          .catch(function(error) {
-            console.error(error.stack, error.message);
-          });
-      }
+      Data.checkForUpdates()
+        .then((function() {
+          this._scheduleUpdate()
+        }).bind(this))
+        .
+      catch (function(error) {
+        console.error(error.stack, error.message);
+      });
     },
 
     _scheduleUpdate: function() {
+      if (this._updateTimeout) {
+        clearTimeout(this._updateTimeout);
+      }
+
       this._updateTimeout = setTimeout((function() {
         if (!this._visible) {
           return;
@@ -212,7 +218,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
     },
 
     _fileModifiedRemotely: function(fileInfo) {
-      
+
     },
 
     _thumbnailUpdated: function(fileInfo) {

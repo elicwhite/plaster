@@ -33,8 +33,11 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
     // Set this to false to stop the render loop
     _shouldRender: false,
 
-    // Timeout for 
+    // Timeout for saving settings
     _saveSettingsTimeout: null,
+
+    // The timer we use to schedule file sync
+    _fileSyncTimeout: null,
 
     // The tap handler for the draw pane. Needed to turn on and off gestures
     _canvasTapHandler: null,
@@ -59,6 +62,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
       this._fileModifiedRemotely = this._fileModifiedRemotely.bind(this);
       this._fileRenamed = this._fileRenamed.bind(this);
       this._redraw = this._redraw.bind(this);
+      this._onlineStatusChanged = this._onlineStatusChanged.bind(this);
 
       // Keep the trackpad from trigger chrome's back event
       this.element.addEventListener("touchmove", function(e) {
@@ -146,6 +150,13 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
 
           Event.addListener("fileModifiedRemotely", this._fileModifiedRemotely);
           Event.addListener("fileRenamed", this._fileRenamed);
+          Event.addListener("onlineStatusChanged", this._onlineStatusChanged);
+
+        }).bind(this))
+        .catch((function(error) {
+          console.error("Unable to draw for this file", error);
+          this._filesPane.setPane("list");
+          return;
         }).bind(this));
 
       // We don't need data to resize
@@ -178,6 +189,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
 
       Event.removeListener("fileModifiedRemotely", this._fileModifiedRemotely);
       Event.removeListener("fileRenamed", this._fileRenamed);
+      Event.removeListener("onlineStatusChanged", this._onlineStatusChanged);
       window.removeEventListener("resize", this._resize);
     },
 
@@ -638,6 +650,40 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
           this._fileNameElement.value = file.name;
         }
       }).bind(this));
+    },
+
+    _onlineStatusChanged: function() {
+      // check for updates if we come online while looking at this page
+      this._file.sync(null, false)
+        .then((function() {
+          this._scheduleUpdate()
+        }).bind(this))
+        .
+      catch (function(error) {
+        console.error(error.stack, error.message);
+      });
+    },
+
+    _scheduleUpdate: function() {
+      if (this._fileSyncTimeout) {
+        clearTimeout(this._fileSyncTimeout);
+      }
+
+      this._fileSyncTimeout = setTimeout((function() {
+        if (!this._visible) {
+          return;
+        }
+
+        if (this._currentAction) {
+          console.log("We are currently drawing, delaying sync");
+          this._scheduleUpdate();
+          return;
+        }
+
+        this._file.sync(null, false).then((function() {
+          this._scheduleUpdate()
+        }).bind(this));
+      }).bind(this), 15 * 1000);
     },
   });
 

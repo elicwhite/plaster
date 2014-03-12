@@ -134,7 +134,7 @@ define(["class", "event", "helpers", "sequentialHelper", "components/thumbnail"]
       return this.fileInfoPromise
         .then((function(fileInfo) {
           console.log("Starting drive for file", fileInfo.id);
-          return this.sync(driveBacking)
+          return this.sync(driveBacking, true)
         }).bind(this))
         .then((function() {
           this._driveBacking = driveBacking;
@@ -145,8 +145,8 @@ define(["class", "event", "helpers", "sequentialHelper", "components/thumbnail"]
       })
     },
 
-    sync: function(driveBacking) {
-      driveBacking = this._driveBacking || driveBacking;
+    sync: function(drive, syncActions) {
+      var driveBacking = this._driveBacking || drive;
 
       // if this fileId exists on drive, great, it's a match
       // if it doesn't, then it either has never been uploaded, or was deleted on the server
@@ -185,7 +185,10 @@ define(["class", "event", "helpers", "sequentialHelper", "components/thumbnail"]
               promises.push(this.rename(driveFiles[i].title));
             }
 
-            promises.push(this._syncRemoteActionsFromDrive(driveBacking));
+            if (syncActions) {
+              promises.push(this._syncRemoteActionsFromDrive(driveBacking));
+            }
+
           } else {
             console.log("File not found on drive", fileInfo.id);
             // this file was not found
