@@ -385,6 +385,10 @@ define(["class", "event", "helpers", "sequentialHelper", "components/thumbnail"]
       return prom.then((function() {
         this.fileInfoPromise.then((function(fileInfo) {
           console.log("Closing file", fileInfo.id);
+
+          // Explicitly allow garbage collection
+          this._cachedActions.length = 0;
+          
           this.fileInfoPromise = Promise.reject(new Error("File has been closed"));
         }).bind(this));
 
