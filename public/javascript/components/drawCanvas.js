@@ -115,6 +115,8 @@ define(["class", "helpers", "bezierCurve"], function(Class, Helpers, BezierCurve
 
       for (var i = 1; i < points.length; i++) {
         point = points[i];
+        //ctx.lineTo(point[0], point[1]);
+        //continue;
 
         var cp1 = controlPoints[i - 1][0];
         var cp2 = controlPoints[i - 1][1];

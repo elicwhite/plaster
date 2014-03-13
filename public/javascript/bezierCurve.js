@@ -1,4 +1,4 @@
-define([], function() {
+define(["helpers"], function(Helpers) {
 
   function BezierCurve() {
     this.init();
@@ -19,6 +19,7 @@ define([], function() {
     },
 
     getCurveControlPoints: function(knots) {
+      //return Helpers.getCurveControlPoints(knots);
       var n = knots.length - 1;
 
       // Add space to our working arrays or make them shorter if needed
@@ -69,24 +70,25 @@ define([], function() {
       this.getFirstControlPoints(this._rhs);
 
       for (var i = 0; i < n; ++i) {
-        this._controlPoints[i] = new Array(2);
+        if (typeof(this._controlPoints[i]) == "undefined") {
+          this._controlPoints[i] = [
+            new Array(2),
+            new Array(2),
+          ];
+        }
+
 
         // First control point
-        this._controlPoints[i][0] = [
-          this._rhs[0][i],
-          this._rhs[1][i]
-        ];
+        this._controlPoints[i][0][0] = this._rhs[0][i];
+        this._controlPoints[i][0][1] = this._rhs[1][i];
 
         // Second control point
         if (i < n - 1) {
-          this._controlPoints[i][1] = [
-            2 * knots[i + 1][0] - this._rhs[0][i + 1],
-            2 * knots[i + 1][1] - this._rhs[1][i + 1]
-          ];
+          this._controlPoints[i][1][0] = 2 * knots[i + 1][0] - this._rhs[0][i + 1];
+          this._controlPoints[i][1][1] = 2 * knots[i + 1][1] - this._rhs[1][i + 1];
         } else {
-          this._controlPoints[i][1] = [
-            (knots[n][0] + this._rhs[0][n - 1]) / 2, (knots[n][1] + this._rhs[1][n - 1]) / 2
-          ];
+          this._controlPoints[i][1][0] = (knots[n][0] + this._rhs[0][n - 1]) / 2;
+          this._controlPoints[i][1][1] = (knots[n][1] + this._rhs[1][n - 1]) / 2;
         }
       }
 
