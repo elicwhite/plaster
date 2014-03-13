@@ -5,7 +5,7 @@ function init() {
     e.preventDefault();
   });
 
-  require(["event", "globals", "managers/login", "gauth"], function(Event, g, LoginManager, GAuth) {
+  require(["event", "globals", "helpers", "managers/login", "gauth", "bezierCurve"], function(Event, g, Helpers, LoginManager, GAuth, BezierCurve) {
     g.setHTMLDevices();
 
     var loginManager = new LoginManager();
@@ -29,7 +29,6 @@ function init() {
         Data.startDrive();
       });
     });
-
   });
 }
 

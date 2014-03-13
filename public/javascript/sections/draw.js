@@ -1,4 +1,4 @@
-define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db", "dataLayer/data", "components/manipulateCanvas"], function(Section, g, Event, Helpers, TapHandler, Platform, db, Data, ManipulateCanvas) {
+define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db", "bezierCurve", "dataLayer/data", "components/manipulateCanvas"], function(Section, g, Event, Helpers, TapHandler, Platform, db, BezierCurve, Data, ManipulateCanvas) {
 
   var Draw = Section.extend({
     id: "draw",
@@ -153,11 +153,12 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
           Event.addListener("onlineStatusChanged", this._onlineStatusChanged);
 
         }).bind(this))
-        .catch((function(error) {
-          console.error("Unable to draw for this file", error);
-          this._filesPane.setPane("list");
-          return;
-        }).bind(this));
+        .
+      catch ((function(error) {
+        console.error("Unable to draw for this file", error);
+        this._filesPane.setPane("list");
+        return;
+      }).bind(this));
 
       // We don't need data to resize
       this._resize();
@@ -267,7 +268,8 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
           width: 2,
           lockWidth: true, // should the width stay the same regardless of zoom
           color: this._settings.color
-        }
+        },
+        bezierCurve: new BezierCurve()
       }
 
       if (tool == "eraser") {
@@ -340,7 +342,11 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
           // or render a point
         }
 
-        var controlPoints = Helpers.getCurveControlPoints(currentStroke.points);
+        var controlPoints = currentAction.bezierCurve.getCurveControlPoints(currentStroke.points);
+        
+        // We don't want to save the bezier curve helper
+        delete currentAction.bezierCurve;
+
         currentStroke.controlPoints = controlPoints;
 
         this._updateCurrentAction = true;
@@ -380,8 +386,11 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
       }
 
       if (this._updateCurrentAction && this._currentAction) {
-        this._manipulateCanvas.doTemporaryAction(this._currentAction)
-
+        var currentAction = this._currentAction;
+        var controlPoints = currentAction.bezierCurve.getCurveControlPoints(currentAction.value.points);
+        
+        currentAction.value.controlPoints = controlPoints;
+        this._manipulateCanvas.doTemporaryAction(currentAction)
       }
 
       if (this._updateAll || this._updateCurrentAction || this._update) {

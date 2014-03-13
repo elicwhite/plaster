@@ -1,4 +1,4 @@
-define(["class", "helpers"], function(Class, Helpers) {
+define(["class", "helpers", "bezierCurve"], function(Class, Helpers, BezierCurve) {
   var DrawCanvas = Class.extend({
     _canvas: null,
     _ctx: null,
@@ -81,6 +81,7 @@ define(["class", "helpers"], function(Class, Helpers) {
 
     _doAction: function(ctx, action) {
       if (action.type == "stroke") {
+
         this._drawStroke(ctx, action.value);
       }
     },
@@ -94,14 +95,8 @@ define(["class", "helpers"], function(Class, Helpers) {
         return;
       }
 
-      var controlPoints = [];
+      var controlPoints = stroke.controlPoints;
       var points = stroke.points;
-
-      if (!stroke.controlPoints) {
-        controlPoints = Helpers.getCurveControlPoints(points);
-      } else {
-        controlPoints = stroke.controlPoints;
-      }
 
       var point = points[0];
 
@@ -120,6 +115,9 @@ define(["class", "helpers"], function(Class, Helpers) {
 
       for (var i = 1; i < points.length; i++) {
         point = points[i];
+        //ctx.lineTo(point[0], point[1]);
+        //continue;
+
         var cp1 = controlPoints[i - 1][0];
         var cp2 = controlPoints[i - 1][1];
         ctx.bezierCurveTo(cp1[0], cp1[1], cp2[0], cp2[1], point[0], point[1]);
