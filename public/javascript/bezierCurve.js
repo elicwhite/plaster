@@ -8,25 +8,29 @@ define(["helpers"], function(Helpers) {
     _rhs: null,
     _controlPoints: null,
     _tmp: null,
+    _length: null,
 
     init: function() {
+      this._length = 0;
+
       this._rhs = [
         [],
         []
       ];
       this._controlPoints = [];
       this._tmp = [];
+
+      // pre-allocate
+      for (var i = 0; i < 2000; i++) {
+        this._tmp[i] = 1.0;
+        this._rhs[0][i] = 1.0;
+        this._rhs[1][i] = 1.0;
+      }
     },
 
-    getCurveControlPoints: function(knots) {
-      //return Helpers.getCurveControlPoints(knots);
+    getCurveControlPoints: function(knots) {      
       var n = knots.length - 1;
-
-      // Add space to our working arrays or make them shorter if needed
-      this._rhs[0].length = n;
-      this._rhs[1].length = n;
-      this._controlPoints.length = n;
-      this._tmp.length = n;
+      this._length = n;
 
       if (n < 1) {
         console.error("Must have at least two knots");
@@ -98,9 +102,9 @@ define(["helpers"], function(Helpers) {
     },
 
     getFirstControlPoints: function() {
-      var n = this._rhs[0].length;
 
-      // Temp workspace
+      var n = this._length;
+
       var b = 2.0;
 
       this._rhs[0][0] /= b;

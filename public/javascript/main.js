@@ -29,45 +29,6 @@ function init() {
         Data.startDrive();
       });
     });
-
-
-    var points = [
-      [4, 10],
-      [18, 20],
-      [30, 15],
-      [6, -4],
-      [10, 15]
-    ];
-
-    var curve = new BezierCurve();
-
-    var r1 = Helpers.getCurveControlPoints(points);
-    var r2 = curve.getCurveControlPoints(points);
-
-    console.log("Match?", arraysMatch(r1, r2), r1, r2);
-
-    function arraysMatch(a1, a2) {
-      if (a1.length != a2.length || typeof(a1) != typeof(a2)) {
-        console.log("not same length or type");
-        return false;
-      }
-
-      for (var i = 0; i < a1.length; i++) {
-        if (typeof(a1[i]) == "object") {
-          return arraysMatch(a1[i], a2[i]);
-        }
-
-        if (a1[i] != a2[i]) {
-
-          console.log("a1 is ", a1[i], "a2 is", a2[i]);
-          return false;
-        }
-      }
-
-      return true;
-    }
-
-    //var result2 = Helpers.updateCurveControlPoints(cp, points);
   });
 }
 
