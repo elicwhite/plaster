@@ -1,4 +1,4 @@
-define(["helpers"], function(Helpers) {
+define([], function() {
 
   function BezierCurve() {
     this.init();
@@ -69,7 +69,6 @@ define(["helpers"], function(Helpers) {
       this._rhs[0][n - 1] = (8 * knots[n - 1][0] + knots[n][0]) / 2;
       this._rhs[1][n - 1] = (8 * knots[n - 1][1] + knots[n][1]) / 2;
 
-
       // Get first control points x-values
       this.getFirstControlPoints(this._rhs);
 
@@ -80,7 +79,6 @@ define(["helpers"], function(Helpers) {
             new Array(2),
           ];
         }
-
 
         // First control point
         this._controlPoints[i][0][0] = this._rhs[0][i];
@@ -96,15 +94,11 @@ define(["helpers"], function(Helpers) {
         }
       }
 
-
       return this._controlPoints;
-
     },
 
     getFirstControlPoints: function() {
-
       var n = this._length;
-
       var b = 2.0;
 
       this._rhs[0][0] /= b;
@@ -122,20 +116,16 @@ define(["helpers"], function(Helpers) {
         this._rhs[0][i] -= this._rhs[0][i - 1];
         this._rhs[0][i] /= b;
 
-
         this._rhs[1][i] -= this._rhs[1][i - 1];
         this._rhs[1][i] /= b;
       }
-
 
       for (var i = n - 1; i >= 0; i--) {
         this._rhs[0][i - 1] -= this._tmp[i] * this._rhs[0][i];
         this._rhs[1][i - 1] -= this._tmp[i] * this._rhs[1][i];
       }
     },
-
   }
 
   return BezierCurve;
-
 });

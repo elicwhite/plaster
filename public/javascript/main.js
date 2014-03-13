@@ -5,7 +5,7 @@ function init() {
     e.preventDefault();
   });
 
-  require(["event", "globals", "helpers", "managers/login", "gauth", "bezierCurve"], function(Event, g, Helpers, LoginManager, GAuth, BezierCurve) {
+  require(["event", "globals", "helpers", "managers/login", "gauth"], function(Event, g, Helpers, LoginManager, GAuth) {
     g.setHTMLDevices();
 
     var loginManager = new LoginManager();
