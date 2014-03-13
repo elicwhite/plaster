@@ -43,5 +43,17 @@ define([], function() {
 
       return newObj;
     },
+
+    cloneArray: function(array) {
+      var arr = array.slice(0);
+      
+      for (var i = 0; i < array.length; i++) {
+        if (typeof(array[i]) == "object") {
+          //recursion
+          arr[i] = this.cloneArray(array[i]);
+        }
+      }
+      return arr;
+    },
   };
 });

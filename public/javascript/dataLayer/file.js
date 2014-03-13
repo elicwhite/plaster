@@ -481,8 +481,6 @@ define(["class", "event", "helpers", "sequentialHelper", "components/thumbnail"]
           return Promise.all(promises)
             .then((function() {
               if (sendUpdate) {
-                Event.trigger("fileModifiedRemotely", fileInfo);
-
                 return this.updateThumbnail();
               }
             }).bind(this));
@@ -533,12 +531,17 @@ define(["class", "event", "helpers", "sequentialHelper", "components/thumbnail"]
       }
 
       promises.push(this.fileInfoPromise.then((function(fileInfo) {
-        Event.trigger("fileModifiedRemotely", fileInfo);
+        if (data.isLocal) {
+          Event.trigger("fileModified", fileInfo);
+        }
+        else
+        {
+          Event.trigger("fileModifiedRemotely", fileInfo);
+        }
 
         fileInfo.localModifiedTime = Date.now();
         this.fileInfoPromise = Promise.resolve(fileInfo);
-        Event.trigger("fileModified", fileInfo);
-
+        
         return this._backing.updateLocalModifiedTime(fileInfo.localModifiedTime);
       }).bind(this)));
 

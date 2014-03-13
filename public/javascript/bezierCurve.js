@@ -127,5 +127,5 @@ define([], function() {
     },
   }
 
-  return BezierCurve;
+  return new BezierCurve();
 });

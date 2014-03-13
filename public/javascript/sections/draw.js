@@ -268,8 +268,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
           width: 2,
           lockWidth: true, // should the width stay the same regardless of zoom
           color: this._settings.color
-        },
-        bezierCurve: new BezierCurve()
+        }
       }
 
       if (tool == "eraser") {
@@ -342,10 +341,8 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
           // or render a point
         }
 
-        var controlPoints = currentAction.bezierCurve.getCurveControlPoints(currentStroke.points);
-        
-        // We don't want to save the bezier curve helper
-        delete currentAction.bezierCurve;
+        // Copy the control points out now that we are done with it.
+        var controlPoints = Helpers.cloneArray(BezierCurve.getCurveControlPoints(currentStroke.points));
 
         currentStroke.controlPoints = controlPoints;
 
@@ -359,6 +356,8 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
     },
 
     _saveAction: function(action) {
+      // We aren't going to send these to drive
+      // delete action.value.controlPoints;
       action.id = Helpers.getGuid();
       this._file.addAction(action)
         .
@@ -387,7 +386,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
 
       if (this._updateCurrentAction && this._currentAction) {
         var currentAction = this._currentAction;
-        var controlPoints = currentAction.bezierCurve.getCurveControlPoints(currentAction.value.points);
+        var controlPoints = BezierCurve.getCurveControlPoints(currentAction.value.points);
         
         currentAction.value.controlPoints = controlPoints;
         this._manipulateCanvas.doTemporaryAction(currentAction)
