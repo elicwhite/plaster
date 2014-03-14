@@ -23,6 +23,11 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
       this._removedCallback = removedCallback;
     },
 
+    stopListening: function() {
+      this._addedCallback = null;
+      this._removedCallback = null;
+    },
+
     load: function(fileId) {
       return this._parent._open(fileId)
         .then((function(fileInfo) {
@@ -92,11 +97,15 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
     },
 
     _actionsAdded: function(e) {
-      this._addedCallback(e);
+      if (this._addedCallback) {
+        this._addedCallback(e);
+      }
     },
 
     _actionsRemoved: function(e) {
-      this._removedCallback(e);
+      if (this._removedCallback) {
+        this._removedCallback(e);
+      }
     },
 
     _saveStateChanged: function(e) {
@@ -110,10 +119,11 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
       this._updateFileTimeout = setTimeout((function() {
         this._docPromise.then((function(doc) {
           this._parent.touchFile(doc.getModel().getRoot().get('id'))
-          .then(function(result) {
-            console.log("Touched file", result);
-          })
-          .catch(function(e) {
+            .then(function(result) {
+              console.log("Touched file", result);
+            })
+            .
+          catch (function(e) {
             console.error("Error touching file", e);
           });
         }).bind(this));
@@ -170,6 +180,7 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
     _driveFileName: "Untitled File",
     _appId: 450627732299,
     REALTIME_MIMETYPE: 'application/vnd.google-apps.drive-sdk',
+    _fields: 'id, title, modifiedDate',
 
     init: function() {
 
@@ -179,20 +190,18 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
       return new Promise((function(resolve, reject) {
         gapi.client.load('drive', 'v2', (function() {
           gapi.client.drive.files.list({
-            'fields': 'items(id, title, modifiedDate)',
-            'q': "trashed=false and mimeType='" + this.REALTIME_MIMETYPE + '.' + this._appId + "'"
+            'q': "trashed=false and mimeType='" + this.REALTIME_MIMETYPE + '.' + this._appId + "'",
+            'fields': 'items('+this._fields+')',
           }).execute(function(resp) {
+            if (!resp) {
+              resolve([]);
+              return;
+            }
+
             if (resp.error) {
               reject(resp);
-
             } else {
-              var items = [];
-
-              if (resp.items) {
-                items = resp.items;
-              }
-
-              resolve(items);
+              resolve(resp.items);
             }
           });
         }).bind(this));
@@ -203,7 +212,8 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
       return new Promise(function(resolve, reject) {
         gapi.client.load('drive', 'v2', function() {
           var request = gapi.client.drive.files.get({
-            'fileId': fileId
+            'fileId': fileId,
+            'fields': this._fields,
           }).execute(function(resp) {
 
             if (resp.error) {
@@ -224,8 +234,9 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
           gapi.client.drive.files.insert({
             'resource': {
               mimeType: this.REALTIME_MIMETYPE,
-              title: file.name
-            }
+              title: file.name,
+            },
+            'fields': this._fields
           }).execute(function(resp) {
             if (resp.error) {
               reject(resp);
@@ -249,7 +260,8 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
         gapi.client.load('drive', 'v2', function() {
           var request = gapi.client.drive.files.patch({
             'fileId': fileId,
-            'resource': body
+            'resource': body,
+            'fields': this._fields,
           });
           request.execute(function(resp) {
             if (resp.error) {
@@ -268,7 +280,8 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
 
         gapi.client.load('drive', 'v2', function() {
           var request = gapi.client.drive.files.delete({
-            'fileId': fileId
+            'fileId': fileId,
+            'fields': this._fields,
           }).execute(function(resp) {
             if (resp.error) {
               reject(resp);
@@ -284,7 +297,8 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
       return new Promise(function(resolve, reject) {
         gapi.client.load('drive', 'v2', function() {
           var request = gapi.client.drive.files.touch({
-            'fileId': fileId
+            'fileId': fileId,
+            'fields': this._fields,
           }).execute(function(resp) {
             if (resp.error) {
               reject(resp);

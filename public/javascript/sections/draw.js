@@ -390,7 +390,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
       if (this._updateCurrentAction && this._currentAction) {
         var currentAction = this._currentAction;
         var controlPoints = BezierCurve.getCurveControlPoints(currentAction.value.points);
-        
+
         currentAction.value.controlPoints = controlPoints;
         this._manipulateCanvas.doTemporaryAction(currentAction)
       }
@@ -665,7 +665,8 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
 
     _onlineStatusChanged: function() {
       // check for updates if we come online while looking at this page
-      this._file.sync(null, false)
+      // Make sure we sync actions in this case
+      this._file.sync(null, true)
         .then((function() {
           this._scheduleUpdate()
         }).bind(this))
@@ -691,9 +692,15 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
           return;
         }
 
-        this._file.sync(null, false).then((function() {
-          this._scheduleUpdate()
-        }).bind(this));
+        // If we haven't yet finished loading the file, skip the sync for now
+        if (this._file.isConnected()) {
+          this._file.sync(null, false).then((function() {
+            this._scheduleUpdate()
+          }).bind(this));
+        } else {
+          this._scheduleUpdate();
+        }
+
       }).bind(this), 15 * 1000);
     },
   });

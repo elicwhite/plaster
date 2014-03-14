@@ -392,7 +392,7 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
 
           // Explicitly allow garbage collection
           this._cachedActions.length = 0;
-          
+
           this.fileInfoPromise = Promise.reject(new Error("File has been closed"));
         }).bind(this));
 
@@ -401,7 +401,10 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
         promises.push(this._backing.close());
 
         if (this._driveBacking) {
+          this._driveBacking.stopListening();
+
           promises.push(this._driveBacking.close());
+          this._driveBacking = null;
         }
 
         return Promise.all(promises);
@@ -465,9 +468,12 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
                   this._backing.addRemoteActions(diverges, items);
                 }).bind(this)));
 
+              // and fix our array
+              this._cachedActions.remoteActions.splice.apply(this._cachedActions.remoteActions, [diverges, this._cachedActions.remoteActions.length - diverges].concat(items));
             } else if (shorter == remoteActions) {
               // remove the actions after diverge from local
               promises.push(this._backing.removeRemoteActions(remoteActions.length, localActions.remote.length - remoteActions.length));
+              this._cachedActions.remoteActions.splice(remoteActions.length, localActions.remote.length - remoteActions.length);
             } else {
               // shorter must be the local one
               // add the remote actions after the local ones
@@ -475,11 +481,32 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
 
               var items = this._indexify(remoteActionsAfterLocal, localActions.remote.length);
               items = items.map(this._convertFromDrive);
+
               promises.push(this._backing.addRemoteActions(localActions.remote.length, items));
+
+              this._cachedActions.remoteActions.splice.apply(this._cachedActions.remoteActions, [this._cachedActions.remoteActions.length, 0].concat(items));
+            }
+
+            if (!isEqual(this._cachedActions.remoteActions, remoteActions)) {
+              debugger;
+            }
+
+            function isEqual(arr1, arr2) {
+              if (arr1.length != arr2.length) {
+                return false;
+              }
+
+              for (var i = 0; i < arr1.length; i++) {
+                if (arr1[i].id != arr2[i].id) {
+                  return false;
+                }
+              }
+
+              return true;
             }
 
             // there was a difference, lets fix our cachedActions
-            this._cachedActions.remoteActions = remoteActions;
+            //this._cachedActions.remoteActions = remoteActions;
           }
 
           promises.push(this._sendAllActions(localActions.local, driveBacking));
@@ -505,6 +532,10 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
     },
 
     _remoteActionsAdded: function(data) {
+      if (!this.isConnected()) {
+        //debugger;
+      }
+
       var promises = [];
 
       if (data.isLocal) {
@@ -541,24 +572,31 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
       promises.push(this.fileInfoPromise.then((function(fileInfo) {
         if (data.isLocal) {
           Event.trigger("fileModified", fileInfo);
-        }
-        else
-        {
+        } else {
           Event.trigger("fileModifiedRemotely", fileInfo);
         }
 
         fileInfo.localModifiedTime = Date.now();
         this.fileInfoPromise = Promise.resolve(fileInfo);
-        
+
         return this._backing.updateLocalModifiedTime(fileInfo.localModifiedTime);
       }).bind(this)));
 
-      return Promise.all(promises).then((function() {
-        return this.updateThumbnail();
-      }).bind(this));
+      return Promise.all(promises).
+      catch (function(error) {
+
+      })
+        .then((function() {
+          return this.updateThumbnail();
+        }).bind(this));
     },
 
     _remoteActionsRemoved: function(data) {
+      if (!this.isConnected()) {
+        // We have since closed
+        //debugger;
+      }
+
       // remove it from the remoteActions
       this._cachedActions.remoteActions.splice(data.index, data.values.length);
 
@@ -624,8 +662,17 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
     _convertFromDrive: function(action) {
       var controlPoints = BezierCurve.getCurveControlPoints(action.value.points);
       action.value.controlPoints = Helpers.cloneArray(controlPoints);
+
+      if (action.value.controlPoints == undefined) {
+        debugger;
+      }
+
       return action;
     },
+
+    isConnected: function() {
+      return !!this._driveBacking;
+    }
   });
 
   return File;
