@@ -179,6 +179,7 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
       return new Promise((function(resolve, reject) {
         gapi.client.load('drive', 'v2', (function() {
           gapi.client.drive.files.list({
+            'fields': 'items(id, title, modifiedDate)',
             'q': "trashed=false and mimeType='" + this.REALTIME_MIMETYPE + '.' + this._appId + "'"
           }).execute(function(resp) {
             if (resp.error) {
