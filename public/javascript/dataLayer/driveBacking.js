@@ -117,7 +117,7 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
             console.error("Error touching file", e);
           });
         }).bind(this));
-      }).bind(this), 1000);
+      }).bind(this), 2000);
     },
 
     getActions: function() {

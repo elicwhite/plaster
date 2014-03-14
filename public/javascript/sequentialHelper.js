@@ -17,7 +17,7 @@ define(["event"], function(Event) {
       Event.addListener("fileIdChanged", this._fileIdChanged.bind(this));
     },
 
-    startLockedAction: function(fileId) {
+    startLockedAction: function(fileId, ignoreGlobal) {
       if (!this._runningActions[fileId]) {
         this._runningActions[fileId] = [];
         this._openFiles++;
@@ -38,7 +38,7 @@ define(["event"], function(Event) {
 
       // If we are global and the first
       // or there is no global and we are the first
-      if ((fileId == "global" || !this._runningActions["global"]) && this._runningActions[fileId].length == 0) {
+      if ((fileId == "global" || !this._runningActions["global"] || ignoreGlobal) && this._runningActions[fileId].length == 0) {
         obj.resolve();
       }
 

@@ -1,4 +1,4 @@
-define(["class", "event", "helpers", "sequentialHelper", "components/thumbnail"], function(Class, Event, Helpers, SequentialHelper, Thumbnail) {
+define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "components/thumbnail"], function(Class, Event, Helpers, SequentialHelper, BezierCurve, Thumbnail) {
   var File = Class.extend({
     fileInfoPromise: null,
 
@@ -147,11 +147,13 @@ define(["class", "event", "helpers", "sequentialHelper", "components/thumbnail"]
 
     sync: function(drive, syncActions) {
       var driveBacking = this._driveBacking || drive;
+      if (!driveBacking) {
+        debugger;
+      }
 
       // if this fileId exists on drive, great, it's a match
       // if it doesn't, then it either has never been uploaded, or was deleted on the server
       // regardless, it's open, so we should upload it to drive
-
       this._syncPromise = Promise.all([this.fileInfoPromise, driveBacking._parent.getFiles()])
         .then((function(results) {
           var fileInfo = results[0];
@@ -198,7 +200,7 @@ define(["class", "event", "helpers", "sequentialHelper", "components/thumbnail"]
             var oldId = fileInfo.id;
 
             promises.push(
-              SequentialHelper.startLockedAction(oldId)
+              SequentialHelper.startLockedAction(oldId, true)
               .then(function() {
                 return driveBacking.create(fileInfo)
               })
@@ -228,7 +230,8 @@ define(["class", "event", "helpers", "sequentialHelper", "components/thumbnail"]
                     SequentialHelper.endLockedAction(newFile.id);
                   });
 
-              }).bind(this)));
+              }).bind(this))
+            );
           }
 
           return Promise.all(promises)
@@ -356,7 +359,8 @@ define(["class", "event", "helpers", "sequentialHelper", "components/thumbnail"]
       promises.push(this._backing.addLocalAction(action));
 
       if (this._driveBacking) {
-        promises.push(this._driveBacking.addAction(action));
+        var newAction = this._prepareForDrive(Helpers.clone(action));
+        promises.push(this._driveBacking.addAction(newAction));
       }
 
       return Promise.all(promises)
@@ -451,6 +455,7 @@ define(["class", "event", "helpers", "sequentialHelper", "components/thumbnail"]
 
               // we need to add indexes to these items
               var items = this._indexify(remoteActionsAfterDiverge, diverges);
+              items = items.map(this._convertFromDrive);
 
               // remove the actions in local after the diverge
               promises.push(this._backing.removeRemoteActions(diverges, localActions.remote.length - diverges)
@@ -469,6 +474,7 @@ define(["class", "event", "helpers", "sequentialHelper", "components/thumbnail"]
               var remoteActionsAfterLocal = remoteActions.slice(localActions.remote.length);
 
               var items = this._indexify(remoteActionsAfterLocal, localActions.remote.length);
+              items = items.map(this._convertFromDrive);
               promises.push(this._backing.addRemoteActions(localActions.remote.length, items));
             }
 
@@ -491,7 +497,8 @@ define(["class", "event", "helpers", "sequentialHelper", "components/thumbnail"]
       var promises = [];
 
       for (var j = 0; j < actions.length; j++) {
-        promises.push(driveBacking.addAction(actions[j]));
+        var newAction = this._prepareForDrive(actions[j]);
+        promises.push(driveBacking.addAction(newAction));
       }
 
       return Promise.all(promises);
@@ -519,6 +526,7 @@ define(["class", "event", "helpers", "sequentialHelper", "components/thumbnail"]
       Array.prototype.splice.apply(this._cachedActions.remoteActions, [data.index, 0].concat(data.values));
 
       var items = this._indexify(data.values, data.index);
+      items = items.map(this._convertFromDrive);
 
       // insert them into storage
       promises.push(this._backing.addRemoteActions(data.index, items));
@@ -603,6 +611,20 @@ define(["class", "event", "helpers", "sequentialHelper", "components/thumbnail"]
       }
 
       return items;
+    },
+
+    _prepareForDrive: function(action) {
+      var newAction = Helpers.clone(action);
+      newAction.value = Helpers.clone(action.value);
+      delete newAction.value.controlPoints;
+
+      return newAction;
+    },
+
+    _convertFromDrive: function(action) {
+      var controlPoints = BezierCurve.getCurveControlPoints(action.value.points);
+      action.value.controlPoints = Helpers.cloneArray(controlPoints);
+      return action;
     },
   });
 

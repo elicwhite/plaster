@@ -143,6 +143,9 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
             this._manipulateCanvas = new ManipulateCanvas(this._canvas, this._settings);
 
             this._redraw();
+
+            // Keep this file in sync
+            this._scheduleUpdate();
           }).bind(this));
 
           this._updateAll = true;

@@ -31,6 +31,7 @@ define([], function() {
     getCurveControlPoints: function(knots) {      
       var n = knots.length - 1;
       this._length = n;
+      this._controlPoints.length = n;
 
       if (n < 1) {
         console.error("Must have at least two knots");
