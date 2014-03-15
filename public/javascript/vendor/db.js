@@ -10,7 +10,6 @@ define([], function() {
     var hasOwn = Object.prototype.hasOwnProperty;
 
     if ( !indexedDB ) {
-        console.warn('IndexedDB required');
         return;
     }
 

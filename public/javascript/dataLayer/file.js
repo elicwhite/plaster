@@ -62,7 +62,7 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
       var fileInfoPromise = this._backing.load(fileId);
 
       return fileInfoPromise
-        .then((function() {
+        .then((function(fileInfo) {
           return this._backing.getActions()
         }).bind(this))
         .then((function(actions) {
@@ -86,7 +86,10 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
       return this._backing.create(file)
         .then((function() {
           return this.load(file.id);
-        }).bind(this));
+        }).bind(this))
+        .catch(function(error) {
+          console.error(error, error.stack, error.message);
+        });
     },
 
     rename: function(newName) {
@@ -141,7 +144,7 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
         }).bind(this))
         .
       catch (function(error) {
-        console.error(error.stack, error.message);
+        console.error(error, error.stack, error.message);
       })
     },
 
@@ -193,6 +196,7 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
 
           } else {
             console.log("File not found on drive", fileInfo.id);
+            debugger;
             // this file was not found
             // so we will create a new file on drive, 
             // and then copy everything over to it
@@ -369,7 +373,7 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
         }).bind(this))
         .
       catch (function(error) {
-        console.error(error.stack, error.message);
+        console.error(error, error.stack, error.message);
       });
     },
 

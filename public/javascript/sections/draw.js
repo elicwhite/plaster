@@ -185,7 +185,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
           }).bind(this, this._file))
           .
         catch (function(error) {
-          console.error(error.stack, error.message);
+          console.error(error, error.stack, error.message);
         });
       }).bind(this), 600);
 
@@ -672,7 +672,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
         }).bind(this))
         .
       catch (function(error) {
-        console.error(error.stack, error.message);
+        console.error(error, error.stack, error.message);
       });
     },
 

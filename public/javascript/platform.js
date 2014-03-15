@@ -68,6 +68,5 @@ define(["class"], function(Class) {
   });
 
   var platform = new Platform();
-  window.platform = platform;
   return platform;
 });

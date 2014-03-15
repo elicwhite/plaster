@@ -1,4 +1,4 @@
-define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "dataLayer/IndexedDBBacking", "dataLayer/DriveBacking"], function(Class, Helpers, Event, SequentialHelper, File, IndexedDBBacking, DriveBacking) {
+define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "dataLayer/IndexedDBBacking", "dataLayer/webSQLBacking", "dataLayer/DriveBacking"], function(Class, Helpers, Event, SequentialHelper, File, IndexedDBBacking, WebSQLBacking, DriveBacking) {
   var Data = Class.extend({
     _backing: null,
     _cachedFiles: null,
@@ -10,18 +10,31 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
       this._cachedFiles = {};
       this._fileReferences = {};
 
-      console.log("Using IndexedDB as data store");
-      this._backing = new IndexedDBBacking();
+      
+
+      if (false) {//window.indexedDB) {
+        console.log("Using IndexedDB as data store");
+        this._backing = new IndexedDBBacking();
+      }
+      else
+      {
+        console.log("Using WebSQL as data store");
+        this._backing = new WebSQLBacking(); 
+      }
 
       Event.addListener("fileIdChanged", this._fileIdChanged.bind(this));
     },
 
     // FILE METHODS
-    getFiles: function(callback) {
-      return this._backing.getFiles();
+    getFiles: function() {
+      return this._backing.getFiles()
+      .catch(function(error) {
+        console.error(error, error.stack, error.message);
+        throw error;
+      });
     },
 
-    createFile: function(callback) {
+    createFile: function() {
       var newFile = {
         id: Helpers.getGuid(),
         name: "Untitled File",
@@ -47,6 +60,7 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
         .
       catch (function(error) {
         console.error(error, error.stack, error.message);
+        throw error;
       });
 
       if (this._driveBacking) {
@@ -348,7 +362,7 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
                         // Let the file check to make sure it is named properly and has all the actions
                         return this.loadFile(localFileInfo.id, true)
                           .then((function(fileObj) {
-                            
+
                             return fileObj.updateDriveModifiedTime(driveFileInfo.modifiedDate)
                               .then((function() {
                                 return this.close(fileObj);
@@ -368,14 +382,14 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
             }).bind(this))
             .
           catch (function(error) {
-            console.error(error.stack, error.message);
+            console.error(error, error.stack, error.message);
           })
             .then((function() {
               console.log("Completed checking for Drive updates");
             }).bind(this))
             .
           catch (function(error) {
-            console.error(error.stack, error.message);
+            console.error(error, error.stack, error.message);
           });
         }).bind(this))
         .then(function() {

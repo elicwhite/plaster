@@ -357,12 +357,15 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
       });
     },
 
-    _getFileInfo: function(fileId, callback) {
+    _getFileInfo: function(fileId) {
       return this._serverPromise.then(function(server) {
         return Promise.cast(server.files.query('id')
           .only(fileId)
           .execute()
         ).then(function(results) {
+          if (results.length == 0) {
+            throw new Error("Can't find file by id", fileId);
+          }
           return results[0];
         });
       });

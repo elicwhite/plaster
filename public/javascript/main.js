@@ -5,7 +5,11 @@ function init() {
     e.preventDefault();
   });
 
-  require(["event", "globals", "helpers", "managers/login", "gauth"], function(Event, g, Helpers, LoginManager, GAuth) {
+  require(["promise", "event", "globals", "helpers", "managers/login", "gauth"], function(Promise, Event, g, Helpers, LoginManager, GAuth) {
+    if (!window.Promise) {
+      window.Promise = Promise;
+    }
+
     g.setHTMLDevices();
 
     var loginManager = new LoginManager();
