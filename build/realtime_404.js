@@ -117,6 +117,7 @@ function start() {
         function(model) {
           // file was created
           var actions = model.createList();
+          actions.addEventListener(gapi.drive.realtime.EventType.VALUES_ADDED, function() {});
           var root = model.getRoot();
           root.set('actions', actions);
         },
@@ -147,9 +148,9 @@ function start() {
 
           // Adding a timeout just to be clear that the doc closed.
           //window.setTimeout(function() {
-            data.delete(file.id, function() {
-              console.log("Deleting", file.id);
-            });
+          data.delete(file.id, function() {
+            console.log("Deleting", file.id);
+          });
           //}, 1000);
 
 
@@ -158,9 +159,35 @@ function start() {
     }
   }
 
+  function startDelayTest() {
+    // create a file
+    // open it for realtime
+    // close the doc
+    // delete the file
+
+    var data = new GData();
+    console.log("Starting test");
+
+    for (var i = 0; i < 1; i++) {
+      data.add(function(file) {
+        console.log("Added", file.id);
+        data.openForRealtime(file.id, function(doc) {
+          console.log("Opened for realtime", file.id);
+
+          window.setTimeout(function() {
+            doc.close();
+            data.delete(file.id, function() {
+              console.log("Deleting", file.id);
+            });
+          }, 10000);
+        })
+      })
+    }
+  }
+
   var a = new GAuth();
   a.start(function() {
     console.log("GAuth Loaded");
-    startTest();
+    startDelayTest();
   });
 }

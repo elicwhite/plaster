@@ -170,6 +170,10 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
     },
 
     close: function() {
+      if (!this._docPromise) {
+        debugger;
+      }
+      
       return this._docPromise.then(function(doc) {
         doc.close();
       });

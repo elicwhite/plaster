@@ -112,7 +112,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
         }).bind(this))
         .
       catch (function(error) {
-        console.error(error.stack, error.message);
+        console.error(error, error.stack, error.message);
       });
     },
 

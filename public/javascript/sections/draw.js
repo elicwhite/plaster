@@ -615,10 +615,13 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
 
     _undo: function() {
       this._file.undo();
+      this._updateAll = true;
+
     },
 
     _redo: function() {
       this._file.redo();
+      this._updateAll = true;
     },
 
     _fileNameKeyDown: function(e) {

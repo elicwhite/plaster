@@ -196,7 +196,6 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
 
           } else {
             console.log("File not found on drive", fileInfo.id);
-            debugger;
             // this file was not found
             // so we will create a new file on drive, 
             // and then copy everything over to it
@@ -349,6 +348,7 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
 
     addAction: function(action) {
       this._cachedActions.localActions.push(action);
+      this._cachedActions.redoStack.length = 0;
 
       var promises = [];
 
@@ -558,7 +558,7 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
       }
 
       // put the items into the remoteActions
-      Array.prototype.splice.apply(this._cachedActions.remoteActions, [data.index, 0].concat(data.values));
+      this._cachedActions.remoteActions.splice.apply(this._cachedActions.remoteActions, [data.index, 0].concat(data.values));
 
       var items = this._indexify(data.values, data.index);
       items = items.map(this._convertFromDrive);

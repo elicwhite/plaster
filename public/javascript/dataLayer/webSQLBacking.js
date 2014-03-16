@@ -109,10 +109,10 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
       return this._parent._serverPromise.then((function(server) {
         return new Promise((function(resolve, reject) {
           server.transaction((function(tx) {
-            tx.executeSql('UPDATE `F' + this._fileId + '-remote` SET idx = idx + ?', [actions.length], (function(transaction, results) {
+            tx.executeSql('UPDATE `F' + this._fileId + '-remote` SET idx = idx + ? WHERE idx >= ?', [actions.length, index], (function(transaction, results) {
                 var promises = [];
 
-                actions.forEach((function(item) {
+                actions.forEach((function(action) {
                   promises.push(new Promise((function(resolve, reject) {
                     tx.executeSql('INSERT INTO `F' + this._fileId + '-remote` (id, idx, type, value) VALUES (?, ?, ?, ?)', [action.id, action.index, action.type, JSON.stringify(action.value)],
                       function(transaction, results) {
@@ -131,10 +131,10 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
                 catch (function(error) {
                   reject(error);
                 });
-              },
+              }).bind(this),
               function(transaction, error) {
                 reject(error);
-              }).bind(this));
+              });
 
           }).bind(this));
         }).bind(this));
@@ -220,7 +220,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
     _serverPromise: null,
 
     init: function() {
-      var server = openDatabase("draw", "1.0", "draw", 2 * 1024 * 1024);
+      var server = openDatabase("draw", "1.0", "draw", 4 * 1024 * 1024);
 
       this._serverPromise = Promise.resolve(server)
         .then(function(server) {
@@ -421,7 +421,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
     deleteFile: function(fileId) {
       return this._serverPromise.then((function(server) {
         return new Promise((function(resolve, reject) {
-          server.readTransaction((function(tx) {
+          server.transaction((function(tx) {
             //TODO: delete from files, and delete the local/remote tables
             tx.executeSql('DELETE FROM `files` WHERE id = ?', [fileId], (function(transaction, results) {
                 var resultsObj = this._convertResultToObject(results);

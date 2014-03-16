@@ -37,18 +37,26 @@ define(["class", "event"], function(Class, Event) {
       }, this._handleAuthResult.bind(this));
     },
 
-    _handleAuthResult: function(authResult) {
-      if (authResult && !authResult.error) {
+    _handleAuthResult: function(token) {
+      if (token && !token.error) {
         // logged in
-        Event.trigger("login", authResult);
+        Event.trigger("login", token);
         this._fetchUser();
 
         if (this._startCallback) {
           this._startCallback();
         }
 
+        // Refresh the token 10 minutes before it expires
+        var expireMS = ((parseInt(token.expires_in) - 600) * 1000);
+        
+        setTimeout((function() {
+          console.log("Refreshing GAuth token");
+          this.authorize();
+        }).bind(this), expireMS);
+
       } else {
-        Event.trigger("logout", authResult);
+        Event.trigger("logout", token);
       }
     },
 

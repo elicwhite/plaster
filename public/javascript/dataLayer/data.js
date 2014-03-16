@@ -224,7 +224,7 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
 
     checkForUpdates: function() {
       if (SequentialHelper.hasActions()) {
-        return Promise.reject("Actions currently running, can't sync");
+        return Promise.reject(new Error("Actions currently running, can't sync"));
       }
 
 
