@@ -126,8 +126,6 @@ function start() {
         }
       );
     },
-
-
   }
 
   function startTest() {

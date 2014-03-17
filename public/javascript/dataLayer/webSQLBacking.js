@@ -22,7 +22,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
     },
 
     getActions: function() {
-      return this._parent._serverPromise.then((function(server) {
+      return this._parent.readyPromise.then((function(server) {
         return new Promise((function(overallResolve, overallReject) {
 
           server.readTransaction((function(tx) {
@@ -74,7 +74,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
     },
 
     addLocalAction: function(action) {
-      return this._parent._serverPromise.then((function(server) {
+      return this._parent.readyPromise.then((function(server) {
         return new Promise((function(resolve, reject) {
           server.transaction((function(tx) {
             tx.executeSql('INSERT INTO `F' + this._fileId + '-local` (id, type, value) VALUES (?, ?, ?)', [action.id, action.type, JSON.stringify(action.value)], (function(transaction, results) {
@@ -90,7 +90,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
     },
 
     removeLocalAction: function(actionId) {
-      return this._parent._serverPromise.then((function(server) {
+      return this._parent.readyPromise.then((function(server) {
         return new Promise((function(resolve, reject) {
           server.transaction((function(tx) {
             tx.executeSql('DELETE FROM `F' + this._fileId + '-local` WHERE id = ?', [actionId], (function(transaction, results) {
@@ -106,7 +106,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
     },
 
     addRemoteActions: function(index, actions) {
-      return this._parent._serverPromise.then((function(server) {
+      return this._parent.readyPromise.then((function(server) {
         return new Promise((function(resolve, reject) {
           server.transaction((function(tx) {
             tx.executeSql('UPDATE `F' + this._fileId + '-remote` SET idx = idx + ? WHERE idx >= ?', [actions.length, index], (function(transaction, results) {
@@ -142,7 +142,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
     },
 
     removeRemoteActions: function(index, length) {
-      return this._parent._serverPromise.then((function(server) {
+      return this._parent.readyPromise.then((function(server) {
         return new Promise((function(resolve, reject) {
           server.transaction((function(tx) {
             tx.executeSql('DELETE FROM `F' + this._fileId + '-remote` WHERE idx between ? and ?', [index, index + length], (function(transaction, results) {
@@ -166,7 +166,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
     replaceFileId: function(newId) {
       return this._parent._replaceFileId(this._fileId, newId)
         .then((function() {
-          return this._parent._serverPromise.then((function(server) {
+          return this._parent.readyPromise.then((function(server) {
             var promises = [];
 
             promises.push(new Promise((function(resolve, reject) {
@@ -217,12 +217,12 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
   });
 
   var WebSQLBacking = Class.extend({
-    _serverPromise: null,
+    readyPromise: null,
 
     init: function() {
       var server = openDatabase("draw", "1.0", "draw", 4 * 1024 * 1024);
 
-      this._serverPromise = Promise.resolve(server)
+      this.readyPromise = Promise.resolve(server)
         .then(function(server) {
           return new Promise(function(resolve, reject) {
             server.transaction(function(tx) {
@@ -253,7 +253,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
 
 
     getFiles: function() {
-      return this._serverPromise.then((function(server) {
+      return this.readyPromise.then((function(server) {
         return new Promise((function(resolve, reject) {
 
           server.readTransaction((function(tx) {
@@ -272,7 +272,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
 
 
     _addFile: function(file) {
-      return this._serverPromise.then(function(server) {
+      return this.readyPromise.then(function(server) {
         return new Promise(function(overallResolve, overallReject) {
 
           server.transaction(function(tx) {
@@ -323,7 +323,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
     },
 
     _renameFile: function(fileId, newName) {
-      return this._serverPromise.then((function(server) {
+      return this.readyPromise.then((function(server) {
         return new Promise((function(resolve, reject) {
           server.transaction((function(tx) {
             tx.executeSql('UPDATE `files` SET name = ? WHERE id = ?', [newName, fileId], (function(transaction, results) {
@@ -339,7 +339,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
     },
 
     _updateThumbnail: function(fileId, dataURL) {
-      return this._serverPromise.then((function(server) {
+      return this.readyPromise.then((function(server) {
         return new Promise((function(resolve, reject) {
           server.transaction((function(tx) {
             tx.executeSql('UPDATE `files` SET thumbnail = ? WHERE id = ?', [dataURL, fileId], (function(transaction, results) {
@@ -355,7 +355,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
     },
 
     _replaceFileId: function(fileId, newId) {
-      return this._serverPromise.then((function(server) {
+      return this.readyPromise.then((function(server) {
         return new Promise((function(resolve, reject) {
           server.transaction((function(tx) {
             tx.executeSql("UPDATE `files` SET id = ? WHERE id = ?", [newId, fileId], (function(transaction, results) {
@@ -371,7 +371,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
     },
 
     getDeletedFiles: function(callback) {
-      return this._serverPromise.then((function(server) {
+      return this.readyPromise.then((function(server) {
         return new Promise((function(resolve, reject) {
           server.readTransaction((function(tx) {
             tx.executeSql("SELECT * FROM `files` WHERE `deleted`='true' ORDER BY localModifiedTime DESC", [], (function(transaction, results) {
@@ -387,7 +387,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
     },
 
     markFileAsDeleted: function(fileId) {
-      return this._serverPromise.then((function(server) {
+      return this.readyPromise.then((function(server) {
         return new Promise((function(resolve, reject) {
           server.transaction((function(tx) {
             tx.executeSql('UPDATE `files` SET deleted = ? WHERE id = ?', [true, fileId], (function(transaction, results) {
@@ -403,7 +403,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
     },
 
     unmarkFileAsDeleted: function(fileId) {
-      return this._serverPromise.then((function(server) {
+      return this.readyPromise.then((function(server) {
         return new Promise((function(resolve, reject) {
           server.transaction((function(tx) {
             tx.executeSql('UPDATE `files` SET deleted = ? WHERE id = ?', [false, fileId], (function(transaction, results) {
@@ -419,7 +419,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
     },
 
     deleteFile: function(fileId) {
-      return this._serverPromise.then((function(server) {
+      return this.readyPromise.then((function(server) {
         return new Promise((function(resolve, reject) {
           server.transaction((function(tx) {
             //TODO: delete from files, and delete the local/remote tables
@@ -436,7 +436,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
     },
 
     _getFileInfo: function(fileId) {
-      return this._serverPromise.then((function(server) {
+      return this.readyPromise.then((function(server) {
         return new Promise((function(resolve, reject) {
           server.readTransaction((function(tx) {
             tx.executeSql('SELECT * FROM `files` WHERE id = ?', [fileId], (function(transaction, results) {
@@ -452,7 +452,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
     },
 
     updateLocalModifiedTime: function(fileId, time) {
-      return this._serverPromise.then((function(server) {
+      return this.readyPromise.then((function(server) {
         return new Promise((function(resolve, reject) {
           server.transaction((function(tx) {
             tx.executeSql('UPDATE `files` SET localModifiedTime = ? WHERE id = ?', [time, fileId], (function(transaction, results) {
@@ -468,7 +468,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
     },
 
     updateDriveModifiedTime: function(fileId, time) {
-      return this._serverPromise.then((function(server) {
+      return this.readyPromise.then((function(server) {
         return new Promise((function(resolve, reject) {
           server.transaction((function(tx) {
             tx.executeSql('UPDATE `files` SET driveModifiedTime = ? WHERE id = ?', [time, fileId], (function(transaction, results) {

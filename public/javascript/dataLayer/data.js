@@ -1,4 +1,4 @@
-define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "dataLayer/IndexedDBBacking", "dataLayer/webSQLBacking", "dataLayer/DriveBacking"], function(Class, Helpers, Event, SequentialHelper, File, IndexedDBBacking, WebSQLBacking, DriveBacking) {
+define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "dataLayer/indexedDBBacking", "dataLayer/webSQLBacking", "dataLayer/DriveBacking"], function(Class, Helpers, Event, SequentialHelper, File, IndexedDBBacking, WebSQLBacking, DriveBacking) {
   var Data = Class.extend({
     _backing: null,
     _cachedFiles: null,
@@ -10,9 +10,7 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
       this._cachedFiles = {};
       this._fileReferences = {};
 
-      
-
-      if (false) {//window.indexedDB) {
+      if (window.indexedDB) {
         console.log("Using IndexedDB as data store");
         this._backing = new IndexedDBBacking();
       }

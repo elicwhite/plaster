@@ -1,4 +1,4 @@
-define(["class", "helpers", "dataLayer/data", "components/manipulateCanvas"], function(Class, Helpers, Data, ManipulateCanvas) {
+define(["class", "helpers", "components/manipulateCanvas"], function(Class, Helpers, ManipulateCanvas) {
 
   var Thumbnail = Class.extend({
     _canvas: null,

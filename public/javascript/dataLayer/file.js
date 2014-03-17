@@ -58,7 +58,7 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
         }).bind(this));
     },
 
-    load: function(fileId, callback) {
+    load: function(fileId) {
       var fileInfoPromise = this._backing.load(fileId);
 
       return fileInfoPromise
@@ -82,7 +82,7 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
         }).bind(this));
     },
 
-    create: function(file, callback) {
+    create: function(file) {
       return this._backing.create(file)
         .then((function() {
           return this.load(file.id);

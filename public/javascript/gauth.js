@@ -56,7 +56,7 @@ define(["class", "event"], function(Class, Event) {
         }).bind(this), expireMS);
 
       } else {
-        Event.trigger("logout", token);
+        Event.trigger("logout");
       }
     },
 

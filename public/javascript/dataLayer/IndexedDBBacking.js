@@ -222,11 +222,15 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
   });
 
   var IndexedDBBacking = Class.extend({
-    _serverPromise: null,
+    readyPromise: null,
 
-    init: function() {
-      this._serverPromise = Promise.cast(db.open({
-        server: 'draw',
+    _serverName: null,
+
+    init: function(serverName) {
+      this._serverName = serverName ? serverName : "draw";
+
+      this.readyPromise = Promise.cast(db.open({
+        server: this._serverName,
         version: 1,
         schema: {
           files: {
@@ -237,17 +241,15 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
               id: {
                 unique: true
               },
-              localModifiedTime: {
-              },
+              localModifiedTime: {},
             }
           }
         }
       }));
     },
 
-
     getFiles: function() {
-      return this._serverPromise.then(function(server) {
+      return this.readyPromise.then(function(server) {
         return Promise.cast(server.files.query('localModifiedTime')
           .all()
           .filter(function(file) {
@@ -260,7 +262,7 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
     },
 
     _addFile: function(file) {
-      return this._serverPromise.then(function(server) {
+      return this.readyPromise.then(function(server) {
         return Promise.cast(
           server.files.add(file)
         );
@@ -268,7 +270,7 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
     },
 
     _renameFile: function(fileId, newName) {
-      return this._serverPromise.then((function(server) {
+      return this.readyPromise.then((function(server) {
 
         return Promise.cast(server.files.query('id')
           .only(fileId)
@@ -284,7 +286,7 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
     },
 
     _updateThumbnail: function(fileId, dataURL) {
-      return this._serverPromise.then((function(server) {
+      return this.readyPromise.then((function(server) {
         return Promise.cast(server.files.query('id')
           .only(fileId)
           .modify({
@@ -298,8 +300,8 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
       }).bind(this));
     },
 
-    getDeletedFiles: function(callback) {
-      return this._serverPromise.then(function(server) {
+    getDeletedFiles: function() {
+      return this.readyPromise.then(function(server) {
         return Promise.cast(server.files.query()
           .filter(function(file) {
             return file.deleted;
@@ -310,7 +312,7 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
     },
 
     markFileAsDeleted: function(fileId) {
-      return this._serverPromise.then(function(server) {
+      return this.readyPromise.then(function(server) {
 
         return Promise.cast(server.files.query('id')
           .only(fileId)
@@ -323,7 +325,7 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
     },
 
     unmarkFileAsDeleted: function(fileId) {
-      return this._serverPromise.then(function(server) {
+      return this.readyPromise.then(function(server) {
         return Promise.cast(server.files.query('id')
           .only(fileId)
           .modify({
@@ -340,7 +342,7 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
     },
 
     deleteFile: function(fileId) {
-      return this._serverPromise.then(function(server) {
+      return this.readyPromise.then(function(server) {
 
         return Promise.cast(server.files.query('id')
           .only(fileId)
@@ -348,7 +350,7 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
           .execute()
         )
           .then(function(results) {
-            console.log("Deleted marked file");
+            console.log("Deleted file");
             var f = indexedDB.deleteDatabase(fileId);
             delete localStorage[fileId];
 
@@ -358,7 +360,7 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
     },
 
     _getFileInfo: function(fileId) {
-      return this._serverPromise.then(function(server) {
+      return this.readyPromise.then(function(server) {
         return Promise.cast(server.files.query('id')
           .only(fileId)
           .execute()
@@ -372,7 +374,7 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
     },
 
     updateLocalModifiedTime: function(fileId, time) {
-      return this._serverPromise.then(function(server) {
+      return this.readyPromise.then(function(server) {
         return Promise.cast(server.files.query('id')
           .only(fileId)
           .modify({
@@ -384,7 +386,7 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
     },
 
     updateDriveModifiedTime: function(fileId, time) {
-      return this._serverPromise.then(function(server) {
+      return this.readyPromise.then(function(server) {
         return Promise.cast(server.files.query('id')
           .only(fileId)
           .modify({
@@ -393,6 +395,18 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
           .execute()
         );
       });
+    },
+
+    clearAll: function() {
+      return this.getFiles().then((function(files) {
+        files.map((function(file) {
+          return this.deleteFile(file.id);
+        }).bind(this))
+
+        return Promise.all(files).then((function() {
+          indexedDB.deleteDatabase(this._serverName);
+        }).bind(this));
+      }).bind(this))
     },
 
     instance: instance,
