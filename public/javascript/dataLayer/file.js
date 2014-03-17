@@ -625,7 +625,7 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
     },
 
     updateDriveModifiedTime: function(time) {
-      return this._backing.updateDriveModifiedTime(time);
+      return this._backing._updateDriveModifiedTime(time);
     },
 
     updateThumbnail: function() {

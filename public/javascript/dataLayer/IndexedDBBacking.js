@@ -36,7 +36,7 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
           }
         }));
 
-      this._fileInfoPromise = this._parent._getFileInfo(fileId);
+      this._fileInfoPromise = this._parent.getFileInfo(fileId);
 
       return Promise.all([this._fileServerPromise, this._fileInfoPromise])
         .then(function(results) {
@@ -185,7 +185,7 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
         this._fileServerPromise = Promise.reject(new Error("File Server has been closed"));
         this._fileInfoPromise = Promise.reject(new Error("File has been closed"));
         return server.close();
-      }).bind(this));;
+      }).bind(this));
     },
 
     updateLocalModifiedTime: function(time) {
@@ -193,8 +193,8 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
         .then((function(fileInfo) {
           fileInfo.localModifiedTime = time;
           this._fileInfoPromise = Promise.resolve(fileInfo);
-          return this._parent.updateLocalModifiedTime(fileInfo.id, time);
-        }).bind(this))
+          return this._parent._updateLocalModifiedTime(fileInfo.id, time);
+        }).bind(this));
     },
 
     updateDriveModifiedTime: function(time) {
@@ -202,7 +202,7 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
         .then((function(fileInfo) {
           fileInfo.driveModifiedTime = time;
           this._fileInfoPromise = Promise.resolve(fileInfo);
-          return this._parent.updateDriveModifiedTime(fileInfo.id, time);
+          return this._parent._updateDriveModifiedTime(fileInfo.id, time);
         }).bind(this));
     },
 
@@ -359,7 +359,7 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
       });
     },
 
-    _getFileInfo: function(fileId) {
+    getFileInfo: function(fileId) {
       return this.readyPromise.then(function(server) {
         return Promise.cast(server.files.query('id')
           .only(fileId)
@@ -373,7 +373,7 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
       });
     },
 
-    updateLocalModifiedTime: function(fileId, time) {
+    _updateLocalModifiedTime: function(fileId, time) {
       return this.readyPromise.then(function(server) {
         return Promise.cast(server.files.query('id')
           .only(fileId)
@@ -385,7 +385,7 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
       });
     },
 
-    updateDriveModifiedTime: function(fileId, time) {
+    _updateDriveModifiedTime: function(fileId, time) {
       return this.readyPromise.then(function(server) {
         return Promise.cast(server.files.query('id')
           .only(fileId)

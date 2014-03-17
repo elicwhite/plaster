@@ -11,7 +11,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
     load: function(fileId) {
       this._fileId = fileId;
 
-      return this._parent._getFileInfo(fileId);
+      return this._parent.getFileInfo(fileId);
     },
 
     create: function(file) {
@@ -208,11 +208,11 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
     },
 
     updateLocalModifiedTime: function(time) {
-      return this._parent.updateLocalModifiedTime(this._fileId, time);
+      return this._parent._updateLocalModifiedTime(this._fileId, time);
     },
 
     updateDriveModifiedTime: function(time) {
-      return this._parent.updateDriveModifiedTime(this._fileId, time);
+      return this._parent._updateDriveModifiedTime(this._fileId, time);
     },
   });
 
@@ -435,7 +435,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
       }).bind(this));
     },
 
-    _getFileInfo: function(fileId) {
+    getFileInfo: function(fileId) {
       return this.readyPromise.then((function(server) {
         return new Promise((function(resolve, reject) {
           server.readTransaction((function(tx) {
@@ -451,7 +451,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
       }).bind(this));
     },
 
-    updateLocalModifiedTime: function(fileId, time) {
+    _updateLocalModifiedTime: function(fileId, time) {
       return this.readyPromise.then((function(server) {
         return new Promise((function(resolve, reject) {
           server.transaction((function(tx) {
@@ -467,7 +467,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
       }).bind(this));
     },
 
-    updateDriveModifiedTime: function(fileId, time) {
+    _updateDriveModifiedTime: function(fileId, time) {
       return this.readyPromise.then((function(server) {
         return new Promise((function(resolve, reject) {
           server.transaction((function(tx) {
