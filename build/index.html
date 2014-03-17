@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <title>#Draw</title>
-    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, minimal-ui">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <script src="javascript/main.min.js"></script>
     <script type="text/javascript" src="https://apis.google.com/js/api.js"></script>
@@ -12,7 +12,9 @@
   <body>
     <div id="overall">
       <div id="login" class="page">
-        <div id="loginbutton">Login with Google</div>
+        <div id="login-container">
+          <div id="loginbutton">Login with Google</div>
+        </div>
       </div>
 
       <div id="main-container" class="page">
@@ -29,9 +31,10 @@
                       
                     </ul>
 
-                    <ul class="pull-right">
+                    <ul id="main-menu" class="pull-right">
                       <li id="file-create" class="icon-plus2"></li>
                       <li id="mode" class="icon-cloud"></li>
+                      <li id="logout" class="icon-home"></li>
                       <!--<li>Settings</li>-->
                     </ul>
                   </div>

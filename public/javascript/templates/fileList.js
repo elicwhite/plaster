@@ -6,6 +6,8 @@ define([], function() {
                         '<img class="thumbnail" />'+
                         '<div class="overlay">'+
                           '<span class="file-name"></span>'+
+                        '</div>'+
+                        '<div class="bottom-info">'+
                           '<span class="delete icon-close" data-action="delete"></span>'+
                         '</div>'+
                       '</div>'+
