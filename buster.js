@@ -19,4 +19,15 @@ config["My tests"] = {
   sources: ["**/*.js"],
   tests: ["tests/*-test.js"],
   extensions: [require("buster-amd")],
+  // "resources": [{
+  //       "path": "/",
+  //       "file": "../../build/index.html",
+  //       "headers": {
+  //           "Content-Type": "text/html"
+  //       }
+  //   }]
+  // resources: [{
+  //   path: "/",
+  //   backend: "http://localhost:8800"
+  // }]
 }

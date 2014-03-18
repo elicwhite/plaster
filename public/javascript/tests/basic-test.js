@@ -1,6 +1,35 @@
 var assert = buster.assert;
 var refute = buster.refute;
 
+var Help = {
+  indexify: function(actions, startIndex) {
+    var items = [];
+    // put indexes on the items
+    for (var i = 0; i < actions.length; i++) {
+      var item = Helpers.clone(actions[i]);
+      item.index = i + startIndex;
+      items.push(item);
+    }
+
+    return items;
+  },
+
+  createAction: function(id) {
+    return {
+      id: id,
+      type: "stroke",
+      value: {
+        points: [
+          [2, 4]
+        ],
+        width: 2,
+        lockWidth: true, // should the width stay the same regardless of zoom
+        color: "#ccc"
+      }
+    };
+  }
+};
+
 define(['dataLayer/indexedDBBacking', 'dataLayer/file'], function(IndexedDBBacking, File) {
   buster.testCase("IndexedDBBacking", {
     setUp: function() {
@@ -35,9 +64,9 @@ define(['dataLayer/indexedDBBacking', 'dataLayer/file'], function(IndexedDBBacki
       setUp: function() {
         this.instance = new this.backing.instance(this.backing);
 
-        this.fileName = this.dbName + Date.now() + Math.round((Math.random() * 100000));
+        this.fileId = this.dbName + Date.now() + Math.round((Math.random() * 100000));
         this.fileInfo = {
-          id: this.fileName,
+          id: this.fileId,
           name: "File Name",
           localModifiedTime: 1234,
           driveModifiedTime: "Today",
@@ -111,13 +140,22 @@ define(['dataLayer/indexedDBBacking', 'dataLayer/file'], function(IndexedDBBacki
             }).bind(this));
         },
 
+        "rename file": function() {
+          return this.instance.rename("Test name")
+            .then((function() {
+              return this.backing.getFileInfo(this.fileInfo.id);
+            }).bind(this))
+            .then((function(fileInfo) {
+              assert.equals(fileInfo.name, "Test name");
+            }).bind(this));
+        },
+
         "update local time": function() {
           return this.instance.updateLocalModifiedTime(2014)
             .then((function() {
               return this.backing.getFileInfo(this.fileInfo.id);
             }).bind(this))
             .then((function(fileInfo) {
-              assert.isObject(fileInfo);
               assert.equals(fileInfo.localModifiedTime, 2014);
             }).bind(this));
         },
@@ -128,27 +166,120 @@ define(['dataLayer/indexedDBBacking', 'dataLayer/file'], function(IndexedDBBacki
               return this.backing.getFileInfo(this.fileInfo.id);
             }).bind(this))
             .then((function(fileInfo) {
-              assert.isObject(fileInfo);
               assert.equals(fileInfo.driveModifiedTime, "Yesterday");
             }).bind(this));
         },
 
-        "//rename file": function() {
-
+        "update thumbnail": function() {
+          return this.instance.updateThumbnail("dataUrl:blahblah")
+            .then((function() {
+              return this.backing.getFileInfo(this.fileInfo.id);
+            }).bind(this))
+            .then((function(fileInfo) {
+              assert.equals(fileInfo.thumbnail, "dataUrl:blahblah");
+            }).bind(this));
         },
 
-        "//update thumbnail": function() {
-
-        },
-
-        "//replace file id with empty actions": function() {
-
+        "replace file id with empty actions": function() {
+          var newFileId = this.fileInfo.id + "-temp";
+          return this.instance.replaceFileId(newFileId)
+            .then((function() {
+              return this.backing.getFileInfo(this.fileInfo.id);
+            }).bind(this))
+            .then((function(fileInfo) {
+              refute.defined(fileInfo);
+            }).bind(this))
+            .then((function() {
+              return this.backing.getFileInfo(newFileId);
+            }).bind(this))
+            .then((function(fileInfo) {
+              assert.isObject(fileInfo);
+              assert.equals(fileInfo.id, newFileId);
+              assert.equals(fileInfo.name, this.fileInfo.name);
+            }).bind(this))
+            .then((function() {
+              // clean up so the file will be deleted
+              this.fileInfo.id = newFileId
+            }).bind(this))
         }
       },
 
       "file action operations": {
-        "//replace file id with actions" : function() {
+        setUp: function() {
+          var actionId = this.fileInfo.id + Math.round((Math.random() * 100000));
+          this.action1 = Help.createAction(actionId);
+          this.action2 = Help.createAction(actionId + "2");
+        },
 
+        "has no actions": function() {
+          return this.instance.getActions()
+            .then(function(actions) {
+              assert.isArray(actions.local);
+              assert.isArray(actions.remote);
+              assert.equals(actions.local.length, 0);
+              assert.equals(actions.remote.length, 0);
+            })
+        },
+
+        "has one local actions": function() {
+          return this.instance.addLocalAction(this.action1)
+            .then((function() {
+              return this.instance.getActions();
+            }).bind(this))
+            .then((function(actions) {
+              assert.equals(actions.remote.length, 0);
+              assert.equals(actions.local.length, 1);
+              assert.equals(actions.local[0], this.action1);
+            }).bind(this))
+        },
+
+        "has two local actions in correct order": function() {
+          return this.instance.addLocalAction(this.action1)
+            .then((function() {
+              return this.instance.addLocalAction(this.action2)
+            }).bind(this))
+            .then((function() {
+              return this.instance.getActions();
+            }).bind(this))
+            .then((function(actions) {
+              assert.equals(actions.local.length, 2);
+              assert.equals(actions.local[0], this.action1);
+              assert.equals(actions.local[1], this.action2);
+            }).bind(this))
+        },
+
+        "two local actions removing first one": function() {
+          return this.instance.addLocalAction(this.action1)
+            .then((function() {
+              return this.instance.addLocalAction(this.action2)
+            }).bind(this))
+            .then((function() {
+              return this.instance.removeLocalAction(this.action1.id)
+            }).bind(this))
+            .then((function() {
+              return this.instance.getActions();
+            }).bind(this))
+            .then((function(actions) {
+              assert.equals(actions.local.length, 1);
+              assert.equals(actions.local[0], this.action2);
+            }).bind(this))
+        },
+
+        // Test remote actions
+
+        "remote actions": {
+          setUp: function() {
+            this.action3 = Help.createAction(actionId + "3");
+            this.action4 = Help.createAction(actionId + "4");
+            Help.indexify([this.action3, this.action4], 0);
+
+            this.action5 = Help.createAction(actionId + "4");
+            Help.indexify([this.action5], 1);
+          },
+
+          "//replace file id with actions": function() {
+            //console.log(document.body.children[0].id);
+          }
         }
       }
     }
