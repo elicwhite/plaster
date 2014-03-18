@@ -108,6 +108,7 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
         return Promise.cast(server.remoteActions
           .query('index')
           .lowerBound(index)
+          .desc()
           .modify({
             index: function(action) {
               return action.index + actions.length;
@@ -116,8 +117,8 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
           .execute()
         )
           .then(function() {
-            return Promise.cast(server.remoteActions.add.apply(server, actions))
-          });
+            return Promise.cast(server.remoteActions.add.apply(server.remoteActions, actions))
+          })
       }).bind(this));
     },
 
@@ -162,17 +163,16 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
             var oldActions = results[0];
             var newInfo = results[1];
 
-            var createFilePromise = this._parent._addFile(newInfo)
+            return this._parent._addFile(newInfo)
               .then((function(newFile) {
                 return this.load(newFile[0].id);
               }).bind(this))
               .then((function() {
                 return this._copyAllActions(oldActions);
-              }).bind(this));
-
-            var deleteOldFilePromise = this._parent.deleteFile(oldId);
-
-            return Promise.all([createFilePromise, deleteOldFilePromise])
+              }).bind(this))
+              .then((function() {
+                return this._parent.deleteFile(oldId);
+              }).bind(this))
               .then(function() {
                 return newInfo;
               });
