@@ -219,14 +219,17 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
   var WebSQLBacking = Class.extend({
     readyPromise: null,
 
-    init: function() {
+    _serverName: null,
+
+    init: function(serverName) {
+      this._serverName = serverName ? serverName : "files";
       var server = openDatabase("draw", "1.0", "draw", 4 * 1024 * 1024);
 
       this.readyPromise = Promise.resolve(server)
-        .then(function(server) {
-          return new Promise(function(resolve, reject) {
-            server.transaction(function(tx) {
-              tx.executeSql('CREATE TABLE IF NOT EXISTS files ' +
+        .then((function(server) {
+          return new Promise((function(resolve, reject) {
+            server.transaction((function(tx) {
+              tx.executeSql('CREATE TABLE IF NOT EXISTS `' + this._serverName + '`' +
                 '(' +
                 'id VARCHAR(255) PRIMARY KEY,' +
                 'name VARCHAR(255),' +
@@ -241,9 +244,9 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
                 function(error) {
                   reject(error);
                 });
-            });
-          });
-        })
+            }).bind(this));
+          }).bind(this));
+        }).bind(this))
         .
       catch (function(error) {
         console.error("Error initializing database", error);
@@ -253,11 +256,12 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
 
 
     getFiles: function() {
+      debugger;
       return this.readyPromise.then((function(server) {
         return new Promise((function(resolve, reject) {
 
           server.readTransaction((function(tx) {
-            tx.executeSql("SELECT * FROM `files` WHERE `deleted`='false' ORDER BY localModifiedTime DESC", [], (function(transaction, results) {
+            tx.executeSql("SELECT id, name, localModifiedTime, driveModifiedTime, thumbnail FROM `"+this._serverName+"` WHERE `deleted`='false' ORDER BY localModifiedTime DESC", [], (function(transaction, results) {
                 var resultsObj = this._convertResultToObject(results);
                 resolve(resultsObj);
               }).bind(this),
@@ -272,22 +276,22 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
 
 
     _addFile: function(file) {
-      return this.readyPromise.then(function(server) {
-        return new Promise(function(overallResolve, overallReject) {
+      return this.readyPromise.then((function(server) {
+        return new Promise((function(overallResolve, overallReject) {
 
-          server.transaction(function(tx) {
+          server.transaction((function(tx) {
             var promises = [];
-            promises.push(new Promise(function(resolve, reject) {
-              tx.executeSql('INSERT INTO `files` VALUES (?, ?, ?, ?, ?, ?)', [file.id, file.name, file.localModifiedTime, file.driveModifiedTime, file.thumbnail, false],
+            promises.push(new Promise((function(resolve, reject) {
+              tx.executeSql('INSERT INTO `'+this._serverName+'` VALUES (?, ?, ?, ?, ?, ?)', [file.id, file.name, file.localModifiedTime, file.driveModifiedTime, file.thumbnail, false],
                 function(transaction, results) {
                   resolve(results);
                 },
                 function(transaction, error) {
                   reject(error);
                 });
-            }));
+            }).bind(this)));
 
-            promises.push(new Promise(function(resolve, reject) {
+            promises.push(new Promise((function(resolve, reject) {
               tx.executeSql('CREATE TABLE IF NOT EXISTS `F' + file.id + '-local` ' +
                 '(id VARCHAR(255) PRIMARY KEY, type VARCHAR(255), value TEXT)', [],
                 function(transaction, results) {
@@ -296,9 +300,9 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
                 function(transaction, error) {
                   reject(error);
                 });
-            }));
+            }).bind(this)));
 
-            promises.push(new Promise(function(resolve, reject) {
+            promises.push(new Promise((function(resolve, reject) {
               tx.executeSql('CREATE TABLE IF NOT EXISTS `F' + file.id + '-remote` ' +
                 '(id VARCHAR(255) PRIMARY KEY, idx INTEGER, type VARCHAR(255), value TEXT)', [],
                 function(transaction, results) {
@@ -307,7 +311,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
                 function(transaction, error) {
                   reject(error);
                 });
-            }));
+            }).bind(this)));
 
             Promise.all(promises)
               .then(function(results) {
@@ -317,16 +321,16 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
             catch (function(error) {
               overallReject(error);
             })
-          });
-        });
-      });
+          }).bind(this));
+        }).bind(this));
+      }).bind(this));
     },
 
     _renameFile: function(fileId, newName) {
       return this.readyPromise.then((function(server) {
         return new Promise((function(resolve, reject) {
           server.transaction((function(tx) {
-            tx.executeSql('UPDATE `files` SET name = ? WHERE id = ?', [newName, fileId], (function(transaction, results) {
+            tx.executeSql('UPDATE `'+this._serverName+'` SET name = ? WHERE id = ?', [newName, fileId], (function(transaction, results) {
                 var resultsObj = this._convertResultToObject(results);
                 resolve(resultsObj[0]);
               }).bind(this),
@@ -342,7 +346,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
       return this.readyPromise.then((function(server) {
         return new Promise((function(resolve, reject) {
           server.transaction((function(tx) {
-            tx.executeSql('UPDATE `files` SET thumbnail = ? WHERE id = ?', [dataURL, fileId], (function(transaction, results) {
+            tx.executeSql('UPDATE `'+this._serverName+'` SET thumbnail = ? WHERE id = ?', [dataURL, fileId], (function(transaction, results) {
                 var resultsObj = this._convertResultToObject(results);
                 resolve(resultsObj[0]);
               }).bind(this),
@@ -358,7 +362,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
       return this.readyPromise.then((function(server) {
         return new Promise((function(resolve, reject) {
           server.transaction((function(tx) {
-            tx.executeSql("UPDATE `files` SET id = ? WHERE id = ?", [newId, fileId], (function(transaction, results) {
+            tx.executeSql('UPDATE `'+this._serverName+'` SET id = ? WHERE id = ?', [newId, fileId], (function(transaction, results) {
                 var resultsObj = this._convertResultToObject(results);
                 resolve(resultsObj[0]);
               }).bind(this),
@@ -374,7 +378,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
       return this.readyPromise.then((function(server) {
         return new Promise((function(resolve, reject) {
           server.readTransaction((function(tx) {
-            tx.executeSql("SELECT * FROM `files` WHERE `deleted`='true' ORDER BY localModifiedTime DESC", [], (function(transaction, results) {
+            tx.executeSql("SELECT * FROM `"+this._serverName+"` WHERE `deleted`='true' ORDER BY localModifiedTime DESC", [], (function(transaction, results) {
                 var resultsObj = this._convertResultToObject(results);
                 resolve(resultsObj);
               }).bind(this),
@@ -390,7 +394,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
       return this.readyPromise.then((function(server) {
         return new Promise((function(resolve, reject) {
           server.transaction((function(tx) {
-            tx.executeSql('UPDATE `files` SET deleted = ? WHERE id = ?', [true, fileId], (function(transaction, results) {
+            tx.executeSql('UPDATE `'+this._serverName+'` SET deleted = ? WHERE id = ?', [true, fileId], (function(transaction, results) {
                 var resultsObj = this._convertResultToObject(results);
                 resolve(resultsObj[0]);
               }).bind(this),
@@ -406,7 +410,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
       return this.readyPromise.then((function(server) {
         return new Promise((function(resolve, reject) {
           server.transaction((function(tx) {
-            tx.executeSql('UPDATE `files` SET deleted = ? WHERE id = ?', [false, fileId], (function(transaction, results) {
+            tx.executeSql('UPDATE `'+this._serverName+'` SET deleted = ? WHERE id = ?', [false, fileId], (function(transaction, results) {
                 var resultsObj = this._convertResultToObject(results);
                 resolve(resultsObj[0]);
               }).bind(this),
@@ -423,7 +427,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
         return new Promise((function(resolve, reject) {
           server.transaction((function(tx) {
             //TODO: delete from files, and delete the local/remote tables
-            tx.executeSql('DELETE FROM `files` WHERE id = ?', [fileId], (function(transaction, results) {
+            tx.executeSql('DELETE FROM `'+this._serverName+'` WHERE id = ?', [fileId], (function(transaction, results) {
                 var resultsObj = this._convertResultToObject(results);
                 resolve(resultsObj[0]);
               }).bind(this),
@@ -439,7 +443,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
       return this.readyPromise.then((function(server) {
         return new Promise((function(resolve, reject) {
           server.readTransaction((function(tx) {
-            tx.executeSql('SELECT * FROM `files` WHERE id = ?', [fileId], (function(transaction, results) {
+            tx.executeSql('SELECT * FROM `'+this._serverName+'` WHERE id = ?', [fileId], (function(transaction, results) {
                 var resultsObj = this._convertResultToObject(results);
                 resolve(resultsObj[0]);
               }).bind(this),
@@ -455,7 +459,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
       return this.readyPromise.then((function(server) {
         return new Promise((function(resolve, reject) {
           server.transaction((function(tx) {
-            tx.executeSql('UPDATE `files` SET localModifiedTime = ? WHERE id = ?', [time, fileId], (function(transaction, results) {
+            tx.executeSql('UPDATE `'+this._serverName+'` SET localModifiedTime = ? WHERE id = ?', [time, fileId], (function(transaction, results) {
                 var resultsObj = this._convertResultToObject(results);
                 resolve(resultsObj[0]);
               }).bind(this),
@@ -471,7 +475,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
       return this.readyPromise.then((function(server) {
         return new Promise((function(resolve, reject) {
           server.transaction((function(tx) {
-            tx.executeSql('UPDATE `files` SET driveModifiedTime = ? WHERE id = ?', [time, fileId], (function(transaction, results) {
+            tx.executeSql('UPDATE `'+this._serverName+'` SET driveModifiedTime = ? WHERE id = ?', [time, fileId], (function(transaction, results) {
                 var resultsObj = this._convertResultToObject(results);
                 resolve(resultsObj[0]);
               }).bind(this),
@@ -507,6 +511,31 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
       }
 
       return objArray;
+    },
+
+    clearAll: function() {
+      return this.getFiles().then((function(files) {
+        files.map((function(file) {
+          return this.deleteFile(file.id);
+        }).bind(this))
+
+        return Promise.all(files).then((function() {
+          return this.readyPromise;
+        }).bind(this))
+          .then((function(server) {
+            return new Promise((function(resolve, reject) {
+              server.transaction((function(tx) {
+                //TODO: delete from files, and delete the local/remote tables
+                tx.executeSql('DROP TABLE `' + this._serverName + '`', [], (function(transaction, results) {
+                    resolve();
+                  }).bind(this),
+                  function(transaction, error) {
+                    reject(error);
+                  });
+              }).bind(this));
+            }).bind(this));
+          }).bind(this));
+      }).bind(this))
     },
 
     instance: instance,
