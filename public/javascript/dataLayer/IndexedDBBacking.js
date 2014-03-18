@@ -350,7 +350,6 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
           .execute()
         )
           .then(function(results) {
-            console.log("Deleted file");
             var f = indexedDB.deleteDatabase(fileId);
             delete localStorage[fileId];
 
@@ -366,7 +365,7 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
           .execute()
         ).then(function(results) {
           if (results.length == 0) {
-            throw new Error("Can't find file by id", fileId);
+            return undefined;
           }
           return results[0];
         });
