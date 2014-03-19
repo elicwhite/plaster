@@ -210,8 +210,8 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
       return this._fileServerPromise.then(function(server) {
         return Promise.all(
           [
-            Promise.all(server.localActions.add.apply(server, oldActions.local)),
-            Promise.all(server.remoteActions.add.apply(server, oldActions.remote)),
+            Promise.cast(server.localActions.add.apply(server, oldActions.local)),
+            Promise.cast(server.remoteActions.add.apply(server, oldActions.remote)),
           ])
           .
         catch (function(error) {

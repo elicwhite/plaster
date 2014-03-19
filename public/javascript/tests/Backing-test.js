@@ -3,7 +3,11 @@ var refute = buster.refute;
 
 
 
-define(['tests/GenericBackingTest', 'dataLayer/indexedDBBacking', 'dataLayer/webSQLBacking', 'dataLayer/file'], function(GenericBackingTest, IndexedDBBacking, WebSQLBacking, File) {
+define(['promise', 'tests/GenericBackingTest', 'dataLayer/indexedDBBacking', 'dataLayer/webSQLBacking', 'dataLayer/file'], function(Promise, GenericBackingTest, IndexedDBBacking, WebSQLBacking, File) {
+  if (!window.Promise) {
+    window.Promise = Promise;
+  }
+
   function randomName() {
     return "Draw-" + Date.now() + Math.round((Math.random() * 100000));
   }
