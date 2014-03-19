@@ -1,4 +1,4 @@
-define(["tests/helpers"], function(Helpers) {
+define(["tests/Helpers/backingHelpers"], function(Helpers) {
   var BackingTest = function() {
     return {
       tearDown: function() {

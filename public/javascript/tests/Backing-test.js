@@ -1,20 +1,14 @@
 var assert = buster.assert;
 var refute = buster.refute;
 
-
-
-define(['promise', 'tests/GenericBackingTest', 'dataLayer/indexedDBBacking', 'dataLayer/webSQLBacking', 'dataLayer/file'], function(Promise, GenericBackingTest, IndexedDBBacking, WebSQLBacking, File) {
+define(['promise', 'tests/Helpers/backingHelpers', 'tests/GenericBackingTest', 'dataLayer/indexedDBBacking', 'dataLayer/webSQLBacking'], function(Promise, Helpers, GenericBackingTest, IndexedDBBacking, WebSQLBacking) {
   if (!window.Promise) {
     window.Promise = Promise;
   }
 
-  function randomName() {
-    return "Draw-" + Date.now() + Math.round((Math.random() * 100000));
-  }
-
   var indexedDBBackingTest = new GenericBackingTest();
   indexedDBBackingTest.setUp = function() {
-    this.dbName = randomName();
+    this.dbName = Helpers.randomName();
     this.backing = new IndexedDBBacking(this.dbName);
   };
 
@@ -25,10 +19,9 @@ define(['promise', 'tests/GenericBackingTest', 'dataLayer/indexedDBBacking', 'da
   buster.testCase("IndexedDBBacking", indexedDBBackingTest);
 
 
-
   var webSQLBackingTest = new GenericBackingTest();
   webSQLBackingTest.setUp = function() {
-    this.dbName = randomName();
+    this.dbName = Helpers.randomName();
     this.backing = new WebSQLBacking(this.dbName);
   };
 

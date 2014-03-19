@@ -1,6 +1,6 @@
-define([], function() {
+define(["dataLayer/indexedDBBacking", "dataLayer/webSQLBacking"], function(IndexedDBBacking, WebSQLBacking) {
 
-  var Helpers = {
+  var BackingHelpers = {
     indexify: function(actions, startIndex) {
       var items = [];
       // put indexes on the items
@@ -26,9 +26,22 @@ define([], function() {
           color: "#ccc"
         }
       };
+    },
+
+    createBacking: function() {
+      var name = this.randomName();
+      if ("indexedDB" in window) {
+        return new IndexedDBBacking(name);
+      } else {
+        return new WebSQLBacking(name);
+      }
+    },
+
+    randomName: function() {
+      return "Draw-" + Date.now() + Math.round((Math.random() * 100000));
     }
   };
 
-  return Helpers;
+  return BackingHelpers;
 
 });
