@@ -39,7 +39,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
             }).bind(this)));
 
             promises.push(new Promise((function(resolve, reject) {
-              tx.executeSql('SELECT * FROM `F' + this._fileId + '-remote`', [], (function(transaction, results) {
+              tx.executeSql('SELECT * FROM `F' + this._fileId + '-remote` ORDER BY `index`', [], (function(transaction, results) {
                   var resultsObj = this._parent._convertResultToObject(results, ["value"]);
                   resolve(resultsObj);
                 }).bind(this),
@@ -145,7 +145,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
       return this._parent.readyPromise.then((function(server) {
         return new Promise((function(resolve, reject) {
           server.transaction((function(tx) {
-            tx.executeSql('DELETE FROM `F' + this._fileId + '-remote` WHERE `index` between ? and ?', [index, index + length], (function(transaction, results) {
+            tx.executeSql('DELETE FROM `F' + this._fileId + '-remote` WHERE `index` between ? and ?', [index, index + length - 1], (function(transaction, results) {
                 tx.executeSql('UPDATE `F' + this._fileId + '-remote` SET `index` = `index` - ? WHERE `index` >= ?', [length, index],
                   function(transaction, results) {
                     resolve(results);
