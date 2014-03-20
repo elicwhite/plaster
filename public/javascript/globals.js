@@ -8,19 +8,6 @@ define(["event"], function(Event) {
 
     init: function() {
       this._online = false;
-
-
-      window.addEventListener("online", function() {
-        Event.trigger("onlineStatusChanged", {
-          online: true
-        });
-      });
-
-      window.addEventListener("offline", function() {
-        Event.trigger("onlineStatusChanged", {
-          online: false
-        });
-      });
     },
 
     _onlineStatusChanged: function(e) {

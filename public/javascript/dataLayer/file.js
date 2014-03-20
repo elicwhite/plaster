@@ -119,6 +119,9 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
             .then((function() {
               return this._driveBacking.rename(newName);
             }).bind(this))
+            .catch(function(error) {
+              console.error(error);
+            })
             .then((function() {
               SequentialHelper.endLockedAction(fileInfo.id);
             }).bind(this)))
@@ -229,6 +232,9 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
                   }).bind(this))
                   .then((function(localActions) {
                     return this._sendAllActions(localActions.local, driveBacking)
+                  }).bind(this))
+                  .catch((function(error) {
+                    console.error(error);
                   }).bind(this))
                   .then(function() {
                     SequentialHelper.endLockedAction(newFile.id);

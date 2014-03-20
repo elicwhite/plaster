@@ -9,19 +9,14 @@ define(["class", "event"], function(Class, Event) {
     FILE_SCOPE: 'https://www.googleapis.com/auth/drive.file',
     OPENID_SCOPE: 'openid',
 
-    init: function() {
-    },
+    init: function() {},
 
     start: function(callback) {
-      if (window.gapi) {
-        this._startCallback = callback;
+      this._startCallback = callback;
 
-        gapi.load('auth:client,drive-realtime,drive-share', (function() {
-          this.authorize();
-        }).bind(this));
-      } else {
-        console.log("Offline mode");
-      }
+      gapi.load('auth:client,drive-realtime,drive-share', (function() {
+        this.authorize();
+      }).bind(this));
     },
 
     authorize: function() {
@@ -49,7 +44,7 @@ define(["class", "event"], function(Class, Event) {
 
         // Refresh the token 10 minutes before it expires
         var expireMS = ((parseInt(token.expires_in) - 600) * 1000);
-        
+
         setTimeout((function() {
           console.log("Refreshing GAuth token");
           this.authorize();

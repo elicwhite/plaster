@@ -151,14 +151,16 @@ define(["section", "tapHandler", "event", "globals", "helpers", "sections/status
     // EVENTS
     _onlineStatusChanged: function(e) {
       // check for updates if we come online while looking at this page
-      Data.checkForUpdates()
-        .then((function() {
-          this._scheduleUpdate()
-        }).bind(this))
-        .
-      catch (function(error) {
-        console.error(error, error.stack, error.message);
-      });
+      if (e.online) {
+        Data.checkForUpdates()
+          .then((function() {
+            this._scheduleUpdate()
+          }).bind(this))
+          .
+        catch (function(error) {
+          console.error(error, error.stack, error.message);
+        });
+      }
     },
 
     _fileAdded: function(fileInfo) {

@@ -13,11 +13,9 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
       if (window.indexedDB) {
         console.log("Using IndexedDB as data store");
         this._backing = new IndexedDBBacking();
-      }
-      else
-      {
+      } else {
         console.log("Using WebSQL as data store");
-        this._backing = new WebSQLBacking(); 
+        this._backing = new WebSQLBacking();
       }
 
       Event.addListener("fileIdChanged", this._fileIdChanged.bind(this));
@@ -26,7 +24,8 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
     // FILE METHODS
     getFiles: function() {
       return this._backing.getFiles()
-      .catch(function(error) {
+        .
+      catch (function(error) {
         console.error(error, error.stack, error.message);
         throw error;
       });
@@ -189,11 +188,6 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
       return Promise.all(promises)
         .then((function() {
           this._driveBacking = driveBacking;
-        }).bind(this))
-        .then((function() {
-          Event.trigger("onlineStatusChanged", {
-            online: true
-          });
         }).bind(this))
         .
       catch (function(e) {
