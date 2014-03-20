@@ -249,7 +249,7 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
     },
 
     getFiles: function() {
-      return this.readyPromise.then(function(server) {
+      return this.readyPromise.then((function(server) {
         return Promise.cast(server.files.query('localModifiedTime')
           .all()
           .filter(function(file) {
@@ -258,7 +258,10 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
           .desc()
           .execute()
         )
-      });
+          .then((function(results) {
+            return results.map(this._cleanFields);
+          }).bind(this));
+      }).bind(this))
     },
 
     _addFile: function(file) {
@@ -301,14 +304,17 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
     },
 
     getDeletedFiles: function() {
-      return this.readyPromise.then(function(server) {
+      return this.readyPromise.then((function(server) {
         return Promise.cast(server.files.query()
           .filter(function(file) {
             return file.deleted;
           })
           .execute()
-        );
-      });
+        )
+          .then((function(results) {
+            return results.map(this._cleanFields);
+          }).bind(this));
+      }).bind(this));
     },
 
     markFileAsDeleted: function(fileId) {
@@ -369,7 +375,13 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
           }
           return results[0];
         });
-      });
+      }).then((function(result) {
+        if (result) {
+          this._cleanFields(result)
+        }
+
+        return result;
+      }).bind(this));;
     },
 
     _updateLocalModifiedTime: function(fileId, time) {
@@ -406,6 +418,14 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
           indexedDB.deleteDatabase(this._serverName);
         }).bind(this));
       }).bind(this))
+    },
+
+    _cleanFields: function(fileInfo) {
+      if (fileInfo.deleted) {
+        delete fileInfo.deleted;
+      }
+
+      return fileInfo;
     },
 
     instance: instance,

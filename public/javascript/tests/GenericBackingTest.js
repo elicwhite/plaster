@@ -84,7 +84,17 @@ define(["tests/Helpers/backingHelpers"], function(Helpers) {
               }).bind(this))
               .then((function(files) {
                 assert.equals(files.length, 1);
-                assert.match(files[0], this.fileInfo);
+                assert.equals(files[0], this.fileInfo);
+              }).bind(this))
+          },
+
+          "marked file info doesnt include deleted": function() {
+            return this.backing.markFileAsDeleted(this.fileInfo.id)
+              .then((function() {
+                return this.backing.getFileInfo(this.fileInfo.id);
+              }).bind(this))
+              .then((function(fileInfo) {
+                assert.equals(fileInfo, this.fileInfo);
               }).bind(this))
           },
 

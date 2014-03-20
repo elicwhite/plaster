@@ -189,6 +189,8 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
   });
 
   var WebSQLBacking = Class.extend({
+    FIELDS: "id, name, localModifiedTime, driveModifiedTime, thumbnail",
+
     readyPromise: null,
 
     _serverName: null,
@@ -232,7 +234,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
         return new Promise((function(resolve, reject) {
 
           server.readTransaction((function(tx) {
-            tx.executeSql("SELECT id, name, localModifiedTime, driveModifiedTime, thumbnail FROM `" + this._serverName + "` WHERE `deleted`='false' ORDER BY localModifiedTime DESC", [], (function(transaction, results) {
+            tx.executeSql("SELECT "+this.FIELDS+" FROM `" + this._serverName + "` WHERE `deleted`='false' ORDER BY localModifiedTime DESC", [], (function(transaction, results) {
                 var resultsObj = this._convertResultToObject(results);
                 resolve(resultsObj);
               }).bind(this),
@@ -381,7 +383,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
       return this.readyPromise.then((function(server) {
         return new Promise((function(resolve, reject) {
           server.readTransaction((function(tx) {
-            tx.executeSql("SELECT * FROM `" + this._serverName + "` WHERE `deleted`='true' ORDER BY localModifiedTime DESC", [], (function(transaction, results) {
+            tx.executeSql("SELECT "+this.FIELDS+" FROM `" + this._serverName + "` WHERE `deleted`='true' ORDER BY localModifiedTime DESC", [], (function(transaction, results) {
                 var resultsObj = this._convertResultToObject(results);
                 resolve(resultsObj);
               }).bind(this),
@@ -475,7 +477,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
       return this.readyPromise.then((function(server) {
         return new Promise((function(resolve, reject) {
           server.readTransaction((function(tx) {
-            tx.executeSql('SELECT id, name, localModifiedTime, driveModifiedTime, thumbnail FROM `' + this._serverName + '` WHERE id = ?', [fileId], (function(transaction, results) {
+            tx.executeSql('SELECT '+this.FIELDS+' FROM `' + this._serverName + '` WHERE id = ?', [fileId], (function(transaction, results) {
                 var resultsObj = this._convertResultToObject(results);
                 resolve(resultsObj[0]);
               }).bind(this),
