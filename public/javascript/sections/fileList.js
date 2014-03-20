@@ -1,4 +1,4 @@
-define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data", "templates/fileList"], function(Section, TapHandler, Event, g, Helpers, Data, FileListTemplate) {
+define(["section", "tapHandler", "event", "globals", "helpers", "sections/statusIndicator", "dataLayer/data", "templates/fileList"], function(Section, TapHandler, Event, g, Helpers, StatusIndicator, Data, FileListTemplate) {
 
   var FileList = Section.extend({
     id: "files-list-container",
@@ -14,12 +14,16 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
     // The timer we use to schedule updates
     _updateTimeout: null,
 
+    _indicator: null,
+
     init: function(filesPane) {
       this._super();
 
       this._filesPane = filesPane;
 
       this._files = [];
+
+      this._indicator = new StatusIndicator();
 
       this._fileListElement = document.getElementById("files-list");
 
@@ -50,6 +54,8 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
       Event.addListener("fileIdChanged", this._fileIdChanged.bind(this));
       Event.addListener("fileModifiedRemotely", this._fileModifiedRemotely.bind(this));
       Event.addListener("thumbnailUpdated", this._thumbnailUpdated.bind(this));
+
+
     },
 
     _newFileWrapper: function(fileInfo) {
@@ -74,7 +80,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
 
     show: function() {
       console.log("Showing file list");
-
+      Event.addListener("onlineStatusChanged", this._onlineStatusChanged);
 
       // This could happen if we are online and then navigate to this page
       if (g.isOnline()) {
@@ -84,27 +90,15 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
           }).bind(this));
       }
 
-      Event.addListener("onlineStatusChanged", this._onlineStatusChanged);
+
     },
 
     hide: function() {
+      Event.removeListener("onlineStatusChanged", this._onlineStatusChanged);
+
       if (this._updateTimeout) {
         clearTimeout(this._updateTimeout);
       }
-
-      Event.removeListener("onlineStatusChanged", this._onlineStatusChanged);
-    },
-
-    _onlineStatusChanged: function() {
-      // check for updates if we come online while looking at this page
-      Data.checkForUpdates()
-        .then((function() {
-          this._scheduleUpdate()
-        }).bind(this))
-        .
-      catch (function(error) {
-        console.error(error, error.stack, error.message);
-      });
     },
 
     _scheduleUpdate: function() {
@@ -155,6 +149,18 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
     },
 
     // EVENTS
+    _onlineStatusChanged: function(e) {
+      // check for updates if we come online while looking at this page
+      Data.checkForUpdates()
+        .then((function() {
+          this._scheduleUpdate()
+        }).bind(this))
+        .
+      catch (function(error) {
+        console.error(error, error.stack, error.message);
+      });
+    },
+
     _fileAdded: function(fileInfo) {
       var fileTemplate = this._newFileWrapper(fileInfo);
 

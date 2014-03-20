@@ -9,7 +9,18 @@ define(["event"], function(Event) {
     init: function() {
       this._online = false;
 
-      Event.addListener("onlineStatusChanged", this._onlineStatusChanged.bind(this));
+
+      window.addEventListener("online", function() {
+        Event.trigger("onlineStatusChanged", {
+          online: true
+        });
+      });
+
+      window.addEventListener("offline", function() {
+        Event.trigger("onlineStatusChanged", {
+          online: false
+        });
+      });
     },
 
     _onlineStatusChanged: function(e) {
@@ -19,8 +30,6 @@ define(["event"], function(Event) {
     isOnline: function() {
       return this._online;
     },
-
-
 
     isiOS: function() {
       return this.hasDeviceType("iOS");
@@ -60,23 +69,17 @@ define(["event"], function(Event) {
         if (userAgent.match(/iPad/g)) {
           devices.push("iPad");
           devices.push("tablet");
-        }
-        else if (userAgent.match(/iPhone/g)) {
+        } else if (userAgent.match(/iPhone/g)) {
           devices.push("iPhone");
           devices.push("phone");
         }
-      }
-      else if (userAgent.match(/Mac/g)) {
+      } else if (userAgent.match(/Mac/g)) {
         devices.push("Mac");
         devices.push("computer");
-      }
-      else
-      {
+      } else {
         devices.push("PC");
         devices.push("computer");
       }
-
-
 
       localStorage.deviceType = JSON.stringify(devices);
 

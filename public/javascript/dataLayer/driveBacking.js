@@ -85,8 +85,9 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
               GAuth.authorize();
               //reject(error);
             } else if (error.type == gapi.drive.realtime.ErrorType.CLIENT_ERROR) {
-              //reject(error);
+              reject(error);
             } else if (error.type == gapi.drive.realtime.ErrorType.NOT_FOUND) {
+              reject(error);
               //alert("The file was not found. It does not exist or you do not have read access to the file.");
             }
 

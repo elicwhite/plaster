@@ -19,8 +19,6 @@ define(["section", "event", "managers/files"], function(Section, Event, Files) {
       this.panes.files = new Files();
       
       Event.addListener("logout", this._logout.bind(this));
-
-      this._setMode();
     },
 
     show: function() {
@@ -29,8 +27,6 @@ define(["section", "event", "managers/files"], function(Section, Event, Files) {
       } else {
         this.setPane("files");
       }
-
-      //this.showDrawer();
     },
 
 
@@ -69,18 +65,6 @@ define(["section", "event", "managers/files"], function(Section, Event, Files) {
 
     _logout: function() {
       delete localStorage.currentPane;
-    },
-
-    _setMode: function() {
-      var element = document.getElementById("mode");
-
-      if (window.gapi) {
-        mode.classList.remove("offline");
-      }
-      else
-      {
-        mode.classList.add("offline");
-      }
     }
   });
 

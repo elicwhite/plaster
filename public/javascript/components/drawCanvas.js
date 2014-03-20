@@ -86,7 +86,6 @@ define(["class", "helpers", "bezierCurve"], function(Class, Helpers, BezierCurve
       this._ctx.drawImage(this._tempCanvas, 0, 0, this._tempCanvas.width, this._tempCanvas.height);
     },
 
-
     _doAction: function(ctx, action) {
       if (action.type == "stroke") {
 
@@ -124,7 +123,8 @@ define(["class", "helpers", "bezierCurve"], function(Class, Helpers, BezierCurve
       for (var i = 1; i < points.length; i++) {
         point = points[i];
 
-        if (this._useCurves || i == 1 /*|| i == points.length - 1*/) {
+        // Curve the first one, even if we are using lines
+        if (this._useCurves || i == 1) {
           var cp1 = controlPoints[i - 1][0];
           var cp2 = controlPoints[i - 1][1];
           ctx.bezierCurveTo(cp1[0], cp1[1], cp2[0], cp2[1], point[0], point[1]);
