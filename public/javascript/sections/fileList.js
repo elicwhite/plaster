@@ -167,9 +167,9 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
       if (e.target.id == "file-create") {
         this._newDoc();
       }
-      else if (e.target.id == "logout") {
-        Event.trigger("logout");
-      }
+      //else if (e.target.id == "logout") {
+        //Event.trigger("logout");
+      //}
     },
 
     // EVENTS

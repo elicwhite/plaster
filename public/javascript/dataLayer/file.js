@@ -348,9 +348,6 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
     },
 
     addAction: function(action) {
-      if (!this._cachedActions) {
-        debugger;
-      }
       this._cachedActions.redoStack.length = 0;
       return this._addAction(action);
     },
