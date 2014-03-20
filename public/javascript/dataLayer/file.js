@@ -10,15 +10,11 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
     _addedCallback: null,
     _removedCallback: null,
 
-    _loadCallbacks: null,
-
     _syncPromise: null,
 
     init: function(backing) {
       // Create our backing instance
       this._backing = backing;
-
-      this._loadCallbacks = [];
     },
 
     hasLocalActions: function(fileId) {
@@ -26,9 +22,12 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
         .then((function(fileInfo) {
           return this._backing.getActions()
         }).bind(this))
-        .then(function(actions) {
-          return actions.local.length !== 0;
-        });
+        .then((function(actions) {
+          return this._backing.close()
+            .then(function() {
+              return actions.local.length !== 0;
+            })
+        }).bind(this));
     },
 
     remoteActionsMatch: function(fileId, driveBacking) {
@@ -87,9 +86,10 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
         .then((function() {
           return this.load(file.id);
         }).bind(this))
-        .catch(function(error) {
-          console.error(error, error.stack, error.message);
-        });
+        .
+      catch (function(error) {
+        console.error(error, error.stack, error.message);
+      });
     },
 
     rename: function(newName) {
@@ -168,10 +168,6 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
 
           var found = false;
           for (var i in driveFiles) {
-            if (!driveFiles[i] || !fileInfo) {
-              debugger;
-            }
-
             if (driveFiles[i].id == fileInfo.id) {
               found = i;
               break;
@@ -186,8 +182,14 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
             // sync actions
 
             if (driveFiles[i].title != fileInfo.name) {
-              // File names don't match, remote wins
-              promises.push(this.rename(driveFiles[i].title));
+
+              // It is newer on drive, rename locally
+              if (driveFiles[i].modifiedDate != fileInfo.driveModifiedTime) {
+                promises.push(this._driveBacking.rename(fileInfo.name));
+              } else {
+                // Update it locally
+                promises.push(this.rename(driveFiles[i].title));
+              }
             }
 
             if (syncActions) {
@@ -199,7 +201,6 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
             // this file was not found
             // so we will create a new file on drive, 
             // and then copy everything over to it
-
             var oldId = fileInfo.id;
 
             promises.push(
@@ -342,13 +343,20 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
         return Promise.resolve(false); // no actions to undo
       } else {
         var action = this._cachedActions.redoStack.pop();
-        return this.addAction(action);
+        return this._addAction(action);
       }
     },
 
     addAction: function(action) {
-      this._cachedActions.localActions.push(action);
+      if (!this._cachedActions) {
+        debugger;
+      }
       this._cachedActions.redoStack.length = 0;
+      return this._addAction(action);
+    },
+
+    _addAction: function(action) {
+      this._cachedActions.localActions.push(action);
 
       var promises = [];
 
@@ -390,29 +398,33 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
         prom = this._syncPromise;
       }
 
-      return prom.then((function() {
-        this.fileInfoPromise.then((function(fileInfo) {
-          console.log("Closing file", fileInfo.id);
+      // If we loaded a file
+      if (this.fileInfoPromise) {
+        return prom.then((function() {
+          this.fileInfoPromise.then((function(fileInfo) {
+            // Explicitly allow garbage collection
+            this._cachedActions.length = 0;
 
-          // Explicitly allow garbage collection
-          this._cachedActions.length = 0;
+            this.fileInfoPromise = Promise.reject(new Error("File has been closed"));
+          }).bind(this));
 
-          this.fileInfoPromise = Promise.reject(new Error("File has been closed"));
-        }).bind(this));
+          var promises = [];
 
-        var promises = [];
+          promises.push(this._backing.close());
 
-        promises.push(this._backing.close());
+          if (this._driveBacking) {
+            this._driveBacking.stopListening();
 
-        if (this._driveBacking) {
-          this._driveBacking.stopListening();
+            promises.push(this._driveBacking.close());
+            this._driveBacking = null;
+          }
 
-          promises.push(this._driveBacking.close());
-          this._driveBacking = null;
-        }
+          return Promise.all(promises);
+        }).bind(this))
+      } else {
+        return prom;
+      }
 
-        return Promise.all(promises);
-      }).bind(this))
     },
 
     _syncRemoteActionsFromDrive: function(driveBacking) {

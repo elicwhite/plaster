@@ -475,7 +475,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
       return this.readyPromise.then((function(server) {
         return new Promise((function(resolve, reject) {
           server.readTransaction((function(tx) {
-            tx.executeSql('SELECT * FROM `' + this._serverName + '` WHERE id = ?', [fileId], (function(transaction, results) {
+            tx.executeSql('SELECT id, name, localModifiedTime, driveModifiedTime, thumbnail FROM `' + this._serverName + '` WHERE id = ?', [fileId], (function(transaction, results) {
                 var resultsObj = this._convertResultToObject(results);
                 resolve(resultsObj[0]);
               }).bind(this),

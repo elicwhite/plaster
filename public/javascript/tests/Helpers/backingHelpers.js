@@ -39,7 +39,16 @@ define(["dataLayer/indexedDBBacking", "dataLayer/webSQLBacking"], function(Index
 
     randomName: function() {
       return "Draw-" + Date.now() + Math.round((Math.random() * 100000));
-    }
+    },
+    
+    clone: function(obj) {
+      var newObj = {};
+      for (var prop in obj) {
+        newObj[prop] = obj[prop];
+      }
+
+      return newObj;
+    },
   };
 
   return BackingHelpers;
