@@ -8,10 +8,14 @@ define(["class", "helpers", "bezierCurve"], function(Class, Helpers, BezierCurve
     _tempCanvas: null,
     _tempCtx: null,
 
+    _useCurves: null,
+
     init: function(canvas, settings) {
       this._canvas = canvas;
       this._ctx = canvas.getContext("2d");
       this._settings = settings;
+
+      this._useCurves = true;
 
       this._backCanvas = document.createElement("canvas");
       this._backCtx = this._backCanvas.getContext("2d");
@@ -22,6 +26,10 @@ define(["class", "helpers", "bezierCurve"], function(Class, Helpers, BezierCurve
       this._tempCtx = this._tempCanvas.getContext("2d");
       //this._tempCtx.lineJoin = "round";
       //this._tempCtx.lineCap = "round";
+    },
+
+    useCurves: function(value) {
+      this._useCurves = value;
     },
 
     // Creates a back canvas and draws all the actions to it and renders it on the main canvas
@@ -115,12 +123,16 @@ define(["class", "helpers", "bezierCurve"], function(Class, Helpers, BezierCurve
 
       for (var i = 1; i < points.length; i++) {
         point = points[i];
-        //ctx.lineTo(point[0], point[1]);
-        //continue;
 
-        var cp1 = controlPoints[i - 1][0];
-        var cp2 = controlPoints[i - 1][1];
-        ctx.bezierCurveTo(cp1[0], cp1[1], cp2[0], cp2[1], point[0], point[1]);
+        if (this._useCurves || i == 1 /*|| i == points.length - 1*/) {
+          var cp1 = controlPoints[i - 1][0];
+          var cp2 = controlPoints[i - 1][1];
+          ctx.bezierCurveTo(cp1[0], cp1[1], cp2[0], cp2[1], point[0], point[1]);
+        }
+        else
+        {
+          ctx.lineTo(point[0], point[1]);
+        }
       }
 
       ctx.stroke();

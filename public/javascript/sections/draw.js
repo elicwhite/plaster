@@ -73,7 +73,9 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
         start: this._start.bind(this),
         move: this._move.bind(this),
         end: this._end.bind(this),
-        gesture: this._gesture.bind(this)
+        gesture: this._gesture.bind(this),
+        gestureStart: this._gestureStart.bind(this),
+        gestureEnd: this._gestureEnd.bind(this)
       });
 
 
@@ -253,6 +255,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
       }
 
       if (tool == "pan") {
+        this._manipulateCanvas.useCurves(false);
         return;
       }
 
@@ -325,7 +328,11 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
     _end: function(e) {
       var tool = this._settings.tools.gesture || this._settings.tools.point;
 
-      if (tool == "pencil" || tool == "eraser") {
+      if (tool == "pan") {
+        this._manipulateCanvas.useCurves(true);
+        this._updateAll = true;
+      }
+      else if (tool == "pencil" || tool == "eraser") {
         if (!this._currentAction) {
           // no current action. This can happen if we were dragging a tool and let up the
           // tool button and kept dragging
@@ -370,10 +377,17 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
     },
 
     _gesture: function(e) {
-      //if (this._settings.tools.point == "pencil") {
       this._pan(e.xFromLast, e.yFromLast);
       this._zoom(e.x, e.y, e.scaleFromLast * this._settings.scale);
-      //}
+    },
+
+    _gestureStart: function() {
+      this._manipulateCanvas.useCurves(false);
+    },
+
+    _gestureEnd: function() {
+      this._manipulateCanvas.useCurves(true);
+      this._updateAll = true;
     },
 
     _redraw: function() {

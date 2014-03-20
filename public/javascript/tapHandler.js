@@ -175,6 +175,10 @@ define([], function() {
 
       this._startScale = this._lastScale = e.scale;
 
+      if (this._options.gestureStart) {
+        this._options.gestureStart(e);
+      }
+
       document.addEventListener("gesturechange", this._gestureChange);
       document.addEventListener("gestureend", this._gestureEnd);
     },
@@ -197,6 +201,10 @@ define([], function() {
     _gestureEnd: function(e) {
       this._processEvent(e);
       this._processGesture(e);
+
+      if (this._options.gestureEnd) {
+        this._options.gestureEnd(e);
+      }
 
       document.removeEventListener("gesturechange", this._gestureChange);
       document.removeEventListener("gestureend", this._gestureEnd);
