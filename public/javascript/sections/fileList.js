@@ -23,11 +23,6 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
 
       this._fileListElement = document.getElementById("files-list");
 
-      // Don't have the big create button on phone
-      if (g.isPhone()) {
-        this._fileListElement.innerHTML = "";
-      }
-
       this._scheduleUpdate = this._scheduleUpdate.bind(this);
       this._onlineStatusChanged = this._onlineStatusChanged.bind(this);
 
@@ -42,10 +37,6 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
 
       this.element.addEventListener("wheel", function(e) {
         e.stopPropagation();
-      });
-
-      new TapHandler(document.getElementById("main-menu"), {
-        tap: this._menuTapped.bind(this)
       });
 
       new TapHandler(this._fileListElement, {
@@ -161,15 +152,6 @@ define(["section", "tapHandler", "event", "globals", "helpers", "dataLayer/data"
           console.log("Showing draw for", fileInfo);
           this._filesPane.setPane("draw", fileInfo);
         }).bind(this));
-    },
-
-    _menuTapped: function(e) {
-      if (e.target.id == "file-create") {
-        this._newDoc();
-      }
-      //else if (e.target.id == "logout") {
-        //Event.trigger("logout");
-      //}
     },
 
     // EVENTS
