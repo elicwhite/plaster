@@ -92,7 +92,9 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
               //alert("The file was not found. It does not exist or you do not have read access to the file.");
             }
 
-            reject(new Error(error));
+            var error = new Error();
+            error.object = error;
+            reject(error);
           }
         );
       }).bind(this));
@@ -175,7 +177,7 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
       if (!this._docPromise) {
         debugger;
       }
-      
+
       return this._docPromise.then(function(doc) {
         doc.close();
       });
@@ -197,7 +199,7 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
         gapi.client.load('drive', 'v2', (function() {
           gapi.client.drive.files.list({
             'q': "trashed=false and mimeType='" + this.REALTIME_MIMETYPE + '.' + this._appId + "'",
-            'fields': 'items('+this._fields+')',
+            'fields': 'items(' + this._fields + ')',
           }).execute(function(resp) {
             if (!resp) {
               resolve([]);
@@ -205,7 +207,10 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
             }
 
             if (resp.error) {
-              reject(new Error(resp));
+              var error = new Error();
+              error.object = resp;
+              reject(error);
+
             } else {
               resolve(resp.items);
             }
@@ -223,7 +228,9 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
           }).execute(function(resp) {
 
             if (resp.error) {
-              reject(new Error(resp));
+              var error = new Error();
+              error.object = resp;
+              reject(error);
             } else {
               resolve({
                 id: resp.id,
@@ -245,7 +252,9 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
             'fields': this._fields
           }).execute(function(resp) {
             if (resp.error) {
-              reject(new Error(resp));
+              var error = new Error();
+              error.object = resp;
+              reject(error);
             } else {
               resolve({
                 id: resp.id,
@@ -271,7 +280,9 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
           });
           request.execute(function(resp) {
             if (resp.error) {
-              reject(new Error(resp));
+              var error = new Error();
+              error.object = resp;
+              reject(error);
             } else {
               resolve(resp);
             }
@@ -290,7 +301,9 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
             'fields': this._fields,
           }).execute(function(resp) {
             if (resp.error) {
-              reject(new Error(resp));
+              var error = new Error();
+              error.object = resp;
+              reject(error);
             } else {
               resolve(resp);
             }
@@ -307,7 +320,9 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
             'fields': this._fields,
           }).execute(function(resp) {
             if (resp.error) {
-              reject(new Error(resp));
+              var error = new Error();
+              error.object = resp;
+              reject(error);
             } else {
               resolve(resp);
             }
