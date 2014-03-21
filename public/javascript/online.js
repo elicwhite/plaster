@@ -1,4 +1,4 @@
-define(["event", "gauth", "dataLayer/data"], function(Event, GAuth, Data) {
+define(["event", "gauth", "data"], function(Event, GAuth, Data) {
   var Online = function Online() {
     this.init();
   };

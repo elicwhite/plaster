@@ -1,4 +1,4 @@
-define(["section", "tapHandler", "event", "globals", "helpers", "online", "sections/statusIndicator", "dataLayer/data", "templates/fileList"], function(Section, TapHandler, Event, g, Helpers, Online, StatusIndicator, Data, FileListTemplate) {
+define(["section", "tapHandler", "event", "globals", "helpers", "online", "sections/statusIndicator", "data", "templates/fileList"], function(Section, TapHandler, Event, g, Helpers, Online, StatusIndicator, Data, FileListTemplate) {
 
   var FileList = Section.extend({
     id: "files-list-container",

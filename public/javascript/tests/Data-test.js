@@ -25,8 +25,10 @@ define(['promise', 'tests/Helpers/backingHelpers', 'dataLayer/data'], function(P
     },
 
     "create returns file": function() {
+      debugger;
       return this.data.create(this.fileInfo)
       .then((function(file){
+        debugger;
         assert.isObject(file);
       }).bind(this))
     }

@@ -1,4 +1,4 @@
-define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db", "bezierCurve", "dataLayer/data", "components/manipulateCanvas"], function(Section, g, Event, Helpers, TapHandler, Platform, db, BezierCurve, Data, ManipulateCanvas) {
+define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db", "bezierCurve", "data", "components/manipulateCanvas"], function(Section, g, Event, Helpers, TapHandler, Platform, db, BezierCurve, Data, ManipulateCanvas) {
 
   var Draw = Section.extend({
     id: "draw",
