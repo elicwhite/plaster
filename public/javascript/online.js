@@ -18,13 +18,16 @@ define(["event", "gauth", "dataLayer/data"], function(Event, GAuth, Data) {
     },
 
     gapiLoaded: function() {
-      GAuth.start(function() {
+      GAuth.start((function() {
         console.log("GAuth Loaded");
         Data.startDrive()
+          .catch(function(error) {
+            console.error(error);
+          })
           .then((function() {
             this._setStatus(true);
           }).bind(this))
-      });
+      }).bind(this));
     },
 
     gapiLoadError: function() {
@@ -81,9 +84,6 @@ define(["event", "gauth", "dataLayer/data"], function(Event, GAuth, Data) {
         online: online
       });
     }
-
-
-
   }
 
   return new Online();

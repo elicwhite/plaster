@@ -83,15 +83,16 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
             if (error.type == gapi.drive.realtime.ErrorType.TOKEN_REFRESH_REQUIRED) {
               console.warn("Token expired, reauthorizing");
               GAuth.authorize();
+              return;
               //reject(error);
             } else if (error.type == gapi.drive.realtime.ErrorType.CLIENT_ERROR) {
-              reject(error);
+              //reject(new Error(error));
             } else if (error.type == gapi.drive.realtime.ErrorType.NOT_FOUND) {
-              reject(error);
+              //reject(new Error(error));
               //alert("The file was not found. It does not exist or you do not have read access to the file.");
             }
 
-            reject(error);
+            reject(new Error(error));
           }
         );
       }).bind(this));
@@ -204,7 +205,7 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
             }
 
             if (resp.error) {
-              reject(resp);
+              reject(new Error(resp));
             } else {
               resolve(resp.items);
             }
@@ -222,7 +223,7 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
           }).execute(function(resp) {
 
             if (resp.error) {
-              reject(resp);
+              reject(new Error(resp));
             } else {
               resolve({
                 id: resp.id,
@@ -244,7 +245,7 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
             'fields': this._fields
           }).execute(function(resp) {
             if (resp.error) {
-              reject(resp);
+              reject(new Error(resp));
             } else {
               resolve({
                 id: resp.id,
@@ -270,7 +271,7 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
           });
           request.execute(function(resp) {
             if (resp.error) {
-              reject(resp);
+              reject(new Error(resp));
             } else {
               resolve(resp);
             }
@@ -289,7 +290,7 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
             'fields': this._fields,
           }).execute(function(resp) {
             if (resp.error) {
-              reject(resp);
+              reject(new Error(resp));
             } else {
               resolve(resp);
             }
@@ -306,7 +307,7 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
             'fields': this._fields,
           }).execute(function(resp) {
             if (resp.error) {
-              reject(resp);
+              reject(new Error(resp));
             } else {
               resolve(resp);
             }

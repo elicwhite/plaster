@@ -1,4 +1,4 @@
-define(["section", "tapHandler", "event", "globals", "helpers", "sections/statusIndicator", "dataLayer/data", "templates/fileList"], function(Section, TapHandler, Event, g, Helpers, StatusIndicator, Data, FileListTemplate) {
+define(["section", "tapHandler", "event", "globals", "helpers", "online", "sections/statusIndicator", "dataLayer/data", "templates/fileList"], function(Section, TapHandler, Event, g, Helpers, Online, StatusIndicator, Data, FileListTemplate) {
 
   var FileList = Section.extend({
     id: "files-list-container",
@@ -83,7 +83,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "sections/status
       Event.addListener("onlineStatusChanged", this._onlineStatusChanged);
 
       // This could happen if we are online and then navigate to this page
-      if (g.isOnline()) {
+      if (Online.isOnline()) {
         Data.checkForUpdates()
           .then((function() {
             this._scheduleUpdate()

@@ -1,4 +1,4 @@
-define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "dataLayer/indexedDBBacking", "dataLayer/webSQLBacking", "dataLayer/DriveBacking"], function(Class, Helpers, Event, SequentialHelper, File, IndexedDBBacking, WebSQLBacking, DriveBacking) {
+define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "dataLayer/indexedDBBacking", "dataLayer/webSQLBacking", "dataLayer/driveBacking"], function(Class, Helpers, Event, SequentialHelper, File, IndexedDBBacking, WebSQLBacking, DriveBacking) {
   var Data = Class.extend({
     _backing: null,
     _cachedFiles: null,
@@ -6,16 +6,20 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
 
     _driveBacking: null,
 
-    init: function() {
+    init: function(backing) {
       this._cachedFiles = {};
       this._fileReferences = {};
 
-      if (window.indexedDB) {
-        console.log("Using IndexedDB as data store");
-        this._backing = new IndexedDBBacking();
+      if (backing) {
+        this._backing = backing;
       } else {
-        console.log("Using WebSQL as data store");
-        this._backing = new WebSQLBacking();
+        if (window.indexedDB) {
+          console.log("Using IndexedDB as data store");
+          this._backing = new IndexedDBBacking();
+        } else {
+          console.log("Using WebSQL as data store");
+          this._backing = new WebSQLBacking();
+        }
       }
 
       Event.addListener("fileIdChanged", this._fileIdChanged.bind(this));

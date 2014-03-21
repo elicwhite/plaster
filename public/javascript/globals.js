@@ -4,18 +4,7 @@ define(["event"], function(Event) {
   };
 
   Globals.prototype = {
-    _online: null,
-
     init: function() {
-      this._online = false;
-    },
-
-    _onlineStatusChanged: function(e) {
-      this._online = e.online;
-    },
-
-    isOnline: function() {
-      return this._online;
     },
 
     isiOS: function() {
