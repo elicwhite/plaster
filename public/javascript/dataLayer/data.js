@@ -111,7 +111,7 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
 
         promises.push(filePromise
           .then((function(file) {
-            return this._close(file);
+            return this.close(file);
           }).bind(this)));
       }
 

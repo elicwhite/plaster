@@ -25,12 +25,27 @@ define(['promise', 'tests/Helpers/backingHelpers', 'dataLayer/data'], function(P
     },
 
     "create returns file": function() {
-      debugger;
-      return this.data.create(this.fileInfo)
-      .then((function(file){
-        debugger;
-        assert.isObject(file);
-      }).bind(this))
+      return this.data._createFile(this.fileInfo)
+        .then((function(file) {
+          assert.isObject(file);
+        }).bind(this))
+    },
+
+    "with file": {
+      setUp: function() {
+        return this.data._createFile(this.fileInfo)
+        .then((function(file) {
+          this.file = file;
+        }).bind(this));
+      },
+
+      tearDown: function() {
+        return this.data.deleteFile(this.fileInfo.id);
+      },
+
+      "create then load returns same instance": function() {
+        assert.isObject(this.file);
+      }
     }
   });
 });
