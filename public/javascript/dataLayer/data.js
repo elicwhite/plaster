@@ -41,7 +41,7 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
     _createFile: function(fileInfo) {
       var file = new File(new this._backing.instance(this._backing));
 
-      this._fileReferences[fileInfo.id] = 0;
+      this._fileReferences[fileInfo.id] = 1;
 
       this._cachedFiles[fileInfo.id] = file.create(fileInfo)
         .then((function(fileInfo, file) {
@@ -187,6 +187,14 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
       catch (function(e) {
         console.error(e, e.stack, e.message);
       });
+    },
+
+    openReferences: function(fileId) {
+      if (this._fileReferences[fileId]) {
+        return this._fileReferences[fileId];
+      }
+
+      return 0;
     },
 
     isOnline: function() {

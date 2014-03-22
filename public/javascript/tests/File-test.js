@@ -273,21 +273,6 @@ define(['promise', 'tests/Helpers/backingHelpers', 'tests/Fixture/driveFixture',
                 assert.equals(actions[1], this.action2);
               }).bind(this));
           },
-
-          "// gets both files": function() {
-            this.stub(this.drive, "getFiles", function() {
-              return [{
-                id: 1
-              }, {
-                id: 2
-              }];
-            });
-
-            return this.file.sync(this.driveInstance, true)
-              .then(function() {
-                assert(true);
-              })
-          }
         },
       }
     }

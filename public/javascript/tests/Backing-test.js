@@ -16,9 +16,6 @@ define(['promise', 'tests/Helpers/backingHelpers', 'tests/GenericBackingTest', '
     "indexedDb": 'indexedDB' in window
   };
 
-  buster.testCase("IndexedDBBacking", indexedDBBackingTest);
-
-
   var webSQLBackingTest = new GenericBackingTest();
   webSQLBackingTest.setUp = function() {
     this.dbName = Helpers.randomName();
@@ -29,5 +26,7 @@ define(['promise', 'tests/Helpers/backingHelpers', 'tests/GenericBackingTest', '
     "WebSQL": 'openDatabase' in window
   };
 
+
+  buster.testCase("IndexedDBBacking", indexedDBBackingTest);
   buster.testCase("webSQLBackingTest", webSQLBackingTest);
 });
