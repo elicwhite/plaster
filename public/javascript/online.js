@@ -31,7 +31,7 @@ define(["event", "gauth", "data"], function(Event, GAuth, Data) {
     },
 
     gapiLoadError: function() {
-      console.log("Failed to load gapi");
+      console.warn("Failed to load gapi");
       this._setStatus(false);
       // set a reconnect timer, but only if navigator.online
       window.setTimeout(this._retryScript.bind(this), 10);
@@ -43,7 +43,7 @@ define(["event", "gauth", "data"], function(Event, GAuth, Data) {
 
     _retryScript: function() {
       if (navigator.onLine) {
-        console.log("retrying to load the script");
+        console.log("retrying to load gapi");
         // We are connected to wifi but might not have a connection, 
         // try to reload the script
         this._reloadScript();
@@ -61,11 +61,10 @@ define(["event", "gauth", "data"], function(Event, GAuth, Data) {
     },
 
     _onlineEvent: function() {
-      console.log("online event");
       if (window.gapi) {
-        GAuth.start(function() {
+        GAuth.start((function() {
           this._setStatus(true);  
-        });
+        }).bind(this));
       } else {
         // reload the script
         this._reloadScript();
@@ -73,7 +72,6 @@ define(["event", "gauth", "data"], function(Event, GAuth, Data) {
     },
 
     _offlineEvent: function() {
-      console.log("offline event");
       this._setStatus(false);
       // keep doing everything
     },

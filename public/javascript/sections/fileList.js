@@ -107,7 +107,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "online", "secti
       }
 
       this._updateTimeout = setTimeout((function() {
-        if (!this._visible) {
+        if (!this._visible || !Online.isOnline()) {
           return;
         }
 

@@ -528,6 +528,7 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
             //this._cachedActions.remoteActions = remoteActions;
           }
 
+          // TODO: move this to the end of sync instead of syncing file actions
           promises.push(this._sendAllActions(localActions.local, driveBacking));
 
           return Promise.all(promises)

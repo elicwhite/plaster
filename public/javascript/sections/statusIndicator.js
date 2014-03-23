@@ -13,18 +13,6 @@ define(["event", "section"], function(Event, Section) {
     _onlineStatusChanged: function(e) {
       if (e.online) {
         this.element.classList.remove("offline");
-
-        // check for updates if we come online while looking at this page
-        if (this._visible) {
-          Data.checkForUpdates()
-            .then((function() {
-              this._scheduleUpdate()
-            }).bind(this))
-            .
-          catch (function(error) {
-            console.error(error, error.stack, error.message);
-          });
-        }
       } else {
         // we are now offline, set the indicator
         this.element.classList.add("offline");
