@@ -63,8 +63,9 @@ define(["event", "gauth", "data"], function(Event, GAuth, Data) {
     _onlineEvent: function() {
       console.log("online event");
       if (window.gapi) {
-        GAuth.authorize()
-        this._setStatus(true);
+        GAuth.start(function() {
+          this._setStatus(true);  
+        });
       } else {
         // reload the script
         this._reloadScript();
