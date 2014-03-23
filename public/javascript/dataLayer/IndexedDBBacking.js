@@ -13,7 +13,7 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
       this._fileServerPromise = Promise.cast(
         db.open({
           server: fileId,
-          version: 1,
+          version: 2,
           schema: {
             localActions: {
               key: {
@@ -231,7 +231,7 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
 
       this.readyPromise = Promise.cast(db.open({
         server: this._serverName,
-        version: 1,
+        version: 2,
         schema: {
           files: {
             key: {

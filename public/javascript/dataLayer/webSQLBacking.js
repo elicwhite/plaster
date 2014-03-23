@@ -197,7 +197,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
 
     init: function(serverName) {
       this._serverName = serverName ? serverName : "files";
-      var server = openDatabase("draw", "1.0", "draw", 4 * 1024 * 1024);
+      var server = openDatabase("draw", "2", "draw", 4 * 1024 * 1024);
 
       this.readyPromise = Promise.resolve(server)
         .then((function(server) {
