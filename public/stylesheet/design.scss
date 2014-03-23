@@ -18,7 +18,49 @@ body, input {
 }
 
 #login {
+  #login-container {
+    width: 350px;
+    text-align: center;
+    height: 50px;
+    position: absolute;
+    top: calc(50% - 25px);
+    left: calc(50% - 175px);
 
+    #loginbutton {
+      display: inline-block;
+      line-height: 50px;
+      padding: 0 60px;
+      background-color: $primary4;
+      border: 1px solid $primary2;
+      cursor: pointer;
+
+      i {
+        margin-right: 10px;
+        vertical-align: middle;
+        font-size: 25px;
+        line-height: 25px;
+      }
+    }
+  }
+}
+
+#updateBar {
+  @include transition(.3s, all);
+  @include transform("translate(0px, -35px)");
+
+  #updateBarContent {
+    font-size: 15px;
+    line-height: 35px;
+    padding: 0 10px;
+    background-color: $secondaryB1;
+    border: 1px solid $primary3;
+    border-top: none;
+
+  }
+
+  &.visible {
+    @include transform("translate(0px, 0px)");   
+  }
 }
 
 #files {

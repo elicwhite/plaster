@@ -49,3 +49,9 @@ window.gapiLoadError = function() {
     Online.gapiLoadError();
   });
 }
+
+window.applicationCache.addEventListener("updateready", function() {
+  require(["cacheHandler"], function(CacheHandler) {
+    CacheHandler.updateReady();
+  });
+});
