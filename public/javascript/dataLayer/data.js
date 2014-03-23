@@ -453,7 +453,15 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
         .then((function(file) {
           return this.close(file);
         }).bind(this));
-    }
+    },
+
+    clearLocal: function() {
+      return this._backing.clearAll()
+      .then((function() {
+        // Reinit a new database
+        this._backing.init();
+      }).bind(this));
+    },
   });
 
   return Data;

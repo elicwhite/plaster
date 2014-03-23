@@ -5,10 +5,13 @@ function init() {
     e.preventDefault();
   });
 
-  require(["promise", "event", "globals", "helpers", "managers/login", "gauth"], function(Promise, Event, g, Helpers, LoginManager, GAuth) {
-    g.setHTMLDevices();
+  require(["promise", "event", "globals", "helpers", "migrate", "managers/login", "gauth"], function(Promise, Event, g, Helpers, Migrate, LoginManager, GAuth) {
+    Migrate.run()
+    .then((function() {
+      g.setHTMLDevices();
 
-    var loginManager = new LoginManager();
+      var loginManager = new LoginManager();
+    }).bind(this));
 
     window.addEventListener("resize", function() {
       // make sure we are scrolled to 0. Without this there are problems 
