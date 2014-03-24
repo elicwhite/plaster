@@ -231,8 +231,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
                   return new Promise((function(resolve, reject) {
                     server.changeVersion(server.version, "2", (function(tx) {
 
-                        tx.executeSql('DROP TABLE `files` RENAME TO `' + this._serverName + '`' +
-                          '', [],
+                        tx.executeSql('DROP TABLE `files`', [],
                           function() {
                             resolve()
                           },
