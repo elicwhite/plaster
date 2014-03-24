@@ -226,12 +226,11 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
               var sequence = Promise.resolve();
 
               if (server.version == "1.0") {
-                //debugger;
                 sequence = sequence.then((function() {
                   return new Promise((function(resolve, reject) {
                     server.changeVersion(server.version, "2", (function(tx) {
 
-                        tx.executeSql('DROP TABLE `files`', [],
+                        tx.executeSql('DROP TABLE IF EXISTS `files`', [],
                           function() {
                             resolve()
                           },
