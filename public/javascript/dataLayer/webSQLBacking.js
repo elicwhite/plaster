@@ -197,10 +197,11 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
 
     init: function(serverName) {
       this._serverName = serverName ? serverName : "files";
-      var server = openDatabase("draw", "2", "draw", 4 * 1024 * 1024);
-
+      var server = openDatabase("draw", "", "draw", 4 * 1024 * 1024);
+      debugger;
       this.readyPromise = Promise.resolve(server)
         .then((function(server) {
+          //debugger;
           return new Promise((function(resolve, reject) {
             server.transaction((function(tx) {
               tx.executeSql('CREATE TABLE IF NOT EXISTS `' + this._serverName + '`' +
@@ -215,12 +216,47 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
                 function() {
                   resolve(server)
                 },
-                function(error) {
+                function(transaction, error) {
                   reject(error);
                 });
             }).bind(this));
-          }).bind(this));
+          }).bind(this))
+            .then((function() {
+              // do sql migrations
+              var sequence = Promise.resolve();
+
+              if (server.version == "1.0") {
+                //debugger;
+                sequence = sequence.then((function() {
+                  return new Promise((function(resolve, reject) {
+                    server.changeVersion(server.version, "2", (function(tx) {
+
+                        tx.executeSql('DROP TABLE `files` RENAME TO `' + this._serverName + '`' +
+                          '', [],
+                          function() {
+                            resolve()
+                          },
+                          function(transaction, error) {
+                            reject(error);
+                          })
+                      },
+                      function(error) {
+                        reject(error);
+                      }).bind(this));
+                  }).bind(this))
+                    .then(function() {
+                      // just reload and start fresh
+                      location.reload();
+                    });
+                }).bind(this))
+              }
+
+              return sequence;
+            }).bind(this))
         }).bind(this))
+        .then(function() {
+          return server;
+        })
         .
       catch (function(error) {
         console.error("Error initializing database", error);
@@ -234,7 +270,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
         return new Promise((function(resolve, reject) {
 
           server.readTransaction((function(tx) {
-            tx.executeSql("SELECT "+this.FIELDS+" FROM `" + this._serverName + "` WHERE `deleted`='false' ORDER BY localModifiedTime DESC", [], (function(transaction, results) {
+            tx.executeSql("SELECT " + this.FIELDS + " FROM `" + this._serverName + "` WHERE `deleted`='false' ORDER BY localModifiedTime DESC", [], (function(transaction, results) {
                 var resultsObj = this._convertResultToObject(results);
                 resolve(resultsObj);
               }).bind(this),
@@ -383,7 +419,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
       return this.readyPromise.then((function(server) {
         return new Promise((function(resolve, reject) {
           server.readTransaction((function(tx) {
-            tx.executeSql("SELECT "+this.FIELDS+" FROM `" + this._serverName + "` WHERE `deleted`='true' ORDER BY localModifiedTime DESC", [], (function(transaction, results) {
+            tx.executeSql("SELECT " + this.FIELDS + " FROM `" + this._serverName + "` WHERE `deleted`='true' ORDER BY localModifiedTime DESC", [], (function(transaction, results) {
                 var resultsObj = this._convertResultToObject(results);
                 resolve(resultsObj);
               }).bind(this),
@@ -477,7 +513,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
       return this.readyPromise.then((function(server) {
         return new Promise((function(resolve, reject) {
           server.readTransaction((function(tx) {
-            tx.executeSql('SELECT '+this.FIELDS+' FROM `' + this._serverName + '` WHERE id = ?', [fileId], (function(transaction, results) {
+            tx.executeSql('SELECT ' + this.FIELDS + ' FROM `' + this._serverName + '` WHERE id = ?', [fileId], (function(transaction, results) {
                 var resultsObj = this._convertResultToObject(results);
                 resolve(resultsObj[0]);
               }).bind(this),
