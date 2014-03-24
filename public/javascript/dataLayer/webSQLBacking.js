@@ -177,6 +177,8 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
 
     close: function() {
       this._fileId = null;
+
+      return Promise.resolve();
     },
 
     updateLocalModifiedTime: function(time) {
@@ -227,23 +229,22 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
                 sequence = sequence.then((function() {
                   return new Promise((function(resolve, reject) {
                     server.changeVersion(server.version, "2", (function(tx) {
-                        debugger;
-                        tx.executeSql('DROP TABLE IF EXISTS `files`', [],
-                          function() {
-                            resolve()
-                          },
-                          function(transaction, error) {
-                            reject(error);
-                          })
-                      },
+                      tx.executeSql('DROP TABLE IF EXISTS `files`', [],
+                        function() {
+                          resolve()
+                        },
+                        function(transaction, error) {
+                          reject(error);
+                        })
+                      }).bind(this),
                       function(error) {
                         reject(error);
-                      }).bind(this));
+                      })
                   }).bind(this))
-                    .then(function() {
-                      // just reload and start fresh
-                      location.reload();
-                    });
+                  .then(function() {
+                    // just reload and start fresh
+                    location.reload();
+                  });
                 }).bind(this))
               }
 
