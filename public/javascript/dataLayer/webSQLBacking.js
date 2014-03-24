@@ -176,7 +176,7 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
     },
 
     close: function() {
-      this._fileInfo = null;
+      this._fileId = null;
     },
 
     updateLocalModifiedTime: function(time) {
@@ -198,10 +198,8 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
     init: function(serverName) {
       this._serverName = serverName ? serverName : "files";
       var server = openDatabase("draw", "", "draw", 4 * 1024 * 1024);
-      debugger;
       this.readyPromise = Promise.resolve(server)
         .then((function(server) {
-          //debugger;
           return new Promise((function(resolve, reject) {
             server.transaction((function(tx) {
               tx.executeSql('CREATE TABLE IF NOT EXISTS `' + this._serverName + '`' +
