@@ -36,6 +36,9 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
     // Timeout for saving settings
     _saveSettingsTimeout: null,
 
+    // Timeout for when we stopped scrolling
+    _mouseWheelTimeout: null,
+
     // The timer we use to schedule file sync
     _fileSyncTimeout: null,
 
@@ -63,6 +66,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
       this._fileRenamed = this._fileRenamed.bind(this);
       this._redraw = this._redraw.bind(this);
       this._onlineStatusChanged = this._onlineStatusChanged.bind(this);
+      this._scheduleMouseWheelTimeout = this._scheduleMouseWheelTimeout.bind(this);
 
       // Keep the trackpad from trigger chrome's back event
       this.element.addEventListener("touchmove", function(e) {
@@ -239,6 +243,10 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
       var dx = !isNaN(e.deltaX) ? -e.deltaX : (e.wheelDeltaX / 5);
       var dy = !isNaN(e.deltaY) ? -e.deltaY : (e.wheelDeltaY / 5);
 
+      this._manipulateCanvas.useCurves(false);
+
+      this._scheduleMouseWheelTimeout();
+
       if (this._settings.tools.scroll == "pan") {
         this._pan(dx, dy);
       } else if (this._settings.tools.scroll == "zoom") {
@@ -246,6 +254,17 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
           this._zoom(e.clientX, e.clientY, dy / 100.0 * this._settings.scale);
         }
       }
+    },
+
+    _scheduleMouseWheelTimeout: function() {
+      if (this._mouseWheelTimeout) {
+        clearTimeout(this._mouseWheelTimeout);
+      }
+
+      this._mouseWheelTimeout = setTimeout((function() {
+        this._manipulateCanvas.useCurves(true);
+        this._updateAll = true;
+      }).bind(this), 100);
     },
 
     _start: function(e) {
@@ -331,8 +350,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
       if (tool == "pan") {
         this._manipulateCanvas.useCurves(true);
         this._updateAll = true;
-      }
-      else if (tool == "pencil" || tool == "eraser") {
+      } else if (tool == "pencil" || tool == "eraser") {
         if (!this._currentAction) {
           // no current action. This can happen if we were dragging a tool and let up the
           // tool button and kept dragging
