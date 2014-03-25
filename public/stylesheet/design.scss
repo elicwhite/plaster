@@ -108,11 +108,12 @@ body, input {
       
 
       li {
-        $size: 150px;
+        $thumbnailSize: 120px;
+
+        $height: $thumbnailSize + $space;
 
         width: 400px;
-        height: $size;
-
+        height: $height;
 
         padding-right: $space / 2;
         padding-left: $space / 2;
@@ -123,7 +124,9 @@ body, input {
         overflow: hidden;
 
         &>div {
+          $height: $height - $space;
 
+          overflow: hidden;
           
           display: flex;
           align-items: center;
@@ -131,30 +134,36 @@ body, input {
           background-color: white;
           border: 1px solid #ccc;
 
-          height: $size - $space;
+          height: $height;
 
           &.create {
             justify-content: center;
-            font-size: $size * .8;
+            font-size: $height * .8;
             color: #dcdcdc;
             text-shadow: 1px 1px $veryLightGray;
             
           }
 
           .thumbnail {
-            height: 100%;
-            width: $size - $space;
+            height: $thumbnailSize;
+            width: $thumbnailSize;
             background-color: white;
           }
 
           .content {
             display: block;
-            margin-left: 10px;
-            margin-right: 10px;
-            flex-grow: 1;
+            padding-left: 10px;
+            padding-right: 10px;
+            width: 400px - $thumbnailSize - 20px;
 
             .file-name {
               font-size: 24px;
+
+              width: 100%;
+              display: inline-block;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+              overflow: hidden;
             }  
 
             .subtext {

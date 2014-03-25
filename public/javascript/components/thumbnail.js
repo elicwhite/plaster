@@ -5,8 +5,8 @@ define(["class", "helpers", "components/manipulateCanvas"], function(Class, Help
 
     init: function() {
       var canvas = document.createElement("canvas");
-      canvas.width = 260;
-      canvas.height = 200;
+      canvas.width = 240;
+      canvas.height = 240;
 
       this._canvas = canvas;
     },
