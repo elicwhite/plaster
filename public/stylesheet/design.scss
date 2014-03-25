@@ -86,10 +86,6 @@ body, input {
         }
       }
 
-      #file-create {
-        display: none;
-      }
-
       .pull-left {
         float: left;
       }
@@ -100,13 +96,13 @@ body, input {
     }
   
     #files-list {
+      height: calc(100% - 40px);
       margin: auto;
 
-      $space: 16px;
+      $space: 10px;
 
       padding-top: $space;
       
-
       li {
         $thumbnailSize: 120px;
 

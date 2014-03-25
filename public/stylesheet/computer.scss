@@ -1,20 +1,10 @@
 .computer {
   #files {
     #files-list-container {
-      #navbar {
-        #file-create {
-          cursor: pointer;
-        }
-      }
-
       #files-list {
         li {
-          .thumbnail-wrapper {
-            .overlay {
-              .delete {
-                cursor: pointer;
-              }
-            }
+          .delete {
+            cursor: pointer;
           }
         }
       }
@@ -212,14 +202,6 @@
 
 .phone {
   #files {
-    #files-list-container {
-      #navbar {
-        #file-create {
-          display: block;
-        }
-      }
-    }
-
     #draw {
       #title {
         line-height: 40px;

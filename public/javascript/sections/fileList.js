@@ -69,6 +69,12 @@ define(["section", "tapHandler", "event", "globals", "helpers", "online", "secti
       var widthDiff = window.innerWidth / this._itemWidth;
       var columns = Math.floor(widthDiff);
 
+      if (columns == 0) {
+        // We are in some size of things that isn't supported
+        // just skip resizing
+        return;
+      }
+
       this._fileListElement.style.width = (columns * this._itemWidth) +"px";
     },
 
