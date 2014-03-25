@@ -46,7 +46,7 @@ body, input {
 
 #updateBar {
   @include transition(.3s, all);
-  @include transform("translate(0px, -35px)");
+  @include transform("translate(0px, -36px)");
 
   #updateBarContent {
     font-size: 15px;
@@ -99,16 +99,12 @@ body, input {
     }
   
     #files-list {
-      top: 40px;
       width: 100%;
-
       background-color: #f5f5f5;
       padding-top: 15px;
       padding-left: 15px;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-content: flex-start;
+
+      
 
       li {
 
@@ -123,12 +119,11 @@ body, input {
         margin-right: 15px;
         margin-bottom: 15px;
         overflow: hidden;
+        float: left;
 
         display: flex;
         align-items: center;
         border: 1px solid #ccc;
-
-        flex: 1;
 
         &.create {
           text-align: center;
@@ -136,7 +131,6 @@ body, input {
           font-size: $size * .8;
           color: #dcdcdc;
           text-shadow: 1px 1px $veryLightGray;
-          display: block;
         }
 
         .thumbnail {
