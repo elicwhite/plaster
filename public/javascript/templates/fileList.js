@@ -1,13 +1,15 @@
 define([], function() {
 
   function FileList() {
-    var template = '<li class="file-info">'+
-                      '<img class="thumbnail" />'+
-                      '<div class="content">'+
-                        '<span class="file-name"></span>'+
-                        '<div class="subtext">'+
-                          '<span class="date">2 weeks ago</span>'+
-                          '<span class="delete icon-close"></span>'+
+    var template = '<li>'+
+                      '<div class="file-info">'+
+                        '<img class="thumbnail" />'+
+                        '<div class="content">'+
+                          '<span class="file-name"></span>'+
+                          '<div class="subtext">'+
+                            '<span class="date">2 weeks ago</span>'+
+                            '<span class="delete icon-close"></span>'+
+                          '</div>'+
                         '</div>'+
                       '</div>'+
                     '</li>';

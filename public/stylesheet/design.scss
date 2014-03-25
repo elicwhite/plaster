@@ -65,6 +65,8 @@ body, input {
 
 #files {
   #files-list-container {
+    background-color: #f5f5f5;
+
     #navbar {
       height: 40px;
       border-bottom: 1px solid $primary3;
@@ -99,66 +101,74 @@ body, input {
     }
   
     #files-list {
-      width: 100%;
-      background-color: #f5f5f5;
-      padding-top: 15px;
-      padding-left: 15px;
+      margin: auto;
 
+      $space: 16px;
+
+      padding-top: $space;
       
 
       li {
-
-        background-color: white;
-
         $size: 150px;
 
-        min-width: 400px;
-        max-width: 500px;
-        //max-width: 600px;
+        width: 400px;
         height: $size;
-        margin-right: 15px;
-        margin-bottom: 15px;
-        overflow: hidden;
+
+
+        padding-right: $space / 2;
+        padding-left: $space / 2;
+        padding-bottom: $space;
+
         float: left;
 
-        display: flex;
-        align-items: center;
-        border: 1px solid #ccc;
+        overflow: hidden;
 
-        &.create {
-          text-align: center;
-          line-height: $size;
-          font-size: $size * .8;
-          color: #dcdcdc;
-          text-shadow: 1px 1px $veryLightGray;
-        }
+        .file-info {
 
-        .thumbnail {
-          width: $size;
-          height: $size;
+          
+          display: flex;
+          align-items: center;
+
           background-color: white;
-        }
+          border: 1px solid #ccc;
 
-        .content {
-          display: block;
-          margin-left: 10px;
-          margin-right: 10px;
-          flex-grow: 1;
+          height: $size - $space;
 
-          .file-name {
-            font-size: 24px;
-          }  
+          &.create {
+            justify-content: center;
+            font-size: $size * .8;
+            color: #dcdcdc;
+            text-shadow: 1px 1px $veryLightGray;
+            
+          }
 
-          .subtext {
-            margin-left: 15px;
-            display: flex;
+          .thumbnail {
+            height: 100%;
+            width: $size - $space;
+            background-color: white;
+          }
 
-            .date {
-              flex-grow: 1;
-            }
+          .content {
+            display: block;
+            margin-left: 10px;
+            margin-right: 10px;
+            flex-grow: 1;
 
-            .delete {
+            .file-name {
+              font-size: 24px;
+            }  
 
+            .subtext {
+              margin-left: 15px;
+              display: flex;
+
+              .date {
+                flex-grow: 1;
+              }
+
+              .delete {
+
+              }
             }
           }
         }

@@ -16,6 +16,8 @@ define(["section", "tapHandler", "event", "globals", "helpers", "online", "secti
 
     _indicator: null,
 
+    _itemWidth: null,
+
     init: function(filesPane) {
       this._super();
 
@@ -29,7 +31,9 @@ define(["section", "tapHandler", "event", "globals", "helpers", "online", "secti
 
       this._scheduleUpdate = this._scheduleUpdate.bind(this);
       this._onlineStatusChanged = this._onlineStatusChanged.bind(this);
+      this._recalcWidth = this._recalcWidth.bind(this);
 
+      this._itemWidth = 400;
       
       Data.getFiles()
         .then((function(files) {
@@ -38,6 +42,8 @@ define(["section", "tapHandler", "event", "globals", "helpers", "online", "secti
             var fileTemplate = this._newFileWrapper(fileInfo);
             this._fileListElement.appendChild(fileTemplate);
           }
+
+          this._recalcWidth();
         }).bind(this));
       
       this.element.addEventListener("wheel", function(e) {
@@ -56,7 +62,14 @@ define(["section", "tapHandler", "event", "globals", "helpers", "online", "secti
       Event.addListener("fileModifiedRemotely", this._fileModifiedRemotely.bind(this));
       Event.addListener("thumbnailUpdated", this._thumbnailUpdated.bind(this));
 
+      window.addEventListener("resize", this._recalcWidth);
+    },
 
+    _recalcWidth: function() {
+      var widthDiff = window.innerWidth / this._itemWidth;
+      var columns = Math.floor(widthDiff);
+
+      this._fileListElement.style.width = (columns * this._itemWidth) +"px";
     },
 
     _newFileWrapper: function(fileInfo) {
@@ -168,6 +181,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "online", "secti
       var fileTemplate = this._newFileWrapper(fileInfo);
 
       this._fileListElement.insertBefore(fileTemplate, this._fileListElement.children[1]);
+      this._recalcWidth();
     },
 
     _fileRemoved: function(fileId) {
@@ -175,6 +189,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "online", "secti
         var file = this._files[i];
         if (file.fileInfo.id == fileId) {
           this._fileListElement.removeChild(file.element);
+          this._recalcWidth();
           delete this._files[i];
           return;
         }
