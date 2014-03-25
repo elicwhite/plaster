@@ -30,6 +30,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "online", "secti
       this._scheduleUpdate = this._scheduleUpdate.bind(this);
       this._onlineStatusChanged = this._onlineStatusChanged.bind(this);
 
+      
       Data.getFiles()
         .then((function(files) {
           for (var i = 0; i < files.length; i++) {
@@ -38,7 +39,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "online", "secti
             this._fileListElement.appendChild(fileTemplate);
           }
         }).bind(this));
-
+      
       this.element.addEventListener("wheel", function(e) {
         e.stopPropagation();
       });

@@ -105,86 +105,152 @@ body, input {
       background-color: #f5f5f5;
       padding-top: 15px;
       padding-left: 15px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-content: flex-start;
 
       li {
-        float: left;
-        margin-right: 15px;
-        margin-bottom: 15px;
 
         background-color: white;
-        border: 1px solid $veryLightGray;
+
+        $size: 150px;
+
+        min-width: 400px;
+        max-width: 500px;
+        //max-width: 600px;
+        height: $size;
+        margin-right: 15px;
+        margin-bottom: 15px;
+        overflow: hidden;
+
+        display: flex;
+        align-items: center;
+        border: 1px solid #ccc;
+
+        flex: 1;
 
         &.create {
-          .thumbnail-wrapper {
-
-            background-color: #ececec;
-            position: relative;
-
-            .thumbnail {
-              position: absolute;
-              width: 100%;
-              height: 100%;
-              text-align: center;
-
-              font-size: 160px;
-              line-height: 260px;
-
-              color: #dcdcdc;
-              text-shadow: 1px 1px $veryLightGray;
-            }
-          }
+          text-align: center;
+          line-height: $size;
+          font-size: $size * .8;
+          color: #dcdcdc;
+          text-shadow: 1px 1px $veryLightGray;
+          display: block;
         }
 
-        .thumbnail-wrapper {
-          width: 260px;
-          height: 260px;
+        .thumbnail {
+          width: $size;
+          height: $size;
+          background-color: white;
+        }
 
-          .thumbnail {
-            width: 260px;
-            height: 230px;
-            position: absolute; 
-          }
+        .content {
+          display: block;
+          margin-left: 10px;
+          margin-right: 10px;
+          flex-grow: 1;
 
-          .overlay {
-            width: 100%;
-            height: 230px;
-            position: relative;
+          .file-name {
+            font-size: 24px;
+          }  
 
-            .file-name, .delete {
-              position: absolute;
-              background-color: white;
+          .subtext {
+            margin-left: 15px;
+            display: flex;
+
+            .date {
+              flex-grow: 1;
             }
-
-            .file-name {
-              top: 10px;
-              left: 10px;
-              padding: 2px;
-
-              @include border-radius(8px);
-            }
-          }
-
-          .bottom-info {
-            //border-top: 1px solid $veryLightGray;
-            height: 30px;
-            line-height: 30px;
-            text-align: right;
-            padding-left: 5px;
-            padding-right: 5px;
-            vertical-align: bottom;
 
             .delete {
-              display: inline-block;
-              padding: 0px 10px;
-              line-height: 30px;
-              height: 30px;
 
-              color: $veryLightGray;
-              cursor: pointer;
             }
           }
         }
+      
+        
       }
+
+      // li {
+      //   float: left;
+      //   margin-right: 15px;
+      //   margin-bottom: 15px;
+
+      //   background-color: white;
+      //   border: 1px solid $veryLightGray;
+
+      //   &.create {
+      //     .thumbnail-wrapper {
+
+      //       background-color: #ececec;
+      //       position: relative;
+
+      //       .thumbnail {
+      //         position: absolute;
+      //         width: 100%;
+      //         height: 100%;
+      //         text-align: center;
+
+      //         font-size: 160px;
+      //         line-height: 260px;
+
+      //         color: #dcdcdc;
+      //         text-shadow: 1px 1px $veryLightGray;
+      //       }
+      //     }
+      //   }
+
+      //   .thumbnail-wrapper {
+      //     width: 260px;
+      //     height: 260px;
+
+      //     .thumbnail {
+      //       width: 260px;
+      //       height: 230px;
+      //       position: absolute; 
+      //     }
+
+      //     .overlay {
+      //       width: 100%;
+      //       height: 230px;
+      //       position: relative;
+
+      //       .file-name, .delete {
+      //         position: absolute;
+      //         background-color: white;
+      //       }
+
+      //       .file-name {
+      //         top: 10px;
+      //         left: 10px;
+      //         padding: 2px;
+
+      //         @include border-radius(8px);
+      //       }
+      //     }
+
+      //     .bottom-info {
+      //       //border-top: 1px solid $veryLightGray;
+      //       height: 30px;
+      //       line-height: 30px;
+      //       text-align: right;
+      //       padding-left: 5px;
+      //       padding-right: 5px;
+      //       vertical-align: bottom;
+
+      //       .delete {
+      //         display: inline-block;
+      //         padding: 0px 10px;
+      //         line-height: 30px;
+      //         height: 30px;
+
+      //         color: $veryLightGray;
+      //         cursor: pointer;
+      //       }
+      //     }
+      //   }
+      // }
 
       /*
       // phone
