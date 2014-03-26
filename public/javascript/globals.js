@@ -27,6 +27,10 @@ define(["event"], function(Event) {
       return this.hasDeviceType("phone");
     },
 
+    isTablet: function() {
+      return this.hasDeviceType("tablet");
+    },
+
     hasDeviceType: function(type) {
       return this.getDeviceType().indexOf(type) !== -1;
     },
@@ -39,16 +43,14 @@ define(["event"], function(Event) {
       var devices = [];
       var userAgent = navigator.userAgent;
 
-      if (userAgent.match(/OS 7/g)) {
+      if (userAgent.match(/iPad/g)) {
         devices.push("iOS");
-
-        if (userAgent.match(/iPad/g)) {
-          devices.push("iPad");
-          devices.push("tablet");
-        } else if (userAgent.match(/iPhone/g)) {
-          devices.push("iPhone");
-          devices.push("phone");
-        }
+        devices.push("iPad");
+        devices.push("tablet");
+      } else if (userAgent.match(/iPhone/g)) {
+        devices.push("iOS");
+        devices.push("iPhone");
+        devices.push("phone"); 
       } else if (userAgent.match(/Mac/g)) {
         devices.push("Mac");
         devices.push("computer");

@@ -431,6 +431,19 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
     },
 
     _syncRemoteActionsFromDrive: function(driveBacking) {
+      function isEqual(arr1, arr2) {
+        if (arr1.length != arr2.length) {
+          return false;
+        }
+
+        for (var i = 0; i < arr1.length; i++) {
+          if (arr1[i].id != arr2[i].id) {
+            return false;
+          }
+        }
+
+        return true;
+      }
 
       return this.fileInfoPromise.then((function(fileInfo) {
 
@@ -510,19 +523,6 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
               debugger;
             }
 
-            function isEqual(arr1, arr2) {
-              if (arr1.length != arr2.length) {
-                return false;
-              }
-
-              for (var i = 0; i < arr1.length; i++) {
-                if (arr1[i].id != arr2[i].id) {
-                  return false;
-                }
-              }
-
-              return true;
-            }
 
             // there was a difference, lets fix our cachedActions
             //this._cachedActions.remoteActions = remoteActions;

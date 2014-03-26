@@ -83,15 +83,37 @@ body {
     #files-list {
       overflow-y: scroll;
       list-style-type: none;
-      margin: 0;
+      margin: 0 auto;
       padding: 0;
 
       li {
-        .thumbnail-wrapper {
-          overflow: hidden;
+        overflow: hidden;
+        float: left;
 
-          .thumbnail {
-            vertical-align: bottom;
+        &>div {
+          overflow: hidden;
+          @include display-flex();
+          @include flex-align-items(center);
+
+          &.create {
+            @include flex-justify-content(center);
+          }
+
+          .content {
+            display: block;
+
+            .file-name {
+              display: inline-block;
+              overflow: hidden;
+            }
+
+            .subtext {
+              @include display-flex();
+
+              .date {
+                @include flex(1);
+              }
+            }
           }
         }
       }

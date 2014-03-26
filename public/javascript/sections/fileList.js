@@ -32,9 +32,17 @@ define(["section", "tapHandler", "event", "globals", "helpers", "online", "secti
       this._scheduleUpdate = this._scheduleUpdate.bind(this);
       this._onlineStatusChanged = this._onlineStatusChanged.bind(this);
       this._recalcWidth = this._recalcWidth.bind(this);
-
-      this._itemWidth = 400;
       
+      if (g.isTablet()) {
+        this._itemWidth = 256;
+      }
+      else if (g.isPhone()) {
+        this._itemWidth = 320;
+      }
+      else {
+        this._itemWidth = 400;  
+      }
+
       Data.getFiles()
         .then((function(files) {
           for (var i = 0; i < files.length; i++) {

@@ -94,269 +94,42 @@ body, input {
         float: right;
       }
     }
-  
+
     #files-list {
       height: calc(100% - 40px);
-      margin: auto;
 
-      $space: 10px;
-
-      padding-top: $space;
-      
-      li {
-        $thumbnailSize: 120px;
-
-        $height: $thumbnailSize + $space;
-
-        width: 400px;
-        height: $height;
-
-        padding-right: $space / 2;
-        padding-left: $space / 2;
-        padding-bottom: $space;
-
-        float: left;
-
-        overflow: hidden;
-
+      li {  
         &>div {
-          $height: $height - $space;
-
-          overflow: hidden;
-          
-          display: flex;
-          align-items: center;
-
           background-color: white;
           border: 1px solid #ccc;
 
-          height: $height;
-
           &.create {
-            justify-content: center;
-            font-size: $height * .8;
             color: #dcdcdc;
-            text-shadow: 1px 1px $veryLightGray;
-            
+            text-shadow: 0px 0px 1px $mediumGray;
           }
-
+          
           .thumbnail {
-            height: $thumbnailSize;
-            width: $thumbnailSize;
             background-color: white;
           }
 
           .content {
-            display: block;
-            padding-left: 10px;
-            padding-right: 10px;
-            width: 400px - $thumbnailSize - 20px;
-
             .file-name {
               width: 100%;
-              display: inline-block;
               text-overflow: ellipsis;
               white-space: nowrap;
-              overflow: hidden;
             }  
 
             .subtext {
               color: $veryLightGray;
               font-size: 14px;
-              margin-left: 15px;
-              display: flex;
 
               &>span {
                 line-height: 18px;
               }
-
-              .date {
-                flex-grow: 1;
-              }
-
-              .delete {
-
-              }
-            }
-          }
-        }
-      
-        
-      }
-
-      // li {
-      //   float: left;
-      //   margin-right: 15px;
-      //   margin-bottom: 15px;
-
-      //   background-color: white;
-      //   border: 1px solid $veryLightGray;
-
-      //   &.create {
-      //     .thumbnail-wrapper {
-
-      //       background-color: #ececec;
-      //       position: relative;
-
-      //       .thumbnail {
-      //         position: absolute;
-      //         width: 100%;
-      //         height: 100%;
-      //         text-align: center;
-
-      //         font-size: 160px;
-      //         line-height: 260px;
-
-      //         color: #dcdcdc;
-      //         text-shadow: 1px 1px $veryLightGray;
-      //       }
-      //     }
-      //   }
-
-      //   .thumbnail-wrapper {
-      //     width: 260px;
-      //     height: 260px;
-
-      //     .thumbnail {
-      //       width: 260px;
-      //       height: 230px;
-      //       position: absolute; 
-      //     }
-
-      //     .overlay {
-      //       width: 100%;
-      //       height: 230px;
-      //       position: relative;
-
-      //       .file-name, .delete {
-      //         position: absolute;
-      //         background-color: white;
-      //       }
-
-      //       .file-name {
-      //         top: 10px;
-      //         left: 10px;
-      //         padding: 2px;
-
-      //         @include border-radius(8px);
-      //       }
-      //     }
-
-      //     .bottom-info {
-      //       //border-top: 1px solid $veryLightGray;
-      //       height: 30px;
-      //       line-height: 30px;
-      //       text-align: right;
-      //       padding-left: 5px;
-      //       padding-right: 5px;
-      //       vertical-align: bottom;
-
-      //       .delete {
-      //         display: inline-block;
-      //         padding: 0px 10px;
-      //         line-height: 30px;
-      //         height: 30px;
-
-      //         color: $veryLightGray;
-      //         cursor: pointer;
-      //       }
-      //     }
-      //   }
-      // }
-
-      /*
-      // phone
-      @media (max-width: 470px) { 
-        & {
-          padding-top: 10px;
-          padding-left: 10px;
-
-          li {
-            margin-right: 10px;
-            margin-bottom: 10px;
-            width: calc(50% - 10px); 
-
-            &:nth-child(1) {
-              width: calc(100% - 10px);
-
-              .thumbnail-wrapper {
-                height: 200px;
-              }
-            }
-
-            .thumbnail-wrapper {
-              height: 140px;
             }
           }
         }
       }
-
-      // tablet
-      @media (max-width: 767px) and (min-width: 471px) { 
-        li {
-          width: calc(33.33% - 15px);   
-
-          &:nth-child(1), &:nth-child(2) {
-            width: calc(50% - 15px);
-
-            .thumbnail-wrapper {
-              height: 200px;
-            }
-          }
-
-          .thumbnail-wrapper {
-            height: 140px;
-          }
-        }
-      }
-
-      // big
-      @media (min-width: 768px) {
-        li {
-          width: calc(25% - 15px);          
-
-          &:nth-child(1), &:nth-child(2), &:nth-child(3) {
-            width: calc(33.33% - 15px);
-
-            .thumbnail-wrapper {
-              height: 200px;
-            }
-          }
-
-          .thumbnail-wrapper {
-            height: 140px;
-          }
-        }
-      }
-
-      // really big
-      @media (min-width: 1100px) and (min-width: 769px) {
-        li {
-          width: calc(20% - 15px);  
-
-          &.create {
-            .thumbnail-wrapper {
-              .thumbnail {
-                font-size: 200px;
-                line-height: 250px;
-              }
-            }
-          }         
-
-          &:nth-child(1), &:nth-child(2), &:nth-child(3), &:nth-child(4) {
-            width: calc(25% - 15px);
-
-            .thumbnail-wrapper {
-              height: 250px;
-            }
-          }
-
-          .thumbnail-wrapper {
-            height: 180px;
-          }
-        }
-      }
-      */
     }
   }
 

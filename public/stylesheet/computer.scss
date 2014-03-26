@@ -1,13 +1,12 @@
 .computer {
   #files {
     #files-list-container {
-      #files-list {
-        li {
-          .delete {
-            cursor: pointer;
-          }
-        }
-      }
+
+      $space: 10px;
+      $innerHeight: 120px;
+      $outerWidth: 400px;
+
+      @include files-list($space, $innerHeight, $outerWidth);
     }
 
     #draw {
@@ -108,6 +107,14 @@
 
 .tablet {
   #files {
+    #files-list-container {
+      $space: 10px;
+      $innerHeight: 140px;
+      $outerWidth: 340px;
+
+      @include files-list($space, $innerHeight, $outerWidth);
+    }
+
     #draw {
       #title {
         line-height: 50px;
@@ -195,13 +202,20 @@
         }
       }
     }
-    
-    
   }
 }
 
 .phone {
   #files {
+
+    #files-list-container {
+      $space: 10px;
+      $innerHeight: 100px;
+      $outerWidth: 320px;
+
+      @include files-list($space, $innerHeight, $outerWidth);
+    }
+
     #draw {
       #title {
         line-height: 40px;
