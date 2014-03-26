@@ -1,6 +1,7 @@
 define(["event"], function(Event) {
   var Globals = function Globals() {
     this.init();
+    window.g = this;
   };
 
   Globals.prototype = {
@@ -50,7 +51,7 @@ define(["event"], function(Event) {
       } else if (userAgent.match(/iPhone/g)) {
         devices.push("iOS");
         devices.push("iPhone");
-        devices.push("phone"); 
+        devices.push("phone");
       } else if (userAgent.match(/Mac/g)) {
         devices.push("Mac");
         devices.push("computer");
@@ -69,6 +70,21 @@ define(["event"], function(Event) {
 
       var body = document.body;
       body.className = devices.join(" ");
+    },
+
+    getCSSVars: function() {
+      var stylesheet = document.styleSheets[0];
+      var rules = stylesheet.cssRules || stylesheet.rules;
+      var lastRule = rules[rules.length - 1];
+      var noQuotes = this.removeQuotes(lastRule.style.content);
+      return JSON.parse(noQuotes);
+    },
+
+    removeQuotes: function(string) {
+      if (typeof string === 'string' || string instanceof String) {
+        string = string.replace(/^['"]+|\s+|\\|(;\s?})+|['"]$/g, '');
+      }
+      return string;
     }
   }
 

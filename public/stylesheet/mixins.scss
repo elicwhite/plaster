@@ -84,7 +84,7 @@
 
         .thumbnail {
           height: $thumbnailSize;
-          width: $thumbnailSize;
+          width: $outerWidth - $space;
         }
 
         .content {

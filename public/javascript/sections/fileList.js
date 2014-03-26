@@ -91,11 +91,12 @@ define(["section", "tapHandler", "event", "globals", "helpers", "online", "secti
 
       // The element has a reference to fileInfo
       newEle.fileInfo = fileInfo;
-
+      /*
       var fileName = newEle.getElementsByClassName("file-name")[0];
+      fileName.textContent = fileInfo.name;
+      */
       var thumbnail = newEle.getElementsByClassName("thumbnail")[0];
 
-      fileName.textContent = fileInfo.name;
       thumbnail.src = fileInfo.thumbnail;
 
       this._files.push({

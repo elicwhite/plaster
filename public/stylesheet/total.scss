@@ -175,3 +175,11 @@ body {
 
 @import "design.scss";
 @import "icomoon.scss";
+
+#CSSVars {
+  // this lets javascript read elements out
+  content: '{'+
+'"outerWidth": "'+$outerWidth+'",'+
+'"innerHeight": "'+$innerHeight+'"'+
+'}';
+}

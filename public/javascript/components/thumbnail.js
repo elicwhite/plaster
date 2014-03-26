@@ -1,12 +1,17 @@
-define(["class", "helpers", "components/manipulateCanvas"], function(Class, Helpers, ManipulateCanvas) {
+define(["class", "globals", "helpers", "components/manipulateCanvas"], function(Class, g, Helpers, ManipulateCanvas) {
 
   var Thumbnail = Class.extend({
     _canvas: null,
 
     init: function() {
       var canvas = document.createElement("canvas");
-      canvas.width = 240;
-      canvas.height = 240;
+
+      var vars = g.getCSSVars();
+
+      //canvas.width = 240;
+      //canvas.height = 240;
+      canvas.width = parseInt(vars.outerWidth) * 2;
+      canvas.height = parseInt(vars.innerHeight) * 2;
 
       this._canvas = canvas;
     },
