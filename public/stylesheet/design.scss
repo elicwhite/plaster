@@ -12,8 +12,8 @@ $darkGray: #333;
 $veryDarkGray: #111;
 
 body, input {
-  font-size: 18px;
-  font-family: sans-serif;
+  font-size: 16px;
+  font-family: arial, sans-serif;
   font-weight: 100;
 }
 
@@ -153,8 +153,6 @@ body, input {
             width: 400px - $thumbnailSize - 20px;
 
             .file-name {
-              font-size: 24px;
-
               width: 100%;
               display: inline-block;
               text-overflow: ellipsis;
@@ -167,6 +165,10 @@ body, input {
               font-size: 14px;
               margin-left: 15px;
               display: flex;
+
+              &>span {
+                line-height: 18px;
+              }
 
               .date {
                 flex-grow: 1;
