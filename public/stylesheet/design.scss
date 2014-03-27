@@ -117,31 +117,46 @@ body, input {
           }
 
           .overlay {
-            opacity: 0;
-            transition: .3s opacity;
-            color: #ccc;
+            overflow: hidden;
 
-            &:hover {
-              opacity: 1;
-            }
-
-            .share, .delete {
-              padding: 10px;
-              cursor: pointer;
-              //border: 1px solid #ccc;
-              background-color: rgba(100, 100, 100, .7);
-              color: white;
-            }
             
-            .share {
-              float: left;
+
+            &:hover .bar {
+              -webkit-transform: translateY(0px);
             }
 
-            .delete {
-              float: right;
+            .bar {
+              -webkit-transform: translateY(40px);
+              transition: .1s all;
+
+              position: absolute;
+              bottom: 0;
+              width: 100%;
+
+              color: #ccc;
+              background-color: rgba(100, 100, 100, .7);
+              line-height: 40px;
+              padding: 0 10px;
+              color: white;
+              overflow: hidden;
+
+              .share, .delete {
+                cursor: pointer;
+                line-height: 40px;
+              }
               
-              
+              .share {
+                float: left;
+              }
+
+              .delete {
+                float: right;
+                
+                
+              }
             }
+
+            
           }
 
           .content {

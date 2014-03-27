@@ -4,8 +4,10 @@ define([], function() {
     var template = '<li class="file-info">'+
                       '<div>'+
                         '<div class="overlay">'+
-                          '<span class="share icon-plus"></span>'+
-                          '<span class="delete icon-close"></span>'+
+                          '<div class="bar">'+
+                            '<span class="share icon-group"></span>'+
+                            '<span class="delete icon-close"></span>'+
+                          '</div>'+
                         '</div>'+
                         '<img class="thumbnail" />'+
                         '<div class="content">'+
