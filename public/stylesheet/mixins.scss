@@ -44,11 +44,25 @@
   display: flex;   
 }
 
+@mixin flex-wrap($value) {
+  -webkit-flex-wrap: $value;
+     -moz-flex-wrap: $value;
+      -ms-flex-wrap: $value;
+          flex-wrap: $value;
+}
+
 @mixin flex-align-items($value) {
   -webkit-align-items: $value;
      -moz-align-items: $value;
       -ms-align-items: $value;
           align-items: $value;
+}
+
+@mixin flex-align-content($value) {
+  -webkit-align-content: $value;
+     -moz-align-content: $value;
+      -ms-align-content: $value;
+          align-content: $value;
 }
 
 @mixin flex-justify-content($value) {
@@ -64,22 +78,25 @@
     $thumbnailSize: $innerHeight;
     $outerHeight: $innerHeight + $space;
 
+    $innerWidth: $outerWidth - $space;
+
     padding-top: $space;
 
     li {
-      height: $outerHeight;
+      //height: $outerHeight;
       width: $outerWidth;
+      min-width: $outerWidth;
 
       padding-right: $space / 2;
       padding-left: $space / 2;
       padding-bottom: $space;
 
       &>div {
-        $height: $outerHeight - $space;
-        height: $innerHeight;
+        //$height: $outerHeight - $space;
+        //height: $innerHeight;
 
         &.create {
-          font-size: $innerHeight * .8;
+          font-size: $innerHeight;
         }
 
         .thumbnail {
@@ -88,9 +105,12 @@
         }
 
         .content {
-          margin-left: $space;
-          margin-right: $space;
-          width: $outerWidth - $thumbnailSize;
+           
+          // margin-right: $space;
+
+          .file-name {
+            width: $innerWidth - 70px;
+          }
 
           .subtext {
             //margin-left: $space;

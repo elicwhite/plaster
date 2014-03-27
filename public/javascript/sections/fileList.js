@@ -33,7 +33,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "online", "secti
       this._onlineStatusChanged = this._onlineStatusChanged.bind(this);
       this._recalcWidth = this._recalcWidth.bind(this);
       
-      if (g.isTablet()) {
+      /*if (g.isTablet()) {
         this._itemWidth = 256;
       }
       else if (g.isPhone()) {
@@ -42,6 +42,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "online", "secti
       else {
         this._itemWidth = 400;  
       }
+      */
 
       Data.getFiles()
         .then((function(files) {
@@ -74,6 +75,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "online", "secti
     },
 
     _recalcWidth: function() {
+      return;
       var widthDiff = window.innerWidth / this._itemWidth;
       var columns = Math.floor(widthDiff);
 
@@ -91,12 +93,10 @@ define(["section", "tapHandler", "event", "globals", "helpers", "online", "secti
 
       // The element has a reference to fileInfo
       newEle.fileInfo = fileInfo;
-      /*
       var fileName = newEle.getElementsByClassName("file-name")[0];
       fileName.textContent = fileInfo.name;
-      */
-      var thumbnail = newEle.getElementsByClassName("thumbnail")[0];
 
+      var thumbnail = newEle.getElementsByClassName("thumbnail")[0];
       thumbnail.src = fileInfo.thumbnail;
 
       this._files.push({

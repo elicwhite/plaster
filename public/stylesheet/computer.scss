@@ -1,15 +1,13 @@
-$outerWidth: 0px;
-$innerHeight: 0px;
-
 .computer {
   #files {
     #files-list-container {
 
-      $space: 10px;
+      /*$space: 10px;
       $innerHeight: 120px;
       $outerWidth: 400px;
 
       @include files-list($space, $innerHeight, $outerWidth);
+      */
     }
 
     #draw {
@@ -111,11 +109,11 @@ $innerHeight: 0px;
 .tablet {
   #files {
     #files-list-container {
-      $space: 10px;
-      $innerHeight: 140px;
-      $outerWidth: 340px;
+      // $space: 10px;
+      // $innerHeight: 140px;
+      // $outerWidth: 340px;
 
-      @include files-list($space, $innerHeight, $outerWidth);
+      // @include files-list($space, $innerHeight, $outerWidth);
     }
 
     #draw {
@@ -212,11 +210,11 @@ $innerHeight: 0px;
   #files {
 
     #files-list-container {
-      $space: 10px;
-      $innerHeight: 100px;
-      $outerWidth: 320px;
+      // $space: 10px;
+      // $innerHeight: 100px;
+      // $outerWidth: 320px;
 
-      @include files-list($space, $innerHeight, $outerWidth);
+      // @include files-list($space, $innerHeight, $outerWidth);
     }
 
     #draw {

@@ -95,42 +95,59 @@ body, input {
       }
     }
 
+
+
     #files-list {
       height: calc(100% - 40px);
 
       li {  
         &>div {
-          background-color: white;
-          border: 1px solid #ccc;
 
           &.create {
             color: #dcdcdc;
             text-shadow: 0px 0px 1px $mediumGray;
+            background-color: white;
+            border: 1px solid #ccc;
           }
           
           .thumbnail {
             background-color: white;
+            border: 1px solid #ccc;
+            vertical-align: bottom;
           }
 
           .content {
+            //background-color: #fafafa;
+            //border: 1px solid #ccc;
+            //border-top: 0;
+            padding: 0 10px;
+
+            &>span {
+              line-height: 35px;
+              vertical-align: bottom;
+            }
+
             .file-name {
-              width: 100%;
               text-overflow: ellipsis;
+              color: #aaa;
               white-space: nowrap;
             }  
 
-            .subtext {
-              color: $veryLightGray;
-              font-size: 14px;
-
-              &>span {
-                line-height: 18px;
-              }
+            .delete {
+              color: #ccc;
+              width: 20px;
+              float: right;
             }
           }
         }
       }
     }
+
+    $space: 15px;
+    $innerHeight: 200px;
+    $outerWidth: 300px;
+
+    @include files-list($space, $innerHeight, $outerWidth);
   }
 
   #draw {

@@ -86,21 +86,32 @@ body {
       margin: 0 auto;
       padding: 0;
 
+      @include display-flex();
+      @include flex-wrap(wrap);
+      @include flex-justify-content(center);
+      @include flex-align-content(flex-start);
+
       li {
         overflow: hidden;
-        float: left;
 
         &>div {
           overflow: hidden;
-          @include display-flex();
-          @include flex-align-items(center);
+          height: 100%;
+          //@include display-flex();
+          //@include flex-align-items(center);
 
           &.create {
+            height: 100%;
+            @include display-flex();
+            @include flex-align-items(center);            
             @include flex-justify-content(center);
           }
 
+          .thumbnail {
+
+          }
+
           .content {
-            display: block;
 
             .file-name {
               display: inline-block;
@@ -172,6 +183,9 @@ body {
 .ani4 {
   @include transition(.4s, all);
 }
+
+$outerWidth: 0px;
+$innerHeight: 0px;
 
 @import "design.scss";
 @import "icomoon.scss";

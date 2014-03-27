@@ -4,14 +4,11 @@ define([], function() {
     var template = '<li class="file-info">'+
                       '<div>'+
                         '<img class="thumbnail" />'+
-                        /*'<div class="content">'+
+                        '<div class="content">'+
                           '<span class="file-name"></span>'+
-                          '<div class="subtext">'+
-                            '<span class="date">2 weeks ago</span>'+
-                            '<span class="delete icon-close"></span>'+
-                          '</div>'+
+                          '<span class="delete icon-plus"></span>'+
+                          '<span class="delete icon-close"></span>'+
                         '</div>'+
-                        */
                       '</div>'+
                     '</li>';
     var element = document.createElement("div");
