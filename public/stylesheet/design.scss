@@ -12,8 +12,8 @@ $darkGray: #333;
 $veryDarkGray: #111;
 
 body, input {
-  font-size: 16px;
-  font-family: arial, sans-serif;
+  font-size: 15px;
+  font-family: 'Open Sans', arial, sans-serif;
   font-weight: 100;
 }
 
@@ -116,6 +116,34 @@ body, input {
             vertical-align: bottom;
           }
 
+          .overlay {
+            opacity: 0;
+            transition: .3s opacity;
+            color: #ccc;
+
+            &:hover {
+              opacity: 1;
+            }
+
+            .share, .delete {
+              padding: 10px;
+              cursor: pointer;
+              //border: 1px solid #ccc;
+              background-color: rgba(100, 100, 100, .7);
+              color: white;
+            }
+            
+            .share {
+              float: left;
+            }
+
+            .delete {
+              float: right;
+              
+              
+            }
+          }
+
           .content {
             //background-color: #fafafa;
             //border: 1px solid #ccc;
@@ -123,21 +151,18 @@ body, input {
             padding: 0 10px;
 
             &>span {
-              line-height: 35px;
+              line-height: 30px;
               vertical-align: bottom;
             }
 
             .file-name {
               text-overflow: ellipsis;
-              color: #aaa;
+              color: #888;
               white-space: nowrap;
+              width: 100%;
             }  
 
-            .delete {
-              color: #ccc;
-              width: 20px;
-              float: right;
-            }
+            
           }
         }
       }

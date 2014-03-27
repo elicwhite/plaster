@@ -75,7 +75,6 @@ define(["section", "tapHandler", "event", "globals", "helpers", "online", "secti
     },
 
     _recalcWidth: function() {
-      return;
       var widthDiff = window.innerWidth / this._itemWidth;
       var columns = Math.floor(widthDiff);
 

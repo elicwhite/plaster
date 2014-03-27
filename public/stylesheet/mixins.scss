@@ -99,21 +99,14 @@
           font-size: $innerHeight;
         }
 
-        .thumbnail {
+        .thumbnail, .overlay {
           height: $thumbnailSize;
           width: $outerWidth - $space;
         }
 
         .content {
-           
-          // margin-right: $space;
-
           .file-name {
-            width: $innerWidth - 70px;
-          }
-
-          .subtext {
-            //margin-left: $space;
+            //width: $innerWidth - 70px;
           }
         }
       }     
