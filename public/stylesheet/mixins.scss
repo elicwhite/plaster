@@ -96,7 +96,12 @@
         //height: $innerHeight;
 
         &.create {
-          font-size: $innerHeight;
+          height: $thumbnailSize;
+          width: $outerWidth - $space;
+
+          .icon {
+            font-size: .5 * $innerHeight;  
+          }
         }
 
         .thumbnail, .overlay {

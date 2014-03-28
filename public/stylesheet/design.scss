@@ -105,9 +105,18 @@ body, input {
 
           &.create {
             color: #dcdcdc;
-            text-shadow: 0px 0px 1px $mediumGray;
             background-color: white;
             border: 1px solid #ccc;
+            flex-direction: column;
+
+            .icon {
+              text-shadow: 0px 0px 1px $mediumGray;
+            }
+
+            span {
+              font-size: 18px;
+              color: #888;
+            }
           }
           
           .thumbnail {
