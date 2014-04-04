@@ -1,4 +1,4 @@
-define(["section", "event", "platform", "sections/fileList", "sections/draw"], function(Section, Event, Platform, FileList, Draw) {
+define(["section", "event", "platform", "data", "sections/fileList", "sections/draw"], function(Section, Event, Platform, Data, FileList, Draw) {
 
   var Files = Section.extend({
     id: "files",
@@ -43,6 +43,19 @@ define(["section", "event", "platform", "sections/fileList", "sections/draw"], f
         pane: "list",
         details: null
       };
+
+      var hash = location.hash;
+      if (hash.indexOf("#") == 0) {
+        // We have a hash, can we open this file?
+        hash = hash.slice(1);
+        console.log(hash);
+        Data.getFiles().then(function(files) {
+          var hasFile = files.some(function(file) {
+            return file.id == hash;
+          });
+
+        });
+      }
 
       if (localStorage.filesPane) {
         this._currentState = JSON.parse(localStorage.filesPane);

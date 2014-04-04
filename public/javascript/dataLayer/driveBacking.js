@@ -185,10 +185,9 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
   });
 
   var DriveBacking = Class.extend({
-    _driveFileName: "Untitled File",
     _appId: 450627732299,
     REALTIME_MIMETYPE: 'application/vnd.google-apps.drive-sdk',
-    _fields: 'id, title, modifiedDate',
+    _fields: 'id,modifiedDate,shared,title,userPermission(role)',
 
     init: function() {
 

@@ -83,6 +83,10 @@ define(["event"], function(Event) {
       }
 
       var stylesheet = document.styleSheets[index];
+      if (!stylesheet) {
+        return [];
+      }
+
       var rules = stylesheet.cssRules || stylesheet.rules;
       var lastRule = rules[rules.length - 1];
       var noQuotes = this.removeQuotes(lastRule.style.content);

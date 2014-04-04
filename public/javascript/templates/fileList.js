@@ -5,8 +5,8 @@ define([], function() {
                       '<div>'+
                         '<div class="overlay">'+
                           '<div class="bar">'+
-                            '<span class="share icon-group"></span>'+
-                            '<span class="delete icon-close"></span>'+
+                            '<span data-action="share" class="share icon-group"></span>'+
+                            '<span data-action="delete" class="delete icon-close"></span>'+
                           '</div>'+
                         '</div>'+
                         '<img class="thumbnail" />'+
