@@ -2,6 +2,8 @@ define(["class"], function(Class) {
   var instance = Class.extend({
     _parent: null,
 
+    _actions: [],
+
     init: function(parent) {
       this._parent = parent;
     },
@@ -22,7 +24,7 @@ define(["class"], function(Class) {
     },
 
     getActions: function() {
-      return Promise.resolve([]);
+      return Promise.resolve(this._actions);
     },
 
     rename: function(newName) {
@@ -30,6 +32,7 @@ define(["class"], function(Class) {
     },
 
     addAction: function(action) {
+      this._actions.push(action);
       return Promise.resolve();
     },
 

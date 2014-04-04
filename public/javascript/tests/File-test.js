@@ -214,6 +214,46 @@ define(['promise', 'tests/Helpers/backingHelpers', 'tests/Fixture/driveFixture',
           }).bind(this));
       },
 
+      "remote actions": {
+        setUp: function() {
+          this.payload = {
+            index: 0,
+            isLocal: false,
+            values: null
+          };
+        },
+
+        "one remote action is first and only": function() {
+          this.payload.values = [this.action1];
+
+          return this.file.remoteActionsAdded(this.payload)
+            .then((function() {
+              return this.file.getActions();
+            }).bind(this))
+            .then((function(actions) {
+              assert.equals(actions.length, 1);
+              assert.equals(actions[0], this.action1);
+            }).bind(this));
+        },
+
+        "one remote added after local is first": function() {
+          this.payload.values = [this.action1];
+
+          return this.file.addAction(this.action2)
+            .then((function() {
+              return this.file.remoteActionsAdded(this.payload)
+            }).bind(this))
+            .then((function() {
+              return this.file.getActions();
+            }).bind(this))
+            .then((function(actions) {
+              assert.equals(actions.length, 2);
+              assert.equals(actions[0], this.action1);
+              assert.equals(actions[1], this.action2);
+            }).bind(this));
+        }
+      },
+
       "with drive": {
         setUp: function() {
           this.drive = new DriveFixture();
@@ -237,6 +277,7 @@ define(['promise', 'tests/Helpers/backingHelpers', 'tests/Fixture/driveFixture',
                 return this.file.fileInfoPromise;
               }).bind(this))
               .then((function(fileInfo) {
+                refute.equals(fileInfo, this.fileInfo);
                 this.fileInfo.id = this.newId;
                 assert.equals(fileInfo, this.fileInfo);
               }).bind(this))
@@ -273,7 +314,61 @@ define(['promise', 'tests/Helpers/backingHelpers', 'tests/Fixture/driveFixture',
                 assert.equals(actions[1], this.action2);
               }).bind(this));
           },
-        },
+
+          "updates drive": {
+            setUp: function() {
+              this.dAction1 = Helpers.createAction(this.actionId + "d", true);
+              this.dAction2 = Helpers.createAction(this.actionId + "d2", true);
+            },
+
+            "//has one action before has one after without control points": function() {
+              return this.file.addAction(this.action1)
+                .then((function() {
+                  return this.file.sync(this.driveInstance);
+                }).bind(this))
+                .then((function() {
+                  return this.driveInstance.getActions();
+                }).bind(this))
+                .then((function(actions) {
+                  assert.equals(actions.length, 1);
+                  refute.defined(actions[0].value.controlPoints);
+                  assert.match(this.action1, actions[0]);
+                }).bind(this));
+            },
+
+            "file with actions not on drive keeps actions": function() {
+              var payload = {
+                index: 0,
+                isLocal: false,
+                values: [this.dAction1, this.dAction2]
+              }
+
+              // two remote actions, one local action
+              return this.file.remoteActionsAdded(payload)
+                .then((function() {
+                  return this.file.addAction(this.action1);
+                }).bind(this))
+                .then((function() {
+                  return this.file.sync(this.driveInstance);
+                }).bind(this))
+                .then((function() {
+                  return this.driveInstance.getActions();
+                }).bind(this))
+                .then((function(actions) {
+                  assert.equals(actions.length, 3);
+
+                  // Remove all the indexes
+                  actions.map(function(action) {
+                    delete action.index;
+                  });
+
+                  assert.match(this.dAction1, actions[0]);
+                  assert.match(this.dAction2, actions[1]);
+                  assert.match(this.action1, actions[2]);
+                }).bind(this));
+            }
+          }
+        }
       }
     }
   });

@@ -134,7 +134,7 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
 
     startDrive: function(driveBacking) {
       // process things on drive for updates
-      driveBacking.listen(this._remoteActionsAdded.bind(this), this._remoteActionsRemoved.bind(this));
+      driveBacking.listen(this.remoteActionsAdded.bind(this), this.remoteActionsRemoved.bind(this));
 
 
       return this.fileInfoPromise
@@ -231,8 +231,10 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
                     return this._backing.getActions();
                   }).bind(this))
                   .then((function(localActions) {
-                    return this._sendAllActions(localActions.local, driveBacking)
+                    var allActions = localActions.remote.concat(localActions.local);
+                    return this._sendAllActions(allActions, driveBacking)
                   }).bind(this))
+
                   .catch((function(error) {
                     console.error(error);
                   }).bind(this))
@@ -551,7 +553,7 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
       return Promise.all(promises);
     },
 
-    _remoteActionsAdded: function(data) {
+    remoteActionsAdded: function(data) {
       if (!this.isConnected()) {
         //debugger;
       }
@@ -611,7 +613,7 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
         }).bind(this));
     },
 
-    _remoteActionsRemoved: function(data) {
+    remoteActionsRemoved: function(data) {
       if (!this.isConnected()) {
         // We have since closed
         //debugger;

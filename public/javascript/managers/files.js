@@ -54,6 +54,11 @@ define(["section", "event", "platform", "data", "sections/fileList", "sections/d
             return file.id == hash;
           });
 
+          if (!hasFile) {
+            /* We don't know about this file. Check drive to see if we can access a file by this id
+              Yes: download it, set the 
+            */
+          }
         });
       }
 

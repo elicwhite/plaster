@@ -13,7 +13,7 @@ define(["class", "globals", "helpers", "components/manipulateCanvas"], function(
 
       thumbnailWidth *= window.devicePixelRatio;
       thumbnailHeight *= window.devicePixelRatio;
-      
+
       canvas.width = thumbnailWidth;
       canvas.height = thumbnailHeight;
 
@@ -49,6 +49,7 @@ define(["class", "globals", "helpers", "components/manipulateCanvas"], function(
         x: centerScreenAfter.x - centerScreenPointAfter.x,
         y: centerScreenAfter.y - centerScreenPointAfter.y
       };
+
       manipulateCanvas.pan(diffScreen.x, diffScreen.y);
 
       manipulateCanvas.doAll(actions);

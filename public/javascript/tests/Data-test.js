@@ -44,10 +44,10 @@ define(['promise', 'tests/Helpers/backingHelpers', 'dataLayer/data'], function(P
       },
 
       "create then load returns same reference": function() {
-        this.data.loadFile(this.fileInfo.id)
-        .then((function(file) {
-          assert.same(this.file, file);
-        }).bind(this));
+        return this.data.loadFile(this.fileInfo.id)
+          .then((function(file) {
+            assert.same(this.file, file);
+          }).bind(this));
       },
 
       "one reference should have one reference": function() {
@@ -69,7 +69,21 @@ define(['promise', 'tests/Helpers/backingHelpers', 'dataLayer/data'], function(P
           .then((function(file) {
             assert.equals(0, this.data.openReferences(fId));
           }).bind(this))
-
+      },
+      
+      "closing instance then opening same file has 0 references": function() {
+        var fId = this.fileInfo.id;
+        return this.data.close(this.file)
+          .then((function() {
+            return this.data.loadFile(fId);
+          }).bind(this))
+          .then((function(file) {
+            this.file = file;
+            return this.data.close(this.file);
+          }).bind(this))
+          .then((function() {
+            assert.equals(0, this.data.openReferences(fId));
+          }).bind(this))
       }
     }
   });

@@ -1,4 +1,4 @@
-define(["dataLayer/indexedDBBacking", "dataLayer/webSQLBacking"], function(IndexedDBBacking, WebSQLBacking) {
+define(["dataLayer/indexedDBBacking", "dataLayer/webSQLBacking", "bezierCurve"], function(IndexedDBBacking, WebSQLBacking, BezierCurve) {
 
   var BackingHelpers = {
     indexify: function(actions, startIndex) {
@@ -13,19 +13,27 @@ define(["dataLayer/indexedDBBacking", "dataLayer/webSQLBacking"], function(Index
       return items;
     },
 
-    createAction: function(id) {
-      return {
+    createAction: function(id, noControlPoints) {
+      var stroke = {
         id: id,
         type: "stroke",
         value: {
           points: [
-            [2, 4]
+            [2, 4],
+            [4, 2]
           ],
           width: 2,
-          lockWidth: true, // should the width stay the same regardless of zoom
+          lockWidth: true,
           color: "#ccc"
         }
       };
+
+      if (!noControlPoints) {
+        var controlPoints = this.cloneArray(BezierCurve.getCurveControlPoints(stroke.value.points));
+        stroke.value.controlPoints = controlPoints;  
+      }
+
+      return stroke;
     },
 
     createBacking: function() {
@@ -48,6 +56,18 @@ define(["dataLayer/indexedDBBacking", "dataLayer/webSQLBacking"], function(Index
       }
 
       return newObj;
+    },
+
+    cloneArray: function(array) {
+      var arr = array.slice(0);
+      
+      for (var i = 0; i < array.length; i++) {
+        if (typeof(array[i]) == "object") {
+          //recursion
+          arr[i] = this.cloneArray(array[i]);
+        }
+      }
+      return arr;
     },
   };
 
