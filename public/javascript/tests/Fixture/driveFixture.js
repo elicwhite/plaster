@@ -2,10 +2,13 @@ define(["class"], function(Class) {
   var instance = Class.extend({
     _parent: null,
 
-    _actions: [],
+    _actions: null,
+    _title: "",
 
     init: function(parent) {
       this._parent = parent;
+      this._actions = [];
+      this._title = "Untitled File";
     },
 
     listen: function(addedCallback, removedCallback) {
@@ -16,7 +19,6 @@ define(["class"], function(Class) {
 
     load: function(fileId) {
       return Promise.resolve();
-
     },
 
     create: function(file) {
@@ -28,6 +30,7 @@ define(["class"], function(Class) {
     },
 
     rename: function(newName) {
+      this._title = newName;
       return Promise.resolve();
     },
 

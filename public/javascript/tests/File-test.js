@@ -321,7 +321,7 @@ define(['promise', 'tests/Helpers/backingHelpers', 'tests/Fixture/driveFixture',
               this.dAction2 = Helpers.createAction(this.actionId + "d2", true);
             },
 
-            "//has one action before has one after without control points": function() {
+            "has one action before has one after without control points": function() {
               return this.file.addAction(this.action1)
                 .then((function() {
                   return this.file.sync(this.driveInstance);
@@ -366,6 +366,18 @@ define(['promise', 'tests/Helpers/backingHelpers', 'tests/Fixture/driveFixture',
                   assert.match(this.dAction2, actions[1]);
                   assert.match(this.action1, actions[2]);
                 }).bind(this));
+            },
+
+            "file gets renamed": function() {
+              var newName = "blah";
+
+              return this.file.rename(newName)
+                .then((function() {
+                  return this.file.sync(this.driveInstance)
+                }).bind(this))
+                .then((function() {
+                  assert.equals(this.driveInstance._title, newName)
+                }).bind(this))
             }
           }
         }

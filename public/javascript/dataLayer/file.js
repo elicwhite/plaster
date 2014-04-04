@@ -234,7 +234,9 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
                     var allActions = localActions.remote.concat(localActions.local);
                     return this._sendAllActions(allActions, driveBacking)
                   }).bind(this))
-
+                  .then((function() {
+                    return driveBacking.rename(fileInfo.name);
+                  }).bind(this))
                   .catch((function(error) {
                     console.error(error);
                   }).bind(this))
