@@ -172,6 +172,20 @@ define(["tests/Helpers/backingHelpers"], function(Helpers) {
                 // clean up so the file will be deleted
                 this.fileInfo.id = newFileId
               }).bind(this))
+          },
+
+          "file exists for existing id": function() {
+            return this.backing.fileExists(this.fileInfo.id)
+              .then((function(result) {
+                assert.isTrue(result);
+              }).bind(this));
+          },
+
+          "file doesnt exist for non-existing id": function() {
+            return this.backing.fileExists(this.fileInfo.id + "s")
+              .then((function(result) {
+                assert.isFalse(result);
+              }).bind(this));
           }
         },
 

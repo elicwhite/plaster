@@ -261,6 +261,21 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
       });
     },
 
+    fileExists: function(fileId) {
+      return this.readyPromise.then((function(server) {
+        return new Promise((function(resolve, reject) {
+          server.transaction((function(tx) {
+            tx.executeSql('SELECT COUNT(*) AS count FROM `' + this._serverName + '` WHERE id = ?', [fileId], (function(transaction, results) {
+                resolve(results.rows.item(0).count !== 0);
+              }).bind(this),
+              function(transaction, error) {
+                reject(error);
+              });
+          }).bind(this));
+        }).bind(this));
+      }).bind(this));
+    },
+
 
     getFiles: function() {
       return this.readyPromise.then((function(server) {

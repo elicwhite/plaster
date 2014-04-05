@@ -248,6 +248,19 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
       }));
     },
 
+    fileExists: function(fileId) {
+      return this.readyPromise.then((function(server) {
+        return Promise.cast(server.files.query('id')
+          .only(fileId)
+          .count()
+          .execute()
+        )
+          .then((function(count) {
+            return count !== 0;
+          }).bind(this));
+      }).bind(this));
+    },
+
     getFiles: function() {
       return this.readyPromise.then((function(server) {
         return Promise.cast(server.files.query('localModifiedTime')

@@ -69,7 +69,7 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
         return this._cachedFiles[fileId];
       }
 
-      // file was not found
+      // file not already loaded
       var file = new File(new this._backing.instance(this._backing));
 
       this._fileReferences[fileId] = 1;
