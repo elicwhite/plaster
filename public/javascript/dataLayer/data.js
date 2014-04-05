@@ -69,30 +69,37 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
         return this._cachedFiles[fileId];
       }
 
-      // file not already loaded
-      var file = new File(new this._backing.instance(this._backing));
+      return this.fileExists(fileId)
+      .then((function(exists) {
+        if (!exists) {
+          throw new Error("This file does not exist");
+        }
 
-      this._fileReferences[fileId] = 1;
+        // file not already loaded
+        var file = new File(new this._backing.instance(this._backing));
 
-      this._cachedFiles[fileId] = file.load(fileId)
-        .then((function() {
-          return file;
-        }).bind(this));
+        this._fileReferences[fileId] = 1;
+
+        this._cachedFiles[fileId] = file.load(fileId)
+          .then((function() {
+            return file;
+          }).bind(this));
 
 
-      if (this._driveBacking) {
+        if (this._driveBacking) {
 
-        // If we have drive, start drive outside of this promise
-        this._cachedFiles[fileId].then((function() {
-          var startingDrive = file.startDrive(this._newDriveInstance());
+          // If we have drive, start drive outside of this promise
+          this._cachedFiles[fileId].then((function() {
+            var startingDrive = file.startDrive(this._newDriveInstance());
 
-          if (waitForSync) {
-            return startingDrive;
-          }
-        }).bind(this));
-      }
+            if (waitForSync) {
+              return startingDrive;
+            }
+          }).bind(this));
+        }
 
-      return this._cachedFiles[fileId];
+        return this._cachedFiles[fileId];
+      }).bind(this));
     },
 
     deleteFile: function(fileId, updateDrive) {
@@ -462,6 +469,10 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
         this._backing.init();
       }).bind(this));
     },
+
+    fileExists: function(fileId) {
+      return this._backing.fileExists(fileId);
+    }
   });
 
   return Data;

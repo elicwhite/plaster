@@ -161,39 +161,40 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
           Event.addListener("fileRenamed", this._fileRenamed);
           Event.addListener("onlineStatusChanged", this._onlineStatusChanged);
 
+          this._resize();
+
+          // Focus on the canvas after we navigate to it
+          setTimeout(function() {
+            canvas.focus();
+          }.bind(this), 400);
+
+          window.addEventListener("resize", this._resize);
         }).bind(this))
         .
       catch ((function(error) {
-        console.error("Unable to draw for this file", error);
+        console.error("Unable to draw for this file");
         this._filesPane.setPane("list");
         return;
       }).bind(this));
-
-      // We don't need data to resize
-      this._resize();
-
-      // Focus on the canvas after we navigate to it
-      setTimeout(function() {
-        canvas.focus();
-      }.bind(this), 400);
-
-      window.addEventListener("resize", this._resize);
     },
 
     hide: function() {
-      this._file.stopListening();
+      // If we are never showing this pane, then skip cleaning
+      if (this._file) {
+        this._file.stopListening();
 
-      // Close the file after we have left, keep it from stuttering.
-      window.setTimeout((function() {
-        this._file.updateThumbnail()
-          .then((function(file) {
-            return Data.close(file);
-          }).bind(this, this._file))
-          .
-        catch (function(error) {
-          console.error(error, error.stack, error.message);
-        });
-      }).bind(this), 600);
+        // Close the file after we have left, keep it from stuttering.
+        window.setTimeout((function() {
+          this._file.updateThumbnail()
+            .then((function(file) {
+              return Data.close(file);
+            }).bind(this, this._file))
+            .
+          catch (function(error) {
+            console.error(error, error.stack, error.message);
+          });
+        }).bind(this), 600);
+      }
 
       this._shouldRender = false;
 
