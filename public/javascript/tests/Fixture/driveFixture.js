@@ -61,6 +61,11 @@ define(["class"], function(Class) {
 
     },
 
+    getFileInfo: function(fileId) {
+      // File isn't found
+      return Promise.reject();
+    },
+
     getFiles: function() {
       return Promise.resolve([]);
     },

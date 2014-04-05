@@ -413,12 +413,12 @@ define(['promise', 'tests/Helpers/backingHelpers', 'tests/Fixture/driveFixture',
           "renames locally if drive is newer": function() {
             var newName = "blahs";
 
-            this.drive.getFiles = (function() {
+            this.drive.getFileInfo = (function() {
               var fileInfo = Helpers.clone(this.fileInfo);
               delete fileInfo.name;
               fileInfo.title = newName;
               fileInfo.driveModifiedTime = "2";
-              return Promise.resolve([fileInfo]);
+              return Promise.resolve(fileInfo);
             }).bind(this)
 
             return this.driveInstance.rename(newName)
@@ -437,11 +437,11 @@ define(['promise', 'tests/Helpers/backingHelpers', 'tests/Fixture/driveFixture',
           "renames drive if drive hasn't changed": function() {
             var newName = "blahs";
 
-            this.drive.getFiles = (function() {
+            this.drive.getFileInfo = (function() {
               var fileInfo = Helpers.clone(this.fileInfo);
               fileInfo.title = fileInfo.name;
               delete fileInfo.name;
-              return Promise.resolve([fileInfo]);
+              return Promise.resolve(fileInfo);
             }).bind(this)
 
             return this.file.rename(newName)

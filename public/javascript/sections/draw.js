@@ -168,7 +168,8 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
 
         .
         catch ((function(error) {
-          console.error("Unable to draw for this file");
+          console.error("Unable to draw for this file", error);
+          location.hash = "";
           this._filesPane.setPane("list");
           return;
         }).bind(this));
