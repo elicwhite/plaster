@@ -119,7 +119,8 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
             .then((function() {
               return this._driveBacking.rename(newName);
             }).bind(this))
-            .catch(function(error) {
+            .
+            catch (function(error) {
               console.error(error);
             })
             .then((function() {
@@ -180,15 +181,20 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
 
           if (found !== false) {
             console.log("Found file", fileInfo.id, "on drive");
+
             // the file was found on drive
             // load it and sync actions
             // sync actions
 
             if (driveFiles[i].title != fileInfo.name) {
-
-              // It is newer on drive, rename locally
-              if (driveFiles[i].modifiedDate != fileInfo.driveModifiedTime) {
-                promises.push(this._driveBacking.rename(fileInfo.name));
+              // if we haven't seen an update from drive
+              if (driveFiles[i].driveModifiedTime == fileInfo.driveModifiedTime) {
+                // then rename it on drive
+                promises.push(driveBacking.load(fileInfo.id)
+                  .then((function() {
+                    return driveBacking.rename(fileInfo.name)
+                    
+                  }).bind(this)));
               } else {
                 // Update it locally
                 promises.push(this.rename(driveFiles[i].title));
@@ -237,9 +243,10 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
                   .then((function() {
                     return driveBacking.rename(fileInfo.name);
                   }).bind(this))
-                  .catch((function(error) {
-                    console.error(error);
-                  }).bind(this))
+                  .
+                catch ((function(error) {
+                  console.error(error);
+                }).bind(this))
                   .then(function() {
                     SequentialHelper.endLockedAction(newFile.id);
                   });

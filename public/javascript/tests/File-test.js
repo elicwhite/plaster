@@ -1,9 +1,9 @@
 var assert = buster.assert;
 var refute = buster.refute;
 
-define(['promise', 'tests/Helpers/backingHelpers', 'tests/Fixture/driveFixture', 'dataLayer/file'], function(Promise, Helpers, DriveFixture, File) {
+define(['promise', 'tests/Helpers/backingHelpers', 'tests/Fixture/driveFixture', 'dataLayer/file'], function(promise, Helpers, DriveFixture, File) {
   if (!window.Promise) {
-    window.Promise = Promise;
+    window.Promise = promise;
   }
 
   buster.testCase("File", {
@@ -17,7 +17,7 @@ define(['promise', 'tests/Helpers/backingHelpers', 'tests/Fixture/driveFixture',
         id: this.originalId,
         name: "Untitled File",
         localModifiedTime: 1234,
-        driveModifiedTime: "",
+        driveModifiedTime: "1",
         thumbnail: "thumb",
       };
     },
@@ -254,6 +254,32 @@ define(['promise', 'tests/Helpers/backingHelpers', 'tests/Fixture/driveFixture',
         }
       },
 
+      "file info updated": {
+        "rename changes name": function() {
+
+          var newName = "blah";
+          return this.file.rename(newName)
+            .then((function() {
+              return this.file.fileInfoPromise;
+            }).bind(this))
+            .then((function(fileInfo) {
+              assert.equals(fileInfo.name, newName);
+            }).bind(this))
+        },
+
+        "rename changes localTime": function() {
+
+          var newName = "blah";
+          return this.file.rename(newName)
+            .then((function() {
+              return this.file.fileInfoPromise;
+            }).bind(this))
+            .then((function(fileInfo) {
+              refute.equals(fileInfo.localModifiedTime, this.fileInfo.localModifiedTime);
+            }).bind(this))
+        }
+      },
+
       "with drive": {
         setUp: function() {
           this.drive = new DriveFixture();
@@ -379,6 +405,56 @@ define(['promise', 'tests/Helpers/backingHelpers', 'tests/Fixture/driveFixture',
                   assert.equals(this.driveInstance._title, newName)
                 }).bind(this))
             }
+          }
+        },
+
+        "is on drive": {
+
+          "renames locally if drive is newer": function() {
+            var newName = "blahs";
+
+            this.drive.getFiles = (function() {
+              var fileInfo = Helpers.clone(this.fileInfo);
+              delete fileInfo.name;
+              fileInfo.title = newName;
+              fileInfo.driveModifiedTime = "2";
+              return Promise.resolve([fileInfo]);
+            }).bind(this)
+
+            return this.driveInstance.rename(newName)
+              .then((function() {
+                return this.file.sync(this.driveInstance)
+              }).bind(this))
+              .then((function() {
+                return this.file.fileInfoPromise;
+              }).bind(this))
+              .then((function(fileInfo) {
+                assert.equals(fileInfo.name, newName);
+                assert.equals(this.driveInstance._title, newName)
+              }).bind(this))
+          },
+
+          "renames drive if drive hasn't changed": function() {
+            var newName = "blahs";
+
+            this.drive.getFiles = (function() {
+              var fileInfo = Helpers.clone(this.fileInfo);
+              fileInfo.title = fileInfo.name;
+              delete fileInfo.name;
+              return Promise.resolve([fileInfo]);
+            }).bind(this)
+
+            return this.file.rename(newName)
+              .then((function() {
+                return this.file.sync(this.driveInstance)
+              }).bind(this))
+              .then((function() {
+                return this.file.fileInfoPromise;
+              }).bind(this))
+              .then((function(fileInfo) {
+                assert.equals(fileInfo.name, newName);
+                assert.equals(this.driveInstance._title, newName)
+              }).bind(this))
           }
         }
       }
