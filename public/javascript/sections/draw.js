@@ -699,17 +699,19 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
       }).bind(this));
     },
 
-    _onlineStatusChanged: function() {
+    _onlineStatusChanged: function(status) {
       // check for updates if we come online while looking at this page
       // Make sure we sync actions in this case
-      this._file.sync(null, true)
-        .then((function() {
-          this._scheduleUpdate()
-        }).bind(this))
-        .
-      catch (function(error) {
-        console.error(error, error.stack, error.message);
-      });
+      if (status.online && this._file.isConnected()) {
+        this._file.sync(null, true)
+          .then((function() {
+            this._scheduleUpdate()
+          }).bind(this))
+          .
+        catch (function(error) {
+          console.error(error, error.stack, error.message);
+        });
+      }
     },
 
     _scheduleUpdate: function() {
