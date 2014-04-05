@@ -139,7 +139,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "online", "secti
       var parent = Helpers.parentEleWithClassname(element, "file-info");
 
       if (parent) {
-        if (parent.classList.contains("create")) {
+        if (parent.dataset.action && parent.dataset.action == "create") {
           // Create was called
           this._newDoc();
         } else {
