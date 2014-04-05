@@ -70,36 +70,36 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
       }
 
       return this.fileExists(fileId)
-      .then((function(exists) {
-        if (!exists) {
-          throw new Error("This file does not exist");
-        }
+        .then((function(exists) {
+          if (!exists) {
+            throw new Error("This file does not exist");
+          }
 
-        // file not already loaded
-        var file = new File(new this._backing.instance(this._backing));
+          // file not already loaded
+          var file = new File(new this._backing.instance(this._backing));
 
-        this._fileReferences[fileId] = 1;
+          this._fileReferences[fileId] = 1;
 
-        this._cachedFiles[fileId] = file.load(fileId)
-          .then((function() {
-            return file;
-          }).bind(this));
+          this._cachedFiles[fileId] = file.load(fileId)
+            .then((function() {
+              return file;
+            }).bind(this));
 
 
-        if (this._driveBacking) {
+          if (this._driveBacking) {
 
-          // If we have drive, start drive outside of this promise
-          this._cachedFiles[fileId].then((function() {
-            var startingDrive = file.startDrive(this._newDriveInstance());
+            // If we have drive, start drive outside of this promise
+            this._cachedFiles[fileId].then((function() {
+              var startingDrive = file.startDrive(this._newDriveInstance());
 
-            if (waitForSync) {
-              return startingDrive;
-            }
-          }).bind(this));
-        }
+              if (waitForSync) {
+                return startingDrive;
+              }
+            }).bind(this));
+          }
 
-        return this._cachedFiles[fileId];
-      }).bind(this));
+          return this._cachedFiles[fileId];
+        }).bind(this));
     },
 
     deleteFile: function(fileId, updateDrive) {
@@ -204,10 +204,6 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
       return 0;
     },
 
-    isOnline: function() {
-      return !!this._backing;
-    },
-
     _fileIdChanged: function(e) {
       if (this._cachedFiles[e.oldId]) {
         this._fileReferences[e.newId] = this._fileReferences[e.oldId];
@@ -227,8 +223,6 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
       if (SequentialHelper.hasActions()) {
         return Promise.reject(new Error("Actions currently running, can't sync"));
       }
-
-
 
       function getFileId(file) {
         return file.id;
@@ -423,23 +417,8 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
             }
           }).bind(this));
       } else {
-        // File wasn't found locally, make a file with the same
-        // id and then it will sync
-        var newFile = {
-          id: fileInfo.id,
-          name: fileInfo.title,
-          localModifiedTime: Date.now(),
-          driveModifiedTime: fileInfo.modifiedDate,
 
-          // I don't like this, but it is a 1px transparent png
-          thumbnail: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==",
-        };
-
-        console.log("Creating file on drive again");
-        return this._createFile(newFile)
-          .then((function(file) {
-            return this.close(file);
-          }).bind(this));
+        return this._createFileFromRemote(fileInfo);
       }
     },
 
@@ -462,12 +441,56 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
         }).bind(this));
     },
 
+    loadFileFromRemote: function(fileId) {
+      return this.isReadableRemoteFile(fileId)
+        .then((function(readable) {
+          if (readable) {
+            return this._driveBacking.getFileInfo(fileId);
+          } else {
+            throw "File does not exist or is not readable";
+          }
+        }).bind(this))
+        .then((function(driveFileInfo) {
+          return this._createFileFromRemote(driveFileInfo);
+        }).bind(this))
+    },
+
+    _createFileFromRemote: function(driveFileInfo) {
+      var newFile = {
+        id: driveFileInfo.id,
+        name: driveFileInfo.title,
+        localModifiedTime: Date.now(),
+        driveModifiedTime: driveFileInfo.modifiedDate,
+
+        // I don't like this, but it is a 1px transparent png
+        thumbnail: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==",
+      };
+
+      console.log("Creating file on drive again");
+      return this._createFile(newFile)
+        .then((function(file) {
+          return this.close(file);
+        }).bind(this))
+        .then((function() {
+          return newFile
+        }).bind(this))
+
+    },
+
+    isReadableRemoteFile: function(fileId) {
+      if (!this._driveBacking) {
+        return Promise.reject(new Error("Not connected to drive"));
+      }
+
+      return this._driveBacking.canReadFile(fileId);
+    },
+
     clearLocal: function() {
       return this._backing.clearAll()
-      .then((function() {
-        // Reinit a new database
-        this._backing.init();
-      }).bind(this));
+        .then((function() {
+          // Reinit a new database
+          this._backing.init();
+        }).bind(this));
     },
 
     fileExists: function(fileId) {

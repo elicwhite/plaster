@@ -1,4 +1,4 @@
-define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db", "bezierCurve", "data", "components/manipulateCanvas"], function(Section, g, Event, Helpers, TapHandler, Platform, db, BezierCurve, Data, ManipulateCanvas) {
+define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db", "bezierCurve", "data", "online", "components/manipulateCanvas"], function(Section, g, Event, Helpers, TapHandler, Platform, db, BezierCurve, Data, Online, ManipulateCanvas) {
 
   var Draw = Section.extend({
     id: "draw",
@@ -130,7 +130,55 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
     },
 
     show: function(fileInfo) {
-      Data.loadFile(fileInfo.id)
+      return this._tryLoadFile(fileInfo)
+        .
+      catch ((function(error) {
+        // error loading the file, set a timeout for waiting to come online
+
+        return new Promise(function(resolve, reject) {
+          if (Online.isOnline()) {
+            resolve();
+          }
+
+          var timer = null;
+
+          function statusChanged(status) {
+            if (status.online) {
+              window.clearTimeout(timer);
+              Event.removeListener("onlineStatusChanged", statusChanged);
+              resolve();
+            }
+          }
+
+          function giveUp() {
+            Event.removeListener("onlineStatusChanged", statusChanged);
+            reject();
+          }
+
+          Event.addListener("onlineStatusChanged", statusChanged);
+
+          timer = window.setTimeout(giveUp, 10000);
+        })
+          .then((function() {
+            return Data.loadFileFromRemote(fileInfo.id)
+          }).bind(this))
+          .then((function(fileInfo) {
+            return this._tryLoadFile(fileInfo);
+          }).bind(this))
+
+        .
+        catch ((function(error) {
+          console.error("Unable to draw for this file");
+          this._filesPane.setPane("list");
+          return;
+        }).bind(this));
+
+
+      }).bind(this))
+    },
+
+    _tryLoadFile: function(fileInfo) {
+      return Data.loadFile(fileInfo.id)
         .then((function(file) {
 
           this._file = file;
@@ -170,12 +218,6 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
 
           window.addEventListener("resize", this._resize);
         }).bind(this))
-        .
-      catch ((function(error) {
-        console.error("Unable to draw for this file");
-        this._filesPane.setPane("list");
-        return;
-      }).bind(this));
     },
 
     hide: function() {

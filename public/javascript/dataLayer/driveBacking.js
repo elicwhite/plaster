@@ -187,17 +187,18 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
   var DriveBacking = Class.extend({
     _appId: 450627732299,
     REALTIME_MIMETYPE: 'application/vnd.google-apps.drive-sdk',
+    APP_MIMETYPE: null,
     _fields: 'id,modifiedDate,shared,title,userPermission(role)',
 
     init: function() {
-
+      this.APP_MIMETYPE = this.REALTIME_MIMETYPE+"."+this._appId;
     },
 
     getFiles: function() {
       return new Promise((function(resolve, reject) {
         gapi.client.load('drive', 'v2', (function() {
           gapi.client.drive.files.list({
-            'q': "trashed=false and mimeType='" + this.REALTIME_MIMETYPE + '.' + this._appId + "'",
+            'q': "trashed=false and mimeType='" + this.APP_MIMETYPE + "'",
             'fields': 'items(' + this._fields + ')',
           }).execute(function(resp) {
             if (!resp) {
@@ -214,6 +215,48 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
               resolve(resp.items);
             }
           });
+        }).bind(this));
+      }).bind(this));
+    },
+
+    getFileInfo: function(fileId) {
+      return new Promise((function(resolve, reject) {
+        gapi.client.load('drive', 'v2', (function() {
+          var request = gapi.client.drive.files.get({
+            'fileId': fileId,
+            'fields': this._fields,
+          }).execute((function(resp) {
+            if (resp.error) {
+              var error = new Error();
+              error.object = resp;
+              reject(error);
+            } else {
+              resolve(resp);
+            }
+          }).bind(this));
+        }).bind(this));
+      }).bind(this));
+    },
+
+    canReadFile: function(fileId) {
+      return new Promise((function(resolve, reject) {
+        gapi.client.load('drive', 'v2', (function() {
+          var request = gapi.client.drive.files.get({
+            'fileId': fileId,
+            'fields': 'mimeType',
+          }).execute((function(resp) {
+            if (resp.error) {
+              resolve(false);
+            } else {
+              if (resp.mimeType == this.APP_MIMETYPE) {
+                resolve(true);
+              }
+              else
+              {
+                resolve(false);
+              }
+            }
+          }).bind(this));
         }).bind(this));
       }).bind(this));
     },

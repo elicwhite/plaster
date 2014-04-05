@@ -161,101 +161,100 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
       // if this fileId exists on drive, great, it's a match
       // if it doesn't, then it either has never been uploaded, or was deleted on the server
       // regardless, it's open, so we should upload it to drive
-      this._syncPromise = Promise.all([this.fileInfoPromise, driveBacking._parent.getFiles()])
-        .then((function(results) {
-          var fileInfo = results[0];
-          var driveFiles = results[1];
+      this._syncPromise = this.fileInfoPromise
+        .then((function(fileInfo) {
+          return driveBacking._parent.getFileInfo(fileInfo.id)
+            .
+          catch (function() {
+            // File doesn't exist
+            return undefined;
+          })
+            .then((function(driveFileInfo) {
 
-          console.log("Starting file sync", fileInfo.id);
+              console.log("Starting file sync", fileInfo.id);
 
-          var promises = [];
-
-          var found = false;
-          for (var i in driveFiles) {
-            if (driveFiles[i].id == fileInfo.id) {
-              found = i;
-              break;
-            }
-          }
+              var promises = [];
 
 
-          if (found !== false) {
-            console.log("Found file", fileInfo.id, "on drive");
 
-            // the file was found on drive
-            // load it and sync actions
-            // sync actions
+              if (driveFileInfo !== undefined) {
+                console.log("Found file", fileInfo.id, "on drive");
 
-            if (driveFiles[i].title != fileInfo.name) {
-              // if we haven't seen an update from drive
-              if (driveFiles[i].driveModifiedTime == fileInfo.driveModifiedTime) {
-                // then rename it on drive
-                promises.push(driveBacking.load(fileInfo.id)
-                  .then((function() {
-                    return driveBacking.rename(fileInfo.name)
-                    
-                  }).bind(this)));
+                // the file was found on drive
+                // load it and sync actions
+                // sync actions
+
+                if (driveFileInfo.title != fileInfo.name) {
+                  // if we haven't seen an update from drive
+                  if (driveFileInfo.driveModifiedTime == fileInfo.driveModifiedTime) {
+                    // then rename it on drive
+                    promises.push(driveBacking.load(fileInfo.id)
+                      .then((function() {
+                        return driveBacking.rename(fileInfo.name)
+
+                      }).bind(this)));
+                  } else {
+                    // Update it locally
+                    promises.push(this.rename(driveFileInfo.title));
+                  }
+                }
+
+                if (syncActions) {
+                  promises.push(this._syncRemoteActionsFromDrive(driveBacking));
+                }
+
               } else {
-                // Update it locally
-                promises.push(this.rename(driveFiles[i].title));
-              }
-            }
+                console.log("File not found on drive", fileInfo.id);
+                // this file was not found
+                // so we will create a new file on drive,
+                // and then copy everything over to it
+                var oldId = fileInfo.id;
 
-            if (syncActions) {
-              promises.push(this._syncRemoteActionsFromDrive(driveBacking));
-            }
-
-          } else {
-            console.log("File not found on drive", fileInfo.id);
-            // this file was not found
-            // so we will create a new file on drive, 
-            // and then copy everything over to it
-            var oldId = fileInfo.id;
-
-            promises.push(
-              SequentialHelper.startLockedAction(oldId, true)
-              .then(function() {
-                return driveBacking.create(fileInfo)
-              })
-              .then((function(newFile) {
-                // Google saved a file, redo the id of the file locally to match drive
-                return this._backing.replaceFileId(newFile.id)
-                  .then((function() {
-                    return this.load(newFile.id);
-                  }).bind(this))
-                  .then((function() {
-
-                    return this._moveSettings(oldId)
-                  }).bind(this))
+                promises.push(
+                  SequentialHelper.startLockedAction(oldId, true)
                   .then(function() {
-                    Event.trigger("fileIdChanged", {
-                      oldId: oldId,
-                      newId: newFile.id
-                    });
+                    return driveBacking.create(fileInfo)
                   })
-                  .then((function() {
-                    return this._backing.getActions();
-                  }).bind(this))
-                  .then((function(localActions) {
-                    var allActions = localActions.remote.concat(localActions.local);
-                    return this._sendAllActions(allActions, driveBacking)
-                  }).bind(this))
-                  .then((function() {
-                    return driveBacking.rename(fileInfo.name);
-                  }).bind(this))
-                  .
-                catch ((function(error) {
-                  console.error(error);
-                }).bind(this))
-                  .then(function() {
-                    SequentialHelper.endLockedAction(newFile.id);
-                  });
+                  .then((function(newFile) {
+                    // Google saved a file, redo the id of the file locally to match drive
+                    return this._backing.replaceFileId(newFile.id)
+                      .then((function() {
+                        return this.load(newFile.id);
+                      }).bind(this))
+                      .then((function() {
 
-              }).bind(this))
-            );
-          }
+                        return this._moveSettings(oldId)
+                      }).bind(this))
+                      .then(function() {
+                        Event.trigger("fileIdChanged", {
+                          oldId: oldId,
+                          newId: newFile.id
+                        });
+                      })
+                      .then((function() {
+                        return this._backing.getActions();
+                      }).bind(this))
+                      .then((function(localActions) {
+                        var allActions = localActions.remote.concat(localActions.local);
+                        return this._sendAllActions(allActions, driveBacking)
+                      }).bind(this))
+                      .then((function() {
+                        return driveBacking.rename(fileInfo.name);
+                      }).bind(this))
+                      .
+                    catch ((function(error) {
+                      console.error(error);
+                    }).bind(this))
+                      .then(function() {
+                        SequentialHelper.endLockedAction(newFile.id);
+                      });
 
-          return Promise.all(promises)
+                  }).bind(this))
+                );
+              }
+
+              return Promise.all(promises)
+            }).bind(this))
         }).bind(this))
         .then((function() {
           this._syncPromise = null;
@@ -331,7 +330,7 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
         return this._driveBacking.undo();
       }
 
-      if (this._cachedActions.localActions.length == 0) {
+      if (this._cachedActions.localActions.length === 0) {
         return Promise.resolve(false); // no actions to undo
       } else {
         var lastAction = this._cachedActions.localActions.pop();
@@ -356,7 +355,7 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
         return this._driveBacking.redo();
       }
 
-      if (this._cachedActions.redoStack.length == 0) {
+      if (this._cachedActions.redoStack.length === 0) {
         return Promise.resolve(false); // no actions to undo
       } else {
         var action = this._cachedActions.redoStack.pop();
@@ -415,7 +414,7 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
       // If we loaded a file
       if (this.fileInfoPromise) {
         return prom.then((function() {
-          this.fileInfoPromise.then((function(fileInfo) {
+          this.fileInfoPromise.then((function() {
             // Explicitly allow garbage collection
             this._cachedActions.length = 0;
 
@@ -490,6 +489,8 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
           // Did we get new changes from drive that we should notify about
           var sendUpdate = false;
 
+          var items;
+
           // Only modify things if we need to
           if (diverges !== -1 || remoteActions.length != localActions.remote.length) {
             console.log("Differences between remote and local actions", fileInfo.id);
@@ -500,7 +501,7 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
               var remoteActionsAfterDiverge = remoteActions.slice(diverges);
 
               // we need to add indexes to these items
-              var items = this._indexify(remoteActionsAfterDiverge, diverges);
+              items = this._indexify(remoteActionsAfterDiverge, diverges);
               items = items.map(this._convertFromDrive);
 
               // remove the actions in local after the diverge
@@ -522,7 +523,7 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
               // add the remote actions after the local ones
               var remoteActionsAfterLocal = remoteActions.slice(localActions.remote.length);
 
-              var items = this._indexify(remoteActionsAfterLocal, localActions.remote.length);
+              items = this._indexify(remoteActionsAfterLocal, localActions.remote.length);
               items = items.map(this._convertFromDrive);
 
               promises.push(this._backing.addRemoteActions(localActions.remote.length, items));
@@ -614,7 +615,7 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
       }).bind(this)));
 
       return Promise.all(promises).
-      catch (function(error) {
+      catch (function() {
 
       })
         .then((function() {
