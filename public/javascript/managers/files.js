@@ -44,26 +44,20 @@ define(["section", "event", "platform", "data", "sections/fileList", "sections/d
         details: null
       };
 
+      if (localStorage.filesPane) {
+        this._currentState = JSON.parse(localStorage.filesPane);
+      }
+
       var hash = location.hash;
       if (hash.indexOf("#") == 0) {
         // We have a hash, can we open this file?
         hash = hash.slice(1);
         console.log(hash);
-        Data.getFiles().then(function(files) {
-          var hasFile = files.some(function(file) {
-            return file.id == hash;
-          });
-
-          if (!hasFile) {
-            /* We don't know about this file. Check drive to see if we can access a file by this id
-              Yes: download it, set the 
-            */
-          }
-        });
-      }
-
-      if (localStorage.filesPane) {
-        this._currentState = JSON.parse(localStorage.filesPane);
+        
+        this._currentState.pane = "draw";
+        this._currentState.details = {
+          id: hash
+        };
       }
 
       this.setPane(this._currentState.pane, this._currentState.details);
