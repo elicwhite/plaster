@@ -396,7 +396,7 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
     _fileNotFoundLocally: function(fileInfo, deletedLocally) {
       if (deletedLocally) {
         console.log(fileInfo.id, "was deleted");
-        // we need to see if the file remote actions match to 
+        // we need to see if the file remote actions match to
         // know whether we should actually delete it remotely.
         var tempFile = new File(new this._backing.instance(this._backing));
         return tempFile.remoteActionsMatch(fileInfo.id, this._newDriveInstance())
@@ -451,7 +451,10 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
           }
         }).bind(this))
         .then((function(driveFileInfo) {
-          return this._createFileFromRemote(driveFileInfo);
+          return Promise.all([this._driveBacking.touchFile(fileId), this._createFileFromRemote(driveFileInfo)])
+          .then((function(results) {
+            return results[1];
+          }).bind(this))
         }).bind(this))
     },
 

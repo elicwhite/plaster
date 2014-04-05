@@ -338,7 +338,7 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
       return new Promise(function(resolve, reject) {
 
         gapi.client.load('drive', 'v2', function() {
-          var request = gapi.client.drive.files.delete({
+          var request = gapi.client.drive.files.trash({
             'fileId': fileId,
             'fields': this._fields,
           }).execute(function(resp) {

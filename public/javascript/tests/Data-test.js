@@ -70,7 +70,7 @@ define(['promise', 'tests/Helpers/backingHelpers', 'dataLayer/data'], function(P
             assert.equals(0, this.data.openReferences(fId));
           }).bind(this))
       },
-      
+
       "closing instance then opening same file has 0 references": function() {
         var fId = this.fileInfo.id;
         return this.data.close(this.file)
