@@ -21,9 +21,10 @@ define(["event", "gauth", "data"], function(Event, GAuth, Data) {
       GAuth.start((function() {
         console.log("GAuth Loaded");
         Data.startDrive()
-          .catch(function(error) {
-            console.error(error);
-          })
+          .
+        catch (function(error) {
+          console.error(error);
+        })
           .then((function() {
             this._setStatus(true);
           }).bind(this))
@@ -44,14 +45,12 @@ define(["event", "gauth", "data"], function(Event, GAuth, Data) {
     _retryScript: function() {
       if (navigator.onLine) {
         console.log("retrying to load gapi");
-        // We are connected to wifi but might not have a connection, 
+        // We are connected to wifi but might not have a connection,
         // try to reload the script
         this._reloadScript();
-      }
-      else
-      {
+      } else {
         // we aren't connected, don't retry
-      } 
+      }
     },
 
     _reloadScript: function() {
@@ -63,7 +62,7 @@ define(["event", "gauth", "data"], function(Event, GAuth, Data) {
     _onlineEvent: function() {
       if (window.gapi) {
         GAuth.start((function() {
-          this._setStatus(true);  
+          this._setStatus(true);
         }).bind(this));
       } else {
         // reload the script
@@ -82,7 +81,34 @@ define(["event", "gauth", "data"], function(Event, GAuth, Data) {
       Event.trigger("onlineStatusChanged", {
         online: online
       });
-    }
+    },
+
+    waitToComeOnline: function(wait) {
+      return new Promise((function(resolve, reject) {
+        if (this.isOnline()) {
+          resolve();
+        }
+
+        var timer = null;
+
+        function statusChanged(status) {
+          if (status.online) {
+            window.clearTimeout(timer);
+            Event.removeListener("onlineStatusChanged", statusChanged);
+            resolve();
+          }
+        }
+
+        function giveUp() {
+          Event.removeListener("onlineStatusChanged", statusChanged);
+          reject();
+        }
+
+        Event.addListener("onlineStatusChanged", statusChanged);
+
+        timer = window.setTimeout(giveUp, wait);
+      }).bind(this))
+    },
   }
 
   return new Online();

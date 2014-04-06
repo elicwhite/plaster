@@ -132,33 +132,9 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
     show: function(fileInfo) {
       return this._tryLoadFile(fileInfo)
         .
-      catch ((function(error) {
+      catch ((function() {
         // error loading the file, set a timeout for waiting to come online
-
-        return new Promise(function(resolve, reject) {
-          if (Online.isOnline()) {
-            resolve();
-          }
-
-          var timer = null;
-
-          function statusChanged(status) {
-            if (status.online) {
-              window.clearTimeout(timer);
-              Event.removeListener("onlineStatusChanged", statusChanged);
-              resolve();
-            }
-          }
-
-          function giveUp() {
-            Event.removeListener("onlineStatusChanged", statusChanged);
-            reject();
-          }
-
-          Event.addListener("onlineStatusChanged", statusChanged);
-
-          timer = window.setTimeout(giveUp, 10000);
-        })
+        return Online.waitToComeOnline(10000)
           .then((function() {
             return Data.loadFileFromRemote(fileInfo.id)
           }).bind(this))
@@ -214,7 +190,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
 
           // Focus on the canvas after we navigate to it
           setTimeout(function() {
-            canvas.focus();
+            this._canvas.focus();
           }.bind(this), 400);
 
           window.addEventListener("resize", this._resize);
@@ -535,7 +511,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
     },
 
     _colorPicked: function(e) {
-      parent = Helpers.parentEleWithClassname(e.target, "swatch");
+      var parent = Helpers.parentEleWithClassname(e.target, "swatch");
       if (parent) {
         var color = parent.style.backgroundColor;
         this._settings.color = color;
