@@ -1,3 +1,6 @@
+var assert = buster.assert;
+var refute = buster.refute;
+
 define(["tests/Helpers/backingHelpers"], function(Helpers) {
   var BackingTest = function() {
     return {
@@ -489,6 +492,24 @@ define(["tests/Helpers/backingHelpers"], function(Helpers) {
                   this.fileInfo.id = newFileId
                 }).bind(this))
             }
+          }
+        },
+
+        "multiple instances": {
+          setUp: function() {
+            this.instance2 = new this.backing.instance(this.backing);
+
+            return this.instance2.load(this.fileId);
+          },
+
+          "closing one instance doesnt close other": function() {
+            return this.instance.close()
+              .then((function() {
+                return this.instance2.getActions();
+              }).bind(this))
+              .then(function(actions) {
+                assert.isObject(actions);
+              })
           }
         }
       }

@@ -1,6 +1,3 @@
-var assert = buster.assert;
-var refute = buster.refute;
-
 define(['promise', 'tests/Helpers/backingHelpers', 'tests/GenericBackingTest', 'dataLayer/indexedDBBacking', 'dataLayer/webSQLBacking'], function(Promise, Helpers, GenericBackingTest, IndexedDBBacking, WebSQLBacking) {
   if (!window.Promise) {
     window.Promise = Promise;
