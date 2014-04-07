@@ -102,7 +102,7 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
         }).bind(this));
     },
 
-    deleteFile: function(fileId, updateDrive) {
+    deleteFile: function(fileId, skipDrive) {
       var promises = [];
 
       Event.trigger("fileRemoved", fileId);
@@ -122,24 +122,21 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
           }).bind(this)));
       }
 
-      var markDeleted = this._backing.markFileAsDeleted(fileId);
-      promises.push(markDeleted);
-
-      if (updateDrive !== false) { // could be true or undefined
-        if (this._driveBacking) {
-          promises.push(this._driveBacking.deleteFile(fileId)
+      if (Helpers.isLocalGuid(fileId)) {
+        return this._backing.deleteFile(fileId);
+      }
+      else {
+        if (!skipDrive && this._driveBacking) {
+          return this._driveBacking.deleteFile(fileId)
             .then((function() {
               return this._backing.deleteFile(fileId);
-            }).bind(this)));
+            }).bind(this));
         }
-      } else {
-        // We don't want to update drive first, just delete it
-        promises.push(markDeleted.then((function() {
-          promises.push(this._backing.deleteFile(fileId));
-        }).bind(this)));
+        else
+        {
+          return this._backing.markFileAsDeleted(fileId);
+        }
       }
-
-      return Promise.all(promises);
     },
 
     close: function(file) {
@@ -424,14 +421,14 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
 
     _fileNotFoundOnRemote: function(fileInfo, deletedLocally) {
       if (deletedLocally) {
-        return this.deleteFile(fileInfo.id, false);
+        return this.deleteFile(fileInfo.id, true);
       }
 
       // TODO: check if we deleted it remotely
       var deletedRemotely = !Helpers.isLocalGuid(fileInfo.id);
 
       if (deletedRemotely) {
-        return this.deleteFile(fileInfo.id, false);
+        return this.deleteFile(fileInfo.id, true);
       }
 
       // load it and let it sync

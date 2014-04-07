@@ -399,8 +399,13 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
     },
 
     delete: function() {
-      return this.close()
-        .then(this._backing.delete);
+      return this.fileInfoPromise.then((function(fileInfo) {
+        return this.close()
+          .then((function() {
+            delete localStorage[fileInfo.id];
+            this._backing.delete();
+          }).bind(this));
+      }).bind(this));
     },
 
     close: function() {

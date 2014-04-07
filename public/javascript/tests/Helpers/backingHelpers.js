@@ -30,7 +30,7 @@ define(["dataLayer/indexedDBBacking", "dataLayer/webSQLBacking", "bezierCurve"],
 
       if (!noControlPoints) {
         var controlPoints = this.cloneArray(BezierCurve.getCurveControlPoints(stroke.value.points));
-        stroke.value.controlPoints = controlPoints;  
+        stroke.value.controlPoints = controlPoints;
       }
 
       return stroke;
@@ -46,9 +46,9 @@ define(["dataLayer/indexedDBBacking", "dataLayer/webSQLBacking", "bezierCurve"],
     },
 
     randomName: function() {
-      return "Draw-" + Date.now() + Math.round((Math.random() * 100000));
+      return "T^" + Date.now() + "" + Math.round(Math.random() * 1000000);
     },
-    
+
     clone: function(obj) {
       var newObj = {};
       for (var prop in obj) {
@@ -60,7 +60,7 @@ define(["dataLayer/indexedDBBacking", "dataLayer/webSQLBacking", "bezierCurve"],
 
     cloneArray: function(array) {
       var arr = array.slice(0);
-      
+
       for (var i = 0; i < array.length; i++) {
         if (typeof(array[i]) == "object") {
           //recursion

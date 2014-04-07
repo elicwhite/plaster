@@ -27,7 +27,7 @@ define(["tests/Helpers/backingHelpers"], function(Helpers) {
         setUp: function() {
           this.instance = new this.backing.instance(this.backing);
 
-          this.fileId = this.dbName + Date.now() + Math.round((Math.random() * 100000));
+          this.fileId = Helpers.randomName();
           this.fileInfo = {
             id: this.fileId,
             name: "File Name",
@@ -194,7 +194,7 @@ define(["tests/Helpers/backingHelpers"], function(Helpers) {
 
         "file action operations": {
           setUp: function() {
-            this.actionId = this.fileInfo.id + Math.round((Math.random() * 100000));
+            this.actionId = Helpers.randomName();
             this.action1 = Helpers.createAction(this.actionId);
             this.action2 = Helpers.createAction(this.actionId + "2");
           },

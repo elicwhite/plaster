@@ -369,8 +369,7 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
           .execute()
         )
           .then(function(results) {
-            var f = indexedDB.deleteDatabase(fileId);
-            delete localStorage[fileId];
+            indexedDB.deleteDatabase(fileId);
 
             return results;
           });
@@ -422,15 +421,19 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
     },
 
     clearAll: function() {
-      return this.getFiles().then((function(files) {
-        files.map((function(file) {
-          return this.deleteFile(file.id);
+      return Promise.all([this.getFiles(), this.getDeletedFiles()])
+        .then((function(results) {
+          return results[0].concat(results[1]);
         }).bind(this))
+        .then((function(files) {
+          files.map((function(file) {
+            return this.deleteFile(file.id);
+          }).bind(this))
 
-        return Promise.all(files).then((function() {
-          indexedDB.deleteDatabase(this._serverName);
-        }).bind(this));
-      }).bind(this))
+          return Promise.all(files).then((function() {
+            indexedDB.deleteDatabase(this._serverName);
+          }).bind(this));
+        }).bind(this))
     },
 
     _cleanFields: function(fileInfo) {

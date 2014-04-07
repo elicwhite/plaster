@@ -229,22 +229,22 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
                 sequence = sequence.then((function() {
                   return new Promise((function(resolve, reject) {
                     server.changeVersion(server.version, "2", (function(tx) {
-                      tx.executeSql('DROP TABLE IF EXISTS `files`', [],
-                        function() {
-                          resolve()
-                        },
-                        function(transaction, error) {
-                          reject(error);
-                        })
+                        tx.executeSql('DROP TABLE IF EXISTS `files`', [],
+                          function() {
+                            resolve()
+                          },
+                          function(transaction, error) {
+                            reject(error);
+                          })
                       }).bind(this),
                       function(error) {
                         reject(error);
                       })
                   }).bind(this))
-                  .then(function() {
-                    // just reload and start fresh
-                    location.reload();
-                  });
+                    .then(function() {
+                      // just reload and start fresh
+                      location.reload();
+                    });
                 }).bind(this))
               }
 
@@ -596,27 +596,31 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
     },
 
     clearAll: function() {
-      return this.getFiles().then((function(files) {
-        files.map((function(file) {
-          return this.deleteFile(file.id);
+      return Promise.all([this.getFiles(), this.getDeletedFiles()])
+        .then((function(results) {
+          return results[0].concat(results[1]);
         }).bind(this))
+        .then((function(files) {
+          files.map((function(file) {
+            return this.deleteFile(file.id);
+          }).bind(this))
 
-        return Promise.all(files).then((function() {
-          return this.readyPromise;
-        }).bind(this))
-          .then((function(server) {
-            return new Promise((function(resolve, reject) {
-              server.transaction((function(tx) {
-                tx.executeSql('DROP TABLE `' + this._serverName + '`', [], (function(transaction, results) {
-                    resolve();
-                  }).bind(this),
-                  function(transaction, error) {
-                    reject(error);
-                  });
+          return Promise.all(files).then((function() {
+            return this.readyPromise;
+          }).bind(this))
+            .then((function(server) {
+              return new Promise((function(resolve, reject) {
+                server.transaction((function(tx) {
+                  tx.executeSql('DROP TABLE `' + this._serverName + '`', [], (function(transaction, results) {
+                      resolve();
+                    }).bind(this),
+                    function(transaction, error) {
+                      reject(error);
+                    });
+                }).bind(this));
               }).bind(this));
             }).bind(this));
-          }).bind(this));
-      }).bind(this))
+        }).bind(this))
     },
 
     instance: instance,

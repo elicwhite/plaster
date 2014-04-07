@@ -31,6 +31,35 @@ define(['promise', 'tests/Helpers/backingHelpers', 'dataLayer/data'], function(P
         }).bind(this))
     },
 
+    "delete with localId actually deletes": function() {
+      return this.data._createFile(this.fileInfo)
+        .then((function() {
+          return this.data.deleteFile(this.fileInfo.id)
+        }).bind(this))
+        .then((function() {
+          return this.backing.getDeletedFiles()
+        }).bind(this))
+        .then(function(files) {
+          assert.equals(files.length, 0);
+        });
+    },
+
+    "delete with non localId markes as delete": function() {
+      // Doesn't start with T^
+      this.fileInfo.id = "a"+this.fileInfo.id;
+
+      return this.data._createFile(this.fileInfo)
+        .then((function() {
+          return this.data.deleteFile(this.fileInfo.id)
+        }).bind(this))
+        .then((function() {
+          return this.backing.getDeletedFiles()
+        }).bind(this))
+        .then(function(files) {
+          assert.equals(files.length, 1);
+        });
+    },
+
     "with file": {
       setUp: function() {
         return this.data._createFile(this.fileInfo)
@@ -62,11 +91,11 @@ define(['promise', 'tests/Helpers/backingHelpers', 'dataLayer/data'], function(P
             assert.equals(2, this.data.openReferences(fId));
             return this.data.close(file);
           }).bind(this))
-          .then((function(file) {
+          .then((function() {
             assert.equals(1, this.data.openReferences(fId));
             return this.data.close(this.file);
           }).bind(this))
-          .then((function(file) {
+          .then((function() {
             assert.equals(0, this.data.openReferences(fId));
           }).bind(this))
       },
