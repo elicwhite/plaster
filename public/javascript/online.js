@@ -1,4 +1,4 @@
-define(["event", "gauth", "data"], function(Event, GAuth, Data) {
+define(["event", "gauth"], function(Event, GAuth) {
   var Online = function Online() {
     this.init();
   };
@@ -20,14 +20,7 @@ define(["event", "gauth", "data"], function(Event, GAuth, Data) {
     gapiLoaded: function() {
       GAuth.start((function() {
         console.log("GAuth Loaded");
-        Data.startDrive()
-          .
-        catch (function(error) {
-          console.error(error);
-        })
-          .then((function() {
-            this._setStatus(true);
-          }).bind(this))
+        this._setStatus(true);
       }).bind(this));
     },
 

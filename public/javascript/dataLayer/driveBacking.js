@@ -194,6 +194,10 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
       this.APP_MIMETYPE = this.REALTIME_MIMETYPE+"."+this._appId;
     },
 
+    isConnected: function() {
+      return GAuth.authenticated();
+    },
+
     getFiles: function() {
       return new Promise((function(resolve, reject) {
         gapi.client.load('drive', 'v2', (function() {

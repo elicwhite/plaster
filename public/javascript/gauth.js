@@ -35,6 +35,7 @@ define(["class", "event"], function(Class, Event) {
     _handleAuthResult: function(token) {
       if (token && !token.error) {
         // logged in
+        localStorage.loggedIn = true;
         Event.trigger("login", token);
         this._fetchUser();
 
@@ -51,6 +52,7 @@ define(["class", "event"], function(Class, Event) {
         }).bind(this), expireMS);
 
       } else {
+        localStorage.loggedIn = false;
         Event.trigger("logout");
       }
     },
@@ -75,6 +77,14 @@ define(["class", "event"], function(Class, Event) {
           }
         }).bind(this));
       }).bind(this));
+    },
+
+    authenticated: function() {
+      if (localStorage.loggedIn) {
+        return localStorage.loggedIn;
+      }
+
+      return false;
     }
   });
 
