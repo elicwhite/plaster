@@ -18,10 +18,12 @@ define(["class"], function(Class) {
     },
 
     load: function(fileId) {
+
       return Promise.resolve();
     },
 
     create: function(file) {
+      this._parent._files.push(file);
       return this.load();
     },
 
@@ -57,20 +59,33 @@ define(["class"], function(Class) {
   });
 
   var DriveFixture = Class.extend({
-    init: function() {
+    _files: null,
 
+    init: function() {
+      this._files = [];
     },
 
     getFileInfo: function(fileId) {
-      // File isn't found
+      for (var file in this._files) {
+        if (this._files[file].fileId == fileId) {
+          return Promise.resolve(this._files[file]);
+        }
+      }
+
       return Promise.reject();
     },
 
     getFiles: function() {
-      return Promise.resolve([]);
+      return Promise.resolve(this._files);
     },
 
     deleteFile: function(fileId) {
+      for (var file in this._files) {
+        if (this._files[file].fileId == fileId) {
+          delete this._files[file];
+        }
+      }
+
       return Promise.resolve();
     },
 
