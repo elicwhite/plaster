@@ -1,12 +1,5 @@
 Sync
 
-  Go through all files marked deleted
-    if online && connected
-      if file doesn't exist on drive
-        delete it locally
-
-
-
   Go through all local files
     If ID is local
       if online && connected
@@ -14,12 +7,23 @@ Sync
       else
         skip
     else // id is remote
-      if file exists on drive
-        sync it
-      else
-        if online && connected
-          sync with new drive file
+      if online
+        if file exists on drive
+          sync it
         else
-          skip
+          if online && connected
+            sync with new drive file
+          else
+            skip
+
+  If online && connected
+    Go through all files marked deleted
+      if file doesn't exist on drive
+        delete it locally
+      else
+
+
+    get all remote files
+      --DO SOMETHING --
 
 
