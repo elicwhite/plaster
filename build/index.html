@@ -29,85 +29,80 @@
         </div>
       </div>
 
-      <div id="main-container" class="page">
-        <div id="updateBar">
-          <div id="updateBarContent">
-            An update is ready. Click here to reload.
-          </div>
+      <div id="updateBar">
+        <div id="updateBarContent">
+          An update is ready. Click here to reload.
         </div>
-        <div id="main-content">
-          <div id="panes">
+      </div>
+      <div id="panes">
 
-            <div id="files" class="pane pane-slider">
-              <div id="files-pane-wrapper" class="pane pane-wrapper">
-                
-                <div id="files-list-container" class="pane">
-                  <div id="navbar">
-                    <ul id="main-menu" class="pull-right">
-                      <li id="mode" class="icon-cloud"></li>
-                    </ul>
-                  </div>
-                    <ul id="files-list">
-                      <li class="file-info" data-action="create">
-                        <div class="create">
-                          <div class="icon icon-plus2"></div>
-                          <span>Create</span>
-                        </div>
-                      </li>
-                    </ul>
-                </div>
+        <div id="files" class="pane pane-slider">
+          <div id="files-pane-wrapper" class="pane pane-wrapper">
 
-                <div id="draw" class="pane">
-                  <div id="draw-overlay" class="overlay pane">
-                    <div id="colorPicker" class="modal">
-                      <ul>
-                        <li class="swatch" style="background-color: #000"></li>
-                        <li class="swatch" style="background-color: #aaa"></li>
-                        <li class="swatch" style="background-color: #00d81e"></li>
-
-                        <li class="swatch" style="background-color: #0AA6F2"></li>
-                        <li class="swatch" style="background-color: #00f"></li>
-                        <li class="swatch" style="background-color: #890EF3"></li>
-                        
-                        <li class="swatch" style="background-color: #FFF400"></li>
-                        <li class="swatch" style="background-color: #FF8900"></li>
-                        <li class="swatch" style="background-color: #cf0000"></li>
-                        
-                      </ul>
+            <div id="files-list-container" class="pane">
+              <div id="navbar">
+                <ul id="main-menu" class="pull-right">
+                  <li id="mode" class="icon-cloud"></li>
+                </ul>
+              </div>
+                <ul id="files-list">
+                  <li class="file-info" data-action="create">
+                    <div class="create">
+                      <div class="icon icon-plus2"></div>
+                      <span>Create</span>
                     </div>
-                  </div>
-                  <canvas id="canvas" tabindex="1">
-                  </canvas>
-                  <div id="menu">
-                    <ul>
-                      <li data-action="back" class="icon-home"></li>
-                    </ul>
-                  </div>
-                  <div id="title">
-                    <input type="text" id="fileName" data-action="rename" />
-                  </div>
-                  <div id="options">
-                    <ul>
-                      <li data-action="export" class="icon-image"></li>
-                    </ul>
-                  </div>
+                  </li>
+                </ul>
+            </div>
 
-                  <div id="tools">
-                    <ul>
-                      <li id="pencil-tool" class="toolitem icon-pencil" data-tool="pencil"></li>
-                      <li id="eraser-tool" class="toolitem icon-eraser" data-tool="eraser"></li>
-                      <li id="undo-tool" class="toolitem icon-undo" data-action="undo"></li>
-                      <li id="redo-tool" class="toolitem icon-redo" data-action="redo"></li>
-                      <li id="pan-tool" class="toolitem icon-move" data-tool="pan"></li>
-                      <li id="zoom-tool" class="toolitem icon-zoom-in" data-tool="zoom"></li>
-                      <li id="color-tool" data-action="color" class="toolitem menu">
-                        <div id="chosenColorSwatch" class="swatch" style="background-color: black">
-                        </div>
-                      </li>
-                    </ul>
-                  </div>
+            <div id="draw" class="pane">
+              <div id="draw-overlay" class="overlay pane">
+                <div id="colorPicker" class="modal">
+                  <ul>
+                    <li class="swatch" style="background-color: #000"></li>
+                    <li class="swatch" style="background-color: #aaa"></li>
+                    <li class="swatch" style="background-color: #00d81e"></li>
+
+                    <li class="swatch" style="background-color: #0AA6F2"></li>
+                    <li class="swatch" style="background-color: #00f"></li>
+                    <li class="swatch" style="background-color: #890EF3"></li>
+
+                    <li class="swatch" style="background-color: #FFF400"></li>
+                    <li class="swatch" style="background-color: #FF8900"></li>
+                    <li class="swatch" style="background-color: #cf0000"></li>
+
+                  </ul>
                 </div>
+              </div>
+              <canvas id="canvas" tabindex="1">
+              </canvas>
+              <div id="menu">
+                <ul>
+                  <li data-action="back" class="icon-home"></li>
+                </ul>
+              </div>
+              <div id="title">
+                <input type="text" id="fileName" data-action="rename" />
+              </div>
+              <div id="options">
+                <ul>
+                  <li data-action="export" class="icon-image"></li>
+                </ul>
+              </div>
 
+              <div id="tools">
+                <ul>
+                  <li id="pencil-tool" class="toolitem icon-pencil" data-tool="pencil"></li>
+                  <li id="eraser-tool" class="toolitem icon-eraser" data-tool="eraser"></li>
+                  <li id="undo-tool" class="toolitem icon-undo" data-action="undo"></li>
+                  <li id="redo-tool" class="toolitem icon-redo" data-action="redo"></li>
+                  <li id="pan-tool" class="toolitem icon-move" data-tool="pan"></li>
+                  <li id="zoom-tool" class="toolitem icon-zoom-in" data-tool="zoom"></li>
+                  <li id="color-tool" data-action="color" class="toolitem menu">
+                    <div id="chosenColorSwatch" class="swatch" style="background-color: black">
+                    </div>
+                  </li>
+                </ul>
               </div>
             </div>
 

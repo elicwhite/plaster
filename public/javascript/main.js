@@ -5,12 +5,15 @@ function init() {
     e.preventDefault();
   });
 
-  require(["promise", "event", "globals", "helpers", "migrate", "managers/login", "gauth"], function(Promise, Event, g, Helpers, Migrate, LoginManager, GAuth) {
+  require(["promise", "event", "globals", "helpers", "migrate", "managers/files", "gauth"], function(Promise, Event, g, Helpers, Migrate, FilesManager, GAuth) {
     Migrate.run()
     .then((function() {
       g.setHTMLDevices();
 
-      var loginManager = new LoginManager();
+      var manager = new FilesManager();
+      manager.show();
+      manager.afterShow();
+
     }).bind(this))
     .catch(function(error) {
       console.error(error.stack, error);
