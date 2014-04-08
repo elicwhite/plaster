@@ -280,7 +280,7 @@ define(['promise', 'tests/Helpers/backingHelpers', 'tests/Fixture/driveFixture',
         }
       },
 
-      "with drive": {
+      "sync": {
         setUp: function() {
           this.drive = new DriveFixture();
           this.driveInstance = new this.drive.instance(this.drive);

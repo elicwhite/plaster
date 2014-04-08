@@ -1,7 +1,7 @@
 var assert = buster.assert;
 var refute = buster.refute;
 
-define(['promise', 'tests/Helpers/backingHelpers', 'dataLayer/data'], function(Promise, Helpers, Data) {
+define(['promise', 'tests/Helpers/backingHelpers', 'tests/Fixture/driveFixture', 'dataLayer/data'], function(Promise, Helpers, DriveFixture, Data) {
   if (!window.Promise) {
     window.Promise = Promise;
   }
@@ -46,7 +46,7 @@ define(['promise', 'tests/Helpers/backingHelpers', 'dataLayer/data'], function(P
 
     "delete with non localId markes as delete": function() {
       // Doesn't start with T^
-      this.fileInfo.id = "a"+this.fileInfo.id;
+      this.fileInfo.id = "a" + this.fileInfo.id;
 
       return this.data._createFile(this.fileInfo)
         .then((function() {
@@ -75,7 +75,7 @@ define(['promise', 'tests/Helpers/backingHelpers', 'dataLayer/data'], function(P
       "create then load returns same reference": function() {
         return this.data.loadFile(this.fileInfo.id)
           .then((function(file) {
-            assert.same(this.file, file);
+            assert.same(this.file, file );
           }).bind(this));
       },
 
@@ -113,6 +113,33 @@ define(['promise', 'tests/Helpers/backingHelpers', 'dataLayer/data'], function(P
           .then((function() {
             assert.equals(0, this.data.openReferences(fId));
           }).bind(this))
+      }
+    },
+
+    "sync": {
+      setUp: function() {
+        this.drive = new DriveFixture();
+        this.driveInstance = new this.drive.instance(this.drive);
+      },
+
+
+      "not authenticated": {
+        "with one local file": {
+          setUp: function() {
+            return this.data._createFile(this.fileInfo)
+              .then((function(file) {
+                this.file = file;
+              }).bind(this));
+          },
+
+          tearDown: function() {
+            return this.data.deleteFile(this.fileInfo.id);
+          },
+
+          "//runs": function() {
+            return this.data.checkForUpdates()
+          }
+        }
       }
     }
   });
