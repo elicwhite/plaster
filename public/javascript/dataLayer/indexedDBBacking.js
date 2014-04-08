@@ -382,7 +382,7 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
           .only(fileId)
           .execute()
         ).then(function(results) {
-          if (results.length == 0) {
+          if (results.length === 0) {
             return undefined;
           }
           return results[0];
@@ -393,7 +393,7 @@ define(["class", "helpers", "db", "event"], function(Class, Helpers, db, Event) 
         }
 
         return result;
-      }).bind(this));;
+      }).bind(this));
     },
 
     _updateLocalModifiedTime: function(fileId, time) {

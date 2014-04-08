@@ -11,10 +11,13 @@ function init() {
       g.setHTMLDevices();
 
       var loginManager = new LoginManager();
-    }).bind(this));
+    }).bind(this))
+    .catch(function(error) {
+      console.error(error.stack, error);
+    });
 
     window.addEventListener("resize", function() {
-      // make sure we are scrolled to 0. Without this there are problems 
+      // make sure we are scrolled to 0. Without this there are problems
       // when changing device orientation
       window.scroll(0, 0);
       setHeight();

@@ -7,6 +7,10 @@ define(["class"], function(Class) {
 
 		init: function() {
 			this.element = document.getElementById(this.id);
+			if (!this.element) {
+				throw new Error("Can't find section's element");
+			}
+
 			this._visible = false;
 		},
 
