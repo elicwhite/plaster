@@ -18,28 +18,18 @@ body, input {
 }
 
 #login {
-  #login-container {
-    width: 350px;
+  #loginbutton {
     text-align: center;
-    height: 50px;
-    position: absolute;
-    top: calc(50% - 25px);
-    left: calc(50% - 175px);
+    line-height: 50px;
+    background-color: $primary4;
+    border: 1px solid $primary2;
+    cursor: pointer;
 
-    #loginbutton {
-      display: inline-block;
-      line-height: 50px;
-      padding: 0 60px;
-      background-color: $primary4;
-      border: 1px solid $primary2;
-      cursor: pointer;
-
-      i {
-        margin-right: 10px;
-        vertical-align: middle;
-        font-size: 25px;
-        line-height: 25px;
-      }
+    i {
+      margin-right: 10px;
+      vertical-align: middle;
+      font-size: 25px;
+      line-height: 25px;
     }
   }
 }
@@ -59,7 +49,7 @@ body, input {
   }
 
   &.visible {
-    @include transform("translate(0px, 0px)");   
+    @include transform("translate(0px, 0px)");
   }
 }
 
@@ -100,7 +90,7 @@ body, input {
     #files-list {
       height: calc(100% - 40px);
 
-      li {  
+      li {
         &>div {
 
           &.create {
@@ -118,7 +108,7 @@ body, input {
               color: #888;
             }
           }
-          
+
           .thumbnail {
             background-color: white;
             border: 1px solid #ccc;
@@ -128,7 +118,7 @@ body, input {
           .overlay {
             overflow: hidden;
 
-            
+
 
             &:hover .bar {
               -webkit-transform: translateY(0px);
@@ -153,19 +143,19 @@ body, input {
                 cursor: pointer;
                 line-height: 30px;
               }
-              
+
               .share {
                 float: left;
               }
 
               .delete {
                 float: right;
-                
-                
+
+
               }
             }
 
-            
+
           }
 
           .content {
@@ -184,9 +174,9 @@ body, input {
               color: #888;
               white-space: nowrap;
               width: 100%;
-            }  
+            }
 
-            
+
           }
         }
       }
@@ -233,7 +223,7 @@ body, input {
     #title {
       width: 100%;
       text-align: center;
-      
+
       #fileName {
         text-align: center;
         border: 0;
@@ -246,14 +236,14 @@ body, input {
     }
 
     $menuBorder: $veryLightGray;
-    
+
     #menu {
       ul {
         border-bottom: 1px solid $menuBorder;
 
         li {
           float: left;
-          border-right: 1px solid $menuBorder;          
+          border-right: 1px solid $menuBorder;
         }
       }
     }

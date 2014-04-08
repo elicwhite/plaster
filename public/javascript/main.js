@@ -5,17 +5,18 @@ function init() {
     e.preventDefault();
   });
 
-  require(["promise", "event", "globals", "helpers", "migrate", "managers/files", "gauth"], function(Promise, Event, g, Helpers, Migrate, FilesManager, GAuth) {
+  require(["promise", "event", "globals", "helpers", "migrate", "data", "managers/files", "gauth"], function(Promise, Event, g, Helpers, Migrate, Data, FilesManager, GAuth) {
     Migrate.run()
-    .then((function() {
-      g.setHTMLDevices();
+      .then((function() {
+        g.setHTMLDevices();
 
-      var manager = new FilesManager();
-      manager.show();
-      manager.afterShow();
+        var manager = new FilesManager();
+        manager.show();
+        manager.afterShow();
 
-    }).bind(this))
-    .catch(function(error) {
+      }).bind(this))
+      .
+    catch (function(error) {
       console.error(error.stack, error);
     });
 

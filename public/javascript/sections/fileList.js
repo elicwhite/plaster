@@ -1,4 +1,4 @@
-define(["section", "tapHandler", "event", "globals", "helpers", "online", "sections/statusIndicator", "data", "templates/fileList"], function(Section, TapHandler, Event, g, Helpers, Online, StatusIndicator, Data, FileListTemplate) {
+define(["section", "tapHandler", "event", "globals", "helpers", "online", "sections/statusIndicator", "sections/login", "data", "templates/fileList"], function(Section, TapHandler, Event, g, Helpers, Online, StatusIndicator, Login, Data, FileListTemplate) {
 
   var FileList = Section.extend({
     id: "files-list-container",
@@ -16,6 +16,8 @@ define(["section", "tapHandler", "event", "globals", "helpers", "online", "secti
 
     _indicator: null,
 
+    _login: null,
+
     _itemWidth: null,
 
     init: function(filesPane) {
@@ -26,6 +28,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "online", "secti
       this._files = [];
 
       this._indicator = new StatusIndicator();
+      this._login = new Login();
 
       this._fileListElement = document.getElementById("files-list");
 
