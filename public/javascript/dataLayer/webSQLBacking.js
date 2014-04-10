@@ -172,7 +172,6 @@ define(["class", "helpers", "event"], function(Class, Helpers, Event) {
         console.error("Error replacing fileId", error);
         throw error;
       });
-
     },
 
     close: function() {

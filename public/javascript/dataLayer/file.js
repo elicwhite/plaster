@@ -403,7 +403,7 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
         return this.close()
           .then((function() {
             delete localStorage[fileInfo.id];
-            this._backing.delete();
+            return this._backing._parent.deleteFile(fileInfo.id);
           }).bind(this));
       }).bind(this));
     },

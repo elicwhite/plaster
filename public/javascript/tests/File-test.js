@@ -24,10 +24,7 @@ define(['promise', 'tests/Helpers/backingHelpers', 'tests/Fixture/driveFixture',
 
     tearDown: function() {
       // we only need to close the file if it is loaded
-      return this.file.close()
-        .then((function() {
-          return this.backing.clearAll();
-        }).bind(this));
+      return this.file.delete();
     },
 
     "Creating file adds to backing": function() {
