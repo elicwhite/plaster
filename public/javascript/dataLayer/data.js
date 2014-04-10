@@ -1,4 +1,4 @@
-define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "dataLayer/driveBacking"], function(Class, Helpers, Event, SequentialHelper, File, DriveBacking) {
+define(["class", "helpers", "event", "sequentialHelper", "gauth", "online", "dataLayer/file"], function(Class, Helpers, Event, SequentialHelper, GAuth, Online, File) {
   var Data = Class.extend({
     _backing: null,
     _cachedFiles: null,
@@ -6,11 +6,12 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
 
     _driveBacking: null,
 
-    init: function(backing) {
+    init: function(backing, driveBacking) {
       this._cachedFiles = {};
       this._fileReferences = {};
 
       this._backing = backing;
+      this._driveBacking = driveBacking;
 
       Event.addListener("fileIdChanged", this._fileIdChanged.bind(this));
     },
@@ -54,7 +55,7 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
         throw error;
       });
 
-      if (this._driveBacking) {
+      if (this._driveBacking.isConnected()) {
         this._cachedFiles[fileInfo.id].then((function() {
           file.startDrive(this._newDriveInstance());
         }).bind(this));
@@ -85,8 +86,9 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
               return file;
             }).bind(this));
 
+            debugger;
 
-          if (this._driveBacking) {
+          if (this._driveBacking.isConnected()) {
 
             // If we have drive, start drive outside of this promise
             this._cachedFiles[fileId].then((function() {
@@ -160,39 +162,6 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
         }).bind(this));
     },
 
-    startDrive: function() {
-      console.log("Drive connected");
-
-      var driveBacking = new DriveBacking();
-
-      var promises = [];
-
-      var self = this;
-      var sequence = Promise.resolve();
-
-      for (var i in this._cachedFiles) {
-
-        sequence = sequence.then((function(i) {
-          return this._cachedFiles[i];
-        }).bind(this, i))
-          .then(function(file) {
-            var driveInstance = new driveBacking.instance(driveBacking);
-            return file.startDrive(driveInstance);
-          });
-      }
-
-      promises.push(sequence);
-
-      return Promise.all(promises)
-        .then((function() {
-          this._driveBacking = driveBacking;
-        }).bind(this))
-        .
-      catch (function(e) {
-        console.error(e, e.stack, e.message);
-      });
-    },
-
     openReferences: function(fileId) {
       if (this._fileReferences[fileId]) {
         return this._fileReferences[fileId];
@@ -217,6 +186,9 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
 
 
     checkForUpdates: function() {
+      console.log("Trying to check for data updates");
+      return Promise.resolve();
+
       if (SequentialHelper.hasActions()) {
         return Promise.reject(new Error("Actions currently running, can't sync"));
       }
@@ -281,17 +253,30 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
 
           console.log("Checking for file updates on drive");
 
+          var online = Online.isOnline();
+          var authenticated = GAuth.authenticated();
+
           var driveFilesPromise = this._driveBacking.getFiles();
           var localFilesPromise = this._backing.getFiles();
           var locallyDeletedFilesPromise = this._backing.getDeletedFiles();
 
+          /*return localFilesPromise.then((function(files) {
+            files.map(function(file) {
+              if (Helpers.isLocalGuid(file.id)) {
+                if (online && authenticated) {
+
+                }
+              }
+              debugger;
+            })
+          }).bind(this))
+*/
           return Promise.all([driveFilesPromise, localFilesPromise, locallyDeletedFilesPromise])
             .then((function(results) {
               var remoteFiles = results[0].sort(sortById);
               var localFiles = results[1].sort(sortById);
               var filesDeletedLocally = results[2].sort(sortById);
 
-              var localFileIds = localFiles.map(getFileId);
               var remoteFileIds = remoteFiles.map(getFileId);
 
               var fileIdsDeletedLocally = filesDeletedLocally.map(getFileId);

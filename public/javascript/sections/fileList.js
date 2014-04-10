@@ -103,12 +103,12 @@ define(["section", "tapHandler", "event", "globals", "helpers", "online", "secti
       Event.addListener("onlineStatusChanged", this._onlineStatusChanged);
 
       // This could happen if we are online and then navigate to this page
-      if (Online.isOnline()) {
-        Data.checkForUpdates()
-          .then((function() {
-            this._scheduleUpdate()
-          }).bind(this));
-      }
+      // if (Online.isOnline()) {
+      //   Data.checkForUpdates()
+      //     .then((function() {
+      //       this._scheduleUpdate()
+      //     }).bind(this));
+      // }
 
 
     },
@@ -122,19 +122,19 @@ define(["section", "tapHandler", "event", "globals", "helpers", "online", "secti
     },
 
     _scheduleUpdate: function() {
-      if (this._updateTimeout) {
-        clearTimeout(this._updateTimeout);
-      }
+      // if (this._updateTimeout) {
+      //   clearTimeout(this._updateTimeout);
+      // }
 
-      this._updateTimeout = setTimeout((function() {
-        if (!this._visible || !Online.isOnline()) {
-          return;
-        }
+      // this._updateTimeout = setTimeout((function() {
+      //   if (!this._visible || !Online.isOnline()) {
+      //     return;
+      //   }
 
-        Data.checkForUpdates().then((function() {
-          this._scheduleUpdate()
-        }).bind(this));
-      }).bind(this), 15 * 1000);
+      //   Data.checkForUpdates().then((function() {
+      //     this._scheduleUpdate()
+      //   }).bind(this));
+      // }).bind(this), 15 * 1000);
     },
 
     _docSelected: function(e) {
@@ -178,16 +178,16 @@ define(["section", "tapHandler", "event", "globals", "helpers", "online", "secti
     // EVENTS
     _onlineStatusChanged: function(e) {
       // check for updates if we come online while looking at this page
-      if (e.online) {
-        Data.checkForUpdates()
-          .then((function() {
-            this._scheduleUpdate()
-          }).bind(this))
-          .
-        catch (function(error) {
-          console.error(error, error.stack, error.message);
-        });
-      }
+      // if (e.online) {
+      //   Data.checkForUpdates()
+      //     .then((function() {
+      //       this._scheduleUpdate()
+      //     }).bind(this))
+      //     .
+      //   catch (function(error) {
+      //     console.error(error, error.stack, error.message);
+      //   });
+      // }
     },
 
     _fileAdded: function(fileInfo) {

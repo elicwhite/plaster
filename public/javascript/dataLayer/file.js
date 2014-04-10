@@ -184,6 +184,8 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
                 // load it and sync actions
                 // sync actions
 
+                debugger;
+
                 if (driveFileInfo.title != fileInfo.name) {
                   // if we haven't seen an update from drive
                   if (driveFileInfo.driveModifiedTime == fileInfo.driveModifiedTime) {

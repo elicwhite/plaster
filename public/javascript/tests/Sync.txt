@@ -1,29 +1,27 @@
-Sync
+Sync, guarenteed to be online
 
   Go through all local files
     If ID is local
-      if online && connected
+      if authenticated
         Sync with new drive file
       else
         skip
     else // id is remote
-      if online
-        if file exists on drive
-          sync it
+      if file exists on drive
+        sync it
+      else
+        if authenticated
+          sync with new drive file
         else
-          if online && connected
-            sync with new drive file
-          else
-            skip
+          skip
 
-  If online && connected
     Go through all files marked deleted
       if file doesn't exist on drive
         delete it locally
       else
 
 
-    get all remote files
-      --DO SOMETHING --
+    get all remote files that we haven't processed already
+      sync file locally
 
 
