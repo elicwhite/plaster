@@ -1,4 +1,4 @@
-define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "dataLayer/driveBacking"], function(Class, Helpers, Event, SequentialHelper, File, DriveBacking) {
+define(["class", "helpers", "event", "gauth", "online", "sequentialHelper", "dataLayer/file"], function(Class, Helpers, Event, GAuth, Online, SequentialHelper, File) {
   var Data = Class.extend({
     _backing: null,
     _cachedFiles: null,
@@ -6,11 +6,12 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
 
     _driveBacking: null,
 
-    init: function(backing) {
+    init: function(backing, driveBacking) {
       this._cachedFiles = {};
       this._fileReferences = {};
 
       this._backing = backing;
+      this._driveBacking = driveBacking;
 
       Event.addListener("fileIdChanged", this._fileIdChanged.bind(this));
     },
@@ -54,7 +55,7 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
         throw error;
       });
 
-      if (this._driveBacking) {
+      if (GAuth.isAuthenticated()) {
         this._cachedFiles[fileInfo.id].then((function() {
           file.startDrive(this._newDriveInstance());
         }).bind(this));
@@ -86,7 +87,7 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
             }).bind(this));
 
 
-          if (this._driveBacking) {
+          if (Online.isOnline()) {
 
             // If we have drive, start drive outside of this promise
             this._cachedFiles[fileId].then((function() {
@@ -126,7 +127,7 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
         return this._backing.deleteFile(fileId);
       }
       else {
-        if (!skipDrive && this._driveBacking) {
+        if (!skipDrive && GAuth.isAuthenticated()) {
           return this._driveBacking.deleteFile(fileId)
             .then((function() {
               return this._backing.deleteFile(fileId);
@@ -160,39 +161,6 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
         }).bind(this));
     },
 
-    startDrive: function() {
-      console.log("Drive connected");
-
-      var driveBacking = new DriveBacking();
-
-      var promises = [];
-
-      var self = this;
-      var sequence = Promise.resolve();
-
-      for (var i in this._cachedFiles) {
-
-        sequence = sequence.then((function(i) {
-          return this._cachedFiles[i];
-        }).bind(this, i))
-          .then(function(file) {
-            var driveInstance = new driveBacking.instance(driveBacking);
-            return file.startDrive(driveInstance);
-          });
-      }
-
-      promises.push(sequence);
-
-      return Promise.all(promises)
-        .then((function() {
-          this._driveBacking = driveBacking;
-        }).bind(this))
-        .
-      catch (function(e) {
-        console.error(e, e.stack, e.message);
-      });
-    },
-
     openReferences: function(fileId) {
       if (this._fileReferences[fileId]) {
         return this._fileReferences[fileId];
@@ -217,6 +185,10 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
 
 
     checkForUpdates: function() {
+      if (!GAuth.isAuthenticated()) {
+        return Promise.resolve();
+      }
+
       if (SequentialHelper.hasActions()) {
         return Promise.reject(new Error("Actions currently running, can't sync"));
       }
@@ -478,7 +450,7 @@ define(["class", "helpers", "event", "sequentialHelper", "dataLayer/file", "data
     },
 
     isReadableRemoteFile: function(fileId) {
-      if (!this._driveBacking) {
+      if (!Online.isOnline()) {
         return Promise.reject(new Error("Not connected to drive"));
       }
 

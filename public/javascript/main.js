@@ -14,7 +14,7 @@ function init() {
     }).bind(this));
 
     window.addEventListener("resize", function() {
-      // make sure we are scrolled to 0. Without this there are problems 
+      // make sure we are scrolled to 0. Without this there are problems
       // when changing device orientation
       window.scroll(0, 0);
       setHeight();

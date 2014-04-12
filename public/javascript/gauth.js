@@ -9,31 +9,21 @@ define(["class", "event"], function(Class, Event) {
     _authenticated: null,
 
     init: function() {
-      if (localStorage.loggedIn && localStorage.loggedIn == "true") {
-        this._authenticated = true;
-      }
-      else
-      {
-        this._authenticated = false;
-      }
+      this._authenticated = false;
 
       Event.addListener("onlineStatusChanged", (function(status) {
         if (status.online) {
           // try to load gapi and authorize
           console.log("starting auth");
           this.start();
-        }
-        else
-        {
+        } else {
           // now offline
         }
       }).bind(this));
     },
 
     start: function() {
-      gapi.load('auth:client,drive-realtime,drive-share', (function() {
-        this.authorize();
-      }).bind(this));
+      this.authorize();
     },
 
     authorize: function() {
@@ -91,7 +81,6 @@ define(["class", "event"], function(Class, Event) {
       }
 
       this._authenticated = status;
-      localStorage.loggedIn = status;
 
       Event.trigger("authenticatedStatusChanged", {
         authenticated: status

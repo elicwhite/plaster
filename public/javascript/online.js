@@ -21,7 +21,9 @@ define(["event"], function(Event) {
 
     gapiLoaded: function() {
       console.log("Gapi loaded");
-      this._setStatus(true);
+      gapi.load('auth:client,drive-realtime,drive-share', (function() {
+        this._setStatus(true);
+      }).bind(this));
     },
 
     gapiLoadError: function() {

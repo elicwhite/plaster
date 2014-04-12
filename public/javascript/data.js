@@ -1,4 +1,4 @@
-define(["dataLayer/data", "dataLayer/indexedDBBacking", "dataLayer/webSQLBacking"], function(Data, IndexedDBBacking, WebSQLBacking) {
+define(["dataLayer/data", "dataLayer/indexedDBBacking", "dataLayer/webSQLBacking", "dataLayer/driveBacking"], function(Data, IndexedDBBacking, WebSQLBacking, DriveBacking) {
   var backing;
 
   if (window.indexedDB) {
@@ -7,5 +7,7 @@ define(["dataLayer/data", "dataLayer/indexedDBBacking", "dataLayer/webSQLBacking
     backing = new WebSQLBacking();
   }
 
-  return new Data(backing);
+  var driveBacking = new DriveBacking();
+
+  return new Data(backing, driveBacking);
 })

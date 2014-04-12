@@ -21,7 +21,7 @@ define(["event", "gauth", "sections/login", "sections/main"], function(Event, GA
         return;
       }
 
-      if (GAuth.isAuthenticated()) {
+      if (localStorage.loggedIn) {
         this.setPage("main");
       }
       else
@@ -55,7 +55,13 @@ define(["event", "gauth", "sections/login", "sections/main"], function(Event, GA
 
     _authenticatedStatusChanged: function(status) {
       if (status.authenticated) {
+        localStorage.loggedIn = true;
         this.setPage("main");
+      }
+      else
+      {
+        localStorage.loggedIn = false;
+        this.setPage("login");
       }
     },
   };
