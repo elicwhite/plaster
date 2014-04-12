@@ -16,6 +16,12 @@ define(["event", "sections/login", "sections/main"], function(Event, LoginSectio
       this.pages.login = new LoginSection();
       this.pages.main = new MainSection();
 
+      var hash = location.hash;
+      if (hash.indexOf("#") === 0) {
+        this.setPage("main");
+        return;
+      }
+
       if (localStorage.loggedIn == "true") {
         this.setPage("main");
       }
@@ -30,7 +36,7 @@ define(["event", "sections/login", "sections/main"], function(Event, LoginSectio
 
       if (this.currentPage) {
 
-        var pageobj = this.pages[this.currentPage];
+        pageobj = this.pages[this.currentPage];
 
         if (pageobj.hide) {
           pageobj.hide();
@@ -39,7 +45,7 @@ define(["event", "sections/login", "sections/main"], function(Event, LoginSectio
       }
 
       pageobj = this.pages[page];
-      
+
       if (pageobj.show) {
         pageobj.show();
       }

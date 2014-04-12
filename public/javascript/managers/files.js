@@ -49,11 +49,11 @@ define(["section", "event", "platform", "data", "sections/fileList", "sections/d
       }
 
       var hash = location.hash;
-      if (hash.indexOf("#") == 0) {
+      if (hash.indexOf("#") === 0) {
         // We have a hash, can we open this file?
         hash = hash.slice(1);
         console.log(hash);
-        
+
         this._currentState.pane = "draw";
         this._currentState.details = {
           id: hash
@@ -165,7 +165,7 @@ define(["section", "event", "platform", "data", "sections/fileList", "sections/d
       this._paneWrapper.style[Platform.transform] = "";
     },
 
-    _fileIdChanged: function(e) {      
+    _fileIdChanged: function(e) {
       // the current state details is a reference, so the id will change out from under us
       // if it is the new id, then save it
       if (this._currentState.details && this._currentState.details.id == e.newId) {
