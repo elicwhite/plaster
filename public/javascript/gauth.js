@@ -1,19 +1,36 @@
 define(["class", "event"], function(Class, Event) {
   var GAuth = Class.extend({
-    _clientId: '450627732299-2d7jlo96ious5jmdmsd9t7hpclstf7ub.apps.googleusercontent.com',
-    _user: null,
-
-    _startCallback: null,
-
+    CLIENT_ID: '450627732299-2d7jlo96ious5jmdmsd9t7hpclstf7ub.apps.googleusercontent.com',
     INSTALL_SCOPE: 'https://www.googleapis.com/auth/drive.install',
     FILE_SCOPE: 'https://www.googleapis.com/auth/drive.file',
     OPENID_SCOPE: 'openid',
 
-    init: function() {},
+    _user: null,
+    _authenticated: null,
 
-    start: function(callback) {
-      this._startCallback = callback;
+    init: function() {
+      if (localStorage.loggedIn && localStorage.loggedIn == "true") {
+        this._authenticated = true;
+      }
+      else
+      {
+        this._authenticated = false;
+      }
 
+      Event.addListener("onlineStatusChanged", (function(status) {
+        if (status.online) {
+          // try to load gapi and authorize
+          console.log("starting auth");
+          this.start();
+        }
+        else
+        {
+          // now offline
+        }
+      }).bind(this));
+    },
+
+    start: function() {
       gapi.load('auth:client,drive-realtime,drive-share', (function() {
         this.authorize();
       }).bind(this));
@@ -22,7 +39,7 @@ define(["class", "event"], function(Class, Event) {
     authorize: function() {
       // Try with no popups first.
       gapi.auth.authorize({
-        client_id: this._clientId,
+        client_id: this.CLIENT_ID,
         scope: [
           this.INSTALL_SCOPE,
           this.FILE_SCOPE,
@@ -35,12 +52,8 @@ define(["class", "event"], function(Class, Event) {
     _handleAuthResult: function(token) {
       if (token && !token.error) {
         // logged in
-        Event.trigger("login", token);
-        this._fetchUser();
 
-        if (this._startCallback) {
-          this._startCallback();
-        }
+        this._setStatus(true);
 
         // Refresh the token 10 minutes before it expires
         var expireMS = ((parseInt(token.expires_in) - 600) * 1000);
@@ -51,13 +64,13 @@ define(["class", "event"], function(Class, Event) {
         }).bind(this), expireMS);
 
       } else {
-        Event.trigger("logout");
+        this._setStatus(false);
       }
     },
 
     authorizeWithPopup: function() {
       gapi.auth.authorize({
-        client_id: this._clientId,
+        client_id: this.CLIENT_ID,
         scope: [
           this.INSTALL_SCOPE,
           this.FILE_SCOPE,
@@ -67,14 +80,22 @@ define(["class", "event"], function(Class, Event) {
       }, this._handleAuthResult.bind(this));
     },
 
-    _fetchUser: function() {
-      gapi.client.load('oauth2', 'v2', (function() {
-        gapi.client.oauth2.userinfo.get().execute((function(resp) {
-          if (resp.id) {
-            this._user = resp;
-          }
-        }).bind(this));
-      }).bind(this));
+    isAuthenticated: function() {
+      return this._authenticated;
+    },
+
+    _setStatus: function(status) {
+      if (this._authenticated == status) {
+        // if we are changing to the same status we currently have, skip
+        return;
+      }
+
+      this._authenticated = status;
+      localStorage.loggedIn = status;
+
+      Event.trigger("authenticatedStatusChanged", {
+        authenticated: status
+      });
     }
   });
 

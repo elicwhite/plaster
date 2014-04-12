@@ -1,4 +1,4 @@
-define(["event", "sections/login", "sections/main"], function(Event, LoginSection, MainSection) {
+define(["event", "gauth", "sections/login", "sections/main"], function(Event, GAuth, LoginSection, MainSection) {
   function LoginManager() {
     this.init();
   }
@@ -10,8 +10,7 @@ define(["event", "sections/login", "sections/main"], function(Event, LoginSectio
     init: function() {
       this.pages = {};
 
-      Event.addListener("login", this._login.bind(this));
-      Event.addListener("logout", this._logout.bind(this));
+      Event.addListener("authenticatedStatusChanged", this._authenticatedStatusChanged.bind(this));
 
       this.pages.login = new LoginSection();
       this.pages.main = new MainSection();
@@ -22,7 +21,7 @@ define(["event", "sections/login", "sections/main"], function(Event, LoginSectio
         return;
       }
 
-      if (localStorage.loggedIn == "true") {
+      if (GAuth.isAuthenticated()) {
         this.setPage("main");
       }
       else
@@ -54,16 +53,11 @@ define(["event", "sections/login", "sections/main"], function(Event, LoginSectio
       this.currentPage = page;
     },
 
-    _login: function() {
-      localStorage.loggedIn = true;
-      this.setPage("main");
+    _authenticatedStatusChanged: function(status) {
+      if (status.authenticated) {
+        this.setPage("main");
+      }
     },
-
-    _logout: function() {
-      // https://accounts.google.com/Logout
-      localStorage.loggedIn = false;
-      this.setPage("login");
-    }
   };
 
   return LoginManager;

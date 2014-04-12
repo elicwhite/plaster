@@ -1,4 +1,4 @@
-define(["event", "gauth", "data"], function(Event, GAuth, Data) {
+define(["event"], function(Event) {
   var Online = function Online() {
     this.init();
   };
@@ -7,6 +7,8 @@ define(["event", "gauth", "data"], function(Event, GAuth, Data) {
     _online: null,
 
     _script: null,
+
+    _retryDelay: 3 * 1000,
 
     init: function() {
       this._online = false;
@@ -18,24 +20,15 @@ define(["event", "gauth", "data"], function(Event, GAuth, Data) {
     },
 
     gapiLoaded: function() {
-      GAuth.start((function() {
-        console.log("GAuth Loaded");
-        Data.startDrive()
-          .
-        catch (function(error) {
-          console.error(error);
-        })
-          .then((function() {
-            this._setStatus(true);
-          }).bind(this))
-      }).bind(this));
+      console.log("Gapi loaded");
+      this._setStatus(true);
     },
 
     gapiLoadError: function() {
       console.warn("Failed to load gapi");
       this._setStatus(false);
       // set a reconnect timer, but only if navigator.online
-      window.setTimeout(this._retryScript.bind(this), 10);
+      window.setTimeout(this._retryScript.bind(this), this._retryDelay);
     },
 
     isOnline: function() {
@@ -44,26 +37,34 @@ define(["event", "gauth", "data"], function(Event, GAuth, Data) {
 
     _retryScript: function() {
       if (navigator.onLine) {
-        console.log("retrying to load gapi");
+        console.log("Retrying to load gapi");
         // We are connected to wifi but might not have a connection,
         // try to reload the script
         this._reloadScript();
       } else {
         // we aren't connected, don't retry
+        window.setTimeout(this._retryScript.bind(this), this._retryDelay);
       }
     },
 
     _reloadScript: function() {
       var parent = this._script.parentElement;
       parent.removeChild(this._script);
+
+      var newScript = document.createElement("script");
+      newScript.onError = this._script.onError;
+      newScript.async = this._script.async;
+      newScript.id = this._script.id;
+      newScript.type = this._script.type;
+      newScript.src = this._script.src;
+      this._script = newScript;
+
       parent.insertBefore(this._script, parent.children[0]);
     },
 
     _onlineEvent: function() {
       if (window.gapi) {
-        GAuth.start((function() {
-          this._setStatus(true);
-        }).bind(this));
+        this._setStatus(true);
       } else {
         // reload the script
         this._reloadScript();
@@ -77,6 +78,11 @@ define(["event", "gauth", "data"], function(Event, GAuth, Data) {
 
 
     _setStatus: function(online) {
+      if (this._online == online) {
+        // if we are changing to the same status we currently have, skip
+        return;
+      }
+
       this._online = online;
       Event.trigger("onlineStatusChanged", {
         online: online
