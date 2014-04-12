@@ -59,7 +59,7 @@ body, input {
   }
 
   &.visible {
-    @include transform("translate(0px, 0px)");   
+    @include transform("translate(0px, 0px)");
   }
 }
 
@@ -80,8 +80,19 @@ body, input {
           float: left;
           line-height: 40px;
 
-          &#mode.offline {
-            color: $complementary1;
+          &#mode {
+            transition: .3s all;
+            text-transform: uppercase;
+            font-size: 12px;
+            opacity: 1;
+
+            &.hidden {
+              opacity: 0;
+            }
+
+            &.offline {
+              color: $complementary1;
+            }
           }
         }
       }
@@ -100,7 +111,7 @@ body, input {
     #files-list {
       height: calc(100% - 40px);
 
-      li {  
+      li {
         &>div {
 
           &.create {
@@ -118,7 +129,7 @@ body, input {
               color: #888;
             }
           }
-          
+
           .thumbnail {
             background-color: white;
             border: 1px solid #ccc;
@@ -128,7 +139,7 @@ body, input {
           .overlay {
             overflow: hidden;
 
-            
+
 
             &:hover .bar {
               -webkit-transform: translateY(0px);
@@ -153,19 +164,19 @@ body, input {
                 cursor: pointer;
                 line-height: 30px;
               }
-              
+
               .share {
                 float: left;
               }
 
               .delete {
                 float: right;
-                
-                
+
+
               }
             }
 
-            
+
           }
 
           .content {
@@ -184,9 +195,9 @@ body, input {
               color: #888;
               white-space: nowrap;
               width: 100%;
-            }  
+            }
 
-            
+
           }
         }
       }
@@ -233,7 +244,7 @@ body, input {
     #title {
       width: 100%;
       text-align: center;
-      
+
       #fileName {
         text-align: center;
         border: 0;
@@ -246,14 +257,14 @@ body, input {
     }
 
     $menuBorder: $veryLightGray;
-    
+
     #menu {
       ul {
         border-bottom: 1px solid $menuBorder;
 
         li {
           float: left;
-          border-right: 1px solid $menuBorder;          
+          border-right: 1px solid $menuBorder;
         }
       }
     }

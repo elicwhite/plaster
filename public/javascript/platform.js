@@ -36,28 +36,28 @@ define(["class"], function(Class) {
 
       window.indexedDB = window.indexedDB ||
         window.webkitIndexedDB ||
-        window.mozIndexedDB || 
+        window.mozIndexedDB ||
         window.msIndexedDB ||
         window.oIndexedDB;
     },
 
-    addPrefix: function(p) {
+    addPrefix: function(property) {
       var prefix = '';
-      var v = ['ms', 'webkit', 'mox', 'o'];
-      var s = this._b.style;
+      var vendor = ['ms', 'webkit', 'mox', 'o'];
+      var style = this._b.style;
 
-      if (typeof s[p] == 'string') {
+      if (typeof style[property] == 'string') {
         prefix = '';
       } else {
-        for (var i = 0; i < v.length; i++) {
-          if (typeof s['-' + v[i] + '-' + p] == 'string') {
-            prefix = v[i];
+        for (var i = 0; i < vendor.length; i++) {
+          if (typeof style['-' + vendor[i] + '-' + property] == 'string') {
+            prefix = vendor[i];
             break;
           }
         }
       }
 
-      var styleString = (prefix.length > 0) ? p.charAt(0).toUpperCase() + p.slice(1) : p;
+      var styleString = (prefix.length > 0) ? property.charAt(0).toUpperCase() + property.slice(1) : property;
 
       if (prefix) {
         return prefix + styleString;

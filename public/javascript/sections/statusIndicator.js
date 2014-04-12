@@ -1,4 +1,4 @@
-define(["event", "section"], function(Event, Section) {
+define(["event", "section", "online", "platform"], function(Event, Section, Online, Platform) {
 
   var StatusIndicator = Section.extend({
     id: "mode",
@@ -12,12 +12,49 @@ define(["event", "section"], function(Event, Section) {
 
     _onlineStatusChanged: function(e) {
       if (e.online) {
-        this.element.classList.remove("offline");
+        this._showOnline();
       } else {
         // we are now offline, set the indicator
-        this.element.classList.add("offline");
+        this._showOffline();
       }
     },
+
+    _showOnline: function() {
+      this.element.classList.add("hidden")
+
+      this._waitAnimationEnd()
+        .then((function() {
+          this.element.innerText = "Online";
+          requestAnimationFrame((function() {
+            this.element.classList.remove("hidden");
+
+            this.element.classList.remove("offline");
+          }).bind(this));
+        }).bind(this));
+    },
+
+    _showOffline: function() {
+      this.element.classList.add("hidden")
+
+      this._waitAnimationEnd()
+        .then((function() {
+          this.element.innerText = "Offline";
+          requestAnimationFrame((function() {
+            this.element.classList.remove("hidden");
+
+            this.element.classList.add("offline");
+          }).bind(this));
+        }).bind(this));
+
+    },
+
+    _waitAnimationEnd: function() {
+      return new Promise((function(resolve) {
+        setTimeout(function() {
+          resolve()
+        }, 300);
+      }).bind(this));
+    }
   });
 
   return StatusIndicator;

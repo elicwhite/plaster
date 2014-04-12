@@ -11,8 +11,6 @@ define(["event"], function(Event) {
     _retryDelay: 3 * 1000,
 
     init: function() {
-      this._online = false;
-
       this._script = document.getElementById("gapiScript");
 
       window.addEventListener("online", this._onlineEvent.bind(this));
@@ -34,7 +32,7 @@ define(["event"], function(Event) {
     },
 
     isOnline: function() {
-      return this._online;
+      return !!this._online;
     },
 
     _retryScript: function() {
