@@ -8,8 +8,9 @@ define(["class", "globals", "helpers", "components/manipulateCanvas"], function(
 
       var vars = g.getCSSVars();
 
-      var thumbnailWidth = vars.outerWidth ? parseInt(vars.outerWidth) : 200;
-      var thumbnailHeight = vars.innerHeight ? parseInt(vars.innerHeight) : 200;
+
+      var thumbnailWidth = vars.thumbnailWidth ? parseInt(vars.thumbnailWidth) : 200;
+      var thumbnailHeight = vars.thumbnailHeight ? parseInt(vars.thumbnailHeight) : 200;
 
       thumbnailWidth *= window.devicePixelRatio;
       thumbnailHeight *= window.devicePixelRatio;

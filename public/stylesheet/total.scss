@@ -189,8 +189,8 @@ body {
   @include transition(.4s, all);
 }
 
-$outerWidth: 0px;
-$innerHeight: 0px;
+$thumbnailWidth: 0px;
+$thumbnailHeight: 0px;
 
 @import "design.scss";
 @import "icomoon.scss";
@@ -198,7 +198,7 @@ $innerHeight: 0px;
 #CSSVars {
   // this lets javascript read elements out
   content: '{'+
-'"outerWidth": "'+$outerWidth+'",'+
-'"innerHeight": "'+$innerHeight+'"'+
+'"thumbnailWidth": "'+$thumbnailWidth+'",'+
+'"thumbnailHeight": "'+$thumbnailHeight+'"'+
 '}';
 }

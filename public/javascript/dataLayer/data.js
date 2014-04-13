@@ -190,7 +190,8 @@ define(["class", "helpers", "event", "gauth", "online", "sequentialHelper", "dat
       }
 
       if (SequentialHelper.hasActions()) {
-        return Promise.reject(new Error("Actions currently running, can't sync"));
+        console.warn("Actions currently running, can't sync");
+        return Promise.reject();
       }
 
       function getFileId(file) {

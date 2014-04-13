@@ -2,12 +2,12 @@
   #files {
     #files-list-container {
 
-      /*$space: 10px;
-      $innerHeight: 120px;
-      $outerWidth: 400px;
+      $space: 15px;
+      $innerHeight: 200px;
+      $outerWidth: 300px;
 
       @include files-list($space, $innerHeight, $outerWidth);
-      */
+
     }
 
     #draw {
@@ -30,7 +30,7 @@
 
             &#color-tool {
               padding: 5px;
-              
+
               .swatch {
                 height: 50px;
               }
@@ -109,11 +109,11 @@
 .tablet {
   #files {
     #files-list-container {
-      // $space: 10px;
-      // $innerHeight: 140px;
-      // $outerWidth: 340px;
+      $space: 15px;
+      $innerHeight: 200px;
+      $outerWidth: 330px;
 
-      // @include files-list($space, $innerHeight, $outerWidth);
+      @include files-list($space, $innerHeight, $outerWidth);
     }
 
     #draw {
@@ -179,7 +179,7 @@
         padding-bottom: $swatchSpacing;
 
         ul {
-          
+
           width: ($swatchSize + $swatchSpacing) * 3 ;
           margin-right: -1 * $swatchSpacing;
 
@@ -210,11 +210,11 @@
   #files {
 
     #files-list-container {
-      // $space: 10px;
-      // $innerHeight: 100px;
-      // $outerWidth: 320px;
+      $space: 10px;
+      $innerHeight: 100px;
+      $outerWidth: 160px;
 
-      // @include files-list($space, $innerHeight, $outerWidth);
+      @include files-list($space, $innerHeight, $outerWidth);
     }
 
     #draw {
@@ -250,7 +250,7 @@
             height: 60px;
             width: auto;
           }
-          
+
           li {
             float: left;
 
@@ -286,7 +286,7 @@
         }
       }
 
-      
+
 
       .overlay {
         .modal{
@@ -322,7 +322,7 @@
           padding-bottom: $swatchSpacing;
 
           ul {
-            
+
             width: ($swatchSize + $swatchSpacing) * 3 ;
             margin-right: -1 * $swatchSpacing;
 

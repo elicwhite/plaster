@@ -9,8 +9,8 @@
 @mixin transition($time, $property, $type: "") {
   -webkit-transition: $property $time #{$type};
      -moz-transition: $property $time #{$type};
-       -o-transition: $property $time #{$type}; 
-          transition: $property $time #{$type}; 
+       -o-transition: $property $time #{$type};
+          transition: $property $time #{$type};
 }
 
 @mixin transform($params) {
@@ -41,7 +41,7 @@
   display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
   display: -ms-flexbox;      /* TWEENER - IE 10 */
   display: -webkit-flex;     /* NEW - Chrome */
-  display: flex;   
+  display: flex;
 }
 
 @mixin flex-wrap($value) {
@@ -78,7 +78,8 @@
     $thumbnailSize: $innerHeight;
     $outerHeight: $innerHeight + $space;
 
-    $innerWidth: $outerWidth - $space;
+    $thumbnailHeight: $innerHeight;
+    $thumbnailWidth: $outerWidth - $space;
 
     padding-top: $space;
 
@@ -92,15 +93,13 @@
       padding-bottom: $space;
 
       &>div {
-        //$height: $outerHeight - $space;
-        //height: $innerHeight;
 
         &.create {
           height: $thumbnailSize;
           width: $outerWidth - $space;
 
           .icon {
-            font-size: .5 * $innerHeight;  
+            font-size: .5 * $innerHeight;
           }
         }
 
@@ -108,13 +107,7 @@
           height: $thumbnailSize;
           width: $outerWidth - $space;
         }
-
-        .content {
-          .file-name {
-            //width: $innerWidth - 70px;
-          }
-        }
-      }     
+      }
     }
   }
 }

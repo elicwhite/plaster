@@ -203,12 +203,6 @@ body, input {
         }
       }
     }
-
-    $space: 15px;
-    $innerHeight: 200px;
-    $outerWidth: 300px;
-
-    @include files-list($space, $innerHeight, $outerWidth);
   }
 
   #draw {
