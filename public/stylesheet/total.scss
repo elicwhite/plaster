@@ -116,8 +116,11 @@ body {
             position: absolute;
           }
 
-          .content {
+          &.create, .thumbnail, .overlay {
+            width: 100%;
+          }
 
+          .content {
             .file-name {
               display: inline-block;
               overflow: hidden;

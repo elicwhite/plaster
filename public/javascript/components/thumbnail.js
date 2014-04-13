@@ -2,21 +2,16 @@ define(["class", "globals", "helpers", "components/manipulateCanvas"], function(
 
   var Thumbnail = Class.extend({
     _canvas: null,
+    _thumbnailWidth: null,
+    _thumbnailHeight: null,
 
     init: function() {
       var canvas = document.createElement("canvas");
 
-      var vars = g.getCSSVars();
+      this.setThumbnailSizes();
 
-
-      var thumbnailWidth = vars.thumbnailWidth ? parseInt(vars.thumbnailWidth) : 200;
-      var thumbnailHeight = vars.thumbnailHeight ? parseInt(vars.thumbnailHeight) : 200;
-
-      thumbnailWidth *= window.devicePixelRatio;
-      thumbnailHeight *= window.devicePixelRatio;
-
-      canvas.width = thumbnailWidth;
-      canvas.height = thumbnailHeight;
+      canvas.width = this._thumbnailWidth;
+      canvas.height = this._thumbnailHeight;
 
       this._canvas = canvas;
     },
@@ -57,6 +52,57 @@ define(["class", "globals", "helpers", "components/manipulateCanvas"], function(
       manipulateCanvas.render();
 
       return this._canvas.toDataURL("image/png");
+    },
+
+
+    setThumbnailSizes: function() {
+
+      var space = 15;
+      var thumbnailHeight = 200;
+      var thumbnailWidth = 300;
+
+      if (g.isComputer()) {
+        space = 15;
+        thumbnailHeight = 200;
+        thumbnailWidth = 300;
+      }
+      else if (g.isTablet()) {
+        space = 15;
+        thumbnailHeight = 200;
+        thumbnailWidth = 330;
+      }
+      else if (g.isPhone()) {
+        space = 10;
+        thumbnailHeight = 100;
+        thumbnailWidth = 160;
+      }
+
+
+      var stylesheet = g.getStylesheet();
+      var rules = g.getStylesheetRules();
+
+      var newRules = [];
+
+      newRules.push("#files-list { padding-top: "+space+"px !important; }");
+
+      newRules.push("#files-list li {"+
+        "width: "+thumbnailWidth+"px;"+
+        "padding: 0px "+(space/2)+"px "+space+"px "+(space/2)+"px;"+
+        "}");
+
+      newRules.push("#files-list .icon { font-size: "+(thumbnailHeight * 0.5)+"px; }");
+
+      newRules.push("#files-list .create, #files-list .thumbnail, #files-list .overlay {"+
+        "height: "+thumbnailHeight+"px !important;"+
+        "}");
+
+
+      newRules.forEach(function(rule) {
+        stylesheet.insertRule(rule, rules.length);
+      });
+
+      this._thumbnailHeight = thumbnailHeight * window.devicePixelRatio;
+      this._thumbnailWidth = thumbnailWidth * window.devicePixelRatio;
     }
   });
 

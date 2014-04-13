@@ -79,7 +79,7 @@ define(["event"], function(Event) {
       body.className = devices.join(" ");
     },
 
-    getCSSVars: function() {
+    getStylesheet: function() {
       var index = 0;
 
       for (var i = 0; i < document.styleSheets.length; i++) {
@@ -89,12 +89,23 @@ define(["event"], function(Event) {
         }
       }
 
-      var stylesheet = document.styleSheets[index];
+      return document.styleSheets[index];
+    },
+
+    getStylesheetRules: function() {
+      var stylesheet = this.getStylesheet();
       if (!stylesheet) {
-        return [];
+        return {};
       }
 
       var rules = stylesheet.cssRules || stylesheet.rules;
+
+      return rules;
+    },
+
+    getCSSVars: function() {
+      var rules = this.getStylesheetRules();
+
       var lastRule = rules[rules.length - 1];
       var noQuotes = this.removeQuotes(lastRule.style.content);
       return JSON.parse(noQuotes);

@@ -1,15 +1,8 @@
+$computerThumbnailWidth: 300px - 15px;
+$computerThumbnailHeight: 10px;
+
 .computer {
   #files {
-    #files-list-container {
-
-      $space: 15px;
-      $innerHeight: 200px;
-      $outerWidth: 300px;
-
-      @include files-list($space, $innerHeight, $outerWidth);
-
-    }
-
     #draw {
       #tools {
         width: 90px;
@@ -108,14 +101,6 @@
 
 .tablet {
   #files {
-    #files-list-container {
-      $space: 15px;
-      $innerHeight: 200px;
-      $outerWidth: 330px;
-
-      @include files-list($space, $innerHeight, $outerWidth);
-    }
-
     #draw {
       #title {
         line-height: 50px;
@@ -208,15 +193,6 @@
 
 .phone {
   #files {
-
-    #files-list-container {
-      $space: 10px;
-      $innerHeight: 100px;
-      $outerWidth: 160px;
-
-      @include files-list($space, $innerHeight, $outerWidth);
-    }
-
     #draw {
       #title {
         line-height: 40px;
