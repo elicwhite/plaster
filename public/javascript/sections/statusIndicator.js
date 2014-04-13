@@ -25,11 +25,8 @@ define(["event", "section", "online", "platform"], function(Event, Section, Onli
       this._waitAnimationEnd()
         .then((function() {
           this.element.innerText = "Online";
-          requestAnimationFrame((function() {
-            this.element.classList.remove("hidden");
-
-            this.element.classList.remove("offline");
-          }).bind(this));
+          this.element.classList.remove("hidden");
+          this.element.classList.remove("offline");
         }).bind(this));
     },
 
@@ -39,11 +36,8 @@ define(["event", "section", "online", "platform"], function(Event, Section, Onli
       this._waitAnimationEnd()
         .then((function() {
           this.element.innerText = "Offline";
-          requestAnimationFrame((function() {
-            this.element.classList.remove("hidden");
-
-            this.element.classList.add("offline");
-          }).bind(this));
+          this.element.classList.remove("hidden");
+          this.element.classList.add("offline");
         }).bind(this));
 
     },
@@ -52,7 +46,7 @@ define(["event", "section", "online", "platform"], function(Event, Section, Onli
       return new Promise((function(resolve) {
         setTimeout(function() {
           resolve()
-        }, 300);
+        }, 500);
       }).bind(this));
     }
   });

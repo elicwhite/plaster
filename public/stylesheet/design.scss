@@ -81,10 +81,11 @@ body, input {
           line-height: 40px;
 
           &#mode {
-            transition: .3s all;
+            transition: .5s opacity;
             text-transform: uppercase;
             font-size: 12px;
             opacity: 1;
+            font-weight: bold;
 
             &.hidden {
               opacity: 0;
