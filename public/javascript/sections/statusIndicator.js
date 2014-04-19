@@ -20,7 +20,7 @@ define(["event", "section", "online", "platform"], function(Event, Section, Onli
     },
 
     _showOnline: function() {
-      this.element.classList.add("hidden")
+      this.element.classList.add("hidden");
 
       this._waitAnimationEnd()
         .then((function() {
@@ -31,7 +31,7 @@ define(["event", "section", "online", "platform"], function(Event, Section, Onli
     },
 
     _showOffline: function() {
-      this.element.classList.add("hidden")
+      this.element.classList.add("hidden");
 
       this._waitAnimationEnd()
         .then((function() {

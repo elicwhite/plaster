@@ -427,7 +427,7 @@ define(["class", "helpers", "event", "gauth", "online", "sequentialHelper", "dat
         }).bind(this));
     },
 
-    loadFileFromRemote: function(fileId) {
+    getRemoteFileInfo: function(fileId) {
       return this.isReadableRemoteFile(fileId)
         .then((function(readable) {
           if (readable) {
@@ -436,6 +436,10 @@ define(["class", "helpers", "event", "gauth", "online", "sequentialHelper", "dat
             throw "File does not exist or is not readable";
           }
         }).bind(this))
+    },
+
+    loadFileFromRemote: function(fileId) {
+      return this.getRemoteFileInfo(fileId)
         .then((function(driveFileInfo) {
           return Promise.all([this._driveBacking.touchFile(fileId), this._createFileFromRemote(driveFileInfo)])
             .then(function(results) {
@@ -462,7 +466,6 @@ define(["class", "helpers", "event", "gauth", "online", "sequentialHelper", "dat
         .then((function() {
           return newFile
         }).bind(this))
-
     },
 
     isReadableRemoteFile: function(fileId) {

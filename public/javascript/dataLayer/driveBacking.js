@@ -225,7 +225,7 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
         gapi.client.load('drive', 'v2', (function() {
           var request = gapi.client.drive.files.get({
             'fileId': fileId,
-            'fields': this._fields,
+            'fields': this._fields+",owners(displayName,picture)",
             'key': this._key,
           }).execute((function(resp) {
             if (resp.error) {
