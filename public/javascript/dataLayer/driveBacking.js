@@ -186,6 +186,7 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
 
   var DriveBacking = Class.extend({
     _appId: 450627732299,
+    _key: 'AIzaSyAOU0dwrVt0XNvGibqE93ATS2X1bMP5pAI',
     REALTIME_MIMETYPE: 'application/vnd.google-apps.drive-sdk',
     APP_MIMETYPE: null,
     _fields: 'id,modifiedDate,shared,title,userPermission(role)',
@@ -225,6 +226,7 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
           var request = gapi.client.drive.files.get({
             'fileId': fileId,
             'fields': this._fields,
+            'key': this._key,
           }).execute((function(resp) {
             if (resp.error) {
               var error = new Error();
@@ -244,6 +246,7 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
           var request = gapi.client.drive.files.get({
             'fileId': fileId,
             'fields': 'mimeType',
+            'key': this._key,
           }).execute((function(resp) {
             if (resp.error) {
               resolve(false);
@@ -262,12 +265,13 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
     },
 
     _open: function(fileId) {
-      return new Promise(function(resolve, reject) {
-        gapi.client.load('drive', 'v2', function() {
+      return new Promise((function(resolve, reject) {
+        gapi.client.load('drive', 'v2', (function() {
           var request = gapi.client.drive.files.get({
             'fileId': fileId,
             'fields': this._fields,
-          }).execute(function(resp) {
+            'key': this._key,
+          }).execute((function(resp) {
 
             if (resp.error) {
               var error = new Error();
@@ -278,9 +282,9 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
                 id: resp.id,
               });
             }
-          });
-        });
-      });
+          }).bind(this));
+        }).bind(this));
+      }).bind(this));
     },
 
     _add: function(file) {
@@ -308,17 +312,18 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
     },
 
     _renameFile: function(fileId, newName) {
-      return new Promise(function(resolve, reject) {
+      return new Promise((function(resolve, reject) {
 
         var body = {
           'title': newName
         };
 
-        gapi.client.load('drive', 'v2', function() {
+        gapi.client.load('drive', 'v2', (function() {
           var request = gapi.client.drive.files.patch({
             'fileId': fileId,
             'resource': body,
             'fields': this._fields,
+            'key': this._key,
           });
           request.execute(function(resp) {
             if (resp.error) {
@@ -329,18 +334,18 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
               resolve(resp);
             }
           });
-        });
-
-      });
+        }).bind(this));
+      }).bind(this));
     },
 
     deleteFile: function(fileId) {
-      return new Promise(function(resolve, reject) {
+      return new Promise((function(resolve, reject) {
 
-        gapi.client.load('drive', 'v2', function() {
+        gapi.client.load('drive', 'v2', (function() {
           var request = gapi.client.drive.files.trash({
             'fileId': fileId,
             'fields': this._fields,
+            'key': this._key,
           }).execute(function(resp) {
             if (resp.error) {
               var error = new Error();
@@ -350,16 +355,17 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
               resolve(resp);
             }
           });
-        });
-      });
+        }).bind(this));
+      }).bind(this));
     },
 
     touchFile: function(fileId) {
-      return new Promise(function(resolve, reject) {
-        gapi.client.load('drive', 'v2', function() {
+      return new Promise((function(resolve, reject) {
+        gapi.client.load('drive', 'v2', (function() {
           var request = gapi.client.drive.files.touch({
             'fileId': fileId,
             'fields': this._fields,
+            'key': this._key,
           }).execute(function(resp) {
             if (resp.error) {
               var error = new Error();
@@ -369,8 +375,8 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
               resolve(resp);
             }
           });
-        });
-      });
+        }).bind(this));
+      }).bind(this));
     },
 
     instance: instance,

@@ -93,6 +93,7 @@ define(["event"], function(Event) {
       return new Promise((function(resolve, reject) {
         if (this.isOnline()) {
           resolve();
+          return;
         }
 
         var timer = null;

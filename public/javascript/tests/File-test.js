@@ -8,6 +8,9 @@ define(['promise', 'tests/Helpers/backingHelpers', 'tests/Fixture/driveFixture',
 
   buster.testCase("File", {
     setUp: function() {
+
+      this.timeout = 1000;
+
       this.backing = Helpers.createBacking();
       this.instance = new this.backing.instance(this.backing);
       this.file = new File(this.instance);
