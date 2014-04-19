@@ -1,5 +1,7 @@
 function start() {
-  window.clientId = '450627732299-2d7jlo96ious5jmdmsd9t7hpclstf7ub.apps.googleusercontent.com';
+  //window.clientId = '450627732299-2d7jlo96ious5jmdmsd9t7hpclstf7ub.apps.googleusercontent.com';
+  //window.clientId = '597847337936.apps.googleusercontent.com';
+  window.key = 'AIzaSyAOU0dwrVt0XNvGibqE93ATS2X1bMP5pAI';
 
   function GAuth() {}
 
@@ -17,7 +19,9 @@ function start() {
         this._startCallback = callback;
 
         gapi.load('auth:client,drive-realtime,drive-share', (function() {
-          this.authorize();
+          console.log("calling authorize");
+          this._startCallback();
+          //this.authorize();
         }).bind(this));
       } else {
         console.log("Offline mode");
@@ -39,7 +43,6 @@ function start() {
 
     _handleAuthResult: function(authResult) {
       if (authResult && !authResult.error) {
-        this._fetchUser();
 
         if (this._startCallback) {
           this._startCallback();
@@ -57,16 +60,6 @@ function start() {
         ],
         immediate: false
       }, this._handleAuthResult.bind(this));
-    },
-
-    _fetchUser: function() {
-      gapi.client.load('oauth2', 'v2', (function() {
-        gapi.client.oauth2.userinfo.get().execute((function(resp) {
-          if (resp.id) {
-            this._user = resp;
-          }
-        }).bind(this));
-      }).bind(this));
     }
   }
 
@@ -92,6 +85,20 @@ function start() {
             });
           }
         });
+      }).bind(this));
+    },
+
+    canReadFile: function(fileId) {
+      return new Promise((function(resolve) {
+        gapi.client.load('drive', 'v2', (function() {
+          gapi.client.drive.files.get({
+            'fileId': fileId,
+            'fields': 'mimeType',
+            'key': window.key
+          }).execute((function(resp) {
+            debugger;
+          }).bind(this));
+        }).bind(this));
       }).bind(this));
     },
 
@@ -128,64 +135,70 @@ function start() {
     },
   }
 
-  function startTest() {
-    // create a file
-    // open it for realtime
-    // close the doc
-    // delete the file
+  // function startTest() {
+  //   // create a file
+  //   // open it for realtime
+  //   // close the doc
+  //   // delete the file
 
+  //   var data = new GData();
+  //   console.log("Starting test");
+
+  //   for (var i = 0; i < 10; i++) {
+  //     data.add(function(file) {
+  //       console.log("Added", file.id);
+  //       data.openForRealtime(file.id, function(doc) {
+  //         console.log("Opened for realtime", file.id);
+  //         doc.close();
+
+  //         // Adding a timeout just to be clear that the doc closed.
+  //         //window.setTimeout(function() {
+  //         data.delete(file.id, function() {
+  //           console.log("Deleting", file.id);
+  //         });
+  //         //}, 1000);
+
+
+  //       });
+  //     })
+  //   }
+  // }
+
+  // function startDelayTest() {
+  //   // create a file
+  //   // open it for realtime
+  //   // close the doc
+  //   // delete the file
+
+  //   var data = new GData();
+  //   console.log("Starting test");
+
+  //   for (var i = 0; i < 1; i++) {
+  //     data.add(function(file) {
+  //       console.log("Added", file.id);
+  //       data.openForRealtime(file.id, function(doc) {
+  //         console.log("Opened for realtime", file.id);
+
+  //         window.setTimeout(function() {
+  //           doc.close();
+  //           data.delete(file.id, function() {
+  //             console.log("Deleting", file.id);
+  //           });
+  //         }, 10000);
+  //       })
+  //     })
+  //   }
+  // }
+
+  function testRead() {
     var data = new GData();
     console.log("Starting test");
-
-    for (var i = 0; i < 10; i++) {
-      data.add(function(file) {
-        console.log("Added", file.id);
-        data.openForRealtime(file.id, function(doc) {
-          console.log("Opened for realtime", file.id);
-          doc.close();
-
-          // Adding a timeout just to be clear that the doc closed.
-          //window.setTimeout(function() {
-          data.delete(file.id, function() {
-            console.log("Deleting", file.id);
-          });
-          //}, 1000);
-
-
-        });
-      })
-    }
-  }
-
-  function startDelayTest() {
-    // create a file
-    // open it for realtime
-    // close the doc
-    // delete the file
-
-    var data = new GData();
-    console.log("Starting test");
-
-    for (var i = 0; i < 1; i++) {
-      data.add(function(file) {
-        console.log("Added", file.id);
-        data.openForRealtime(file.id, function(doc) {
-          console.log("Opened for realtime", file.id);
-
-          window.setTimeout(function() {
-            doc.close();
-            data.delete(file.id, function() {
-              console.log("Deleting", file.id);
-            });
-          }, 10000);
-        })
-      })
-    }
+    data.canReadFile("0Bw_qLfK5fXvYOFpja255cG1kZFU");
   }
 
   var a = new GAuth();
   a.start(function() {
     console.log("GAuth Loaded");
-    startDelayTest();
+    testRead();
   });
 }
