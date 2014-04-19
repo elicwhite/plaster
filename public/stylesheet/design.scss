@@ -68,6 +68,11 @@ body, input {
           font-size: 25px;
           line-height: 25px;
         }
+
+        &.disabled {
+          cursor: default;
+          background-color: lighten($primary4, 30%);
+        }
       }
     }
   }

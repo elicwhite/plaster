@@ -9,6 +9,8 @@ define(["event", "section", "tapHandler", "online", "gauth", "data"], function(E
     _fileTitleElement: null,
     _fileOwnersElement: null,
 
+    _button: null,
+
     init: function() {
       this._super();
 
@@ -19,8 +21,8 @@ define(["event", "section", "tapHandler", "online", "gauth", "data"], function(E
       this._fileTitleElement = document.getElementById("login-file-title");
       this._fileOwnersElement = document.getElementById("login-file-owners");
 
-      var button = document.getElementById("loginbutton");
-      new TapHandler(button, {tap: this._loginClicked.bind(this) });
+      this._button = document.getElementById("loginbutton");
+      new TapHandler(this._button, {tap: this._loginClicked.bind(this) });
     },
 
     show: function() {
@@ -32,6 +34,8 @@ define(["event", "section", "tapHandler", "online", "gauth", "data"], function(E
     },
 
     _onlineStatusChanged: function(e) {
+      this._button.classList.remove("disabled");
+
       var hash = location.hash;
       if (e.online && hash.indexOf("#") === 0) {
         hash = hash.slice(1);
@@ -68,7 +72,9 @@ define(["event", "section", "tapHandler", "online", "gauth", "data"], function(E
     },
 
     _loginClicked: function() {
-      GAuth.authorizeWithPopup();
+      if (Online.isOnline()) {
+        GAuth.authorizeWithPopup();
+      }
     },
   });
 
