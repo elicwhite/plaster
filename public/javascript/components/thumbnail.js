@@ -79,27 +79,31 @@ define(["class", "globals", "helpers", "components/manipulateCanvas"], function(
 
 
       var stylesheet = g.getStylesheet();
-      var rules = g.getStylesheetRules();
+      if (stylesheet) {
 
-      var newRules = [];
+        var rules = g.getStylesheetRules();
 
-      newRules.push("#files-list { padding-top: "+space+"px !important; }");
+        var newRules = [];
 
-      newRules.push("#files-list li {"+
-        "width: "+thumbnailWidth+"px;"+
-        "padding: 0px "+(space/2)+"px "+space+"px "+(space/2)+"px;"+
-        "}");
+        newRules.push("#files-list { padding-top: "+space+"px !important; }");
 
-      newRules.push("#files-list .icon { font-size: "+(thumbnailHeight * 0.5)+"px; }");
+        newRules.push("#files-list li {"+
+          "width: "+thumbnailWidth+"px;"+
+          "padding: 0px "+(space/2)+"px "+space+"px "+(space/2)+"px;"+
+          "}");
 
-      newRules.push("#files-list .create, #files-list .thumbnail, #files-list .overlay {"+
-        "height: "+thumbnailHeight+"px !important;"+
-        "}");
+        newRules.push("#files-list .icon { font-size: "+(thumbnailHeight * 0.5)+"px; }");
+
+        newRules.push("#files-list .create, #files-list .thumbnail, #files-list .overlay {"+
+          "height: "+thumbnailHeight+"px !important;"+
+          "}");
 
 
-      newRules.forEach(function(rule) {
-        stylesheet.insertRule(rule, rules.length);
-      });
+        newRules.forEach(function(rule) {
+          stylesheet.insertRule(rule, rules.length);
+        });
+
+      }
 
       this._thumbnailHeight = thumbnailHeight * window.devicePixelRatio;
       this._thumbnailWidth = thumbnailWidth * window.devicePixelRatio;
