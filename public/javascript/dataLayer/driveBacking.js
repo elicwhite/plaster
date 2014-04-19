@@ -270,7 +270,6 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
           var request = gapi.client.drive.files.get({
             'fileId': fileId,
             'fields': this._fields,
-            'key': this._key,
           }).execute((function(resp) {
 
             if (resp.error) {
@@ -323,7 +322,6 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
             'fileId': fileId,
             'resource': body,
             'fields': this._fields,
-            'key': this._key,
           });
           request.execute(function(resp) {
             if (resp.error) {
@@ -345,7 +343,6 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
           var request = gapi.client.drive.files.trash({
             'fileId': fileId,
             'fields': this._fields,
-            'key': this._key,
           }).execute(function(resp) {
             if (resp.error) {
               var error = new Error();
@@ -365,7 +362,6 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
           var request = gapi.client.drive.files.touch({
             'fileId': fileId,
             'fields': this._fields,
-            'key': this._key,
           }).execute(function(resp) {
             if (resp.error) {
               var error = new Error();

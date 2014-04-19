@@ -15,12 +15,6 @@ define(["event", "gauth", "sections/login", "sections/main"], function(Event, GA
       this.pages.login = new LoginSection();
       this.pages.main = new MainSection();
 
-      var hash = location.hash;
-      if (hash.indexOf("#") === 0) {
-        this.setPage("main");
-        return;
-      }
-
       if (localStorage.loggedIn) {
         this.setPage("main");
       }

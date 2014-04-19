@@ -134,6 +134,7 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
     },
 
     startDrive: function(driveBacking) {
+      console.log("starting");
       // process things on drive for updates
       driveBacking.listen(this.remoteActionsAdded.bind(this), this.remoteActionsRemoved.bind(this));
 

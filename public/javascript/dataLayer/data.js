@@ -125,16 +125,13 @@ define(["class", "helpers", "event", "gauth", "online", "sequentialHelper", "dat
 
       if (Helpers.isLocalGuid(fileId)) {
         return this._backing.deleteFile(fileId);
-      }
-      else {
+      } else {
         if (!skipDrive && GAuth.isAuthenticated()) {
           return this._driveBacking.deleteFile(fileId)
             .then((function() {
               return this._backing.deleteFile(fileId);
             }).bind(this));
-        }
-        else
-        {
+        } else {
           return this._backing.markFileAsDeleted(fileId);
         }
       }
@@ -159,6 +156,25 @@ define(["class", "helpers", "event", "gauth", "online", "sequentialHelper", "dat
 
           }
         }).bind(this));
+    },
+
+    syncOpenFiles: function() {
+      var sequence = Promise.resolve();
+
+      for (var fileId in this._cachedFiles) {
+        var filePromise = this._cachedFiles[fileId];
+
+        sequence = sequence.then((function(filePromise) {
+          return filePromise;
+        }).bind(this, filePromise))
+          .then((function(file) {
+            var driveInstance = new this._driveBacking.instance(this._driveBacking);
+            return file.startDrive(driveInstance);
+          }).bind(this));
+
+      }
+
+      return sequence;
     },
 
     openReferences: function(fileId) {
@@ -422,9 +438,9 @@ define(["class", "helpers", "event", "gauth", "online", "sequentialHelper", "dat
         }).bind(this))
         .then((function(driveFileInfo) {
           return Promise.all([this._driveBacking.touchFile(fileId), this._createFileFromRemote(driveFileInfo)])
-          .then((function(results) {
-            return results[1];
-          }).bind(this))
+            .then(function(results) {
+              return results[1];
+            });
         }).bind(this))
     },
 
@@ -439,7 +455,6 @@ define(["class", "helpers", "event", "gauth", "online", "sequentialHelper", "dat
         thumbnail: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==",
       };
 
-      console.log("Creating file on drive again");
       return this._createFile(newFile)
         .then((function(file) {
           return this.close(file);

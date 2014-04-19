@@ -60,13 +60,13 @@ define(["section", "event", "platform", "data", "sections/fileList", "sections/d
         };
       }
 
-      this.setPane(this._currentState.pane, this._currentState.details);
-      this._redoOffsets();
-
       Event.addListener("fileIdChanged", this._fileIdChanged.bind(this));
     },
 
     show: function() {
+      this.setPane(this._currentState.pane, this._currentState.details);
+      this._redoOffsets();
+
       window.addEventListener("resize", this._windowResized);
     },
 

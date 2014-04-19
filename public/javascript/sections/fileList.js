@@ -31,6 +31,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "online", "gauth
 
       this._scheduleUpdate = this._scheduleUpdate.bind(this);
       this._onlineStatusChanged = this._onlineStatusChanged.bind(this);
+      this._authenticatedStatusChanged = this._authenticatedStatusChanged.bind(this);
       this._recalcWidth = this._recalcWidth.bind(this);
 
       Data.getFiles()
@@ -98,6 +99,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "online", "gauth
     show: function() {
       console.log("Showing file list");
       Event.addListener("onlineStatusChanged", this._onlineStatusChanged);
+      Event.addListener("authenticatedStatusChanged", this._authenticatedStatusChanged);
 
       // This could happen if we are online and then navigate to this page
       if (Online.isOnline()) {
@@ -106,12 +108,11 @@ define(["section", "tapHandler", "event", "globals", "helpers", "online", "gauth
             this._scheduleUpdate()
           }).bind(this));
       }
-
-
     },
 
     hide: function() {
       Event.removeListener("onlineStatusChanged", this._onlineStatusChanged);
+      Event.removeListener("authenticatedStatusChanged", this._authenticatedStatusChanged);
 
       if (this._updateTimeout) {
         clearTimeout(this._updateTimeout);
@@ -175,7 +176,20 @@ define(["section", "tapHandler", "event", "globals", "helpers", "online", "gauth
     // EVENTS
     _onlineStatusChanged: function(e) {
       // check for updates if we come online while looking at this page
-      if (e.online) {
+      if (e.online && GAuth.isAuthenticated()) {
+        Data.checkForUpdates()
+          .then((function() {
+            this._scheduleUpdate()
+          }).bind(this))
+          .
+        catch (function(error) {
+          console.error(error, error.stack, error.message);
+        });
+      }
+    },
+
+    _authenticatedStatusChanged: function(e) {
+      if (e.authenticated) {
         Data.checkForUpdates()
           .then((function() {
             this._scheduleUpdate()
