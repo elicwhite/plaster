@@ -56,7 +56,7 @@ $computerThumbnailHeight: 10px;
           @include transition(.4s, all);
           @include transform("translate(95px, -10px)");
 
-          &.visible, &:hover {
+          &.visible {
             opacity: 1;
           }
 

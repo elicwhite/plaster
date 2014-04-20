@@ -57,6 +57,7 @@ body, input {
       #loginbutton {
         display: inline-block;
         line-height: 50px;
+        min-height: 50px;
         padding: 0 60px;
         background-color: $primary4;
         border: 1px solid $primary2;

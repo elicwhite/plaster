@@ -52,7 +52,6 @@ define(["section", "event", "platform", "data", "sections/fileList", "sections/d
       if (hash.indexOf("#") === 0) {
         // We have a hash, can we open this file?
         hash = hash.slice(1);
-        console.log(hash);
 
         this._currentState.pane = "draw";
         this._currentState.details = {

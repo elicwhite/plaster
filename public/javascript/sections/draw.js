@@ -120,6 +120,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
       this._overlay.addEventListener("mousedown", this._hideModal.bind(this));
       this._overlay.addEventListener("touchstart", this._hideModal.bind(this));
 
+
       this.element.addEventListener(Platform.mouseWheel, this._mouseWheel.bind(this));
       this.element.addEventListener("keydown", this._keyDown.bind(this));
 
@@ -149,8 +150,6 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
           this._filesPane.setPane("list");
           return;
         }).bind(this));
-
-
       }).bind(this))
     },
 
@@ -499,6 +498,15 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
       if (this._overlay.currentModal) {
         // A modal is showing
         var modal = document.getElementById(this._overlay.currentModal);
+        if (modal.dataset.closeable && modal.dataset.closeable === "false") {
+          // If the modal doesn't allow itself to be closed, just skip
+          if (e) {
+            e.stopPropagation();
+          }
+
+          return;
+        }
+
         modal.classList.remove("visible");
         this._overlay.currentModal = "";
       }
