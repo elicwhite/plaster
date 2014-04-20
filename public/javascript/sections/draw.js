@@ -102,12 +102,12 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
         }
       });
 
-      new TapHandler(document.getElementById("options"), {
-        start: function(e) {
-          e.stopPropagation();
-        },
-        tap: this._menuTapped.bind(this),
-      });
+      // new TapHandler(document.getElementById("options"), {
+      //   start: function(e) {
+      //     e.stopPropagation();
+      //   },
+      //   tap: this._menuTapped.bind(this),
+      // });
 
       new TapHandler(document.getElementById("colorPicker"), {
         start: function(e) {
@@ -467,10 +467,11 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
           }).bind(this));
         } else if (action == "rename") {
           e.target.focus();
-        } else if (action == "export") {
-          var dataURL = this._canvas.toDataURL();
-          window.open(dataURL);
         }
+        // else if (action == "export") {
+        //   var dataURL = this._canvas.toDataURL();
+        //   window.open(dataURL);
+        // }
       }
     },
 
