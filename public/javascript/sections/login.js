@@ -55,8 +55,8 @@ define(["event", "section", "tapHandler", "online", "gauth", "data"], function(E
 
           var owners = fileInfo.owners.map(function(owner) { return owner.displayName });
 
-          this._fileTitleElement.innerText = fileInfo.title;
-          this._fileOwnersElement.innerText = owners.join(", ");
+          this._fileTitleElement.textContent = fileInfo.title;
+          this._fileOwnersElement.textContent = owners.join(", ");
 
           this._fileBox.classList.remove("hidden");
 

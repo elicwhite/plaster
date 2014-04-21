@@ -24,7 +24,7 @@ define(["event", "section", "online", "platform"], function(Event, Section, Onli
 
       this._waitAnimationEnd()
         .then((function() {
-          this.element.innerText = "Online";
+          this.element.textContent = "Online";
           this.element.classList.remove("hidden");
           this.element.classList.remove("offline");
         }).bind(this));
@@ -35,7 +35,7 @@ define(["event", "section", "online", "platform"], function(Event, Section, Onli
 
       this._waitAnimationEnd()
         .then((function() {
-          this.element.innerText = "Offline";
+          this.element.textContent = "Offline";
           this.element.classList.remove("hidden");
           this.element.classList.add("offline");
         }).bind(this));

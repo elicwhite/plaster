@@ -83,7 +83,7 @@ define(["event"], function(Event) {
       var index = 0;
 
       for (var i = 0; i < document.styleSheets.length; i++) {
-        if (document.styleSheets[i].href.indexOf("total.css")) {
+        if (document.styleSheets[i].href && document.styleSheets[i].href.indexOf("total.css")) {
           index = i;
           break;
         }

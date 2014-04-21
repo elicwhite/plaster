@@ -132,8 +132,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
 
     show: function(fileInfo) {
       return this._tryLoadFile(fileInfo)
-        .
-      catch ((function() {
+        .catch ((function() {
         // error loading the file, set a timeout for waiting to come online
         return Online.waitToComeOnline(10000)
           .then((function() {

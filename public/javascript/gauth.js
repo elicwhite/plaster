@@ -2,7 +2,7 @@ define(["class", "event"], function(Class, Event) {
   var GAuth = Class.extend({
     CLIENT_ID: '450627732299-2d7jlo96ious5jmdmsd9t7hpclstf7ub.apps.googleusercontent.com',
     INSTALL_SCOPE: 'https://www.googleapis.com/auth/drive.install',
-    FILE_SCOPE: 'https://www.googleapis.com/auth/drive.file',
+    DRIVE_SCOPE: 'https://www.googleapis.com/auth/drive',
     OPENID_SCOPE: 'openid',
 
     _user: null,
@@ -32,7 +32,7 @@ define(["class", "event"], function(Class, Event) {
         client_id: this.CLIENT_ID,
         scope: [
           this.INSTALL_SCOPE,
-          this.FILE_SCOPE,
+          this.DRIVE_SCOPE,
           this.OPENID_SCOPE
         ],
         immediate: true
@@ -63,7 +63,7 @@ define(["class", "event"], function(Class, Event) {
         client_id: this.CLIENT_ID,
         scope: [
           this.INSTALL_SCOPE,
-          this.FILE_SCOPE,
+          this.DRIVE_SCOPE,
           this.OPENID_SCOPE
         ],
         immediate: false
