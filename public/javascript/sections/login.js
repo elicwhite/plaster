@@ -26,6 +26,11 @@ define(["event", "section", "tapHandler", "online", "gauth", "data"], function(E
     },
 
     show: function() {
+      if (Online.isOnline()) {
+        console.log("already online");
+        this._turnOnline();
+      }
+
       Event.addListener("onlineStatusChanged", this._onlineStatusChanged);
     },
 
@@ -34,17 +39,7 @@ define(["event", "section", "tapHandler", "online", "gauth", "data"], function(E
     },
 
     _onlineStatusChanged: function(e) {
-      this._button.classList.remove("disabled");
-
-      var hash = location.hash;
-      if (e.online && hash.indexOf("#") === 0) {
-        hash = hash.slice(1);
-
-        Data.getRemoteFileInfo(hash)
-        .then((function(fileInfo) {
-          this.displayFileInfo(fileInfo);
-        }).bind(this));
-      }
+      this._turnOnline();
     },
 
     displayFileInfo: function(fileInfo) {
@@ -61,6 +56,20 @@ define(["event", "section", "tapHandler", "online", "gauth", "data"], function(E
           this._fileBox.classList.remove("hidden");
 
         }).bind(this));
+    },
+
+    _turnOnline: function() {
+      this._button.classList.remove("disabled");
+
+      var hash = location.hash;
+      if (hash.indexOf("#") === 0) {
+        hash = hash.slice(1);
+
+        Data.getRemoteFileInfo(hash)
+        .then((function(fileInfo) {
+          this.displayFileInfo(fileInfo);
+        }).bind(this));
+      }
     },
 
     _waitAnimationEnd: function() {

@@ -71,3 +71,10 @@
       -ms-justify-content: $value;
           justify-content: $value;
 }
+
+@mixin flex-direction($value) {
+  -webkit-flex-direction: $value;
+     -moz-flex-direction: $value;
+      -ms-flex-direction: $value;
+          flex-direction: $value;
+}

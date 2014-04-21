@@ -30,7 +30,7 @@ body, input {
       @include display-flex();
       @include flex-justify-content(center);
       @include flex-align-items(center);
-      flex-direction: column;
+      @include flex-direction(column);
 
       height: 200px;
       width: 100%;
@@ -154,7 +154,7 @@ body, input {
             color: #dcdcdc;
             background-color: white;
             border: 1px solid #ccc;
-            flex-direction: column;
+            @include flex-direction(column);
 
             .icon {
               text-shadow: 0px 0px 1px $mediumGray;
