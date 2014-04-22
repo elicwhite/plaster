@@ -6,8 +6,15 @@ define(["class"], function(Class) {
 		_visible: null,
 
 		init: function() {
-			this.element = document.getElementById(this.id);
+			if (this.id) {
+				this.element = document.getElementById(this.id);
+			}
+
 			this._visible = false;
+		},
+
+		setElement: function(element) {
+			this.element = element;
 		},
 
 		show: null,

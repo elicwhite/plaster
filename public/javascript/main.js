@@ -1,17 +1,13 @@
 function init() {
   window.log = console.log.bind(console);
 
-  window.addEventListener("wheel", function(e) {
-    e.preventDefault();
-  });
-
   require(["promise", "event", "globals", "helpers", "migrate", "managers/login", "gauth"], function(Promise, Event, g, Helpers, Migrate, LoginManager, GAuth) {
     Migrate.run()
-    .then((function() {
-      g.setHTMLDevices();
+      .then((function() {
+        g.setHTMLDevices();
 
-      var loginManager = new LoginManager();
-    }).bind(this));
+        var loginManager = new LoginManager();
+      }).bind(this));
 
     window.addEventListener("resize", function() {
       // make sure we are scrolled to 0. Without this there are problems

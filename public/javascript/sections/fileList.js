@@ -1,4 +1,4 @@
-define(["section", "tapHandler", "event", "globals", "helpers", "online", "gauth", "sections/statusIndicator", "data", "templates/fileList"], function(Section, TapHandler, Event, g, Helpers, Online, GAuth, StatusIndicator, Data, FileListTemplate) {
+define(["section", "tapHandler", "event", "globals", "helpers", "online", "gauth", "sections/statusIndicator", "sections/fileItem", "data", "templates/fileList"], function(Section, TapHandler, Event, g, Helpers, Online, GAuth, StatusIndicator, FileItem, Data, FileListTemplate) {
 
   var FileList = Section.extend({
     id: "files-list-container",
@@ -32,7 +32,6 @@ define(["section", "tapHandler", "event", "globals", "helpers", "online", "gauth
       this._scheduleUpdate = this._scheduleUpdate.bind(this);
       this._onlineStatusChanged = this._onlineStatusChanged.bind(this);
       this._authenticatedStatusChanged = this._authenticatedStatusChanged.bind(this);
-      this._recalcWidth = this._recalcWidth.bind(this);
 
       Data.getFiles()
         .then((function(files) {
@@ -42,15 +41,14 @@ define(["section", "tapHandler", "event", "globals", "helpers", "online", "gauth
             this._fileListElement.appendChild(fileTemplate);
           }
 
-          this._recalcWidth();
         }).bind(this));
 
       this.element.addEventListener("wheel", function(e) {
         e.stopPropagation();
       });
 
-      new TapHandler(this._fileListElement, {
-        tap: this._docSelected.bind(this)
+      new TapHandler(document.getElementById("create-file"), {
+        tap: this._createTapped.bind(this)
       });
 
       Event.addListener("fileAdded", this._fileAdded.bind(this));
@@ -60,40 +58,20 @@ define(["section", "tapHandler", "event", "globals", "helpers", "online", "gauth
       Event.addListener("fileIdChanged", this._fileIdChanged.bind(this));
       Event.addListener("fileModifiedRemotely", this._fileModifiedRemotely.bind(this));
       Event.addListener("thumbnailUpdated", this._thumbnailUpdated.bind(this));
-
-      window.addEventListener("resize", this._recalcWidth);
-    },
-
-    _recalcWidth: function() {
-      var widthDiff = window.innerWidth / this._itemWidth;
-      var columns = Math.floor(widthDiff);
-
-      if (columns == 0) {
-        // We are in some size of things that isn't supported
-        // just skip resizing
-        return;
-      }
-
-      this._fileListElement.style.width = (columns * this._itemWidth) + "px";
     },
 
     _newFileWrapper: function(fileInfo) {
-      var newEle = new FileListTemplate();
+      var fileItem = new FileItem(this, fileInfo);
 
-      // The element has a reference to fileInfo
-      newEle.fileInfo = fileInfo;
-      var fileName = newEle.getElementsByClassName("file-name")[0];
-      fileName.textContent = fileInfo.name;
-
-      var thumbnail = newEle.getElementsByClassName("thumbnail")[0];
-      thumbnail.src = fileInfo.thumbnail;
+      fileItem.element.fileInfo = fileInfo;
 
       this._files.push({
         fileInfo: fileInfo,
-        element: newEle,
+        fileItem: fileItem,
+        element: fileItem.element,
       });
 
-      return newEle;
+      return fileItem.element;
     },
 
     show: function() {
@@ -111,6 +89,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "online", "gauth
     },
 
     hide: function() {
+      console.log("hiding file list");
       Event.removeListener("onlineStatusChanged", this._onlineStatusChanged);
       Event.removeListener("authenticatedStatusChanged", this._authenticatedStatusChanged);
 
@@ -135,34 +114,11 @@ define(["section", "tapHandler", "event", "globals", "helpers", "online", "gauth
       }).bind(this), 15 * 1000);
     },
 
-    _docSelected: function(e) {
-      var element = e.target;
-      var parent = Helpers.parentEleWithClassname(element, "file-info");
-
-      if (parent) {
-        if (parent.dataset.action && parent.dataset.action == "create") {
-          // Create was called
-          this._newDoc();
-        } else {
-          if (element.dataset.action) {
-            var action = element.dataset.action;
-
-            if (action == "delete") {
-              // Delete was clicked
-              return Data.deleteFile(parent.fileInfo.id);
-            } else if (action == "share") {
-              console.log(parent.fileInfo);
-              return;
-            }
-          }
-
-          // Regular file was clicked
-          this._filesPane.setPane("draw", parent.fileInfo);
-        }
-      }
+    drawFile: function(fileInfo) {
+      this._filesPane.setPane("draw", fileInfo);
     },
 
-    _newDoc: function() {
+    _createTapped: function(e) {
       return Data.createFile()
         .then(function(file) {
           return file.fileInfoPromise;
@@ -205,7 +161,6 @@ define(["section", "tapHandler", "event", "globals", "helpers", "online", "gauth
       var fileTemplate = this._newFileWrapper(fileInfo);
 
       this._fileListElement.insertBefore(fileTemplate, this._fileListElement.children[1]);
-      this._recalcWidth();
     },
 
     _fileRemoved: function(fileId) {
@@ -213,7 +168,6 @@ define(["section", "tapHandler", "event", "globals", "helpers", "online", "gauth
         var file = this._files[i];
         if (file.fileInfo.id == fileId) {
           this._fileListElement.removeChild(file.element);
-          this._recalcWidth();
           delete this._files[i];
           return;
         }
@@ -237,10 +191,8 @@ define(["section", "tapHandler", "event", "globals", "helpers", "online", "gauth
       for (var i in this._files) {
         var file = this._files[i];
         if (file.fileInfo.id == fileInfo.id) {
+          file.fileItem.updateFileName(fileInfo.name);
           file.fileInfo.name = fileInfo.name;
-
-          var fileNameElement = file.element.getElementsByClassName("file-name")[0];
-          fileNameElement.textContent = fileInfo.name;
           return;
         }
       }
@@ -264,11 +216,8 @@ define(["section", "tapHandler", "event", "globals", "helpers", "online", "gauth
       for (var i in this._files) {
         var file = this._files[i];
         if (file.fileInfo.id == fileInfo.id) {
-
+          file.fileItem.updateThumbnail(fileInfo.thumbnail);
           file.fileInfo.thumbnail = fileInfo.thumbnail;
-
-          var thumbnailElement = file.element.getElementsByClassName("thumbnail")[0];
-          thumbnailElement.src = fileInfo.thumbnail;
           return;
         }
       }
