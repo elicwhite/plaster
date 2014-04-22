@@ -31,6 +31,10 @@ define(["event"], function(Event) {
       return this.hasDeviceType("tablet");
     },
 
+    isMobile: function() {
+      return this.isPhone() || this.isTablet();
+    },
+
     hasDeviceType: function(type) {
       return this.getDeviceType().indexOf(type) !== -1;
     },

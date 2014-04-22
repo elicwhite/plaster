@@ -1,9 +1,7 @@
-define(["section", "tapHandler", "event", "globals", "helpers", "online", "gauth", "data", "templates/fileList"], function(Section, TapHandler, Event, g, Helpers, Online, GAuth, Data, FileListTemplate) {
+define(["section", "tapHandler", "event", "globals", "helpers", "template", "online", "gauth", "data"], function(Section, TapHandler, Event, g, Helpers, Template, Online, GAuth, Data) {
 
   var FileItem = Section.extend({
     _fileList: null,
-
-    _itemWidth: null,
 
     _fileNameElement: null,
     _thumbnailElement: null,
@@ -17,7 +15,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "online", "gauth
       this._fileList = fileList;
       this._fileInfo = fileInfo;
 
-      var ele = new FileListTemplate();
+      var ele = new Template("fileListItem");
       this.setElement(ele);
 
       this._fileNameElement = ele.getElementsByClassName("file-name")[0];
@@ -43,9 +41,9 @@ define(["section", "tapHandler", "event", "globals", "helpers", "online", "gauth
         if (action == "delete") {
           // Delete was clicked
           return Data.deleteFile(this._fileInfo.id);
-        } else if (action == "share") {
-          console.log(this._fileInfo);
-          return;
+        // } else if (action == "share") {
+        //   console.log(this._fileInfo);
+        //   return;
         }
       }
 
@@ -53,15 +51,21 @@ define(["section", "tapHandler", "event", "globals", "helpers", "online", "gauth
     },
 
     _docStarted: function(e) {
-      //console.log("started", e);
+      if (g.isMobile()) {
+        console.log("started", e);
+      }
     },
 
     _docMoved: function(e) {
-      // console.log("moved", e);
+      if (g.isMobile()) {
+        console.log("moved", e);
+      }
     },
 
     _docEnded: function(e) {
-      // console.log("ended", e);
+      if (g.isMobile()) {
+        console.log("ended", e);
+      }
     },
 
     updateFileName: function(fileName) {
