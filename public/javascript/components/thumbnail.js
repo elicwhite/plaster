@@ -92,7 +92,7 @@ define(["class", "globals", "helpers", "components/manipulateCanvas"], function(
           "padding: 0px "+(space/2)+"px "+space+"px "+(space/2)+"px;"+
           "}");
 
-        newRules.push("#files-list .icon { font-size: "+(thumbnailHeight * 0.5)+"px; }");
+        newRules.push("#files-list .create .icon { font-size: "+(thumbnailHeight * 0.5)+"px; }");
 
         newRules.push("#files-list .create, #files-list .thumbnail, #files-list .overlay, #files-list .thumbnail-info {"+
           "height: "+thumbnailHeight+"px !important;"+

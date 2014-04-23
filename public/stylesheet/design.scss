@@ -190,8 +190,14 @@ body, input {
                 width: 100%;
                 overflow: hidden;
 
-                .share, .delete {
-                  cursor: pointer;
+                .file-action {
+                  @include display-flex();
+                  @include flex-justify-content(center);
+                  @include flex-align-items(center);
+                }
+
+                .share, .delete, .share .icon, .delete .icon {
+                  cursor: pointer !important;
                 }
               }
             }
@@ -200,9 +206,6 @@ body, input {
           }
 
           .content {
-            //background-color: #fafafa;
-            //border: 1px solid #ccc;
-            //border-top: 0;
             padding: 0 10px;
 
             &>span {

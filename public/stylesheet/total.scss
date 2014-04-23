@@ -119,14 +119,6 @@ body {
               display: inline-block;
               overflow: hidden;
             }
-
-            .subtext {
-              @include display-flex();
-
-              .date {
-                @include flex(1);
-              }
-            }
           }
         }
       }

@@ -93,6 +93,20 @@ define(["section", "tapHandler", "event", "globals", "helpers", "platform", "tem
 
     _docEnded: function(e) {
       if (g.isMobile()) {
+        this._thumbnailElement.classList.add("animating");
+        // You have to slide half way to go all the way
+        if (this._thumbnailElement.translateX < this._slideMax / 3) {
+
+          this._thumbnailElement.style[Platform.transform] = "translateX(" + this._slideMax + "px)";
+          this._thumbnailElement.translateX = this._slideMax;
+        } else {
+          this._thumbnailElement.style[Platform.transform] = "translateX(0px)";
+          this._thumbnailElement.translateX = 0;
+        }
+
+        window.setTimeout((function() {
+          this._thumbnailElement.classList.remove("animating");
+        }).bind(this), 300);
         // console.log("ended", e);
       }
     },

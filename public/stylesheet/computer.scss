@@ -27,13 +27,18 @@ $computerThumbnailHeight: 10px;
 
                   color: #ccc;
                   background-color: rgba(100, 100, 100, .7);
-                  line-height: 30px;
+
+                  height: 40px;
                   padding: 0 10px;
                   color: white;
                   overflow: hidden;
 
+                  .text {
+                    display: none;
+                  }
+
                   .share, .delete {
-                    line-height: 30px;
+                    height: 100%;
                   }
 
                   .share {
@@ -149,6 +154,10 @@ $computerThumbnailHeight: 10px;
 
               .thumbnail {
                 z-index: 2;
+
+                &.animating {
+                  transition: .3s all;
+                }
               }
 
               .overlay {
@@ -157,17 +166,23 @@ $computerThumbnailHeight: 10px;
                 .bar {
                   height: 100%;
 
-                  span {
+                  .file-action {
                     float: right;
-                    @include display-flex();
-                    @include flex-justify-content(center);
-                    @include flex-align-items(center);
+                    @include flex-direction(column);
                     height: 100%;
-
                     width: 30%;
 
+                    .text {
+                      display: none;
+                    }
+
+                    .icon {
+                      color: #eaeaea;
+                      font-size: 20px;
+                    }
+
                     &.delete {
-                      background-color: red;
+                      background-color: #cf0000;
                       border-left: 1px solid #ccc;
                     }
                   }
