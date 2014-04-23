@@ -25,6 +25,7 @@ body, input {
     @include display-flex();
     @include flex-justify-content(center);
     @include flex-align-items(center);
+    @include flex-direction(column);
 
     #info-container {
       @include display-flex();
@@ -32,25 +33,50 @@ body, input {
       @include flex-align-items(center);
       @include flex-direction(column);
 
-      height: 200px;
       width: 100%;
 
       text-align: center;
       position: relative;
 
       #login-box-switcher {
-        height: 200px;
         width: 100%;
+        position: relative;
+        height: 170px;
+        margin-bottom: 20px;
+
+        h1 {
+          font-size: 25px;
+          margin: 0;
+        }
+
+        h2 {
+          font-size: 18px;
+          margin: 0;
+          margin-top: 5px;
+        }
       }
 
       #login-basic, #login-file {
+
         position: absolute;
         @include transition(.5s, all);
         left: 0;
         right: 0;
+        bottom: 0;
 
         &.hidden {
           opacity: 0;
+        }
+      }
+
+      #login-file {
+        #login-owner-pic {
+          vertical-align: middle;
+          border-bottom: 1px solid black;
+          border-radius: 16px;
+          margin-right: 10px;
+          width: 32px;
+          height: 32px;
         }
       }
 
@@ -73,6 +99,28 @@ body, input {
         &.disabled {
           cursor: default;
           background-color: lighten($primary4, 30%);
+        }
+      }
+    }
+
+    #explanation-container {
+      font-size: 16px;
+      margin-top: 30px;
+      text-align: center;
+      line-height: 25px;
+
+      .compatability {
+
+
+        span {
+          display: inline-block;
+          width: 100px;
+
+          &:before {
+            display: block;
+            font-size: 30px;
+            margin-bottom: 10px;
+          }
         }
       }
     }
