@@ -166,49 +166,53 @@ body, input {
             }
           }
 
-          .thumbnail {
-            background-color: white;
+          .thumbnail-info {
             border: 1px solid #ccc;
-            vertical-align: bottom;
-          }
-
-          .overlay {
+            position: relative;
             overflow: hidden;
 
-
-
-            &:hover .bar {
-              -webkit-transform: translateY(0px);
+            .thumbnail {
+              background-color: white;
+              vertical-align: bottom;
             }
 
-            .bar {
-              -webkit-transform: translateY(40px);
-              transition: .1s all;
-
-              position: absolute;
-              bottom: 0;
-              width: 100%;
-
-              color: #ccc;
-              background-color: rgba(100, 100, 100, .7);
-              line-height: 30px;
-              padding: 0 10px;
-              color: white;
+            .overlay {
               overflow: hidden;
 
-              .share, .delete {
-                cursor: pointer;
+
+              &:hover .bar {
+                -webkit-transform: translateY(0px);
+              }
+
+              .bar {
+                -webkit-transform: translateY(40px);
+                transition: .1s all;
+
+                position: absolute;
+                bottom: 0;
+                width: 100%;
+
+                color: #ccc;
+                background-color: rgba(100, 100, 100, .7);
                 line-height: 30px;
-              }
+                padding: 0 10px;
+                color: white;
+                overflow: hidden;
 
-              .share {
-                float: left;
-              }
+                .share, .delete {
+                  cursor: pointer;
+                  line-height: 30px;
+                }
 
-              .delete {
-                float: right;
+                .share {
+                  float: left;
+                }
+
+                .delete {
+                  float: right;
 
 
+                }
               }
             }
 

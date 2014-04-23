@@ -108,15 +108,9 @@ body {
             @include flex-justify-content(center);
           }
 
-          .thumbnail {
 
-          }
 
-          .overlay {
-            position: absolute;
-          }
-
-          &.create, .thumbnail, .overlay {
+          &.create {
             width: 100%;
           }
 

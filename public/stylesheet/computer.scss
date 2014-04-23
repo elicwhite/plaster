@@ -3,6 +3,20 @@ $computerThumbnailHeight: 10px;
 
 .computer {
   #files {
+
+    #files-list-container {
+      #files-list {
+        li {
+          &>div {
+            .thumbnail, .overlay {
+              position: absolute;
+              width: 100%;
+            }
+          }
+        }
+      }
+    }
+
     #draw {
       #tools {
         width: 90px;
@@ -90,6 +104,22 @@ $computerThumbnailHeight: 10px;
 
 // mobile
 .tablet, .phone {
+  #files {
+
+    #files-list-container {
+      #files-list {
+        li {
+          &>div {
+            .thumbnail, .overlay {
+              position: absolute;
+              width: 100%;
+            }
+          }
+        }
+      }
+    }
+  }
+
   #draw {
     #tools {
       li#zoom-tool {
