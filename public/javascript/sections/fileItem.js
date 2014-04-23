@@ -11,6 +11,8 @@ define(["section", "tapHandler", "event", "globals", "helpers", "platform", "tem
 
     _slideMax: null,
 
+    // sliding, scrolling, or null
+    _slideState: null,
 
     init: function(fileList, fileInfo) {
       this._super();
@@ -65,6 +67,8 @@ define(["section", "tapHandler", "event", "globals", "helpers", "platform", "tem
 
     _docStarted: function(e) {
       if (g.isMobile()) {
+        this._slideState = null;
+
         var deleteButton = this._thumbnailInfoElement.getElementsByClassName("delete")[0];
         this._slideMax = -1 * deleteButton.offsetWidth;
       }
@@ -77,22 +81,38 @@ define(["section", "tapHandler", "event", "globals", "helpers", "platform", "tem
           return;
         }
 
+        var dist = Math.sqrt(e.distFromStartX * e.distFromStartX + e.distFromStartY + e.distFromStartY);
 
-        var attemptedX = this._thumbnailElement.translateX + e.xFromLast;
+        if (dist < 3) {
+          e.preventDefault();
+        } else if (this._slideState === null) {
+          if (Math.abs(e.distFromStartX) > Math.abs(e.distFromStartY)) {
+            this._slideState = "sliding";
+          } else {
+            this._slideState = "scrolling";
+          }
+        }
 
-        // sliding left means this will be negative
+        if (this._slideState == "sliding") {
 
-        var slide = Math.max(this._slideMax, Math.min(attemptedX, 0));
+          var attemptedX = this._thumbnailElement.translateX + e.xFromLast;
 
-        this._thumbnailElement.style[Platform.transform] = "translateX(" + slide + "px)";
-        this._thumbnailElement.translateX = slide;
+          // sliding left means this will be negative
 
-        e.preventDefault();
+          var slide = Math.max(this._slideMax, Math.min(attemptedX, 0));
+
+          this._thumbnailElement.style[Platform.transform] = "translateX(" + slide + "px)";
+          this._thumbnailElement.translateX = slide;
+
+          e.preventDefault();
+        }
       }
     },
 
     _docEnded: function(e) {
       if (g.isMobile()) {
+        this._slideState = null;
+
         this._thumbnailElement.classList.add("animating");
         // You have to slide half way to go all the way
         if (this._thumbnailElement.translateX < this._slideMax / 3) {

@@ -82,9 +82,12 @@ body {
 
     #files-list {
       overflow-y: scroll;
+      -webkit-overflow-scrolling: touch;
+
       list-style-type: none;
       margin: 0 auto;
       padding: 0;
+
 
       @include display-flex();
       @include flex-wrap(wrap);
