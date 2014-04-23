@@ -147,6 +147,9 @@ define([], function() {
 
       this._inTouch = false;
 
+      this._startX = null;
+      this._startY = null;
+
       // Keep mouse events from being called
       if (e) {
         e.preventDefault();
@@ -252,6 +255,9 @@ define([], function() {
 
       e.xFromLast = e.x - this._lastX;
       e.yFromLast = e.y - this._lastY;
+
+      e.distFromStartX = (this._startX !== null) ? e.x - this._startX : 0;
+      e.distFromStartY = (this._startY !== null) ? e.y - this._startY : 0;
     },
 
     _processGesture: function(e) {

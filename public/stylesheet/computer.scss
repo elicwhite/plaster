@@ -8,9 +8,43 @@ $computerThumbnailHeight: 10px;
       #files-list {
         li {
           &>div {
-            .thumbnail, .overlay {
-              position: absolute;
-              width: 100%;
+
+
+            .thumbnail-info {
+              .overlay {
+
+                &:hover .bar {
+                  -webkit-transform: translateY(0px);
+                }
+
+                .bar {
+                  -webkit-transform: translateY(40px);
+                  transition: .1s all;
+
+                  position: absolute;
+                  bottom: 0;
+                  width: 100%;
+
+                  color: #ccc;
+                  background-color: rgba(100, 100, 100, .7);
+                  line-height: 30px;
+                  padding: 0 10px;
+                  color: white;
+                  overflow: hidden;
+
+                  .share, .delete {
+                    line-height: 30px;
+                  }
+
+                  .share {
+                    float: left;
+                  }
+
+                  .delete {
+                    float: right;
+                  }
+                }
+              }
             }
           }
         }
@@ -110,9 +144,35 @@ $computerThumbnailHeight: 10px;
       #files-list {
         li {
           &>div {
-            .thumbnail, .overlay {
-              position: absolute;
-              width: 100%;
+            .thumbnail-info {
+              background-color: white;
+
+              .thumbnail {
+                z-index: 2;
+              }
+
+              .overlay {
+                z-index: 1;
+
+                .bar {
+                  height: 100%;
+
+                  span {
+                    float: right;
+                    @include display-flex();
+                    @include flex-justify-content(center);
+                    @include flex-align-items(center);
+                    height: 100%;
+
+                    width: 30%;
+
+                    &.delete {
+                      background-color: red;
+                      border-left: 1px solid #ccc;
+                    }
+                  }
+                }
+              }
             }
           }
         }

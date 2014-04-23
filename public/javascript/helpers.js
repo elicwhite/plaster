@@ -12,6 +12,17 @@ define([], function() {
       return this.parentEleWithClassname(ele.parentNode, className);
     },
 
+    parentEleIsElement: function(ele, parent) {
+      if (ele == null) {
+        return false;
+      }
+
+      if (ele == parent) {
+        return ele;
+      }
+
+      return this.parentEleIsElement(ele.parentNode, parent);
+    },
 
     screenToWorld: function(settings, x, y) {
       return {

@@ -171,6 +171,11 @@ body, input {
             position: relative;
             overflow: hidden;
 
+            .thumbnail, .overlay {
+              position: absolute;
+              width: 100%;
+            }
+
             .thumbnail {
               background-color: white;
               vertical-align: bottom;
@@ -179,39 +184,14 @@ body, input {
             .overlay {
               overflow: hidden;
 
-
-              &:hover .bar {
-                -webkit-transform: translateY(0px);
-              }
-
               .bar {
-                -webkit-transform: translateY(40px);
-                transition: .1s all;
 
                 position: absolute;
-                bottom: 0;
                 width: 100%;
-
-                color: #ccc;
-                background-color: rgba(100, 100, 100, .7);
-                line-height: 30px;
-                padding: 0 10px;
-                color: white;
                 overflow: hidden;
 
                 .share, .delete {
                   cursor: pointer;
-                  line-height: 30px;
-                }
-
-                .share {
-                  float: left;
-                }
-
-                .delete {
-                  float: right;
-
-
                 }
               }
             }

@@ -1,12 +1,15 @@
-define(["section", "tapHandler", "event", "globals", "helpers", "template", "online", "gauth", "data"], function(Section, TapHandler, Event, g, Helpers, Template, Online, GAuth, Data) {
+define(["section", "tapHandler", "event", "globals", "helpers", "platform", "template", "online", "gauth", "data"], function(Section, TapHandler, Event, g, Helpers, Platform, Template, Online, GAuth, Data) {
 
   var FileItem = Section.extend({
     _fileList: null,
 
+    _thumbnailInfoElement: null,
     _fileNameElement: null,
     _thumbnailElement: null,
 
     _fileInfo: null,
+
+    _slideMax: null,
 
 
     init: function(fileList, fileInfo) {
@@ -18,6 +21,7 @@ define(["section", "tapHandler", "event", "globals", "helpers", "template", "onl
       var ele = new Template("fileListItem");
       this.setElement(ele);
 
+      this._thumbnailInfoElement = ele.getElementsByClassName("thumbnail-info")[0];
       this._fileNameElement = ele.getElementsByClassName("file-name")[0];
       this._thumbnailElement = ele.getElementsByClassName("thumbnail")[0];
 
@@ -30,6 +34,15 @@ define(["section", "tapHandler", "event", "globals", "helpers", "template", "onl
         move: this._docMoved.bind(this),
         end: this._docEnded.bind(this)
       });
+
+      if (g.isMobile()) {
+        this._thumbnailElement.style[Platform.transform] = "translateX(0px);"
+        this._thumbnailElement.translateX = 0;
+
+        var deleteButton = ele.getElementsByClassName("delete")[0];
+        window.a = deleteButton;
+        // this._slideMax
+      }
     },
 
     _docTapped: function(e) {
@@ -41,30 +54,46 @@ define(["section", "tapHandler", "event", "globals", "helpers", "template", "onl
         if (action == "delete") {
           // Delete was clicked
           return Data.deleteFile(this._fileInfo.id);
-        // } else if (action == "share") {
-        //   console.log(this._fileInfo);
-        //   return;
+          // } else if (action == "share") {
+          //   console.log(this._fileInfo);
+          //   return;
         }
+      } else if (Helpers.parentEleIsElement(element, this._thumbnailInfoElement)) {
+        this._fileList.drawFile(this._fileInfo);
       }
-
-      this._fileList.drawFile(this._fileInfo);
     },
 
     _docStarted: function(e) {
       if (g.isMobile()) {
-        console.log("started", e);
+        var deleteButton = this._thumbnailInfoElement.getElementsByClassName("delete")[0];
+        this._slideMax = -1 * deleteButton.offsetWidth;
       }
     },
 
     _docMoved: function(e) {
       if (g.isMobile()) {
-        console.log("moved", e);
+
+        if (e.target != this._thumbnailElement) {
+          return;
+        }
+
+
+        var attemptedX = this._thumbnailElement.translateX + e.xFromLast;
+
+        // sliding left means this will be negative
+
+        var slide = Math.max(this._slideMax, Math.min(attemptedX, 0));
+
+        this._thumbnailElement.style[Platform.transform] = "translateX(" + slide + "px)";
+        this._thumbnailElement.translateX = slide;
+
+        e.preventDefault();
       }
     },
 
     _docEnded: function(e) {
       if (g.isMobile()) {
-        console.log("ended", e);
+        // console.log("ended", e);
       }
     },
 
