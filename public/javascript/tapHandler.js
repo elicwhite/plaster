@@ -260,7 +260,7 @@ define([], function() {
 
     _indexOfTouch: function(e, identifier) {
       var index = -1;
-      if (e.touches && identifier) {
+      if (e.touches && identifier !== null) {
         for (var i = 0; i < e.touches.length; i++) {
           if (e.touches[i].identifier == identifier) {
             index = i;
