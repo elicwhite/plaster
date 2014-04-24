@@ -24,7 +24,7 @@ body {
   position: relative;
 }
 
-#overall, #main-content, #panes, .page, .pane {
+#overall, #main-content, #panes, .page, .pane, #draw-overlay {
   width: 100%;
   height: 100%;
   position: absolute;
@@ -131,6 +131,7 @@ body {
   #draw {
     .overlay {
       z-index: 1000;
+      visibility: hidden;
 
       .modal{
         margin: auto;

@@ -482,7 +482,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
       }
 
       this._overlay.currentModal = modalId;
-      this._overlay.style.display = "block";
+      this._overlay.style.visibility = "visible";
 
       setTimeout(function() {
         modal.classList.add("visible");
@@ -511,7 +511,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
         this._overlay.currentModal = "";
       }
 
-      this._overlay.style.display = "";
+      this._overlay.style.visibility = "hidden";
 
       if (e) {
         //e.stopPropagation();
