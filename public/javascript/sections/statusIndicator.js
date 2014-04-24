@@ -8,6 +8,13 @@ define(["event", "section", "online", "platform"], function(Event, Section, Onli
       this._onlineStatusChanged = this._onlineStatusChanged.bind(this);
 
       Event.addListener("onlineStatusChanged", this._onlineStatusChanged);
+
+      if (!Online.isOnline()) {
+        Online.waitToComeOnline(1500)
+        .catch((function() {
+          this._showOffline();
+        }).bind(this));
+      }
     },
 
     _onlineStatusChanged: function(e) {
