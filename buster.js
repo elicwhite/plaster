@@ -18,7 +18,7 @@ config["My tests"] = {
   environment: "browser",
   sources: ["**/*.js"],
   tests: ["tests/*-test.js"],
-  extensions: [require("buster-amd")],
+  extensions: [require("buster-amd"), require("buster-html-doc")],
   // "resources": [{
   //       "path": "/",
   //       "file": "../../build/index.html",

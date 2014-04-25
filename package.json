@@ -18,6 +18,7 @@
     "grunt-contrib-watch": "~0.4.0",
     "grunt-contrib-sass": "~0.4.0",
     "grunt-requirejs": "~0.4.0",
-    "buster-amd": "~0.3.1"
+    "buster-amd": "~0.3.1",
+    "buster-html-doc": "~1.0.0"
   }
 }
