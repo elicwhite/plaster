@@ -1,6 +1,12 @@
 function init() {
   window.log = console.log.bind(console);
 
+  // This prevents the browser from going back / forwards while panning in draw
+  window.addEventListener("wheel", function(e) {
+    e.preventDefault();
+  });
+
+
   require(["promise", "event", "globals", "helpers", "migrate", "managers/login", "gauth"], function(Promise, Event, g, Helpers, Migrate, LoginManager, GAuth) {
     Migrate.run()
       .then((function() {

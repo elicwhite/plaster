@@ -14,11 +14,11 @@ $computerThumbnailHeight: 10px;
               .overlay {
 
                 &:hover .bar {
-                  -webkit-transform: translateY(0px);
+                  @include transform("translateY(0px)");
                 }
 
                 .bar {
-                  -webkit-transform: translateY(40px);
+                  @include transform("translateY(40px)");
                   transition: .1s all;
 
                   position: absolute;

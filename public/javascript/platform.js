@@ -18,7 +18,14 @@ define(["class"], function(Class) {
       this.standalone = !! window.navigator.standalone;
 
       this.transition = this.addPrefix('transition');
-      this.transitionEnd = this.addPrefix('transitionEnd');
+
+      this.transitionEnd = {
+        'transition': 'transitionend',
+        'webkitTransition': 'webkitTransitionEnd',
+        'MozTransition': 'transitionEnd',
+        'OTransition': 'oTransitionEnd'
+      }[this.transition];
+
       this.animation = this.addPrefix('animation');
       this.transform = this.addPrefix('transform');
       this.transformOrigin = this.addPrefix('transformOrigin');
