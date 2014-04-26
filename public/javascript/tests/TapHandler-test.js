@@ -14,32 +14,45 @@ define(['promise', 'tests/vendor/customEventPolyfill', 'tests/vendor/syn', 'tapH
 
       this.clock = this.useFakeTimers();
 
-      this.getEvent = function(obj) {
-        obj.timeStamp = Date.now();
+      this.dispatch = function(type, obj) {
+        var e = document.createEvent('UIEvent');
+        e.initUIEvent(type, true, true, document.defaultView);
 
-        return obj;
+        Object.defineProperty(e, "timeStamp", {
+          get: function() {
+            return Date.now();
+          }
+        });
+
+        for (var prop in obj) {
+          e[prop] = obj[prop];
+        }
+
+        this.element.dispatchEvent(e);
       }
 
       this.doTap = function() {
-        this.handler._start(this.getEvent({
+        this.dispatch('mousedown', {
           clientX: 10,
           clientY: 10
-        }));
+        });
 
-        this.clock.tick(500);
+        this.clock.tick(50);
 
-        this.handler._move(this.getEvent({
+        this.dispatch('mousemove', {
           clientX: 11,
           clientY: 10
-        }));
+        });
 
-        this.clock.tick(500);
+        this.clock.tick(50);
 
-        this.handler._end(this.getEvent({
+        this.dispatch('mouseup', {
           clientX: 11,
           clientY: 10
-        }));
+        });
       }
+
+
     },
 
     tearDown: function() {
@@ -52,21 +65,20 @@ define(['promise', 'tests/vendor/customEventPolyfill', 'tests/vendor/syn', 'tapH
       this.clock.restore();
     },
 
-    "bah": function() {
-      var a = document.createEvent("UIEvent");
-      a.initUIEvent("mousedown", true, true, document.defaultView);
-      document.addEventListener("mousedown", function(e) { console.log("rec", e); });
-      document.dispatchEvent(a)
+    "dispatching event works (browser sanity check)": function(done) {
+      this.element.addEventListener("mousedown", function(e) {
+        assert.isObject(e);
+        assert.equals(e.clientX, 30);
+        assert.equals(e.clientY, 40);
 
-      function UIEvent(e) {
-        this.prototype = {};
-        for (var prop in e) {
-          this[prop] = e[prop];
-        }
+        done();
+      });
 
-        return this;
-      }
-    }
+      this.dispatch('mousedown', {
+        'clientX': 30,
+        'clientY': 40
+      });
+    },
 
     "mousedown calls start": function() {
       var startSpy = this.spy();
@@ -75,10 +87,10 @@ define(['promise', 'tests/vendor/customEventPolyfill', 'tests/vendor/syn', 'tapH
         start: startSpy
       });
 
-      this.handler._start(this.getEvent({
+      this.dispatch('mousedown', {
         clientX: 10,
         clientY: 10
-      }));
+      });
 
       assert.calledOnce(startSpy);
     },
@@ -101,7 +113,7 @@ define(['promise', 'tests/vendor/customEventPolyfill', 'tests/vendor/syn', 'tapH
       assert.calledOnce(tapSpy);
     },
 
-    "//tap caled before end": function() {
+    "tap caled before end": function() {
       var startSpy = this.spy();
       var endSpy = this.spy();
       var tapSpy = this.spy();
