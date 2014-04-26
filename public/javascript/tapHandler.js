@@ -37,8 +37,10 @@ define([], function() {
       this._options = options;
 
       // Replace with binded events
+      this._start = this._start.bind(this);
       this._move = this._move.bind(this);
       this._end = this._end.bind(this);
+      this._gestureStart = this._gestureStart.bind(this);
       this._gestureChange = this._gestureChange.bind(this);
       this._gestureEnd = this._gestureEnd.bind(this);
 
@@ -47,9 +49,9 @@ define([], function() {
         y: element.offsetTop
       };
 
-      this._element.addEventListener("mousedown", this._start.bind(this));
-      this._element.addEventListener("touchstart", this._start.bind(this));
-      this._element.addEventListener("gesturestart", this._gestureStart.bind(this));
+      this._element.addEventListener("mousedown", this._start);
+      this._element.addEventListener("touchstart", this._start);
+      this._element.addEventListener("gesturestart", this._gestureStart);
     },
 
     ignoreGestures: function(value) {
@@ -111,7 +113,6 @@ define([], function() {
       /*
         if e isn't set, end the handlers, call tap if it is within limits, call end
       */
-
       if (!e) {
         this._endTouchHandlers();
         if (this._options.end) {
@@ -276,6 +277,16 @@ define([], function() {
       }
 
       return index;
+    },
+
+    clear: function() {
+      if (this._inTouch) {
+        this._endTouchHandlers();
+      }
+
+      this._element.removeEventListener("mousedown", this._start);
+      this._element.removeEventListener("touchstart", this._start);
+      this._element.removeEventListener("gesturestart", this._gestureStart);
     }
 
 
