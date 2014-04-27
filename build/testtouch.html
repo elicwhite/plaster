@@ -1,0 +1,41 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <title>Google Drive Realtime quickstart</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=9">
+  <script type="text/javascript" src="testtouch.js"></script>
+  <style type="text/css">
+    body, html {
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+    }
+
+    #outer {
+      width: 100%;
+      height: 100%;
+      background-color: #dfdfdf;
+    }
+
+    #inner {
+      position: absolute;
+      bottom: 20px;
+      width: 100%;
+      height: 300px;
+      background-color: #aaaaee;
+    }
+
+
+  </style>
+</head>
+
+<!-- Start Realtime when the body has loaded. -->
+<body onLoad='start()'>
+  <div id="outer">
+    <div id="inner">
+    </div>
+  </div>
+</body>
+</html>

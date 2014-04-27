@@ -2,7 +2,7 @@ var assert = buster.assert;
 var refute = buster.refute;
 
 // Syn attaches to window, so ignore the loaded variable from it
-define(['promise', 'tests/vendor/customEventPolyfill', 'tests/vendor/syn', 'tapHandler'], function(Promise, Polyfill, s, TapHandler) {
+define(['promise', 'tests/vendor/syn', 'tapHandler'], function(Promise, s, TapHandler) {
   if (!window.Promise) {
     window.Promise = Promise;
   }
