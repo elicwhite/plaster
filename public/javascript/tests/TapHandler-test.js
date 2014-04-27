@@ -147,6 +147,28 @@ define(['promise', 'tests/vendor/syn', 'tapHandler'], function(Promise, s, TapHa
         this.doClick();
 
         assert.isTrue(tapSpy.calledBefore(endSpy));
+      },
+
+      "pause between down and up doesnt call tap": function() {
+        var tapSpy = this.spy();
+
+        this.handler = new TapHandler(this.element, {
+          tap: tapSpy,
+        });
+
+        this.dispatch('mousedown', {
+          clientX: 10,
+          clientY: 10
+        });
+
+        this.clock.tick(1000);
+
+        this.dispatch('mouseup', {
+          clientX: 10,
+          clientY: 10
+        });
+
+        assert.isFalse(tapSpy.called);
       }
     },
 
@@ -195,6 +217,28 @@ define(['promise', 'tests/vendor/syn', 'tapHandler'], function(Promise, s, TapHa
 
         this.dispatch('touchstart', this.eObj);
       },
+
+      "pause between down and up doesnt call tap": function() {
+        var tapSpy = this.spy();
+
+        this.handler = new TapHandler(this.element, {
+          tap: tapSpy,
+        });
+
+        this.dispatch('touchstart', {
+          clientX: 10,
+          clientY: 10
+        });
+
+        this.clock.tick(1000);
+
+        this.dispatch('touchend', {
+          clientX: 10,
+          clientY: 10
+        });
+
+        assert.isFalse(tapSpy.called);
+      }
     }
 
 
