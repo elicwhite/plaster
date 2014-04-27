@@ -119,6 +119,8 @@ define([], function() {
           this._options.end();
         }
 
+        this._inTouch = false;
+
         return;
       }
 
@@ -165,8 +167,12 @@ define([], function() {
 
       this._inGesture = true;
 
-      // We need to end the touch
-      this._end();
+      if (this._inTouch) {
+        console.log("we are in a touch");
+        // We need to end the touch
+        this._end();
+      }
+
 
 
       this._processEvent(e);
