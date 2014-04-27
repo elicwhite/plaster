@@ -5,47 +5,44 @@ function start() {
     e.preventDefault();
   });
 
-  var outer = document.getElementById("outer");
-  var inner = document.getElementById("inner");
+  var canvas = document.getElementById("canvas");
+  var tools = document.getElementById("tools");
 
   function l(ele) {
-    return function(type) {
-      log(ele, type);
+    return function() {
+      log.apply(log, [ele].concat(arguments));
     }
   }
 
-  var o = l("outer");
-  var i = l("inner");
+  var o = l("canvas");
+  var i = l("tools");
 
-  var oh = new TapHandler(outer, {
-    start: function(e) {o("start")},
-    move: function(e) {o("move")},
-    end: function(e) {o("end")},
-    tap: function(e) {o("tap")},
-    gestureStart: function(e) {o("gestureStart")},
-    gesture: function(e) {o("gesture")},
-    gestureEnd: function(e) {o("gestureEnd")},
+  var oh = new TapHandler(canvas, {
+    start: function(e) {o("start",e)},
+    move: function(e) {o("move",e)},
+    end: function(e) {o("end",e)},
+    tap: function(e) {o("tap",e)},
+    gestureStart: function(e) {o("gestureStart",e)},
+    gesture: function(e) {o("gesture",e)},
+    gestureEnd: function(e) {o("gestureEnd",e)},
   });
 
-  var ih = new TapHandler(inner, {
+  var ih = new TapHandler(tools, {
     start: function(e) {
-      i("start")
+      i("start",e);
       oh.ignoreGestures(true);
       ih.ignoreGestures(true);
-
-      e.stopPropagation();
-      e.preventDefault();
     },
-    move: function(e) {i("move")},
+    // move: function(e) {i("move", e)},
     end: function(e) {
-      i("end")
+      i("end", e);
       oh.ignoreGestures(false);
       ih.ignoreGestures(false);
     },
-    tap: function(e) {i("tap")},
-    gestureStart: function(e) {i("gestureStart")},
-    gesture: function(e) {i("gesture")},
-    gestureEnd: function(e) {i("gestureEnd")},
+    tap: function(e) {i("tap", e)},
+    gestureStart: function(e) {i("gestureStart", e)},
+    gesture: function(e) {i("gesture", e)},
+    gestureEnd: function(e) {i("gestureEnd", e)},
   });
 }
 

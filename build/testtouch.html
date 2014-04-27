@@ -11,15 +11,17 @@
       overflow: hidden;
       margin: 0;
       padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
     }
 
-    #outer {
+    #canvas {
       width: 100%;
       height: 100%;
       background-color: #dfdfdf;
     }
 
-    #inner {
+    #tools {
       position: absolute;
       bottom: 20px;
       width: 100%;
@@ -33,9 +35,9 @@
 
 <!-- Start Realtime when the body has loaded. -->
 <body onLoad='start()'>
-  <div id="outer">
-    <div id="inner">
-    </div>
+  <div id="canvas">
+  </div>
+  <div id="tools">
   </div>
 </body>
 </html>
