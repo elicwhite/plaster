@@ -57,292 +57,342 @@ define(['promise', 'tests/vendor/syn', 'tapHandler'], function(Promise, s, TapHa
       });
     },
 
-    "mouse": {
+    "events fired": {
 
-      setUp: function() {
-        this.doClick = function() {
+      "mouse": {
+        setUp: function() {
+          this.doClick = function() {
+            this.dispatch('mousedown', {
+              clientX: 10,
+              clientY: 10
+            });
+
+            this.clock.tick(50);
+
+            this.dispatch('mousemove', {
+              clientX: 11,
+              clientY: 10
+            });
+
+            this.clock.tick(50);
+
+            this.dispatch('mouseup', {
+              clientX: 11,
+              clientY: 10
+            });
+          };
+        },
+
+        "mousedown calls start": function() {
+          var startSpy = this.spy();
+
+          this.handler = new TapHandler(this.element, {
+            start: startSpy
+          });
+
           this.dispatch('mousedown', {
             clientX: 10,
             clientY: 10
           });
 
-          this.clock.tick(50);
-
-          this.dispatch('mousemove', {
-            clientX: 11,
-            clientY: 10
-          });
-
-          this.clock.tick(50);
-
-          this.dispatch('mouseup', {
-            clientX: 11,
-            clientY: 10
-          });
-        };
-
-        this.propsMatch = function(e, x, y) {
-          assert.equals(e.x, x);
-          assert.equals(e.y, y);
-        }
-      },
-
-      "mousedown calls start": function() {
-        var startSpy = this.spy();
-
-        this.handler = new TapHandler(this.element, {
-          start: startSpy
-        });
-
-        this.dispatch('mousedown', {
-          clientX: 10,
-          clientY: 10
-        });
-
-        assert.calledOnce(startSpy);
-      },
-
-      "start gives x and y": function() {
-        var start = (function(e) {
-          this.propsMatch(e, 10, 10);
-        }).bind(this);
-
-        this.handler = new TapHandler(this.element, {
-          start: start
-        });
-
-        this.dispatch('mousedown', {
-          clientX: 10,
-          clientY: 10
-        });
-      },
-
-      "move gives x and y": function() {
-        var move = (function(e) {
-          this.propsMatch(e, 15, 15);
-        }).bind(this);
-
-        this.handler = new TapHandler(this.element, {
-          move: move
-        });
-
-        this.dispatch('mousedown', {
-          clientX: 10,
-          clientY: 10
-        });
-
-        this.dispatch('mousemove', {
-          clientX: 15,
-          clientY: 15
-        });
-      },
-
-      "calling start and end in the same place calls all three": function() {
-        var startSpy = this.spy();
-        var endSpy = this.spy();
-        var tapSpy = this.spy();
-
-        this.handler = new TapHandler(this.element, {
-          start: startSpy,
-          end: endSpy,
-          tap: tapSpy,
-        });
-
-        this.doClick();
-
-        assert.calledOnce(startSpy);
-        assert.calledOnce(endSpy);
-        assert.calledOnce(tapSpy);
-      },
-
-      "tap caled before end": function() {
-        var endSpy = this.spy();
-        var tapSpy = this.spy();
-
-        this.handler = new TapHandler(this.element, {
-          end: endSpy,
-          tap: tapSpy,
-        });
-
-        this.doClick();
-
-        assert.isTrue(tapSpy.calledBefore(endSpy));
-      },
-
-      "pause between down and up doesnt call tap": function() {
-        var tapSpy = this.spy();
-
-        this.handler = new TapHandler(this.element, {
-          tap: tapSpy,
-        });
-
-        this.dispatch('mousedown', {
-          clientX: 10,
-          clientY: 10
-        });
-
-        this.clock.tick(1000);
-
-        this.dispatch('mouseup', {
-          clientX: 10,
-          clientY: 10
-        });
-
-        assert.isFalse(tapSpy.called);
-      }
-    },
-
-    "touch": {
-      setUp: function() {
-        this.touch = {
-          clientX: 5,
-          clientY: 5,
-          identifier: 0
-        };
-
-        this.eObj = {
-          touches: [this.touch]
-        };
-
-        this.propsMatch = function(e, x, y) {
-          assert.equals(e.x, x);
-          assert.equals(e.y, y);
-        }
-      },
-
-      "touchstart calls start": function() {
-        var startSpy = this.spy();
-
-        this.handler = new TapHandler(this.element, {
-          start: startSpy
-        });
-
-        this.dispatch('touchstart', this.eObj);
-
-        assert.calledOnce(startSpy);
-      },
-
-      "start gives x and y": function() {
-        var start = (function(e) {
-          this.propsMatch(e, 5, 5);
-        }).bind(this);
-
-        this.handler = new TapHandler(this.element, {
-          start: start
-        });
-
-        this.dispatch('touchstart', this.eObj);
-      },
-
-      "pause between down and up doesnt call tap": function() {
-        var tapSpy = this.spy();
-
-        this.handler = new TapHandler(this.element, {
-          tap: tapSpy,
-        });
-
-        this.dispatch('touchstart', this.eObj);
-        this.clock.tick(1000);
-        this.dispatch('touchend', this.eObj);
-
-        assert.isFalse(tapSpy.called);
-      },
-
-      "multitouch": {
-        setUp: function() {
-          this.touch2 = {
-            clientX: 10,
-            clientY: 10,
-            identifier: 1
-          };
-
-          this.eObj2 = {
-            touches: [this.touch, this.touch2]
-          };
+          assert.calledOnce(startSpy);
         },
 
-        "without gestures": {
-          "end is called after starting touch is up last": function() {
-            var endSpy = this.spy();
-            this.handler = new TapHandler(this.element, {
-              end: endSpy,
-            });
-
-            this.handler.ignoreGestures(true);
-
-            this.dispatch('touchstart', this.eObj);
-            this.dispatch('touchstart', this.eObj2);
-
-            this.dispatch('touchend', this.eObj);
-            assert.isFalse(endSpy.called);
-            this.dispatch('touchend', {
-              touches: []
-            });
-
-            assert.isTrue(endSpy.called);
-          },
-
-          "end is called after starting touch is up first": function() {
-            var endSpy = this.spy();
-            this.handler = new TapHandler(this.element, {
-              end: endSpy,
-            });
-
-            this.handler.ignoreGestures(true);
-
-            // starting with id 0
-            this.dispatch('touchstart', this.eObj);
-            // then id 1
-            this.dispatch('touchstart', this.eObj2);
-
-            // end id 0 by only telling it about id 1
-            this.touch.identifier = 1;
-
-            this.dispatch('touchend', this.eObj);
-            assert.isTrue(endSpy.called);
-
-            this.dispatch('touchend', {
-              touches: []
-            });
-
-            assert.calledOnce(endSpy);
-          },
-        },
-      },
-
-      "with gestures": {
-        "//two touches calls end then gesture start": function() {
+        "calling start and end in the same place calls all three": function() {
+          var startSpy = this.spy();
           var endSpy = this.spy();
-          var gestureStartSpy = this.spy();
+          var tapSpy = this.spy();
+
+          this.handler = new TapHandler(this.element, {
+            start: startSpy,
+            end: endSpy,
+            tap: tapSpy,
+          });
+
+          this.doClick();
+
+          assert.calledOnce(startSpy);
+          assert.calledOnce(endSpy);
+          assert.calledOnce(tapSpy);
+        },
+
+        "tap caled before end": function() {
+          var endSpy = this.spy();
+          var tapSpy = this.spy();
 
           this.handler = new TapHandler(this.element, {
             end: endSpy,
-            gestureStart: gestureStartSpy
+            tap: tapSpy,
           });
 
-          this.dispatch('touchstart', this.eObj);
-          this.dispatch('touchstart', this.eObj2);
+          this.doClick();
 
-          assert.calledOnce(endSpy);
-          assert.calledOnce(gestureStartSpy);
+          assert.isTrue(tapSpy.calledBefore(endSpy));
         },
 
-        "//gesture end is called when one touch left": function() {
-          var gestureEndSpy = this.spy();
+        "pause between down and up doesnt call tap": function() {
+          var tapSpy = this.spy();
 
           this.handler = new TapHandler(this.element, {
-            gestureEnd: gestureEndSpy,
+            tap: tapSpy,
+          });
+
+          this.dispatch('mousedown', {
+            clientX: 10,
+            clientY: 10
+          });
+
+          this.clock.tick(1000);
+
+          this.dispatch('mouseup', {
+            clientX: 10,
+            clientY: 10
+          });
+
+          assert.isFalse(tapSpy.called);
+        }
+      },
+
+      "touch": {
+        setUp: function() {
+          this.touch = {
+            clientX: 5,
+            clientY: 5,
+            identifier: 0
+          };
+
+          this.eObj = {
+            touches: [this.touch]
+          };
+
+          this.propsMatch = function(e, x, y) {
+            assert.equals(e.x, x);
+            assert.equals(e.y, y);
+          }
+        },
+
+        "touchstart calls start": function() {
+          var startSpy = this.spy();
+
+          this.handler = new TapHandler(this.element, {
+            start: startSpy
           });
 
           this.dispatch('touchstart', this.eObj);
-          this.dispatch('touchstart', this.eObj2);
+
+          assert.calledOnce(startSpy);
+        },
+
+        "pause between down and up doesnt call tap": function() {
+          var tapSpy = this.spy();
+
+          this.handler = new TapHandler(this.element, {
+            tap: tapSpy,
+          });
+
+          this.dispatch('touchstart', this.eObj);
+          this.clock.tick(1000);
           this.dispatch('touchend', this.eObj);
 
-          assert.calledOnce(gestureEndSpy);
+          assert.isFalse(tapSpy.called);
+        },
+
+        "multitouch": {
+          setUp: function() {
+            this.touch2 = {
+              clientX: 10,
+              clientY: 10,
+              identifier: 1
+            };
+
+            this.eObj2 = {
+              touches: [this.touch, this.touch2]
+            };
+          },
+
+          "without gestures": {
+            "end is called after starting touch is up last": function() {
+              var endSpy = this.spy();
+              this.handler = new TapHandler(this.element, {
+                end: endSpy,
+              });
+
+              this.handler.ignoreGestures(true);
+
+              this.dispatch('touchstart', this.eObj);
+              this.dispatch('touchstart', this.eObj2);
+
+              this.dispatch('touchend', this.eObj);
+              assert.isFalse(endSpy.called);
+              this.dispatch('touchend', {
+                touches: []
+              });
+
+              assert.isTrue(endSpy.called);
+            },
+
+            "end is called after starting touch is up first": function() {
+              var endSpy = this.spy();
+              this.handler = new TapHandler(this.element, {
+                end: endSpy,
+              });
+
+              this.handler.ignoreGestures(true);
+
+              // starting with id 0
+              this.dispatch('touchstart', this.eObj);
+              // then id 1
+              this.dispatch('touchstart', this.eObj2);
+
+              // end id 0 by only telling it about id 1
+              this.touch.identifier = 1;
+
+              this.dispatch('touchend', this.eObj);
+              assert.isTrue(endSpy.called);
+
+              this.dispatch('touchend', {
+                touches: []
+              });
+
+              assert.calledOnce(endSpy);
+            },
+          },
+
+          "with gestures": {
+            "two touches calls end then gesture start": function() {
+              var endSpy = this.spy();
+              var gestureStartSpy = this.spy();
+
+              this.handler = new TapHandler(this.element, {
+                end: endSpy,
+                gestureStart: gestureStartSpy
+              });
+
+              this.dispatch('touchstart', this.eObj);
+              this.dispatch('touchstart', this.eObj2);
+
+              assert.calledOnce(endSpy);
+              assert.calledOnce(gestureStartSpy);
+              assert.isTrue(endSpy.calledBefore(gestureStartSpy));
+            },
+
+            "moved touch in gesture calls gesture changed": function() {
+              var gestureChangedSpy = this.spy();
+
+              this.handler = new TapHandler(this.element, {
+                gesture: gestureChangedSpy
+              });
+
+              this.dispatch('touchstart', this.eObj);
+              this.dispatch('touchstart', this.eObj2);
+
+              this.eObj2.touches[0].clientX = 5;
+
+              assert.isFalse(gestureChangedSpy.called);
+              this.dispatch('touchmove', this.eObj2);
+              assert.isTrue(gestureChangedSpy.called);
+            },
+
+            "gesture end is called when one touch left": function() {
+              var gestureEndSpy = this.spy();
+
+              this.handler = new TapHandler(this.element, {
+                gestureEnd: gestureEndSpy,
+              });
+
+              this.dispatch('touchstart', this.eObj);
+              this.dispatch('touchstart', this.eObj2);
+              this.dispatch('touchend', this.eObj);
+
+              assert.calledOnce(gestureEndSpy);
+            },
+
+            "touch after gesture is not gesture": function() {
+              var gestureChangedSpy = this.spy();
+              var moveedSpy = this.spy();
+
+              this.handler = new TapHandler(this.element, {
+                move: moveedSpy,
+                gesture: gestureChangedSpy
+              });
+
+              // do a gesture
+              this.dispatch('touchstart', this.eObj);
+              this.dispatch('touchstart', this.eObj2);
+              this.dispatch('touchend', this.eObj);
+              this.dispatch('touchend', {
+                touches: []
+              });
+
+              // try a touch
+              this.dispatch('touchstart', this.eObj);
+              this.touch.clientX = 3;
+
+              assert.isFalse(moveedSpy.called);
+              this.dispatch('touchmove', this.eObj);
+              assert.isTrue(moveedSpy.called);
+              this.dispatch('touchend', this.eObj);
+            }
+          }
         }
       }
+    },
+
+    "correct values": {
+      setUp: function() {
+        this.propsMatch = function(e, x, y) {
+          assert.equals(e.x, x);
+          assert.equals(e.y, y);
+        }
+      },
+
+      "mouse": {
+        "move gives x and y": function() {
+          var move = (function(e) {
+            this.propsMatch(e, 15, 15);
+          }).bind(this);
+
+          this.handler = new TapHandler(this.element, {
+            move: move
+          });
+
+          this.dispatch('mousedown', {
+            clientX: 10,
+            clientY: 10
+          });
+
+          this.dispatch('mousemove', {
+            clientX: 15,
+            clientY: 15
+          });
+        },
+      },
+
+      "touch": {
+        setUp: function() {
+          this.touch = {
+            clientX: 5,
+            clientY: 5,
+            identifier: 0
+          };
+
+          this.eObj = {
+            touches: [this.touch]
+          };
+        },
+
+        "start gives x and y": function() {
+          var start = (function(e) {
+            this.propsMatch(e, 5, 5);
+          }).bind(this);
+
+          this.handler = new TapHandler(this.element, {
+            start: start
+          });
+
+          this.dispatch('touchstart', this.eObj);
+        },
+      }
     }
-
-
   });
 });
