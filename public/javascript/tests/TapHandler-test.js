@@ -278,7 +278,7 @@ define(['promise', 'tests/vendor/syn', 'tapHandler'], function(Promise, s, TapHa
             this.touch2.touches[0].clientX = 5;
 
             assert.isFalse(gestureChangedSpy.called);
-            this.dispatch('touchmove', this.eObj2);
+            this.dispatch('touchmove', this.touch2);
             assert.isTrue(gestureChangedSpy.called);
           },
 
@@ -325,143 +325,287 @@ define(['promise', 'tests/vendor/syn', 'tapHandler'], function(Promise, s, TapHa
     },
 
     "correct values": {
-      setUp: function() {
-        this.props = {
-          clientX: 10,
-          clientY: 10
-        }
+      "single touch": {
 
-        this.createTouch = function() {
-          this.props.identifier = 1;
+        setUp: function() {
+          this.props = {
+            clientX: 10,
+            clientY: 10
+          }
 
-          return {
-            touches: [this.props]
+          this.createTouch = function() {
+            this.props.identifier = 1;
+
+            return {
+              touches: [this.props]
+            };
+          }
+
+          this.xAndYMatch = function(e, x, y) {
+            assert.equals(e.x, x);
+            assert.equals(e.y, y);
+          }
+
+          this.distFromElement = function(e, x, y) {
+            // These are set in the doc element added in the tests
+            assert.equals(e.distFromLeft, x - 2);
+            assert.equals(e.distFromTop, y - 4);
+          }
+        },
+
+        "start gives loc and offset": {
+          setUp: function() {
+            var start = (function(e) {
+              this.xAndYMatch(e, 10, 10);
+              this.distFromElement(e, 10, 10);
+            }).bind(this);
+
+            this.handler = new TapHandler(this.element, {
+              start: start
+            });
+          },
+
+          "mouse": function() {
+            this.dispatch('mousedown', this.props);
+          },
+
+          "touch": function() {
+            this.dispatch('touchstart', this.createTouch());
+          }
+        },
+
+        "move gives loc, offset, change, fromStart": {
+          setUp: function() {
+            var move = (function(e) {
+              this.xAndYMatch(e, 11, 9);
+              this.distFromElement(e, 11, 9);
+
+              assert.equals(e.xFromLast, 1);
+              assert.equals(e.yFromLast, -1);
+
+              assert.equals(e.distFromStartX, 1);
+              assert.equals(e.distFromStartY, -1);
+            }).bind(this);
+
+            this.handler = new TapHandler(this.element, {
+              move: move
+            });
+          },
+
+          "mouse": function() {
+            this.dispatch('mousedown', this.props);
+
+            this.props.clientX++;
+            this.props.clientY--;
+
+            this.dispatch('mousemove', this.props);
+          },
+
+          "touch": function() {
+            this.dispatch('touchstart', this.createTouch());
+
+            this.props.clientX++;
+            this.props.clientY--;
+
+            this.dispatch('touchmove', this.createTouch());
+          }
+        },
+
+        "second move gives updated fromLast and fromStart": {
+          setUp: function() {
+            var called = 0;
+            var move = (function(e) {
+              called++;
+
+              if (called !== 2) {
+                return;
+              }
+
+              this.xAndYMatch(e, 12, 8);
+              this.distFromElement(e, 12, 8);
+
+              assert.equals(e.xFromLast, 1);
+              assert.equals(e.yFromLast, -1);
+
+              assert.equals(e.distFromStartX, 2);
+              assert.equals(e.distFromStartY, -2);
+            }).bind(this);
+
+            this.handler = new TapHandler(this.element, {
+              move: move
+            });
+          },
+
+          "mouse": function() {
+            this.dispatch('mousedown', this.props);
+
+            this.props.clientX++;
+            this.props.clientY--;
+
+            this.dispatch('mousemove', this.props);
+
+            this.props.clientX++;
+            this.props.clientY--;
+
+            this.dispatch('mousemove', this.props);
+          },
+
+          "touch": function() {
+            this.dispatch('touchstart', this.createTouch());
+
+            this.props.clientX++;
+            this.props.clientY--;
+
+            this.dispatch('touchmove', this.createTouch());
+
+            this.props.clientX++;
+            this.props.clientY--;
+
+            this.dispatch('touchmove', this.createTouch());
+          }
+        },
+      },
+
+      "multi touch": {
+        setUp: function() {
+          this.touch1Props = {
+            clientX: 50,
+            clientY: 50,
+            identifier: 0
           };
-        }
 
-        this.xAndYMatch = function(e, x, y) {
-          assert.equals(e.x, x);
-          assert.equals(e.y, y);
-        }
+          this.touch2Props = {
+            clientX: 70,
+            clientY: 70,
+            identifier: 1
+          };
 
-        this.distFromElement = function(e, x, y) {
-          // These are set in the doc element added in the tests
-          assert.equals(e.distFromLeft, x - 2);
-          assert.equals(e.distFromTop, y - 4);
-        }
-      },
+          this.oneTouch = {
+            touches: [this.touch1Props]
+          }
 
-      "start gives loc and offset": {
-        setUp: function() {
-          var start = (function(e) {
-            this.xAndYMatch(e, 10, 10);
-            this.distFromElement(e, 10, 10);
-          }).bind(this);
-
-          this.handler = new TapHandler(this.element, {
-            start: start
-          });
+          this.twoTouches = {
+            touches: [this.touch1Props, this.touch2Props]
+          }
         },
 
-        "mouse": function() {
-          this.dispatch('mousedown', this.props);
-        },
+        "with gestures": {
+          // x and y should be the average of the first two touches
+          "start gives x and y average": function() {
 
-        "touch": function() {
-          this.dispatch('touchstart', this.createTouch());
-        }
-      },
-
-      "move gives loc, offset, change, fromStart": {
-        setUp: function() {
-          var move = (function(e) {
-            this.xAndYMatch(e, 11, 9);
-            this.distFromElement(e, 11, 9);
-
-            assert.equals(e.xFromLast, 1);
-            assert.equals(e.yFromLast, -1);
-
-            assert.equals(e.distFromStartX, 1);
-            assert.equals(e.distFromStartY, -1);
-          }).bind(this);
-
-          this.handler = new TapHandler(this.element, {
-            move: move
-          });
-        },
-
-        "mouse": function() {
-          this.dispatch('mousedown', this.props);
-
-          this.props.clientX++;
-          this.props.clientY--;
-
-          this.dispatch('mousemove', this.props);
-        },
-
-        "touch": function() {
-          this.dispatch('touchstart', this.createTouch());
-
-          this.props.clientX++;
-          this.props.clientY--;
-
-          this.dispatch('touchmove', this.createTouch());
-        }
-      },
-
-      "second move gives updated fromLast and fromStart": {
-        setUp: function() {
-          var called = 0;
-          var move = (function(e) {
-            called++;
-
-            if (called !== 2) {
-              return;
+            var gestureStart = function(e) {
+              assert.equals(e.x, 60);
+              assert.equals(e.y, 60);
             }
 
-            this.xAndYMatch(e, 12, 8);
-            this.distFromElement(e, 12, 8);
+            this.handler = new TapHandler(this.element, {
+              gestureStart: gestureStart
+            });
 
-            assert.equals(e.xFromLast, 1);
-            assert.equals(e.yFromLast, -1);
+            this.dispatch('touchstart', this.oneTouch);
+            this.dispatch('touchstart', this.twoTouches);
+          },
 
-            assert.equals(e.distFromStartX, 2);
-            assert.equals(e.distFromStartY, -2);
-          }).bind(this);
+          "change with no move doesn't change scale": function() {
 
-          this.handler = new TapHandler(this.element, {
-            move: move
-          });
-        },
+            var gestureChanged = function(e) {
+              assert.equals(e.scale, 1);
+              assert.equals(e.scaleFromLast, 0);
+            }
 
-        "mouse": function() {
-          this.dispatch('mousedown', this.props);
+            this.handler = new TapHandler(this.element, {
+              gesture: gestureChanged
+            });
 
-          this.props.clientX++;
-          this.props.clientY--;
+            this.dispatch('touchstart', this.oneTouch);
+            this.dispatch('touchstart', this.twoTouches);
 
-          this.dispatch('mousemove', this.props);
+            this.dispatch('touchmove', this.twoTouches);
+          },
 
-          this.props.clientX++;
-          this.props.clientY--;
+          "change with no move doesn't change x": function() {
 
-          this.dispatch('mousemove', this.props);
-        },
+            var gestureChanged = function(e) {
+              assert.equals(e.xFromLast, 0);
+              assert.equals(e.yFromLast, 0);
+            }
 
-        "touch": function() {
-          this.dispatch('touchstart', this.createTouch());
+            this.handler = new TapHandler(this.element, {
+              gesture: gestureChanged
+            });
 
-          this.props.clientX++;
-          this.props.clientY--;
+            this.dispatch('touchstart', this.oneTouch);
+            this.dispatch('touchstart', this.twoTouches);
 
-          this.dispatch('touchmove', this.createTouch());
+            this.dispatch('touchmove', this.twoTouches);
+          },
 
-          this.props.clientX++;
-          this.props.clientY--;
+          "change with no move doesn't change x": function() {
 
-          this.dispatch('touchmove', this.createTouch());
+            var gestureChanged = function(e) {
+              assert.equals(e.xFromLast, 0);
+              assert.equals(e.yFromLast, 0);
+            }
+
+            this.handler = new TapHandler(this.element, {
+              gesture: gestureChanged
+            });
+
+            this.dispatch('touchstart', this.oneTouch);
+            this.dispatch('touchstart', this.twoTouches);
+
+            this.dispatch('touchmove', this.twoTouches);
+          },
+
+          "scale": {
+            setUp: function() {
+              // hypotenuse of 20,20
+              this.originalDistance = 28.28427;
+
+              this.gestureChanged = (function(e) {
+                assert.near(e.scale, this.newScale, .001);
+                assert.near(e.scaleFromLast, this.changeScale, .001);
+              }).bind(this)
+
+              this.handler = new TapHandler(this.element, {
+                gesture: this.gestureChanged
+              });
+            },
+
+            tearDown: function() {
+              this.newScale = this.newDistance / this.originalDistance;
+
+              // 1 is the original scale
+              this.changeScale = this.newScale - 1;
+
+
+              this.dispatch('touchstart', this.oneTouch);
+              this.dispatch('touchstart', this.twoTouches);
+
+              this.touch2Props.clientX = this.newX;
+              this.touch2Props.clientY = this.newY;
+
+              this.dispatch('touchmove', this.twoTouches);
+            },
+
+            "dobule distance scales up": function() {
+              this.newX = 90;
+              this.newY = 90;
+
+              // 40,40
+              this.newDistance = 56.56854
+            },
+
+            "half distance scales down": function() {
+              this.newX = 60;
+              this.newY = 60;
+
+              // 40,40
+              this.newDistance = 14.14214
+            }
+          }
         }
-      },
+      }
     }
   });
 });

@@ -68,9 +68,28 @@ define([], function() {
       this._ignoreGestures = value;
     },
 
+    _calculateMouseXY: function(e) {
+      e.x = e.clientX;
+      e.y = e.clientY;
+    },
+
+    _calculateTouchXY: function(e) {
+      var index = this._indexOfTouch(e, this._startTouchId);
+
+      e.x = e.touches[index].clientX;
+      e.y = e.touches[index].clientY;
+    },
+
+    _calculateGestureXY: function(e) {
+      // use the first two touches
+      e.x = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+      e.y = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+    },
+
     _mouseDown: function(e) {
       this._startType = "mouse";
 
+      this._calculateMouseXY(e);
       this._down(e);
 
       document.addEventListener("mousemove", this._mouseMove);
@@ -85,10 +104,10 @@ define([], function() {
         this._startTouchId = e.touches[e.touches.length - 1].identifier;
       }
 
-      // If we
       if (e.touches.length >= 2 && !this._ignoreGestures) {
         this._gestureStart(e);
       } else {
+        this._calculateTouchXY(e);
         this._down(e);
       }
 
@@ -126,12 +145,24 @@ define([], function() {
         this._startTouchId = null;
       }
 
+      this._calculateGestureXY(e);
+
+      this._startTime = e.timeStamp;
+
+      this._startX = this._lastX = e.x;
+      this._startY = this._lastY = e.y;
+
+
+      this._startDistance = this._getGestureDistance(e);
+      this._lastScale = 1;
+
       if (this._options.gestureStart) {
         this._options.gestureStart(e);
       }
     },
 
     _mouseMove: function(e) {
+      this._calculateMouseXY(e);
       this._move(e);
     },
 
@@ -141,6 +172,7 @@ define([], function() {
       }
       else
       {
+        this._calculateTouchXY(e);
         this._move(e);
       }
     },
@@ -157,6 +189,16 @@ define([], function() {
     },
 
     _gestureChange: function(e) {
+      this._calculateGestureXY(e);
+
+      this._processEvent(e);
+      //this._processGesture(e);
+
+      var newDistance = this._getGestureDistance(e);
+
+      e.scale = newDistance / this._startDistance;
+      e.scaleFromLast = e.scale - this._lastScale;
+
       if (this._options.gesture) {
         this._options.gesture(e);
       }
@@ -206,7 +248,7 @@ define([], function() {
 
       e.wasTap = false;
 
-      var dist = Math.sqrt(((e.x - this._startX) * (e.x - this._startX)) + ((e.y - this._startY) * (e.y - this._startY)));
+      var dist = Math.sqrt(((this._lastX - this._startX) * (this._lastX - this._startX)) + ((this._lastY - this._startY) * (this._lastY - this._startY)));
 
       if (dist < this._distCutoff && (e.timeStamp - this._startTime < this._timeCutoff)) {
         e.wasTap = true;
@@ -314,24 +356,24 @@ define([], function() {
 
     // Given an e, add things like x and y regardless of touch or mouse
     _processEvent: function(e) {
-      var index = -1;
-      // It's a touch
-      if (e.touches && e.touches.length > 0 && (index = this._indexOfTouch(e, this._startTouchId)) !== -1) {
-        e.x = e.touches[index].clientX;
-        e.y = e.touches[index].clientY;
-      } else if (e.clientX) {
-        // It's a click
-        e.x = e.clientX;
-        e.y = e.clientY;
-        // } else if (e.pageX) {
-        //   // gesture events only get a layerx
-        //   e.x = e.pageX;
-        //   e.y = e.pageY;
-      } else {
-        // It's probably an end, there is no coords
-        e.x = this._lastX;
-        e.y = this._lastY;
-      }
+      // var index = -1;
+      // // It's a touch
+      // if (e.touches && e.touches.length > 0 && (index = this._indexOfTouch(e, this._startTouchId)) !== -1) {
+      //   e.x = e.touches[index].clientX;
+      //   e.y = e.touches[index].clientY;
+      // } else if (e.clientX) {
+      //   // It's a click
+      //   e.x = e.clientX;
+      //   e.y = e.clientY;
+      //   // } else if (e.pageX) {
+      //   //   // gesture events only get a layerx
+      //   //   e.x = e.pageX;
+      //   //   e.y = e.pageY;
+      // } else {
+      //   // It's probably an end, there is no coords
+      //   e.x = this._lastX;
+      //   e.y = this._lastY;
+      // }
 
       e.distFromLeft = e.x - this._offset.x;
       e.distFromTop = e.y - this._offset.y;
@@ -343,9 +385,13 @@ define([], function() {
       e.distFromStartY = (this._startY !== null) ? e.y - this._startY : 0;
     },
 
-    // _processGesture: function(e) {
-    //   e.scaleFromLast = e.scale - this._lastScale;
-    // },
+    _getGestureDistance: function(e) {
+      var xDist = (e.touches[0].clientX - e.touches[1].clientX);
+      var yDist = (e.touches[0].clientY - e.touches[1].clientY);
+
+      var dist = Math.sqrt((xDist * xDist) + (yDist * yDist));
+      return dist;
+    },
 
     _containsTouch: function(e, identifier) {
       return this._indexOfTouch(e, this._startTouchId) !== -1;
