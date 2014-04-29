@@ -562,46 +562,105 @@ define(['promise', 'tests/vendor/syn', 'tapHandler'], function(Promise, s, TapHa
               // hypotenuse of 20,20
               this.originalDistance = 28.28427;
 
-              this.gestureChanged = (function(e) {
+              this.checkMatch = (function(e) {
                 assert.near(e.scale, this.newScale, .001);
                 assert.near(e.scaleFromLast, this.changeScale, .001);
-              }).bind(this)
-
-              this.handler = new TapHandler(this.element, {
-                gesture: this.gestureChanged
-              });
+              }).bind(this);
             },
 
-            tearDown: function() {
-              this.newScale = this.newDistance / this.originalDistance;
+            "scale one change": {
+              setUp: function() {
+                this.gestureChanged = (function(e) {
+                  this.checkMatch(e)
+                }).bind(this)
 
-              // 1 is the original scale
-              this.changeScale = this.newScale - 1;
+                this.handler = new TapHandler(this.element, {
+                  gesture: this.gestureChanged
+                });
+              },
+
+              tearDown: function() {
+                this.newScale = this.newDistance / this.originalDistance;
+
+                // 1 is the original scale
+                this.changeScale = this.newScale - 1;
 
 
-              this.dispatch('touchstart', this.oneTouch);
-              this.dispatch('touchstart', this.twoTouches);
+                this.dispatch('touchstart', this.oneTouch);
+                this.dispatch('touchstart', this.twoTouches);
 
-              this.touch2Props.clientX = this.newX;
-              this.touch2Props.clientY = this.newY;
+                this.touch2Props.clientX = this.newX;
+                this.touch2Props.clientY = this.newY;
 
-              this.dispatch('touchmove', this.twoTouches);
+                this.dispatch('touchmove', this.twoTouches);
+              },
+
+              "double distance scales up": function() {
+                this.newX = 90;
+                this.newY = 90;
+
+                // 40,40
+                this.newDistance = 56.56854
+              },
+
+              "half distance scales down": function() {
+                this.newX = 60;
+                this.newY = 60;
+
+                // 40,40
+                this.newDistance = 14.14214
+              }
             },
 
-            "dobule distance scales up": function() {
-              this.newX = 90;
-              this.newY = 90;
+            "two changes": {
+              setUp: function() {
+                var called = 0;
 
-              // 40,40
-              this.newDistance = 56.56854
-            },
+                this.gestureChanged = (function(e) {
+                  called++;
 
-            "half distance scales down": function() {
-              this.newX = 60;
-              this.newY = 60;
+                  if (called == 2) {
+                    this.checkMatch(e)
+                  }
+                }).bind(this);
 
-              // 40,40
-              this.newDistance = 14.14214
+                this.handler = new TapHandler(this.element, {
+                  gesture: this.gestureChanged
+                });
+              },
+
+              "//up then down": function() {
+                // 40,40
+                var firstX = 90;
+                var firstY = 90;
+                var firstDistance = 56.56854
+
+                var firstScale = firstDistance / this.originalDistance;
+                var firstChangeScale = firstScale - 1;
+
+                // 30,30
+                this.newX = 80;
+                this.newY = 80;
+                this.newDistance = 42.42641;
+
+                this.newScale = this.newDistance / this.originalDistance;
+                this.changeScale = this.newScale - firstChangeScale;
+
+                this.dispatch('touchstart', this.oneTouch);
+                this.dispatch('touchstart', this.twoTouches);
+
+                this.touch2Props.clientX = firstX;
+                this.touch2Props.clientY = firstY;
+
+                this.dispatch('touchmove', this.twoTouches);
+
+                this.touch2Props.clientX = this.newX;
+                this.touch2Props.clientY = this.newY;
+
+                this.dispatch('touchmove', this.twoTouches);
+
+
+              }
             }
           }
         }

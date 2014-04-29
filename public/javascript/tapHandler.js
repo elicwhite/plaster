@@ -199,6 +199,10 @@ define([], function() {
       e.scale = newDistance / this._startDistance;
       e.scaleFromLast = e.scale - this._lastScale;
 
+      this._lastX = e.x;
+      this._lastY = e.y;
+      this._lastScale = e.scale;
+
       if (this._options.gesture) {
         this._options.gesture(e);
       }
@@ -329,8 +333,6 @@ define([], function() {
 
     //   this._lastX = e.x;
     //   this._lastY = e.y;
-    //   this._lastScale = e.scale;
-
     //   this._lastScale = e.scale;
 
     //   if (this._options.gesture) {
