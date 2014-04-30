@@ -50,8 +50,10 @@ define(["section", "tapHandler", "event", "globals", "helpers", "platform", "tem
     _docTapped: function(e) {
       var element = e.target;
 
-      if (element.dataset.action) {
-        var action = element.dataset.action;
+      var fileActionElement = Helpers.parentEleWithClassname(element, "file-action");
+
+      if (fileActionElement) {
+        var action = fileActionElement.dataset.action;
 
         if (action == "delete") {
           // Delete was clicked

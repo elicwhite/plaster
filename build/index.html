@@ -15,7 +15,15 @@
       m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
       })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
-      ga('create', 'UA-49250395-1', 'drawtime.herokuapp.com');
+      var createProp = 'auto';
+      if (location.origin.indexOf("localhost") !== -1) {
+        createProp = {
+          'cookieDomain': 'none'
+        };
+      }
+
+      ga('create', 'UA-49250395-1', createProp);
+
       ga('send', 'pageview');
 
     </script>
@@ -155,7 +163,7 @@
             <div class="overlay">
               <div class="bar">
 
-                <!--<div class="file-action share" data-action="share"..>
+                <!--<div class="file-action share" data-action="share">
                   <span class="icon icon-group"></span>
                   <span>Share</span>
                 </div>
