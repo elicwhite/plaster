@@ -34,7 +34,7 @@ define([], function() {
     },
 
     trigger: function(event, data) {
-      console.log("Triggering", event, data, this.listeners[event] ? this.listeners[event].length : 0, "listeners");
+      // console.log("Triggering", event, data, this.listeners[event] ? this.listeners[event].length : 0, "listeners");
 
       if (!this.listeners[event]) {
         return false;

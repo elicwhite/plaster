@@ -14,7 +14,7 @@ define(["class", "event"], function(Class, Event) {
       Event.addListener("onlineStatusChanged", (function(status) {
         if (status.online) {
           // try to load gapi and authorize
-          console.log("starting auth");
+          console.log("Starting auth");
           this.start();
         } else {
           // now offline

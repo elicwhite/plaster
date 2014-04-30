@@ -4,7 +4,9 @@
   "version": "0.0.1",
   "private": true,
   "repository": "",
-  "engine": "node >= 0.10.20",
+  "engines": {
+    "node": "0.10.x"
+  },
   "dependencies": {
     "express": "3.3.6"
   },
