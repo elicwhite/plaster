@@ -126,7 +126,8 @@ define([], function() {
 
       // this._inTouch = true;
 
-      this._startTime = e.timeStamp;
+      // We need to use our own instead of timeStamp so that we can run tests
+      this._startTime = Date.now();
 
       this._startX = this._lastX = e.x;
       this._startY = this._lastY = e.y;
@@ -147,7 +148,7 @@ define([], function() {
 
       this._calculateGestureXY(e);
 
-      this._startTime = e.timeStamp;
+      this._startTime = Date.now();
 
       this._startX = this._lastX = e.x;
       this._startY = this._lastY = e.y;
@@ -254,7 +255,7 @@ define([], function() {
 
       var dist = Math.sqrt(((this._lastX - this._startX) * (this._lastX - this._startX)) + ((this._lastY - this._startY) * (this._lastY - this._startY)));
 
-      if (dist < this._distCutoff && (e.timeStamp - this._startTime < this._timeCutoff)) {
+      if (dist < this._distCutoff && (Date.now() - this._startTime < this._timeCutoff)) {
         e.wasTap = true;
         if (this._options.tap) {
           this._options.tap(e);

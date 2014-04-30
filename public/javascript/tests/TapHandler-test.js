@@ -16,13 +16,13 @@ define(['promise', 'tests/vendor/syn', 'tapHandler'], function(Promise, s, TapHa
 
       this.dispatch = function(type, obj) {
         var e = document.createEvent('UIEvent');
-        e.initUIEvent(type, true, true, document.defaultView);
+        e.initUIEvent(type, true, true, document.defaultView, 1);
 
-        Object.defineProperty(e, "timeStamp", {
-          get: function() {
-            return Date.now();
-          }
-        });
+        // Object.defineProperty(e, "timeStamp", {
+        //   get: function() {
+        //     return Date.now();
+        //   }
+        // });
 
         for (var prop in obj) {
           e[prop] = obj[prop];
