@@ -7,7 +7,7 @@ function init() {
   });
 
 
-  require(["promise", "event", "globals", "helpers", "migrate", "managers/login", "gauth"], function(Promise, Event, g, Helpers, Migrate, LoginManager, GAuth) {
+  require(["event", "globals", "helpers", "migrate", "managers/login", "gauth"], function(Event, g, Helpers, Migrate, LoginManager, GAuth) {
     Migrate.run()
       .then((function() {
         g.setHTMLDevices();

@@ -1,4 +1,4 @@
-define(["section", "tapHandler", "event", "globals", "helpers", "platform", "template", "online", "gauth", "data"], function(Section, TapHandler, Event, g, Helpers, Platform, Template, Online, GAuth, Data) {
+define(["section", "tapHandler", "analytics", "event", "globals", "helpers", "platform", "template", "online", "gauth", "data"], function(Section, TapHandler, Analytics, Event, g, Helpers, Platform, Template, Online, GAuth, Data) {
 
   var FileItem = Section.extend({
     _fileList: null,
@@ -57,7 +57,10 @@ define(["section", "tapHandler", "event", "globals", "helpers", "platform", "tem
 
         if (action == "delete") {
           // Delete was clicked
-          return Data.deleteFile(this._fileInfo.id);
+          return Data.deleteFile(this._fileInfo.id)
+          .then((function() {
+            Analytics.event("deleted file");
+          }).bind(this));
           // } else if (action == "share") {
           //   console.log(this._fileInfo);
           //   return;

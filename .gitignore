@@ -2,3 +2,4 @@ node_modules/
 .env
 .DS_Store
 .sass-cache
+build/javascript/main.min.js.map
