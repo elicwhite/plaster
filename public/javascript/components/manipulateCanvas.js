@@ -3,7 +3,9 @@ define(["components/drawCanvas", "helpers"], function(DrawCanvas, Helpers) {
   var ManipulateCanvas = DrawCanvas.extend({
     zoom: function(x, y, dScale) {
       // Can't zoom that far!
-      if (this._settings.scale + dScale < .001 || this._settings.scale + dScale > 20000) {
+      var modifiedScale = this._settings.scale + dScale;
+
+      if (modifiedScale < .000001 || modifiedScale > 20) {
         return false;
       }
 
