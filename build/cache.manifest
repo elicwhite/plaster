@@ -1,5 +1,5 @@
 CACHE MANIFEST
-#<!-- @echo BUILD_TIME -->
+#1399122866929
 index.html
 fonts/icomoon.eot
 fonts/icomoon.eot?b1hxz9
@@ -12,7 +12,6 @@ fonts/icomoon.woff
 fonts/icomoon.woff?b1hxz9
 
 javascript/main.min.js
-#javascript/main.min.js.map
 stylesheet/total.css
 
 NETWORK:
