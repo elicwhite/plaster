@@ -33,7 +33,15 @@ module.exports = function(grunt) {
 
       html: {
         files: 'public/index.html',
-        tasks: ['env:dev', 'requirejs', 'preprocess:html'],
+        tasks: ['env:dev', 'preprocess:html'],
+        options: {
+          livereload: true,
+        }
+      },
+
+      cache: {
+        files: 'public/cache.manifest',
+        tasks: ['preprocess:cache'],
         options: {
           livereload: true,
         }
@@ -85,8 +93,8 @@ module.exports = function(grunt) {
       },
 
       cache: {
-        src: 'public/cache.appcache',
-        dest: 'build/cache.appcache',
+        src: 'public/cache.manifest',
+        dest: 'build/cache.manifest',
         options: {
           context: {
             BUILD_TIME: Date.now()
@@ -111,7 +119,7 @@ module.exports = function(grunt) {
       prod: {
         command: [
           'git checkout integration',
-          'git commit -a -m "Production Build - Automated Commit',
+          'git commit -a -m "Production Build - Automated Commit"',
         ].join('&&')
       }
     }
@@ -123,6 +131,6 @@ module.exports = function(grunt) {
   require('load-grunt-tasks')(grunt);
 
   // Default task(s).
-  grunt.registerTask('default', ['env:prod', 'requirejs', 'uglify', 'clean', 'preprocess', 'htmlmin', 'shell']);
+  grunt.registerTask('default', ['env:prod', 'requirejs', 'uglify', 'clean', 'preprocess', 'htmlmin'/*, 'shell'*/]);
 
 };
