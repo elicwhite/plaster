@@ -105,13 +105,24 @@ module.exports = function(grunt) {
           'build/index.html': 'build/index.html'
         }
       }
+    },
+
+    shell: {
+      prod: {
+        command: [
+          'git checkout integration',
+          'git commit -a -m "Production Build - Automated Commit',
+        ].join('&&')
+      }
     }
+
+
 
   });
 
   require('load-grunt-tasks')(grunt);
 
   // Default task(s).
-  grunt.registerTask('default', ['env:prod', 'requirejs', 'uglify', 'clean', 'preprocess', 'htmlmin']);
+  grunt.registerTask('default', ['env:prod', 'requirejs', 'uglify', 'clean', 'preprocess', 'htmlmin', 'shell']);
 
 };
