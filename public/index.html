@@ -1,5 +1,12 @@
 <!DOCTYPE html>
+<!-- @if NODE_ENV == 'DEVELOPMENT' -->
 <html lang="en">
+<!-- @endif -->
+
+<!-- @if NODE_ENV == 'PRODUCTION' -->
+<html lang="en" manifest="cache.appcache">
+<!-- @endif -->
+
   <head>
     <meta charset="utf-8">
     <title>#Draw</title>

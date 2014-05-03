@@ -40,9 +40,9 @@ define(["event"], function(Event) {
     },
 
     getDeviceType: function() {
-      if (localStorage.deviceType) {
-        //return JSON.parse(localStorage.deviceType);
-      }
+      // if (localStorage.deviceType) {
+      //   return JSON.parse(localStorage.deviceType);
+      // }
 
       var devices = [];
       var userAgent = navigator.userAgent;

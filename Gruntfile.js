@@ -3,24 +3,17 @@ module.exports = function(grunt) {
   // Project configuration.
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
+
     sass: {
       dist: {
         options: {
           style: "compressed",
-
         },
         files: [{
-          /*expand: true,
-          cwd: 'public/stylesheet',
-          dest: 'build/stylesheet',
-          src: ['*.scss'],
-          ext: '.css'
-          */
           'build/stylesheet/total.css': 'public/stylesheet/total.scss',
         }]
       }
     },
-
 
     watch: {
       scss: {
@@ -36,25 +29,25 @@ module.exports = function(grunt) {
         options: {
           livereload: true,
         }
+      },
+
+      html: {
+        files: 'public/index.html',
+        tasks: ['env:dev', 'requirejs', 'preprocess'],
+        options: {
+          livereload: true,
+        }
       }
     },
 
     requirejs: {
       compile: {
         options: {
-
           almond: true,
-          replaceRequireScript: [{
-            files: ['public/index.html'],
-            module: 'main',
-            modulePath: 'build/javascript/main.min'
-          }],
 
           name: "main",
           mainConfigFile: "public/javascript/config.js",
           out: "build/javascript/main.min.js",
-          // optimize: 'uglify2',
-          // generateSourceMaps: false,
 
           optimize: 'none',
           generateSourceMaps: true,
@@ -66,26 +59,44 @@ module.exports = function(grunt) {
     },
 
     uglify: {
-      default: {
-        options: {
-          sourceMap: '/build/javascript/main.min.js.map',
-          sourceMappingURL: '/javascript/main.min.js.map'
-        },
+      build: {
         files: {
-          '/build/javascript/main.min.js': ['/build/javascript/main.min.js']
+          'build/javascript/main.min.js': ['build/javascript/main.min.js']
         }
       }
+    },
+
+    clean: ["build/javascript/main.min.js.map"],
+
+    env: {
+      dev: {
+        NODE_ENV: 'DEVELOPMENT'
+      },
+
+      prod: {
+        NODE_ENV: 'PRODUCTION'
+      }
+    },
+
+    preprocess: {
+      dev: {
+        src: 'public/index.html',
+        dest: 'build/index.html'
+      },
+
     }
 
   });
 
-  // Load the plugin that provides the "uglify" task.
+  grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-sass');
   grunt.loadNpmTasks('grunt-requirejs');
+  grunt.loadNpmTasks('grunt-env');
+  grunt.loadNpmTasks('grunt-preprocess');
 
   // Default task(s).
-  grunt.registerTask('default', ['requirejs', 'uglify']);
+  grunt.registerTask('default', ['env:prod', 'requirejs', 'uglify', 'clean', 'preprocess']);
 
 };
