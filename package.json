@@ -21,6 +21,7 @@
     "buster-html-doc": "~1.0.0",
     "grunt-contrib-clean": "~0.5.0",
     "grunt-preprocess": "~4.0.0",
-    "grunt-env": "~0.4.1"
+    "grunt-env": "~0.4.1",
+    "grunt-contrib-htmlmin": "~0.2.0"
   }
 }

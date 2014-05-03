@@ -1,16 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>#Draw</title>
-    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, minimal-ui">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <script src="javascript/main.min.js"></script>
-    <script onError="gapiLoadError()" async="async" id="gapiScript" type="text/javascript" src="https://apis.google.com/js/api.js?onload=gapiLoaded"></script>
-    <link rel="stylesheet" href="stylesheet/total.css">
-
-    <script>
-      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+<!DOCTYPE html><html lang="en" manifest="cache.appcache"><head><meta charset="utf-8"><title>#Draw</title><meta name="viewport" content="initial-scale=1.0, user-scalable=no, minimal-ui"><meta name="apple-mobile-web-app-capable" content="yes"><script src="javascript/main.min.js"></script><script onerror="gapiLoadError()" async="async" id="gapiScript" type="text/javascript" src="https://apis.google.com/js/api.js?onload=gapiLoaded"></script><link rel="stylesheet" href="stylesheet/total.css"><script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
       m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
       })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
@@ -24,139 +12,7 @@
 
       ga('create', 'UA-49250395-1', createProp);
       ga('require', 'displayfeatures');
-      ga('send', 'pageview');
-
-    </script>
-  </head>
-  <body>
-    <div id="overall">
-      <div id="login" class="page">
-        <div id="login-wrapper">
-          <div id="info-container">
-            <div id="login-box-switcher">
-              <div id="login-basic">
-                <h1>Draw</h1>
-              </div>
-
-              <div id="login-file" class="hidden">
-                <h1><span id="login-file-title"></span></h1>
-                <h2>By <img id="login-owner-pic" /><span id="login-file-owners"></span></h2>
-              </div>
-            </div>
-
-            <div id="loginbutton" class="disabled">
-              <span><i class="icon-google"></i>Login with Google</span>
-            </div>
-          </div>
-          <div id="explanation-container">
-            <p>
-              <strong>Draw</strong> uses Google Drive to keep your files secure.
-            </p>
-            <p>
-              Keeping all of your drawings in sync, <br /><strong>Draw</strong> lets you work from any device.
-            </p>
-           <!--  <p class="compatability">
-              <span class="icon-chrome">Web</span>
-              <span class="icon-apple">iOS</span>
-              <span class="icon-android">Android</span>
-            </p> -->
-          </div>
-        </div>
-      </div>
-
-      <div id="main-container" class="page">
-        <div id="updateBar">
-          <div id="updateBarContent">
-            An update is ready. Click here to reload.
-          </div>
-        </div>
-        <div id="main-content">
-          <div id="panes">
-
-            <div id="files" class="pane pane-slider">
-              <div id="files-pane-wrapper" class="pane pane-wrapper">
-
-                <div id="files-list-container" class="pane">
-                  <div id="navbar">
-                    <ul id="main-menu" class="pull-right">
-                      <li id="mode" class="hidden">Offline</li>
-                    </ul>
-                  </div>
-                    <ul id="files-list">
-                      <li class="file-info" id="create-file">
-                        <div class="create">
-                          <div class="icon icon-plus2"></div>
-                          <span>Create</span>
-                        </div>
-                      </li>
-                    </ul>
-                </div>
-
-                <div id="draw" class="pane">
-                  <div id="draw-overlay" class="overlay">
-                    <div id="colorPicker" class="modal">
-                      <ul>
-                        <li class="swatch" style="background-color: #000"></li>
-                        <li class="swatch" style="background-color: #aaa"></li>
-                        <li class="swatch" style="background-color: #00d81e"></li>
-
-                        <li class="swatch" style="background-color: #0AA6F2"></li>
-                        <li class="swatch" style="background-color: #00f"></li>
-                        <li class="swatch" style="background-color: #890EF3"></li>
-
-                        <li class="swatch" style="background-color: #FFF400"></li>
-                        <li class="swatch" style="background-color: #FF8900"></li>
-                        <li class="swatch" style="background-color: #cf0000"></li>
-
-                      </ul>
-                    </div>
-
-                    <!-- <div id="loadingModal" class="modal" data-closeable="false">
-                      Loading a file, please wait.Loading a file, please wait.Loading a file, please wait.Loading a file, please wait.
-                    </div> -->
-
-                  </div>
-                  <canvas id="canvas" tabindex="1">
-                  </canvas>
-                  <div id="menu">
-                    <ul>
-                      <li data-action="back" class="icon-home"></li>
-                    </ul>
-                  </div>
-                  <div id="title">
-                    <input type="text" id="fileName" data-action="rename" />
-                  </div>
-                  <!-- <div id="options">
-                    <ul>
-                      <li data-action="export" class="icon-image"></li>
-                    </ul>
-                  </div> -->
-
-                  <div id="tools">
-                    <ul>
-                      <li id="pencil-tool" class="toolitem icon-pencil" data-tool="pencil"></li>
-                      <li id="eraser-tool" class="toolitem icon-eraser" data-tool="eraser"></li>
-                      <li id="undo-tool" class="toolitem icon-undo" data-action="undo"></li>
-                      <li id="redo-tool" class="toolitem icon-redo" data-action="redo"></li>
-                      <li id="pan-tool" class="toolitem icon-move" data-tool="pan"></li>
-                      <li id="zoom-tool" class="toolitem icon-zoom-in" data-tool="zoom"></li>
-                      <li id="color-tool" data-action="color" class="toolitem menu">
-                        <div id="chosenColorSwatch" class="swatch" style="background-color: black">
-                        </div>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </div>
-    </div>
-    <script type="text/template" id="template-fileListItem">
-      <li class="file-info">
+      ga('send', 'pageview');</script></head><body><div id="overall"><div id="login" class="page"><div id="login-wrapper"><div id="info-container"><div id="login-box-switcher"><div id="login-basic"><h1>Draw</h1></div><div id="login-file" class="hidden"><h1><span id="login-file-title"></span></h1><h2>By <img id="login-owner-pic"><span id="login-file-owners"></span></h2></div></div><div id="loginbutton" class="disabled"><span><i class="icon-google"></i>Login with Google</span></div></div><div id="explanation-container"><p><strong>Draw</strong> uses Google Drive to keep your files secure.</p><p>Keeping all of your drawings in sync,<br><strong>Draw</strong> lets you work from any device.</p></div></div></div><div id="main-container" class="page"><div id="updateBar"><div id="updateBarContent">An update is ready. Click here to reload.</div></div><div id="main-content"><div id="panes"><div id="files" class="pane pane-slider"><div id="files-pane-wrapper" class="pane pane-wrapper"><div id="files-list-container" class="pane"><div id="navbar"><ul id="main-menu" class="pull-right"><li id="mode" class="hidden">Offline</li></ul></div><ul id="files-list"><li class="file-info" id="create-file"><div class="create"><div class="icon icon-plus2"></div><span>Create</span></div></li></ul></div><div id="draw" class="pane"><div id="draw-overlay" class="overlay"><div id="colorPicker" class="modal"><ul><li class="swatch" style="background-color: #000"></li><li class="swatch" style="background-color: #aaa"></li><li class="swatch" style="background-color: #00d81e"></li><li class="swatch" style="background-color: #0AA6F2"></li><li class="swatch" style="background-color: #00f"></li><li class="swatch" style="background-color: #890EF3"></li><li class="swatch" style="background-color: #FFF400"></li><li class="swatch" style="background-color: #FF8900"></li><li class="swatch" style="background-color: #cf0000"></li></ul></div></div><canvas id="canvas" tabindex="1"></canvas><div id="menu"><ul><li data-action="back" class="icon-home"></li></ul></div><div id="title"><input type="text" id="fileName" data-action="rename"></div><div id="tools"><ul><li id="pencil-tool" class="toolitem icon-pencil" data-tool="pencil"></li><li id="eraser-tool" class="toolitem icon-eraser" data-tool="eraser"></li><li id="undo-tool" class="toolitem icon-undo" data-action="undo"></li><li id="redo-tool" class="toolitem icon-redo" data-action="redo"></li><li id="pan-tool" class="toolitem icon-move" data-tool="pan"></li><li id="zoom-tool" class="toolitem icon-zoom-in" data-tool="zoom"></li><li id="color-tool" data-action="color" class="toolitem menu"><div id="chosenColorSwatch" class="swatch" style="background-color: black"></div></li></ul></div></div></div></div></div></div></div></div><script type="text/template" id="template-fileListItem"><li class="file-info">
         <div>
           <div class="thumbnail-info">
             <img class="thumbnail" />
@@ -181,11 +37,4 @@
             <span class="file-name"></span>
           </div>
         </div>
-      </li>
-    </script>
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300,400' rel='stylesheet' type='text/css'>
-
-    <!--<script src="http://localhost:35729/livereload.js"></script>-->
-    <!--<script src="http://169.254.185.195:35729/livereload.js"></script>-->
-  </body>
-</html>
+      </li></script><link href="http://fonts.googleapis.com/css?family=Open+Sans:300,400" rel="stylesheet" type="text/css"></body></html>

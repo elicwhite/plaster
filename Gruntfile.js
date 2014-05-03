@@ -33,7 +33,7 @@ module.exports = function(grunt) {
 
       html: {
         files: 'public/index.html',
-        tasks: ['env:dev', 'requirejs', 'preprocess'],
+        tasks: ['env:dev', 'requirejs', 'preprocess:html'],
         options: {
           livereload: true,
         }
@@ -79,11 +79,32 @@ module.exports = function(grunt) {
     },
 
     preprocess: {
-      dev: {
+      html: {
         src: 'public/index.html',
         dest: 'build/index.html'
       },
 
+      cache: {
+        src: 'public/cache.appcache',
+        dest: 'build/cache.appcache',
+        options: {
+          context: {
+            BUILD_TIME: Date.now()
+          }
+        }
+      },
+    },
+
+    htmlmin: {
+      dist: {
+        options: {
+          removeComments: true,
+          collapseWhitespace: true
+        },
+        files: { // Dictionary of files
+          'build/index.html': 'build/index.html'
+        }
+      }
     }
 
   });
@@ -95,8 +116,9 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-requirejs');
   grunt.loadNpmTasks('grunt-env');
   grunt.loadNpmTasks('grunt-preprocess');
+  grunt.loadNpmTasks('grunt-contrib-htmlmin');
 
   // Default task(s).
-  grunt.registerTask('default', ['env:prod', 'requirejs', 'uglify', 'clean', 'preprocess']);
+  grunt.registerTask('default', ['env:prod', 'requirejs', 'uglify', 'clean', 'preprocess', 'htmlmin']);
 
 };
