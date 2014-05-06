@@ -1,4 +1,4 @@
-define(["section", "tapHandler", "analytics", "event", "globals", "helpers", "platform", "template", "online", "gauth", "data"], function(Section, TapHandler, Analytics, Event, g, Helpers, Platform, Template, Online, GAuth, Data) {
+define(["section", "tapHandler", "analytics", "event", "globals", "helpers", "platform", "template", "online", "gauth", "data", "modals/share"], function(Section, TapHandler, Analytics, Event, g, Helpers, Platform, Template, Online, GAuth, Data, ShareModal) {
 
   var FileItem = Section.extend({
     _fileList: null,
@@ -42,8 +42,6 @@ define(["section", "tapHandler", "analytics", "event", "globals", "helpers", "pl
         this._thumbnailElement.translateX = 0;
 
         var deleteButton = ele.getElementsByClassName("delete")[0];
-        window.a = deleteButton;
-        // this._slideMax
       }
     },
 
@@ -66,7 +64,13 @@ define(["section", "tapHandler", "analytics", "event", "globals", "helpers", "pl
           //   return;
         }
       } else if (Helpers.parentEleIsElement(element, this._thumbnailInfoElement)) {
-        this._fileList.drawFile(this._fileInfo);
+
+        ShareModal.show(this._fileInfo);
+
+        setTimeout(function() {
+          ShareModal.hide();
+        }, 2000);
+        //this._fileList.drawFile(this._fileInfo);
       }
     },
 

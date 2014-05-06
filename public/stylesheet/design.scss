@@ -17,8 +17,13 @@ body, input {
   font-weight: 100;
 }
 
-#login {
+#overall {
+  &.blurred {
+    @include blur(3px);
+  }
+}
 
+#login {
   #login-wrapper {
     width: 100%;
     height: 100%;
@@ -385,6 +390,13 @@ body, input {
   }
 }
 
+#modal-overlay {
+  background-color: rgba(0,0,0,.4);
+
+  &.hidden {
+    display: none;
+  }
+}
 
 @import "computer.scss";
 @import "mobile.scss";

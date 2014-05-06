@@ -78,3 +78,11 @@
       -ms-flex-direction: $value;
           flex-direction: $value;
 }
+
+@mixin blur($value) {
+  -webkit-filter: blur($value);
+     -moz-filter: blur($value);
+      -ms-filter: blur($value);
+          filter: blur($value);
+
+}
