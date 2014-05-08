@@ -1,4 +1,4 @@
-define(["modal", "tapHandler", "data", "event", "online", "platform"], function(Modal, tapHandler, Data, Event, Online, Platform) {
+define(["modal", "tapHandler", "data", "event", "online", "platform", "gauth"], function(Modal, tapHandler, Data, Event, Online, Platform, GAuth) {
 
   var Share = Modal.extend({
     id: "share-modal",
@@ -87,6 +87,7 @@ define(["modal", "tapHandler", "data", "event", "online", "platform"], function(
           this._offlineElement.classList.add("hidden");
           this._onlineElement.classList.remove("hidden");
         }
+
         this._checkForPermissions();
       } else {
         this.swapVisible(this._onlineElement, this._offlineElement, true);
@@ -94,13 +95,29 @@ define(["modal", "tapHandler", "data", "event", "online", "platform"], function(
     },
 
     _checkForPermissions: function() {
-      Data.getFilePermissions(this._fileInfo.id)
-        .then((function(permissions) {
+      Promise.all([Data.getRemoteFileInfo(this._fileInfo.id), Data.getFilePermissions(this._fileInfo.id)])
+
+        .then((function(results) {
+          var remoteInfo = results[0];
+          var permissions = results[1];
+
+          var owner = remoteInfo.userPermission.role == "owner";
           var shared = permissions.some(function(permission) {
-            return permission.id == "anyone";
+            return permission.type == "anyone" && permission.role == "writer";
           });
 
-          this.swapVisible(this._guestElement, this._ownerElement, false)
+          console.log("owner", owner, "shared", shared);
+
+          var swapOwner;
+          if (owner) {
+            swapOwner = this.swapVisible(this._guestElement, this._ownerElement, false)
+          }
+          else
+          {
+            swapOwner = this.swapVisible(this._ownerElement, this._guestElement, false)
+          }
+
+          swapOwner
             .then((function() {
               this.swapVisible(this._loadingElement, this._permissionsElement, true);
             }).bind(this));
