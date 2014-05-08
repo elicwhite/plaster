@@ -66,10 +66,6 @@ define(["section", "tapHandler", "analytics", "event", "globals", "helpers", "pl
       } else if (Helpers.parentEleIsElement(element, this._thumbnailInfoElement)) {
 
         ShareModal.show(this._fileInfo);
-
-        setTimeout(function() {
-          ShareModal.hide();
-        }, 2000);
         //this._fileList.drawFile(this._fileInfo);
       }
     },

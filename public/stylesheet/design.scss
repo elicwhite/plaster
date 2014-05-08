@@ -84,28 +84,6 @@ body, input {
           height: 32px;
         }
       }
-
-      #loginbutton {
-        display: inline-block;
-        line-height: 50px;
-        min-height: 50px;
-        padding: 0 60px;
-        background-color: $primary4;
-        border: 1px solid $primary2;
-        cursor: pointer;
-
-        i {
-          margin-right: 10px;
-          vertical-align: middle;
-          font-size: 25px;
-          line-height: 25px;
-        }
-
-        &.disabled {
-          cursor: default;
-          background-color: lighten($primary4, 30%);
-        }
-      }
     }
 
     #explanation-container {
@@ -392,9 +370,65 @@ body, input {
 
 #modal-overlay {
   background-color: rgba(0,0,0,.4);
+  @include display-flex();
+  @include flex-justify-content(center);
+  @include flex-align-items(center);
 
   &.hidden {
     display: none;
+  }
+
+  .modal {
+    background-color: #f5f5f5;
+    border: 1px solid #ccc;
+
+    width: 400px;
+    min-height: 300px;
+
+    text-align: center;
+
+    .row {
+      padding: 10px 20px;
+    }
+
+    .visible-switch {
+      transition: opacity .3s;
+
+      &.invisible {
+        opacity: 0;
+      }
+
+      &.hidden {
+        display: none;
+      }
+    }
+
+    .title {
+      font-size: 16px;
+      font-weight: bold;
+    }
+  }
+}
+
+.button {
+  display: inline-block;
+  line-height: 50px;
+  min-height: 50px;
+  padding: 0 60px;
+  background-color: $primary4;
+  border: 1px solid $primary2;
+  cursor: pointer;
+
+  i {
+    margin-right: 10px;
+    vertical-align: middle;
+    font-size: 25px;
+    line-height: 25px;
+  }
+
+  &.disabled {
+    cursor: default;
+    background-color: lighten($primary4, 30%);
   }
 }
 

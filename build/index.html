@@ -44,7 +44,7 @@
               </div>
             </div>
 
-            <div id="loginbutton" class="disabled">
+            <div id="loginbutton" class="button disabled">
               <span><i class="icon-google"></i>Login with Google</span>
             </div>
           </div>
@@ -156,8 +156,40 @@
       </div>
     </div>
     <div id="modal-overlay" class="hidden">
-      <div id="share-modal">
-        Sharing file <span id="share-modal-title"></span>
+      <div id="share-modal" class="modal">
+        <div class="row title">
+          Sharing file '<span id="share-modal-title"></span>'
+        </div>
+        <div id="share-modal-offline" class="visible-switch">
+          <div class="row">
+            You must be online to access sharing for this file.
+          </div>
+        </div>
+        <div id="share-modal-online" class="visible-switch hidden">
+          <div id="share-modal-loading" class="visible-switch">
+            <div class="row">
+              <span class="icon-spinner"></span>
+              <div>Loading Permissions</div>
+            </div>
+          </div>
+          <div id="share-modal-permissions" class="visible-switch hidden">
+            <div id="share-modal-guest" class="visible-switch hidden">
+              <div class="row">
+                You must be the owner to share this file
+              </div>
+            </div>
+            <div id="share-modal-owner" class="visible-switch">
+              <div class="row">
+                Sharing this file enables anyone with the link to draw on it.
+              </div>
+              <div class="row">
+                <div id="share-modal-share" class="button">
+                  <span><i class="icon-google"></i>Share this file</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <script type="text/template" id="template-fileListItem">

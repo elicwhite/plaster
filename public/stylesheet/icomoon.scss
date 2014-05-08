@@ -56,9 +56,22 @@
 .icon-redo:before {
 	content: "\e616";
 }
-// .icon-spinner:before {
-// 	content: "\e606";
-// }
+.icon-spinner:before {
+	content: "\e606";
+
+	@include animation(spin .7s linear infinite);
+}
+
+@include keyframes("spin") {
+	from {
+    @include transform("rotate(0deg)");
+  }
+
+	to {
+    @include transform("rotate(360deg)");
+  }
+}
+
 .icon-search:before {
 	content: "\e612";
 }
