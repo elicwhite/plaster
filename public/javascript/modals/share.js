@@ -14,6 +14,7 @@ define(["modal", "tapHandler", "data", "event", "online", "platform", "gauth"], 
     _permissionsElement: null,
     _guestElement: null,
     _ownerElement: null,
+    _linkElement: null,
 
     init: function() {
       this._super();
@@ -27,14 +28,11 @@ define(["modal", "tapHandler", "data", "event", "online", "platform", "gauth"], 
       this._permissionsElement = document.getElementById("share-modal-permissions");
       this._guestElement = document.getElementById("share-modal-guest");
       this._ownerElement = document.getElementById("share-modal-owner");
+      this._linkElement = document.getElementById("share-modal-link");
 
       this._onlineStatusChanged = this._onlineStatusChanged.bind(this);
 
       new tapHandler(this._shareButton, {
-        start: function(e) {
-          // We need this to keep from going to the overlay
-          e.stopPropagation()
-        },
         tap: this._shareTapped.bind(this)
       })
     },
@@ -67,8 +65,6 @@ define(["modal", "tapHandler", "data", "event", "online", "platform", "gauth"], 
     },
 
     _shareTapped: function(e) {
-      console.log("tapped", e);
-
       Data.shareFilePublicly(this._fileInfo.id)
         .then((function(result) {
           console.log("shared", result);
@@ -77,21 +73,6 @@ define(["modal", "tapHandler", "data", "event", "online", "platform", "gauth"], 
       catch (function(error) {
         console.error("failed to share", error);
       });
-    },
-
-    _showOnline: function(online, animate) {
-      if (online) {
-        if (animate) {
-          this.swapVisible(this._offlineElement, this._onlineElement, true);
-        } else {
-          this._offlineElement.classList.add("hidden");
-          this._onlineElement.classList.remove("hidden");
-        }
-
-        this._checkForPermissions();
-      } else {
-        this.swapVisible(this._onlineElement, this._offlineElement, true);
-      }
     },
 
     _checkForPermissions: function() {
@@ -110,22 +91,45 @@ define(["modal", "tapHandler", "data", "event", "online", "platform", "gauth"], 
 
           var swapOwner;
           if (owner) {
-            swapOwner = this.swapVisible(this._guestElement, this._ownerElement, false)
+            swapOwner = this._swapVisible(this._guestElement, this._ownerElement, false)
           }
           else
           {
-            swapOwner = this.swapVisible(this._ownerElement, this._guestElement, false)
+            swapOwner = this._swapVisible(this._ownerElement, this._guestElement, false)
+          }
+
+          if (shared) {
+            this._linkElement.classList.remove("invisible");
+          }
+          else
+          {
+            this._linkElement.classList.add("invisible");
           }
 
           swapOwner
             .then((function() {
-              this.swapVisible(this._loadingElement, this._permissionsElement, true);
+              this._swapVisible(this._loadingElement, this._permissionsElement, true);
             }).bind(this));
 
         }).bind(this));
     },
 
-    swapVisible: function(fromElement, toElement, animate) {
+    _showOnline: function(online, animate) {
+      if (online) {
+        if (animate) {
+          this._swapVisible(this._offlineElement, this._onlineElement, true);
+        } else {
+          this._offlineElement.classList.add("hidden");
+          this._onlineElement.classList.remove("hidden");
+        }
+
+        this._checkForPermissions();
+      } else {
+        this._swapVisible(this._onlineElement, this._offlineElement, true);
+      }
+    },
+
+    _swapVisible: function(fromElement, toElement, animate) {
       if (animate) {
         return new Promise(function(resolve, reject) {
           function fromTransitionEnd() {

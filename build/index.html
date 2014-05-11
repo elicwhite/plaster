@@ -173,10 +173,8 @@
             </div>
           </div>
           <div id="share-modal-permissions" class="visible-switch hidden">
-            <div id="share-modal-guest" class="visible-switch hidden">
-              <div class="row">
+            <div id="share-modal-guest" class="visible-switch row hidden">
                 You must be the owner to change sharing settings for this file
-              </div>
             </div>
             <div id="share-modal-owner" class="visible-switch">
               <div class="row">
@@ -184,10 +182,30 @@
               </div>
               <div class="row">
                 <div id="share-modal-share" class="button">
-                  <span><i class="icon-google"></i>Share this file</span>
+                  <span class="icon-google" id="share-text">Share this file</span>
                 </div>
               </div>
             </div>
+
+            <div id="share-modal-link" class="visible-switch invisible">
+              Use this link to share the file with others
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="delete-modal" class="modal">
+        <div class="row title">
+          Deleting file '<span id="delete-modal-title"></span>'
+        </div>
+
+        <div class="row">
+          Are you sure you want to delete this file?
+        </div>
+
+        <div class="row">
+          <div id="delete-modal-delete" class="button">
+            Confirm
           </div>
         </div>
       </div>
@@ -200,11 +218,10 @@
             <div class="overlay">
               <div class="bar">
 
-                <!--<div class="file-action share" data-action="share">
+                <div class="file-action share" data-action="share">
                   <span class="icon icon-group"></span>
-                  <span>Share</span>
+                  <span class="text">Share</span>
                 </div>
-                -->
 
                 <div class="file-action delete" data-action="delete">
                   <span class="icon icon-close"></span>

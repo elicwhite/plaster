@@ -12,9 +12,22 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
       this._overlayElement = document.getElementById("modal-overlay");
       this._overallElement = document.getElementById("overall");
 
+      new TapHandler(this.element, {
+        start: function(e) {
+          console.log("modal start");
+          // We need this to keep from going to the overlay
+          e.stopPropagation();
+        }
+      });
+
       new TapHandler(this._overlayElement, {
+        start: function(e) {
+          console.log("overlay start");
+          // We need this to keep from going to the overlay
+          e.stopPropagation();
+        },
         tap: this._overlayTapped.bind(this)
-      })
+      });
     },
 
     afterShow: function() {

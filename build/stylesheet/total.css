@@ -582,6 +582,7 @@ body, input {
   width: 400px;
   min-height: 300px;
   text-align: center;
+  display: none;
 }
 #modal-overlay .modal .row {
   padding: 10px 20px;
@@ -638,15 +639,15 @@ body, input {
   color: #ccc;
   background-color: rgba(100, 100, 100, 0.7);
   height: 40px;
-  padding: 0 10px;
   color: white;
   overflow: hidden;
 }
 .computer #files #files-list-container #files-list li > div .thumbnail-info .overlay .bar .text {
   display: none;
 }
-.computer #files #files-list-container #files-list li > div .thumbnail-info .overlay .bar .share, .computer #files #files-list-container #files-list li > div .thumbnail-info .overlay .bar .delete {
+.computer #files #files-list-container #files-list li > div .thumbnail-info .overlay .bar .file-action {
   height: 100%;
+  padding: 0 15px;
 }
 .computer #files #files-list-container #files-list li > div .thumbnail-info .overlay .bar .share {
   float: left;
@@ -738,8 +739,9 @@ body, input {
   -moz-flex-direction: column;
   -ms-flex-direction: column;
   flex-direction: column;
-  height: 100%;
+  height: 50%;
   width: 30%;
+  border-left: 1px solid #ccc;
 }
 .tablet #files #files-list-container #files-list li > div .thumbnail-info .overlay .bar .file-action .text, .phone #files #files-list-container #files-list li > div .thumbnail-info .overlay .bar .file-action .text {
   display: none;
@@ -748,9 +750,13 @@ body, input {
   color: #eaeaea;
   font-size: 20px;
 }
-.tablet #files #files-list-container #files-list li > div .thumbnail-info .overlay .bar .file-action.delete, .phone #files #files-list-container #files-list li > div .thumbnail-info .overlay .bar .file-action.delete {
+.tablet #files #files-list-container #files-list li > div .thumbnail-info .overlay .bar .file-action.share, .phone #files #files-list-container #files-list li > div .thumbnail-info .overlay .bar .file-action.share {
   background-color: #cf0000;
-  border-left: 1px solid #ccc;
+  border-bottom: 2px solid #ccc;
+}
+.tablet #files #files-list-container #files-list li > div .thumbnail-info .overlay .bar .file-action.delete, .phone #files #files-list-container #files-list li > div .thumbnail-info .overlay .bar .file-action.delete {
+  clear: right;
+  background-color: #cf0000;
 }
 .tablet #draw #tools li#zoom-tool, .phone #draw #tools li#zoom-tool {
   display: none;
