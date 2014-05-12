@@ -399,6 +399,25 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
       }).bind(this));
     },
 
+    disablePublicFile: function(fileId) {
+      return new Promise((function(resolve, reject) {
+        gapi.client.load('drive', 'v2', (function() {
+          gapi.client.drive.permissions.delete({
+            'fileId': fileId,
+            'permissionId': 'anyone'
+          }).execute(function(resp) {
+            if (resp.error) {
+              var error = new Error();
+              error.object = resp;
+              reject(error);
+            } else {
+              resolve(resp);
+            }
+          });
+        }).bind(this));
+      }).bind(this));
+    },
+
     getFilePermissions: function(fileId) {
       return new Promise((function(resolve, reject) {
         gapi.client.load('drive', 'v2', (function() {

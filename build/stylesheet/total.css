@@ -653,6 +653,11 @@ body, input {
   border-color: #2a94c7;
   color: white;
 }
+.button.alert {
+  background-color: #cf0000;
+  border-color: #690000;
+  color: white;
+}
 .button.disabled {
   cursor: default;
   background-color: #ddf3fe;

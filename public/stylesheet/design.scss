@@ -409,6 +409,12 @@ body, input {
     color: white;
   }
 
+  &.alert {
+    background-color: #cf0000;
+    border-color: darken(#cf0000, 20%);
+    color: white;
+  }
+
   &.disabled {
     cursor: default;
     background-color: lighten($primary4, 30%);

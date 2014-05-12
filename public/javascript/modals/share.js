@@ -52,9 +52,7 @@ define(["components/modalBase", "tapHandler", "data", "event", "online", "platfo
 
       if (Online.isOnline()) {
         this._showOnline(true, false);
-      }
-      else
-      {
+      } else {
         this._showOnline(false, false);
       }
 
@@ -72,19 +70,47 @@ define(["components/modalBase", "tapHandler", "data", "event", "online", "platfo
     },
 
     _shareTapped: function(e) {
-      Data.shareFilePublicly(this._fileInfo.id)
-        .then((function(result) {
-          console.log("shared", result);
-        }).bind(this))
-        .
-      catch (function(error) {
-        console.error("failed to share", error);
-      });
+      var shared = this._shareButton.dataset.shared === "true";
+
+      if (!shared) {
+        Promise.resolve()
+          .then((function() {
+            this._shareButton.textContent = "Sharing...";
+          }).bind(this))
+          .then((function() {
+            return Data.shareFilePublicly(this._fileInfo.id)
+          }).bind(this))
+          .then((function(result) {
+            this._showShared(true);
+          }).bind(this))
+          .
+        catch (function(error) {
+          console.error("failed to share", error);
+        });
+      }
+      else
+      {
+        Promise.resolve()
+          .then((function() {
+            this._shareButton.textContent = "Disabling...";
+          }).bind(this))
+          .then((function() {
+            return Data.disablePublicFile(this._fileInfo.id)
+          }).bind(this))
+          .then((function(result) {
+            this._showShared(false);
+          }).bind(this))
+          .
+        catch (function(error) {
+          console.error("failed to disable sharing", error);
+        });
+      }
+
+
     },
 
     _checkForPermissions: function() {
       Promise.all([Data.getRemoteFileInfo(this._fileInfo.id), Data.getFilePermissions(this._fileInfo.id)])
-
         .then((function(results) {
           var remoteInfo = results[0];
           var permissions = results[1];
@@ -96,22 +122,8 @@ define(["components/modalBase", "tapHandler", "data", "event", "online", "platfo
 
           console.log("owner", owner, "shared", shared);
 
-          var swapOwner;
-          if (owner) {
-            swapOwner = this._swapVisible(this._guestElement, this._ownerElement, false)
-          }
-          else
-          {
-            swapOwner = this._swapVisible(this._ownerElement, this._guestElement, false)
-          }
-
-          if (shared) {
-            this._linkElement.classList.remove("invisible");
-          }
-          else
-          {
-            this._linkElement.classList.add("invisible");
-          }
+          var swapOwner = this._showOwned(owner);
+          this._showShared(shared);
 
           swapOwner
             .then((function() {
@@ -133,6 +145,32 @@ define(["components/modalBase", "tapHandler", "data", "event", "online", "platfo
         this._checkForPermissions();
       } else {
         this._swapVisible(this._onlineElement, this._offlineElement, true);
+      }
+    },
+
+    _showOwned: function(owned) {
+      if (owned) {
+        return this._swapVisible(this._guestElement, this._ownerElement, false)
+      } else {
+        return this._swapVisible(this._ownerElement, this._guestElement, false)
+      }
+    },
+
+    _showShared: function(shared) {
+      this._shareButton.dataset.shared = shared;
+
+      if (shared) {
+        this._shareButton.classList.remove("primary");
+        this._shareButton.classList.add("alert");
+        this._shareButton.textContent = "Disable Sharing";
+
+        this._linkElement.classList.remove("invisible");
+      } else {
+        this._shareButton.classList.remove("alert");
+        this._shareButton.classList.add("primary");
+        this._shareButton.textContent = "Share this file";
+
+        this._linkElement.classList.add("invisible");
       }
     },
 
