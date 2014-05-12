@@ -88,7 +88,7 @@ body, input {
 
 #updateBar {
   @include transition(.3s all);
-  @include transform("translate(0px, -36px)");
+  @include transform(translate(0px, -36px));
 
   #updateBarContent {
     font-size: 15px;
@@ -101,7 +101,7 @@ body, input {
   }
 
   &.visible {
-    @include transform("translate(0px, 0px)");
+    @include transform(translate(0px, 0px));
   }
 }
 

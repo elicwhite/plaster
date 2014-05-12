@@ -665,10 +665,10 @@ body, input {
   transform: translateY(0px);
 }
 .computer #files #files-list-container #files-list li > div .thumbnail-info .overlay .bar {
-  -webkit-transform: translateY(40px);
-  -moz-transform: translateY(40px);
-  -o-transform: translateY(40px);
-  transform: translateY(40px);
+  -webkit-transform: translateY(35px);
+  -moz-transform: translateY(35px);
+  -o-transform: translateY(35px);
+  transform: translateY(35px);
   -webkit-transition: 0.1s all;
   -moz-transition: 0.1s all;
   -o-transition: 0.1s all;
@@ -678,7 +678,7 @@ body, input {
   width: 100%;
   color: #ccc;
   background-color: rgba(100, 100, 100, 0.7);
-  height: 40px;
+  height: 35px;
   color: white;
   overflow: hidden;
 }
