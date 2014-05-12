@@ -19,7 +19,7 @@ $computerThumbnailHeight: 10px;
 
                 .bar {
                   @include transform("translateY(40px)");
-                  transition: .1s all;
+                  @include transition(.1s all);
 
                   position: absolute;
                   bottom: 0;
@@ -107,7 +107,7 @@ $computerThumbnailHeight: 10px;
           left: 0;
 
           opacity: 0;
-          @include transition(.4s, all);
+          @include transition(.4s all);
           @include transform("translate(95px, -10px)");
 
           &.visible {
@@ -157,7 +157,7 @@ $computerThumbnailHeight: 10px;
                 z-index: 2;
 
                 &.animating {
-                  transition: .3s all;
+                  @include transition(.3s all);
                 }
               }
 
@@ -249,7 +249,7 @@ $computerThumbnailHeight: 10px;
         left: 50%;
 
         opacity: 0;
-        @include transition(.3s, opacity);
+        @include transition(.3s opacity);
 
         &.visible {
           opacity: 1;
@@ -381,7 +381,7 @@ $computerThumbnailHeight: 10px;
           left: 50%;
 
           opacity: 0;
-          @include transition(.3s, opacity);
+          @include transition(.3s opacity);
 
           &.visible {
             opacity: 1;

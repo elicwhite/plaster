@@ -6,11 +6,11 @@
           border-radius: $radius;
 }
 
-@mixin transition($time, $property, $type: "") {
-  -webkit-transition: $property $time #{$type};
-     -moz-transition: $property $time #{$type};
-       -o-transition: $property $time #{$type};
-          transition: $property $time #{$type};
+@mixin transition($value) {
+  -webkit-transition: #{$value};
+     -moz-transition: #{$value};
+       -o-transition: #{$value};
+          transition: #{$value};
 }
 
 @mixin transform($params) {

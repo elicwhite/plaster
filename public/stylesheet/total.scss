@@ -234,7 +234,7 @@ body {
 }
 
 .ani4 {
-  @include transition(.4s, all);
+  @include transition(.4s all);
 }
 
 @import "design.scss";
