@@ -75,7 +75,6 @@ define(["section", "tapHandler", "analytics", "event", "globals", "helpers", "on
     },
 
     show: function() {
-      console.log("Showing file list");
       Event.addListener("onlineStatusChanged", this._onlineStatusChanged);
       Event.addListener("authenticatedStatusChanged", this._authenticatedStatusChanged);
 
@@ -89,7 +88,6 @@ define(["section", "tapHandler", "analytics", "event", "globals", "helpers", "on
     },
 
     hide: function() {
-      console.log("hiding file list");
       Event.removeListener("onlineStatusChanged", this._onlineStatusChanged);
       Event.removeListener("authenticatedStatusChanged", this._authenticatedStatusChanged);
 

@@ -9,7 +9,6 @@ define(["section", "managers/modal", "tapHandler"], function(Section, ModalManag
 
       new TapHandler(this.element, {
         start: function(e) {
-          console.log("modal start");
           // We need this to keep from going to the overlay
           e.stopPropagation();
         }

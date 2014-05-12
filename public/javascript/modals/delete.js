@@ -15,6 +15,9 @@ define(["components/modalBase", "tapHandler", "data"], function(ModalBase, tapHa
       this._deleteButton = document.getElementById("delete-modal-delete");
 
       new tapHandler(this._deleteButton, {
+        start: function(e) {
+          e.stopPropagation();
+        },
         tap: this._deleteTapped.bind(this)
       })
     },

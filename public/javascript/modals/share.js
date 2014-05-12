@@ -33,6 +33,9 @@ define(["components/modalBase", "tapHandler", "data", "event", "online", "platfo
       this._onlineStatusChanged = this._onlineStatusChanged.bind(this);
 
       new tapHandler(this._shareButton, {
+        start: function(e) {
+          e.stopPropagation();
+        },
         tap: this._shareTapped.bind(this)
       })
     },
