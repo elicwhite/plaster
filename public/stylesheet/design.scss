@@ -379,8 +379,14 @@ body, input {
   }
 
   #share-modal {
-    width: 400px;
-    min-height: 300px;
+    width: 600px;
+    min-height: 400px;
+
+    #share-modal-link {
+      user-select: initial;
+      -webkit-user-select: initial;
+      cursor: text;
+    }
   }
 
   #delete-modal {

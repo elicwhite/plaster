@@ -45,6 +45,7 @@ define(["components/modalBase", "tapHandler", "data", "event", "online", "platfo
 
       this._fileInfo = fileInfo;
       this._titleElement.textContent = fileInfo.name;
+      this._linkElement.textContent = window.location.href + "#" + fileInfo.id;
 
       // set visible states
       this._loadingElement.classList.remove("hidden");

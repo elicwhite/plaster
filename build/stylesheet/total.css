@@ -627,8 +627,13 @@ body, input {
   border-bottom: 1px solid #aaaaaa;
 }
 #modal-overlay #share-modal {
-  width: 400px;
-  min-height: 300px;
+  width: 600px;
+  min-height: 400px;
+}
+#modal-overlay #share-modal #share-modal-link {
+  user-select: initial;
+  -webkit-user-select: initial;
+  cursor: text;
 }
 #modal-overlay #delete-modal {
   width: 400px;
