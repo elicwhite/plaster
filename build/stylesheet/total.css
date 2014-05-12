@@ -751,8 +751,7 @@ body, input {
   font-size: 20px;
 }
 .tablet #files #files-list-container #files-list li > div .thumbnail-info .overlay .bar .file-action.share, .phone #files #files-list-container #files-list li > div .thumbnail-info .overlay .bar .file-action.share {
-  background-color: #cf0000;
-  border-bottom: 2px solid #ccc;
+  background: #0aa6f2;
 }
 .tablet #files #files-list-container #files-list li > div .thumbnail-info .overlay .bar .file-action.delete, .phone #files #files-list-container #files-list li > div .thumbnail-info .overlay .bar .file-action.delete {
   clear: right;
