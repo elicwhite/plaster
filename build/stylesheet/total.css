@@ -15,6 +15,7 @@ body, html {
   padding: 0;
   height: 100%;
   overflow: hidden;
+  cursor: default;
 }
 
 body {
@@ -249,6 +250,7 @@ body {
 }
 #modal-overlay .modal {
   display: none;
+  position: relative;
 }
 #modal-overlay .visible-switch.invisible {
   opacity: 0;
@@ -316,8 +318,9 @@ body {
 */
 body, input {
   font-size: 15px;
-  font-family: 'Open Sans', arial, sans-serif;
+  font-family: verdana, arial, sans-serif;
   font-weight: 100;
+  color: #333;
 }
 
 #overall.blurred {
@@ -363,6 +366,11 @@ body, input {
   margin-right: 10px;
   width: 32px;
   height: 32px;
+}
+#login #login-wrapper #info-container #loginbutton {
+  line-height: 50px;
+  min-height: 50px;
+  padding: 0 60px;
 }
 #login #login-wrapper #explanation-container {
   font-size: 16px;
@@ -590,8 +598,6 @@ body, input {
 #modal-overlay .modal {
   background-color: #fafafa;
   border: 1px solid #aaaaaa;
-  width: 400px;
-  min-height: 300px;
   text-align: center;
 }
 #modal-overlay .modal .row {
@@ -600,6 +606,13 @@ body, input {
 #modal-overlay .modal .visible-switch {
   transition: opacity .3s;
 }
+#modal-overlay .modal .buttons {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 10px;
+}
 #modal-overlay .modal .title {
   font-size: 20px;
   font-weight: 100;
@@ -607,21 +620,32 @@ body, input {
   background-color: #ececec;
   border-bottom: 1px solid #aaaaaa;
 }
+#modal-overlay #share-modal {
+  width: 400px;
+  min-height: 300px;
+}
+#modal-overlay #delete-modal {
+  width: 400px;
+  height: 200px;
+}
 
 .button {
   display: inline-block;
-  line-height: 50px;
-  min-height: 50px;
-  padding: 0 60px;
-  background-color: #49bff9;
-  border: 1px solid #2a94c7;
+  border: 1px solid #aaaaaa;
   cursor: pointer;
+  padding: 7px 12px;
+  min-width: 60px;
 }
 .button i {
   margin-right: 10px;
   vertical-align: middle;
   font-size: 25px;
   line-height: 25px;
+}
+.button.primary {
+  background-color: #49bff9;
+  border-color: #2a94c7;
+  color: white;
 }
 .button.disabled {
   cursor: default;

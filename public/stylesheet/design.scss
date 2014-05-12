@@ -14,8 +14,9 @@ $veryDarkGray: #111;
 
 body, input {
   font-size: 15px;
-  font-family: 'Open Sans', arial, sans-serif;
+  font-family: verdana, arial, sans-serif;
   font-weight: 100;
+  color: #333;
 }
 
 #overall {
@@ -67,6 +68,12 @@ body, input {
           width: 32px;
           height: 32px;
         }
+      }
+
+      #loginbutton {
+        line-height: 50px;
+        min-height: 50px;
+        padding: 0 60px;
       }
     }
 
@@ -344,9 +351,6 @@ body, input {
     background-color: #fafafa;
     border: 1px solid $veryLightGray;
 
-    width: 400px;
-    min-height: 300px;
-
     text-align: center;
 
     .row {
@@ -357,6 +361,14 @@ body, input {
       transition: opacity .3s;
     }
 
+    .buttons {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 10px;
+    }
+
     .title {
       font-size: 20px;
       font-weight: 100;
@@ -365,22 +377,36 @@ body, input {
       border-bottom: 1px solid $veryLightGray;
     }
   }
+
+  #share-modal {
+    width: 400px;
+    min-height: 300px;
+  }
+
+  #delete-modal {
+    width: 400px;
+    height: 200px;
+  }
 }
 
 .button {
   display: inline-block;
-  line-height: 50px;
-  min-height: 50px;
-  padding: 0 60px;
-  background-color: $primary4;
-  border: 1px solid $primary2;
+  border: 1px solid $veryLightGray;
   cursor: pointer;
+  padding: 7px 12px;
+  min-width: 60px;
 
   i {
     margin-right: 10px;
     vertical-align: middle;
     font-size: 25px;
     line-height: 25px;
+  }
+
+  &.primary {
+    background-color: $primary4;
+    border-color: $primary2;
+    color: white;
   }
 
   &.disabled {
