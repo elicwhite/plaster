@@ -1,6 +1,6 @@
-define(["modal", "tapHandler", "data"], function(Modal, tapHandler, Data) {
+define(["components/modalBase", "tapHandler", "data"], function(ModalBase, tapHandler, Data) {
 
-  var Delete = Modal.extend({
+  var Delete = ModalBase.extend({
     id: "delete-modal",
 
     _titleElement: null,
@@ -20,6 +20,8 @@ define(["modal", "tapHandler", "data"], function(Modal, tapHandler, Data) {
     },
 
     show: function(fileInfo) {
+      this._super();
+
       this._fileInfo = fileInfo;
       this._titleElement.textContent = fileInfo.name;
 
@@ -27,6 +29,8 @@ define(["modal", "tapHandler", "data"], function(Modal, tapHandler, Data) {
     },
 
     hide: function() {
+      this._super();
+
       this.afterHide();
     },
 

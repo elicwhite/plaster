@@ -1,6 +1,6 @@
-define(["modal", "tapHandler", "data", "event", "online", "platform", "gauth"], function(Modal, tapHandler, Data, Event, Online, Platform, GAuth) {
+define(["components/modalBase", "tapHandler", "data", "event", "online", "platform", "gauth"], function(ModalBase, tapHandler, Data, Event, Online, Platform, GAuth) {
 
-  var Share = Modal.extend({
+  var Share = ModalBase.extend({
     id: "share-modal",
 
     _titleElement: null,
@@ -38,6 +38,8 @@ define(["modal", "tapHandler", "data", "event", "online", "platform", "gauth"], 
     },
 
     show: function(fileInfo) {
+      this._super();
+
       this._fileInfo = fileInfo;
       this._titleElement.textContent = fileInfo.name;
 
@@ -59,6 +61,8 @@ define(["modal", "tapHandler", "data", "event", "online", "platform", "gauth"], 
     },
 
     hide: function() {
+      this._super();
+
       Event.removeListener("onlineStatusChanged", this._onlineStatusChanged);
 
       this.afterHide();

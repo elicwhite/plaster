@@ -35,12 +35,12 @@ define(["section", "tapHandler", "analytics", "event", "globals", "helpers", "pl
         start: this._docStarted.bind(this),
         move: this._docMoved.bind(this),
         end: this._docEnded.bind(this)
+
       });
 
       if (g.isMobile()) {
         this._thumbnailElement.style[Platform.transform] = "translateX(0px);"
         this._thumbnailElement.translateX = 0;
-
         var deleteButton = ele.getElementsByClassName("delete")[0];
       }
     },
@@ -59,8 +59,7 @@ define(["section", "tapHandler", "analytics", "event", "globals", "helpers", "pl
         } else if (action == "share") {
           return ShareModal.show(this._fileInfo);
         }
-      }
-      else if (barElement) {
+      } else if (barElement) {
         // We clicked on the bar, don't do anything
         return;
       } else if (Helpers.parentEleIsElement(element, this._thumbnailInfoElement)) {

@@ -1,10 +1,10 @@
 define(["section", "tapHandler"], function(Section, TapHandler) {
 
-  var Modal = Section.extend({
+  var ModalManager = Section.extend({
     _overlayElement: null,
     _overallElement: null,
 
-    _tapOffCloses: true,
+    _currentModal: null,
 
     init: function() {
       this._super();
@@ -12,17 +12,8 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
       this._overlayElement = document.getElementById("modal-overlay");
       this._overallElement = document.getElementById("overall");
 
-      new TapHandler(this.element, {
-        start: function(e) {
-          console.log("modal start");
-          // We need this to keep from going to the overlay
-          e.stopPropagation();
-        }
-      });
-
       new TapHandler(this._overlayElement, {
         start: function(e) {
-          console.log("overlay start");
           // We need this to keep from going to the overlay
           e.stopPropagation();
         },
@@ -30,11 +21,26 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
       });
     },
 
+    show: function(modal) {
+      if (this._currentModal !== null) {
+        console.error("A modal is already showing");
+      }
+
+      this._currentModal = modal;
+
+      this.afterShow();
+    },
+
     afterShow: function() {
       //this._overallElement.classList.add("blurred");
       this._overlayElement.classList.remove("hidden");
 
       this._super();
+    },
+
+    hide: function() {
+      this.afterHide();
+      this._currentModal = null;
     },
 
     afterHide: function() {
@@ -45,12 +51,13 @@ define(["section", "tapHandler"], function(Section, TapHandler) {
     },
 
     _overlayTapped: function(e) {
-      if (e.srcElement == this._overlayElement && this._tapOffCloses) {
-        this.hide();
+      if (e.srcElement == this._overlayElement && this._currentModal.tapOffCloses) {
+        // This will tell us to hide
+        this._currentModal.hide();
       }
     }
   });
 
-  return Modal;
+  return new ModalManager();
 
 });

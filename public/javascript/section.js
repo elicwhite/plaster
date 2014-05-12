@@ -21,12 +21,18 @@ define(["class"], function(Class) {
 		hide: null,
 
 		afterShow: function() {
-			this.element.style.display = "block";
+			if (this.element) {
+				this.element.style.display = "block";
+			}
+
 			this._visible = true;
 		},
 
 		afterHide: function() {
-			this.element.style.display = "";
+			if (this.element) {
+				this.element.style.display = "";
+			}
+
 			this._visible = false;
 		}
 
