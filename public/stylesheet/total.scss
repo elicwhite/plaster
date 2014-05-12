@@ -50,6 +50,37 @@ body {
   }
 }
 
+#login {
+  #login-wrapper{
+    width: 100%;
+    height: 100%;
+    @include display-flex();
+    @include flex-justify-content(center);
+    @include flex-align-items(center);
+    @include flex-direction(column);
+
+    #info-container {
+      @include display-flex();
+      @include flex-justify-content(center);
+      @include flex-align-items(center);
+      @include flex-direction(column);
+
+      width: 100%;
+      position: relative;
+
+      #login-box-switcher {
+        width: 100%;
+        position: relative;
+      }
+
+      #login-basic, #login-file {
+        position: absolute;
+      }
+    }
+
+  }
+}
+
 #updateBar {
   position: absolute;
   top: 0px;
@@ -172,8 +203,30 @@ body {
     #tools {
       bottom: 0px;
       left: 0px;
+    }
+  }
+}
 
+#modal-overlay {
+  @include display-flex();
+  @include flex-justify-content(center);
+  @include flex-align-items(center);
 
+  &.hidden {
+    display: none;
+  }
+
+  .modal {
+    display: none;
+  }
+
+  .visible-switch {
+    &.invisible {
+      opacity: 0;
+    }
+
+    &.hidden {
+      display: none;
     }
   }
 }
@@ -182,16 +235,5 @@ body {
   @include transition(.4s, all);
 }
 
-$thumbnailWidth: 0px;
-$thumbnailHeight: 0px;
-
 @import "design.scss";
 @import "icomoon.scss";
-
-#CSSVars {
-  // this lets javascript read elements out
-  content: '{'+
-'"thumbnailWidth": "'+$thumbnailWidth+'",'+
-'"thumbnailHeight": "'+$thumbnailHeight+'"'+
-'}';
-}

@@ -45,6 +45,64 @@ body {
   display: block !important;
 }
 
+#login #login-wrapper {
+  width: 100%;
+  height: 100%;
+  display: -webkit-box;
+  /* OLD - iOS 6-, Safari 3.1-6 */
+  display: -moz-box;
+  /* OLD - Firefox 19- (buggy but mostly works) */
+  display: -ms-flexbox;
+  /* TWEENER - IE 10 */
+  display: -webkit-flex;
+  /* NEW - Chrome */
+  display: flex;
+  -webkit-justify-content: center;
+  -moz-justify-content: center;
+  -ms-justify-content: center;
+  justify-content: center;
+  -webkit-align-items: center;
+  -moz-align-items: center;
+  -ms-align-items: center;
+  align-items: center;
+  -webkit-flex-direction: column;
+  -moz-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+}
+#login #login-wrapper #info-container {
+  display: -webkit-box;
+  /* OLD - iOS 6-, Safari 3.1-6 */
+  display: -moz-box;
+  /* OLD - Firefox 19- (buggy but mostly works) */
+  display: -ms-flexbox;
+  /* TWEENER - IE 10 */
+  display: -webkit-flex;
+  /* NEW - Chrome */
+  display: flex;
+  -webkit-justify-content: center;
+  -moz-justify-content: center;
+  -ms-justify-content: center;
+  justify-content: center;
+  -webkit-align-items: center;
+  -moz-align-items: center;
+  -ms-align-items: center;
+  align-items: center;
+  -webkit-flex-direction: column;
+  -moz-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  width: 100%;
+  position: relative;
+}
+#login #login-wrapper #info-container #login-box-switcher {
+  width: 100%;
+  position: relative;
+}
+#login #login-wrapper #info-container #login-basic, #login #login-wrapper #info-container #login-file {
+  position: absolute;
+}
+
 #updateBar {
   position: absolute;
   top: 0px;
@@ -167,6 +225,38 @@ body {
   left: 0px;
 }
 
+#modal-overlay {
+  display: -webkit-box;
+  /* OLD - iOS 6-, Safari 3.1-6 */
+  display: -moz-box;
+  /* OLD - Firefox 19- (buggy but mostly works) */
+  display: -ms-flexbox;
+  /* TWEENER - IE 10 */
+  display: -webkit-flex;
+  /* NEW - Chrome */
+  display: flex;
+  -webkit-justify-content: center;
+  -moz-justify-content: center;
+  -ms-justify-content: center;
+  justify-content: center;
+  -webkit-align-items: center;
+  -moz-align-items: center;
+  -ms-align-items: center;
+  align-items: center;
+}
+#modal-overlay.hidden {
+  display: none;
+}
+#modal-overlay .modal {
+  display: none;
+}
+#modal-overlay .visible-switch.invisible {
+  opacity: 0;
+}
+#modal-overlay .visible-switch.hidden {
+  display: none;
+}
+
 .ani4 {
   -webkit-transition: all 0.4s ;
   -moz-transition: all 0.4s ;
@@ -237,60 +327,10 @@ body, input {
   filter: blur(3px);
 }
 
-#login #login-wrapper {
-  width: 100%;
-  height: 100%;
-  display: -webkit-box;
-  /* OLD - iOS 6-, Safari 3.1-6 */
-  display: -moz-box;
-  /* OLD - Firefox 19- (buggy but mostly works) */
-  display: -ms-flexbox;
-  /* TWEENER - IE 10 */
-  display: -webkit-flex;
-  /* NEW - Chrome */
-  display: flex;
-  -webkit-justify-content: center;
-  -moz-justify-content: center;
-  -ms-justify-content: center;
-  justify-content: center;
-  -webkit-align-items: center;
-  -moz-align-items: center;
-  -ms-align-items: center;
-  align-items: center;
-  -webkit-flex-direction: column;
-  -moz-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-}
 #login #login-wrapper #info-container {
-  display: -webkit-box;
-  /* OLD - iOS 6-, Safari 3.1-6 */
-  display: -moz-box;
-  /* OLD - Firefox 19- (buggy but mostly works) */
-  display: -ms-flexbox;
-  /* TWEENER - IE 10 */
-  display: -webkit-flex;
-  /* NEW - Chrome */
-  display: flex;
-  -webkit-justify-content: center;
-  -moz-justify-content: center;
-  -ms-justify-content: center;
-  justify-content: center;
-  -webkit-align-items: center;
-  -moz-align-items: center;
-  -ms-align-items: center;
-  align-items: center;
-  -webkit-flex-direction: column;
-  -moz-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  width: 100%;
   text-align: center;
-  position: relative;
 }
 #login #login-wrapper #info-container #login-box-switcher {
-  width: 100%;
-  position: relative;
   height: 170px;
   margin-bottom: 20px;
 }
@@ -330,15 +370,6 @@ body, input {
   text-align: center;
   line-height: 25px;
 }
-#login #login-wrapper #explanation-container .compatability span {
-  display: inline-block;
-  width: 100px;
-}
-#login #login-wrapper #explanation-container .compatability span:before {
-  display: block;
-  font-size: 30px;
-  margin-bottom: 10px;
-}
 
 #updateBar {
   -webkit-transition: all 0.3s ;
@@ -370,7 +401,7 @@ body, input {
 }
 #files #files-list-container #navbar {
   height: 40px;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid #cccccc;
 }
 #files #files-list-container #navbar ul {
   color: #aaaaaa;
@@ -406,7 +437,7 @@ body, input {
 #files #files-list-container #files-list li > div.create {
   color: #dcdcdc;
   background-color: white;
-  border: 1px solid #ccc;
+  border: 1px solid #cccccc;
   -webkit-flex-direction: column;
   -moz-flex-direction: column;
   -ms-flex-direction: column;
@@ -420,7 +451,7 @@ body, input {
   color: #888;
 }
 #files #files-list-container #files-list li > div .thumbnail-info {
-  border: 1px solid #ccc;
+  border: 1px solid #cccccc;
   position: relative;
   overflow: hidden;
 }
@@ -544,7 +575,7 @@ body, input {
   text-shadow: 1px 1px #444444;
 }
 #files #draw #tools ul li.disabled {
-  background-color: #ccc;
+  background-color: #cccccc;
   color: #bbb;
 }
 #files #draw #tools .swatch {
@@ -554,51 +585,27 @@ body, input {
 }
 
 #modal-overlay {
-  background-color: rgba(0, 0, 0, 0.4);
-  display: -webkit-box;
-  /* OLD - iOS 6-, Safari 3.1-6 */
-  display: -moz-box;
-  /* OLD - Firefox 19- (buggy but mostly works) */
-  display: -ms-flexbox;
-  /* TWEENER - IE 10 */
-  display: -webkit-flex;
-  /* NEW - Chrome */
-  display: flex;
-  -webkit-justify-content: center;
-  -moz-justify-content: center;
-  -ms-justify-content: center;
-  justify-content: center;
-  -webkit-align-items: center;
-  -moz-align-items: center;
-  -ms-align-items: center;
-  align-items: center;
-}
-#modal-overlay.hidden {
-  display: none;
+  background-color: rgba(255, 255, 255, 0.8);
 }
 #modal-overlay .modal {
-  background-color: #f5f5f5;
-  border: 1px solid #ccc;
+  background-color: #fafafa;
+  border: 1px solid #aaaaaa;
   width: 400px;
   min-height: 300px;
   text-align: center;
-  display: none;
 }
 #modal-overlay .modal .row {
-  padding: 10px 20px;
+  padding: 20px 10px;
 }
 #modal-overlay .modal .visible-switch {
   transition: opacity .3s;
 }
-#modal-overlay .modal .visible-switch.invisible {
-  opacity: 0;
-}
-#modal-overlay .modal .visible-switch.hidden {
-  display: none;
-}
 #modal-overlay .modal .title {
-  font-size: 16px;
-  font-weight: bold;
+  font-size: 20px;
+  font-weight: 100;
+  padding: 10px;
+  background-color: #ececec;
+  border-bottom: 1px solid #aaaaaa;
 }
 
 .button {
@@ -1073,8 +1080,4 @@ body, input {
 
 .icon-chrome:before {
   content: "\e608";
-}
-
-#CSSVars {
-  content: '{"thumbnailWidth": "0px","thumbnailHeight": "0px"}';
 }
