@@ -604,7 +604,7 @@ body, input {
   text-align: center;
 }
 #modal-overlay .modal .row {
-  padding: 20px 10px;
+  margin-bottom: 20px;
 }
 #modal-overlay .modal .visible-switch {
   -webkit-transition: 0.3s opacity;
@@ -617,7 +617,6 @@ body, input {
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 10px;
 }
 #modal-overlay .modal .title {
   font-size: 20px;
@@ -627,13 +626,22 @@ body, input {
   border-bottom: 1px solid #aaaaaa;
 }
 #modal-overlay #share-modal {
-  width: 600px;
-  min-height: 400px;
+  width: 500px;
+  min-height: 300px;
 }
-#modal-overlay #share-modal #share-modal-link {
+#modal-overlay #share-modal #share-modal-link-text {
   user-select: initial;
   -webkit-user-select: initial;
   cursor: text;
+  background-color: white;
+  border-bottom: 1px solid #aaaaaa;
+  border-top: 1px solid #aaaaaa;
+  padding: 15px 0;
+}
+#modal-overlay #share-modal .subtext {
+  color: #888;
+  font-size: 14px;
+  margin-top: 5px;
 }
 #modal-overlay #delete-modal {
   width: 400px;
@@ -650,8 +658,7 @@ body, input {
 .button i {
   margin-right: 10px;
   vertical-align: middle;
-  font-size: 25px;
-  line-height: 25px;
+  font-size: 20px;
 }
 .button.primary {
   background-color: #49bff9;
