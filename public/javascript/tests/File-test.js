@@ -67,6 +67,16 @@ define(['promise', 'tests/Helpers/backingHelpers', 'tests/Fixture/driveFixture',
           }).bind(this));
       },
 
+      "has one action with no stored control points": function() {
+        return this.file.addAction(this.action1)
+          .then((function() {
+            return this.instance.getActions();
+          }).bind(this))
+          .then((function(actions) {
+            refute.defined(actions.local[0].value.controlPoints)
+          }).bind(this));
+      },
+
       "has two actions": function() {
         return this.file.addAction(this.action1)
           .then((function() {
@@ -221,10 +231,14 @@ define(['promise', 'tests/Helpers/backingHelpers', 'tests/Fixture/driveFixture',
             isLocal: false,
             values: null
           };
+
+          // Recreate these without control points
+          this.action1Without = Helpers.createAction(this.actionId, true);
+          this.action2Without = Helpers.createAction(this.actionId + "2", true);
         },
 
         "one remote action is first and only": function() {
-          this.payload.values = [this.action1];
+          this.payload.values = [this.action1Without];
 
           return this.file.remoteActionsAdded(this.payload)
             .then((function() {
@@ -237,7 +251,7 @@ define(['promise', 'tests/Helpers/backingHelpers', 'tests/Fixture/driveFixture',
         },
 
         "one remote added after local is first": function() {
-          this.payload.values = [this.action1];
+          this.payload.values = [this.action1Without];
 
           return this.file.addAction(this.action2)
             .then((function() {
@@ -250,6 +264,30 @@ define(['promise', 'tests/Helpers/backingHelpers', 'tests/Fixture/driveFixture',
               assert.equals(actions.length, 2);
               assert.equals(actions[0], this.action1);
               assert.equals(actions[1], this.action2);
+            }).bind(this));
+        },
+
+        "has control points in actions": function() {
+          this.payload.values = [this.action1Without];
+
+          return this.file.remoteActionsAdded(this.payload)
+            .then((function() {
+              return this.file.getActions();
+            }).bind(this))
+            .then((function(actions) {
+              assert.isObject(actions[0].value.controlPoints)
+            }).bind(this));
+        },
+
+        "has no control points in data backing": function() {
+          this.payload.values = [this.action1Without];
+
+          return this.file.remoteActionsAdded(this.payload)
+            .then((function() {
+              return this.instance.getActions();
+            }).bind(this))
+            .then((function(actions) {
+              refute.defined(actions.remote[0].value.controlPoints);
             }).bind(this));
         }
       },
