@@ -1,7 +1,8 @@
-define(["components/modalBase", "tapHandler", "data", "event", "online", "platform", "gauth"], function(ModalBase, tapHandler, Data, Event, Online, Platform, GAuth) {
+define(["components/modalBase", "tapHandler", "data", "event", "online", "platform", "gauth", "analytics"], function(ModalBase, tapHandler, Data, Event, Online, Platform, GAuth, Analytics) {
 
   var Share = ModalBase.extend({
     id: "share-modal",
+    name: "Share",
 
     _titleElement: null,
     _shareButton: null,
@@ -48,29 +49,20 @@ define(["components/modalBase", "tapHandler", "data", "event", "online", "platfo
 
       this._fileInfo = fileInfo;
       this._titleElement.textContent = fileInfo.name;
-      this._linkTextElement.textContent = window.location.href + "#" + fileInfo.id;
+      this._linkTextElement.textContent = window.location.origin + window.location.pathname + "#" + fileInfo.id;
 
       // set visible states
       this._loadingElement.classList.remove("hidden");
       this._permissionsElement.classList.add("hidden");
 
-      /*
+
       if (Online.isOnline()) {
         this._showOnline(true, false);
       } else {
         this._showOnline(false, false);
       }
-      */
-
-
-      this._showOnline(true, false);
-
-      setTimeout((function() {
-        this._showPermission(true, true);
-      }).bind(this), 500);
 
       Event.addListener("onlineStatusChanged", this._onlineStatusChanged);
-
       this.afterShow();
     },
 
@@ -95,6 +87,7 @@ define(["components/modalBase", "tapHandler", "data", "event", "online", "platfo
           }).bind(this))
           .then((function(result) {
             this._showShared(true);
+            Analytics.event("file", "shared", "enabled");
           }).bind(this))
           .
         catch (function(error) {
@@ -110,6 +103,7 @@ define(["components/modalBase", "tapHandler", "data", "event", "online", "platfo
           }).bind(this))
           .then((function(result) {
             this._showShared(false);
+            Analytics.event("file", "shared", "disabled");
           }).bind(this))
           .
         catch (function(error) {

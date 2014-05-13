@@ -1,7 +1,8 @@
-define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db", "bezierCurve", "data", "online", "components/manipulateCanvas"], function(Section, g, Event, Helpers, TapHandler, Platform, db, BezierCurve, Data, Online, ManipulateCanvas) {
+define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "bezierCurve", "data", "online", "components/manipulateCanvas", "analytics"], function(Page, g, Event, Helpers, TapHandler, Platform, db, BezierCurve, Data, Online, ManipulateCanvas, Analytics) {
 
-  var Draw = Section.extend({
+  var Draw = Page.extend({
     id: "draw",
+    name: "Draw Pane",
 
     // The parent pane for this page
     _filesPane: null,
@@ -131,8 +132,11 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
     },
 
     show: function(fileInfo) {
+      this._super();
+
       return this._tryLoadFile(fileInfo)
-        .catch ((function() {
+        .
+      catch ((function() {
         // error loading the file, set a timeout for waiting to come online
         return Online.waitToComeOnline(10000)
           .then((function() {
@@ -145,7 +149,10 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
         .
         catch ((function(error) {
           console.error("Unable to draw for this file", error);
+          Analytics.event("draw", "load failure");
+
           location.hash = "";
+
           this._filesPane.setPane("list");
           return;
         }).bind(this));
@@ -196,6 +203,10 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
     },
 
     hide: function() {
+      if (location.hash) {
+        location.hash = ""
+      }
+
       // If we are never showing this pane, then skip cleaning
       if (this._file) {
         this._file.stopListening();
@@ -398,12 +409,12 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
         this._updateAll = true;
 
         this._saveAction(currentAction);
+
+        Analytics.event("draw", "new action");
       }
     },
 
     _saveAction: function(action) {
-      // We aren't going to send these to drive
-      // delete action.value.controlPoints;
       action.id = Helpers.getGuid();
       this._file.addAction(action)
         .
@@ -677,11 +688,14 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
       this._file.undo();
       this._updateAll = true;
 
+      Analytics.event("draw", "undo");
     },
 
     _redo: function() {
       this._file.redo();
       this._updateAll = true;
+
+      Analytics.event("draw", "redo");
     },
 
     _fileNameKeyDown: function(e) {
@@ -693,6 +707,7 @@ define(["section", "globals", "event", "helpers", "tapHandler", "platform", "db"
     _fileNameBlur: function(e) {
       var name = e.target.value;
       this._file.rename(name);
+      Analytics.event("file", "renamed", "draw");
     },
 
 

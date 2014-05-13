@@ -29,9 +29,17 @@
         };
       }
 
-      ga('create', 'UA-49250395-1', createProp);
+      <!-- @if NODE_ENV == 'DEVELOPMENT' -->
+      var propertyId = 'UA-49250395-1';
+      <!-- @endif -->
+
+      <!-- @if NODE_ENV == 'PRODUCTION' -->
+      var propertyId = 'UA-49250395-2';
+      <!-- @endif -->
+
+      ga('create', propertyId, createProp);
+
       ga('require', 'displayfeatures');
-      ga('send', 'pageview');
 
     </script>
   </head>

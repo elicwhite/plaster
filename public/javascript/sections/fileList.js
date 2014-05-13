@@ -1,7 +1,8 @@
-define(["section", "tapHandler", "analytics", "event", "globals", "helpers", "online", "gauth", "sections/statusIndicator", "sections/fileItem", "data"], function(Section, TapHandler, Analytics, Event, g, Helpers, Online, GAuth, StatusIndicator, FileItem, Data) {
+define(["page", "tapHandler", "analytics", "event", "globals", "helpers", "online", "gauth", "sections/statusIndicator", "sections/fileItem", "data"], function(Page, TapHandler, Analytics, Event, g, Helpers, Online, GAuth, StatusIndicator, FileItem, Data) {
 
-  var FileList = Section.extend({
+  var FileList = Page.extend({
     id: "files-list-container",
+    name: "File List",
 
     // The parent pane for this page
     _filesPane: null,
@@ -75,6 +76,8 @@ define(["section", "tapHandler", "analytics", "event", "globals", "helpers", "on
     },
 
     show: function() {
+      this._super();
+
       Event.addListener("onlineStatusChanged", this._onlineStatusChanged);
       Event.addListener("authenticatedStatusChanged", this._authenticatedStatusChanged);
 
@@ -125,7 +128,7 @@ define(["section", "tapHandler", "analytics", "event", "globals", "helpers", "on
           console.log("Showing draw for", fileInfo);
           this._filesPane.setPane("draw", fileInfo);
 
-          Analytics.event("create file");
+          Analytics.event("file", "created");
         }).bind(this));
     },
 

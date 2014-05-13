@@ -1,4 +1,4 @@
-define(["section", "managers/modal", "tapHandler"], function(Section, ModalManager, TapHandler) {
+define(["section", "managers/modal", "tapHandler", "analytics"], function(Section, ModalManager, TapHandler, Analytics) {
 
   var ModalBase = Section.extend({
 
@@ -16,10 +16,12 @@ define(["section", "managers/modal", "tapHandler"], function(Section, ModalManag
     },
 
     show: function() {
+      Analytics.event("modal", "shown", this.name);
       ModalManager.show(this);
     },
 
     hide: function() {
+      Analytics.event("modal", "closed", this.name);
       ModalManager.hide();
     }
   });

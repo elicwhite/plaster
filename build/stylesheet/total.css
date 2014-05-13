@@ -626,7 +626,7 @@ body, input {
   border-bottom: 1px solid #aaaaaa;
 }
 #modal-overlay #share-modal {
-  width: 500px;
+  width: 600px;
   min-height: 300px;
 }
 #modal-overlay #share-modal #share-modal-link-text {

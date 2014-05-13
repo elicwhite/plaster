@@ -5,6 +5,7 @@ define(["class"], function(Class) {
 		element: null,
 		_visible: null,
 
+
 		init: function() {
 			if (this.id) {
 				this.element = document.getElementById(this.id);
@@ -18,6 +19,7 @@ define(["class"], function(Class) {
 		},
 
 		show: null,
+
 		hide: null,
 
 		afterShow: function() {

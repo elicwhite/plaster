@@ -5,17 +5,19 @@ define(["event"], function(Event) {
 
   Analytics.prototype = {
     init: function() {
-
     },
 
-    pageview: function(pageName) {
+    pageView: function(pageName) {
       ga('send', 'pageview', {
+        'page': window.location.pathname + window.location.hash,
         'title': pageName
       });
     },
 
-    event: function(eventName) {
-      ga('send', 'event', eventName);
+    event: function() {
+      var args = [].splice.call(arguments,0);
+      var args = ['send', 'event'].concat(args);
+      ga.apply(ga, args);
     },
   }
 

@@ -1,7 +1,8 @@
-define(["event", "section", "tapHandler", "online", "gauth", "data"], function(Event, Section, TapHandler, Online, GAuth, Data) {
+define(["event", "page", "tapHandler", "online", "gauth", "data"], function(Event, Page, TapHandler, Online, GAuth, Data) {
 
-  var Login = Section.extend({
+  var Login = Page.extend({
     id: "login",
+    name: "Login",
 
     _basicBox: null,
     _fileBox: null,
@@ -28,6 +29,8 @@ define(["event", "section", "tapHandler", "online", "gauth", "data"], function(E
     },
 
     show: function() {
+      this._super();
+
       if (Online.isOnline()) {
         console.log("already online");
         this._turnOnline();

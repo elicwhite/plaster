@@ -1,7 +1,8 @@
-define(["components/modalBase", "tapHandler", "data"], function(ModalBase, tapHandler, Data) {
+define(["components/modalBase", "tapHandler", "data", "analytics"], function(ModalBase, tapHandler, Data, Analytics) {
 
   var Delete = ModalBase.extend({
     id: "delete-modal",
+    name: "Delete",
 
     _titleElement: null,
     _deleteButton: null,
@@ -42,7 +43,7 @@ define(["components/modalBase", "tapHandler", "data"], function(ModalBase, tapHa
 
       Data.deleteFile(this._fileInfo.id)
         .then((function() {
-          Analytics.event("deleted file");
+          Analytics.event("file", "deleted");
         }).bind(this));
     }
   });
