@@ -476,6 +476,30 @@ define(["class", "helpers", "event", "gauth", "online", "sequentialHelper", "dat
       return this._driveBacking.canReadFile(fileId);
     },
 
+    shareFilePublicly: function(fileId) {
+      if (!Online.isOnline()) {
+        return Promise.reject(new Error("Not connected to drive"));
+      }
+
+      return this._driveBacking.shareFilePublicly(fileId);
+    },
+
+    disablePublicFile: function(fileId) {
+      if (!Online.isOnline()) {
+        return Promise.reject(new Error("Not connected to drive"));
+      }
+
+      return this._driveBacking.disablePublicFile(fileId);
+    },
+
+    getFilePermissions: function(fileId) {
+      if (!Online.isOnline()) {
+        return Promise.reject(new Error("Not connected to drive"));
+      }
+
+      return this._driveBacking.getFilePermissions(fileId);
+    },
+
     clearLocal: function() {
       return this._backing.clearAll()
         .then((function() {

@@ -71,8 +71,8 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
             redoStack: []
           };
 
-          actionsObj.remoteActions = actions.remote;
-          actionsObj.localActions = actions.local;
+          actionsObj.remoteActions = actions.remote.map(this._convertFromStorage);
+          actionsObj.localActions = actions.local.map(this._convertFromStorage);
 
           this._cachedActions = actionsObj;
 
@@ -382,10 +382,11 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
         return this._backing.updateLocalModifiedTime(fileInfo.localModifiedTime);
       }).bind(this)));
 
-      promises.push(this._backing.addLocalAction(action));
+      var newAction = this._prepareForStorage(Helpers.clone(action));
+
+      promises.push(this._backing.addLocalAction(newAction));
 
       if (this._driveBacking) {
-        var newAction = this._prepareForDrive(Helpers.clone(action));
         promises.push(this._driveBacking.addAction(newAction));
       }
 
@@ -508,7 +509,6 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
 
               // we need to add indexes to these items
               items = this._indexify(remoteActionsAfterDiverge, diverges);
-              items = items.map(this._convertFromDrive);
 
               // remove the actions in local after the diverge
               promises.push(this._backing.removeRemoteActions(diverges, localActions.remote.length - diverges)
@@ -519,6 +519,7 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
                 }).bind(this)));
 
               // and fix our array
+              items = items.map(this._convertFromStorage);
               this._cachedActions.remoteActions.splice.apply(this._cachedActions.remoteActions, [diverges, this._cachedActions.remoteActions.length - diverges].concat(items));
             } else if (shorter == remoteActions) {
               // remove the actions after diverge from local
@@ -530,20 +531,11 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
               var remoteActionsAfterLocal = remoteActions.slice(localActions.remote.length);
 
               items = this._indexify(remoteActionsAfterLocal, localActions.remote.length);
-              items = items.map(this._convertFromDrive);
-
               promises.push(this._backing.addRemoteActions(localActions.remote.length, items));
 
+              items = items.map(this._convertFromStorage);
               this._cachedActions.remoteActions.splice.apply(this._cachedActions.remoteActions, [this._cachedActions.remoteActions.length, 0].concat(items));
             }
-
-            if (!isEqual(this._cachedActions.remoteActions, remoteActions)) {
-              debugger;
-            }
-
-
-            // there was a difference, lets fix our cachedActions
-            //this._cachedActions.remoteActions = remoteActions;
           }
 
           // TODO: move this to the end of sync instead of syncing file actions
@@ -562,7 +554,7 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
       var promises = [];
 
       for (var j = 0; j < actions.length; j++) {
-        var newAction = this._prepareForDrive(actions[j]);
+        var newAction = this._prepareForStorage(actions[j]);
         promises.push(driveBacking.addAction(newAction));
       }
 
@@ -570,10 +562,6 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
     },
 
     remoteActionsAdded: function(data) {
-      if (!this.isConnected()) {
-        //debugger;
-      }
-
       var promises = [];
 
       if (data.isLocal) {
@@ -591,11 +579,17 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
         }
       }
 
+      var withControlPoints = data.values.map((function(action) {
+          var newAction = Helpers.clone(action);
+          newAction.value = Helpers.clone(action.value);
+
+          return this._convertFromStorage(newAction);
+      }).bind(this));
+
       // put the items into the remoteActions
-      this._cachedActions.remoteActions.splice.apply(this._cachedActions.remoteActions, [data.index, 0].concat(data.values));
+      this._cachedActions.remoteActions.splice.apply(this._cachedActions.remoteActions, [data.index, 0].concat(withControlPoints));
 
       var items = this._indexify(data.values, data.index);
-      items = items.map(this._convertFromDrive);
 
       // insert them into storage
       promises.push(this._backing.addRemoteActions(data.index, items));
@@ -603,7 +597,7 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
       if (this._addedCallback) {
         this._addedCallback({
           isLocal: data.isLocal,
-          items: items
+          items: withControlPoints
         });
       }
 
@@ -630,11 +624,6 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
     },
 
     remoteActionsRemoved: function(data) {
-      if (!this.isConnected()) {
-        // We have since closed
-        //debugger;
-      }
-
       // remove it from the remoteActions
       this._cachedActions.remoteActions.splice(data.index, data.values.length);
 
@@ -689,7 +678,7 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
       return items;
     },
 
-    _prepareForDrive: function(action) {
+    _prepareForStorage: function(action) {
       var newAction = Helpers.clone(action);
       newAction.value = Helpers.clone(action.value);
       delete newAction.value.controlPoints;
@@ -697,13 +686,9 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
       return newAction;
     },
 
-    _convertFromDrive: function(action) {
+    _convertFromStorage: function(action) {
       var controlPoints = BezierCurve.getCurveControlPoints(action.value.points);
       action.value.controlPoints = Helpers.cloneArray(controlPoints);
-
-      if (action.value.controlPoints == undefined) {
-        debugger;
-      }
 
       return action;
     },

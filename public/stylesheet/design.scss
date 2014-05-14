@@ -5,6 +5,7 @@
 */
 @import "bluePurple.scss";
 
+$extraLightGray: #ccc;
 $veryLightGray: #aaa;
 $lightGray: #666;
 $mediumGray: #444;
@@ -13,34 +14,23 @@ $veryDarkGray: #111;
 
 body, input {
   font-size: 15px;
-  font-family: 'Open Sans', arial, sans-serif;
+  font-family: verdana, arial, sans-serif;
   font-weight: 100;
+  color: #333;
+}
+
+#overall {
+  &.blurred {
+    @include blur(3px);
+  }
 }
 
 #login {
-
   #login-wrapper {
-    width: 100%;
-    height: 100%;
-    @include display-flex();
-    @include flex-justify-content(center);
-    @include flex-align-items(center);
-    @include flex-direction(column);
-
     #info-container {
-      @include display-flex();
-      @include flex-justify-content(center);
-      @include flex-align-items(center);
-      @include flex-direction(column);
-
-      width: 100%;
-
       text-align: center;
-      position: relative;
 
       #login-box-switcher {
-        width: 100%;
-        position: relative;
         height: 170px;
         margin-bottom: 20px;
 
@@ -59,7 +49,7 @@ body, input {
       #login-basic, #login-file {
 
         position: absolute;
-        @include transition(.5s, all);
+        @include transition(.5s all);
         left: 0;
         right: 0;
         bottom: 0;
@@ -81,25 +71,9 @@ body, input {
       }
 
       #loginbutton {
-        display: inline-block;
         line-height: 50px;
         min-height: 50px;
         padding: 0 60px;
-        background-color: $primary4;
-        border: 1px solid $primary2;
-        cursor: pointer;
-
-        i {
-          margin-right: 10px;
-          vertical-align: middle;
-          font-size: 25px;
-          line-height: 25px;
-        }
-
-        &.disabled {
-          cursor: default;
-          background-color: lighten($primary4, 30%);
-        }
       }
     }
 
@@ -108,28 +82,13 @@ body, input {
       margin-top: 30px;
       text-align: center;
       line-height: 25px;
-
-      .compatability {
-
-
-        span {
-          display: inline-block;
-          width: 100px;
-
-          &:before {
-            display: block;
-            font-size: 30px;
-            margin-bottom: 10px;
-          }
-        }
-      }
     }
   }
 }
 
 #updateBar {
-  @include transition(.3s, all);
-  @include transform("translate(0px, -36px)");
+  @include transition(.3s all);
+  @include transform(translate(0px, -36px));
 
   #updateBarContent {
     font-size: 15px;
@@ -142,7 +101,7 @@ body, input {
   }
 
   &.visible {
-    @include transform("translate(0px, 0px)");
+    @include transform(translate(0px, 0px));
   }
 }
 
@@ -152,7 +111,7 @@ body, input {
 
     #navbar {
       height: 40px;
-      border-bottom: 1px solid #ccc;
+      border-bottom: 1px solid $extraLightGray;
 
       ul {
         color: $veryLightGray;
@@ -164,7 +123,7 @@ body, input {
           line-height: 40px;
 
           &#mode {
-            transition: .5s opacity;
+            @include transition(.5s opacity);
             text-transform: uppercase;
             font-size: 12px;
             opacity: 1;
@@ -201,7 +160,7 @@ body, input {
           &.create {
             color: #dcdcdc;
             background-color: white;
-            border: 1px solid #ccc;
+            border: 1px solid $extraLightGray;
             @include flex-direction(column);
 
             .icon {
@@ -215,7 +174,7 @@ body, input {
           }
 
           .thumbnail-info {
-            border: 1px solid #ccc;
+            border: 1px solid $extraLightGray;
             position: relative;
             overflow: hidden;
 
@@ -370,7 +329,7 @@ body, input {
           }
 
           &.disabled {
-            background-color: #ccc;
+            background-color: $extraLightGray;
             color: #bbb;
           }
         }
@@ -385,6 +344,99 @@ body, input {
   }
 }
 
+#modal-overlay {
+  background-color: rgba(255,255,255,.8);
+
+  .modal {
+    background-color: #fafafa;
+    border: 1px solid $veryLightGray;
+
+    text-align: center;
+
+    .row {
+      margin-bottom: 20px;
+    }
+
+    .visible-switch {
+      @include transition(.3s opacity);
+    }
+
+    .buttons {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+
+    .title {
+      font-size: 20px;
+      font-weight: 100;
+      padding: 10px;
+      background-color: #ececec;
+      border-bottom: 1px solid $veryLightGray;
+    }
+  }
+
+  #share-modal {
+    width: 600px;
+    min-height: 300px;
+
+    #share-modal-link-text {
+      user-select: initial;
+      -webkit-user-select: initial;
+      cursor: text;
+
+      background-color: white;
+      border-bottom: 1px solid $veryLightGray;
+      border-top: 1px solid $veryLightGray;
+      padding: 15px 0;
+    }
+
+    .subtext {
+      color: #888;
+      font-size: 14px;
+      margin-top: 5px;
+    }
+  }
+
+  #delete-modal {
+    width: 400px;
+    height: 200px;
+  }
+}
+
+.button {
+  display: inline-block;
+  border: 1px solid $veryLightGray;
+  cursor: pointer;
+  padding: 7px 12px;
+  min-width: 60px;
+  background-color: #fafafa;
+
+  i {
+    margin-right: 10px;
+    vertical-align: middle;
+    font-size: 20px;
+    // line-height: 25px;
+  }
+
+  &.primary {
+    background-color: $primary4;
+    border-color: $primary2;
+    color: white;
+  }
+
+  &.alert {
+    background-color: #cf0000;
+    border-color: darken(#cf0000, 20%);
+    color: white;
+  }
+
+  &.disabled {
+    cursor: default;
+    background-color: lighten($primary4, 30%);
+  }
+}
 
 @import "computer.scss";
 @import "mobile.scss";

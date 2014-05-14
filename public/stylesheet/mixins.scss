@@ -6,11 +6,11 @@
           border-radius: $radius;
 }
 
-@mixin transition($time, $property, $type: "") {
-  -webkit-transition: $property $time #{$type};
-     -moz-transition: $property $time #{$type};
-       -o-transition: $property $time #{$type};
-          transition: $property $time #{$type};
+@mixin transition($value) {
+  -webkit-transition: #{$value};
+     -moz-transition: #{$value};
+       -o-transition: #{$value};
+          transition: #{$value};
 }
 
 @mixin transform($params) {
@@ -77,4 +77,35 @@
      -moz-flex-direction: $value;
       -ms-flex-direction: $value;
           flex-direction: $value;
+}
+
+@mixin blur($value) {
+  -webkit-filter: blur($value);
+     -moz-filter: blur($value);
+      -ms-filter: blur($value);
+          filter: blur($value);
+
+}
+
+@mixin animation($value) {
+  -webkit-animation: $value;
+     -moz-animation: $value;
+      -ms-animation: $value;
+          animation: $value;
+
+}
+
+@mixin keyframes($name) {
+  @-webkit-keyframes #{$name} {
+    @content;
+  }
+  @-moz-keyframes #{$name} {
+    @content;
+  }
+  @-ms-keyframes #{$name} {
+    @content;
+  }
+  @keyframes #{$name} {
+    @content;
+  }
 }

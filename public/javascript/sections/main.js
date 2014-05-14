@@ -17,7 +17,7 @@ define(["section", "event", "managers/files"], function(Section, Event, Files) {
       this.panes = {};
 
       this.panes.files = new Files();
-      
+
       Event.addListener("logout", this._logout.bind(this));
     },
 
@@ -28,7 +28,6 @@ define(["section", "event", "managers/files"], function(Section, Event, Files) {
         this.setPane("files");
       }
     },
-
 
     setPane: function(pane) {
       if (this.currentPane == pane)

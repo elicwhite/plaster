@@ -192,7 +192,7 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
     _fields: 'id,modifiedDate,shared,title,userPermission(role)',
 
     init: function() {
-      this.APP_MIMETYPE = this.REALTIME_MIMETYPE+"."+this._appId;
+      this.APP_MIMETYPE = this.REALTIME_MIMETYPE + "." + this._appId;
     },
 
     getFiles: function() {
@@ -225,7 +225,7 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
         gapi.client.load('drive', 'v2', (function() {
           var request = gapi.client.drive.files.get({
             'fileId': fileId,
-            'fields': this._fields+",owners(displayName,picture)",
+            'fields': this._fields + ",owners(displayName,picture)",
             'key': this._key,
           }).execute((function(resp) {
             if (resp.error) {
@@ -253,9 +253,7 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
             } else {
               if (resp.mimeType == this.APP_MIMETYPE) {
                 resolve(true);
-              }
-              else
-              {
+              } else {
                 resolve(false);
               }
             }
@@ -369,6 +367,69 @@ define(["class", "helpers", "gauth"], function(Class, Helpers, GAuth) {
               reject(error);
             } else {
               resolve(resp);
+            }
+          });
+        }).bind(this));
+      }).bind(this));
+    },
+
+    shareFilePublicly: function(fileId) {
+      return new Promise((function(resolve, reject) {
+        gapi.client.load('drive', 'v2', (function() {
+          var body = {
+            'value': "",
+            'type': 'anyone',
+            'role': 'writer',
+            'withLink': false
+          };
+
+          gapi.client.drive.permissions.insert({
+            'fileId': fileId,
+            'resource': body
+          }).execute(function(resp) {
+            if (resp.error) {
+              var error = new Error();
+              error.object = resp;
+              reject(error);
+            } else {
+              resolve(resp);
+            }
+          });
+        }).bind(this));
+      }).bind(this));
+    },
+
+    disablePublicFile: function(fileId) {
+      return new Promise((function(resolve, reject) {
+        gapi.client.load('drive', 'v2', (function() {
+          gapi.client.drive.permissions.delete({
+            'fileId': fileId,
+            'permissionId': 'anyone'
+          }).execute(function(resp) {
+            if (resp.error) {
+              var error = new Error();
+              error.object = resp;
+              reject(error);
+            } else {
+              resolve(resp);
+            }
+          });
+        }).bind(this));
+      }).bind(this));
+    },
+
+    getFilePermissions: function(fileId) {
+      return new Promise((function(resolve, reject) {
+        gapi.client.load('drive', 'v2', (function() {
+          gapi.client.drive.permissions.list({
+            'fileId': fileId,
+          }).execute(function(resp) {
+            if (resp.error) {
+              var error = new Error();
+              error.object = resp;
+              reject(error);
+            } else {
+              resolve(resp.items);
             }
           });
         }).bind(this));

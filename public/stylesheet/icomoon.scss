@@ -1,10 +1,7 @@
 @font-face {
 	font-family: 'icomoon';
-	src:url('../fonts/icomoon.eot?-su82gi');
-	src:url('../fonts/icomoon.eot?#iefix-su82gi') format('embedded-opentype'),
-		url('../fonts/icomoon.woff?-su82gi') format('woff'),
-		url('../fonts/icomoon.ttf?-su82gi') format('truetype'),
-		url('../fonts/icomoon.svg?-su82gi#icomoon') format('svg');
+	src:url('../fonts/icomoon.woff?') format('woff'),
+		url('../fonts/icomoon.ttf') format('truetype');
 	font-weight: normal;
 	font-style: normal;
 }
@@ -56,9 +53,22 @@
 .icon-redo:before {
 	content: "\e616";
 }
-// .icon-spinner:before {
-// 	content: "\e606";
-// }
+.icon-spinner:before {
+	content: "\e606";
+
+	@include animation(spin .7s linear infinite);
+}
+
+@include keyframes("spin") {
+	from {
+    @include transform("rotate(0deg)");
+  }
+
+	to {
+    @include transform("rotate(360deg)");
+  }
+}
+
 .icon-search:before {
 	content: "\e612";
 }

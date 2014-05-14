@@ -1,7 +1,6 @@
 define(["event"], function(Event) {
   var Globals = function Globals() {
     this.init();
-    window.g = this;
   };
 
   Globals.prototype = {

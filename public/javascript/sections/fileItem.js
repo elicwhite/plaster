@@ -1,4 +1,4 @@
-define(["section", "tapHandler", "analytics", "event", "globals", "helpers", "platform", "template", "online", "gauth", "data"], function(Section, TapHandler, Analytics, Event, g, Helpers, Platform, Template, Online, GAuth, Data) {
+define(["section", "tapHandler", "analytics", "event", "globals", "helpers", "platform", "template", "online", "gauth", "data", "modals/share", "modals/delete"], function(Section, TapHandler, Analytics, Event, g, Helpers, Platform, Template, Online, GAuth, Data, ShareModal, DeleteModal) {
 
   var FileItem = Section.extend({
     _fileList: null,
@@ -35,15 +35,13 @@ define(["section", "tapHandler", "analytics", "event", "globals", "helpers", "pl
         start: this._docStarted.bind(this),
         move: this._docMoved.bind(this),
         end: this._docEnded.bind(this)
+
       });
 
       if (g.isMobile()) {
         this._thumbnailElement.style[Platform.transform] = "translateX(0px);"
         this._thumbnailElement.translateX = 0;
-
         var deleteButton = ele.getElementsByClassName("delete")[0];
-        window.a = deleteButton;
-        // this._slideMax
       }
     },
 
@@ -51,22 +49,21 @@ define(["section", "tapHandler", "analytics", "event", "globals", "helpers", "pl
       var element = e.target;
 
       var fileActionElement = Helpers.parentEleWithClassname(element, "file-action");
+      var barElement = Helpers.parentEleWithClassname(element, "bar");
 
       if (fileActionElement) {
         var action = fileActionElement.dataset.action;
 
         if (action == "delete") {
-          // Delete was clicked
-          return Data.deleteFile(this._fileInfo.id)
-          .then((function() {
-            Analytics.event("deleted file");
-          }).bind(this));
-          // } else if (action == "share") {
-          //   console.log(this._fileInfo);
-          //   return;
+          return DeleteModal.show(this._fileInfo);
+        } else if (action == "share") {
+          return ShareModal.show(this._fileInfo);
         }
+      } else if (barElement) {
+        // We clicked on the bar, don't do anything
+        return;
       } else if (Helpers.parentEleIsElement(element, this._thumbnailInfoElement)) {
-        this._fileList.drawFile(this._fileInfo);
+        return this._fileList.drawFile(this._fileInfo);
       }
     },
 
@@ -74,8 +71,10 @@ define(["section", "tapHandler", "analytics", "event", "globals", "helpers", "pl
       if (g.isMobile()) {
         this._slideState = null;
 
+        // var shareButton = this._thumbnailInfoElement.getElementsByClassName("share")[0];
         var deleteButton = this._thumbnailInfoElement.getElementsByClassName("delete")[0];
-        this._slideMax = -1 * deleteButton.offsetWidth;
+
+        this._slideMax = -1 * (deleteButton.offsetWidth);
       }
     },
 
