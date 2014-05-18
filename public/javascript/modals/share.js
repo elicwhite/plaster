@@ -42,6 +42,10 @@ define(["components/modalBase", "tapHandler", "data", "event", "online", "platfo
         },
         tap: this._shareTapped.bind(this)
       })
+
+      this._linkTextElement.addEventListener("click", function(e) {
+        e.preventDefault();
+      });
     },
 
     show: function(fileInfo) {
