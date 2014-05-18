@@ -597,6 +597,7 @@ body, input {
 
 #modal-overlay {
   background-color: rgba(255, 255, 255, 0.8);
+  overflow: hidden;
 }
 #modal-overlay .modal {
   background-color: #fafafa;
@@ -625,27 +626,26 @@ body, input {
   background-color: #ececec;
   border-bottom: 1px solid #aaaaaa;
 }
-#modal-overlay #share-modal {
-  width: 600px;
-  min-height: 300px;
-}
-#modal-overlay #share-modal #share-modal-link-text {
-  user-select: initial;
-  -webkit-user-select: initial;
-  cursor: text;
+#modal-overlay #share-modal #share-modal-link-wrapper {
   background-color: white;
   border-bottom: 1px solid #aaaaaa;
   border-top: 1px solid #aaaaaa;
   padding: 15px 0;
+}
+#modal-overlay #share-modal #share-modal-link-text {
+  user-select: text;
+  -webkit-user-select: text;
+  cursor: text;
+  color: inherit;
+  text-decoration: none;
 }
 #modal-overlay #share-modal .subtext {
   color: #888;
   font-size: 14px;
   margin-top: 5px;
 }
-#modal-overlay #delete-modal {
-  width: 400px;
-  height: 200px;
+#modal-overlay #share-modal #share-modal-link-text {
+  word-wrap: break-word;
 }
 
 .button {
@@ -774,6 +774,15 @@ body, input {
   margin: auto;
   margin-right: 5px;
   margin-bottom: 5px;
+}
+
+.computer #modal-overlay #share-modal, .tablet #modal-overlay #share-modal {
+  width: 600px;
+  min-height: 300px;
+}
+.computer #modal-overlay #delete-modal, .tablet #modal-overlay #delete-modal {
+  width: 400px;
+  height: 200px;
 }
 
 .tablet #files #files-list-container #files-list li > div .thumbnail-info, .phone #files #files-list-container #files-list li > div .thumbnail-info {
@@ -966,6 +975,10 @@ body, input {
   margin-right: 10px;
   margin-bottom: 10px;
 }
+.phone #modal-overlay .modal {
+  width: 100%;
+  height: 100%;
+}
 
 @font-face {
   font-family: 'icomoon';
@@ -1029,6 +1042,7 @@ body, input {
 
 .icon-spinner:before {
   content: "\e606";
+  display: inline-block;
   -webkit-animation: spin 0.7s linear infinite;
   -moz-animation: spin 0.7s linear infinite;
   -ms-animation: spin 0.7s linear infinite;

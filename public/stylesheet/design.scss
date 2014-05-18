@@ -346,6 +346,7 @@ body, input {
 
 #modal-overlay {
   background-color: rgba(255,255,255,.8);
+  overflow: hidden;
 
   .modal {
     background-color: #fafafa;
@@ -378,18 +379,19 @@ body, input {
   }
 
   #share-modal {
-    width: 600px;
-    min-height: 300px;
-
-    #share-modal-link-text {
-      user-select: initial;
-      -webkit-user-select: initial;
-      cursor: text;
-
+    #share-modal-link-wrapper {
       background-color: white;
       border-bottom: 1px solid $veryLightGray;
       border-top: 1px solid $veryLightGray;
       padding: 15px 0;
+    }
+
+    #share-modal-link-text {
+      user-select: text;
+      -webkit-user-select: text;
+      cursor: text;
+      color: inherit;
+      text-decoration: none;
     }
 
     .subtext {
@@ -397,11 +399,10 @@ body, input {
       font-size: 14px;
       margin-top: 5px;
     }
-  }
 
-  #delete-modal {
-    width: 400px;
-    height: 200px;
+    #share-modal-link-text {
+      word-wrap: break-word;
+    }
   }
 }
 

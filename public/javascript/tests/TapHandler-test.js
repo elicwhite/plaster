@@ -64,8 +64,8 @@ define(['promise', 'tests/vendor/syn', 'tapHandler'], function(Promise, s, TapHa
           clientY: 10
         }
 
-        this.createTouch = function() {
-          this.props.identifier = 1;
+        this.createTouch = function(id) {
+          this.props.identifier = id || 1;
 
           return {
             touches: [this.props]
@@ -184,6 +184,26 @@ define(['promise', 'tests/vendor/syn', 'tapHandler'], function(Promise, s, TapHa
           touch.touches.length = 0;
           this.dispatch('touchend', touch);
         }
+      },
+
+      "touchcancel lets a new touch start": function() {
+        this.tapSpy = this.spy();
+
+        this.handler = new TapHandler(this.element, {
+          tap: this.tapSpy,
+        });
+
+        var touch = this.createTouch(1);
+        this.dispatch('touchstart', touch);
+        this.dispatch('touchcancel', touch);
+        assert.isFalse(this.tapSpy.called);
+
+        var touch2 = this.createTouch(2);
+        this.dispatch('touchstart', touch2);
+        touch2.touches.length = 0;
+        this.dispatch('touchend', touch2);
+
+        assert.isTrue(this.tapSpy.called);
       },
 
       "multi touch": {
