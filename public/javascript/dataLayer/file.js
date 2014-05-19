@@ -300,7 +300,7 @@ define(["class", "event", "helpers", "sequentialHelper", "bezierCurve", "compone
             localStorage[fileInfo.id] = JSON.stringify({
               offsetX: 0,
               offsetY: 0,
-              scale: 1,
+              scale: .005,
               color: "#000",
               tools: {
                 point: "pencil",
