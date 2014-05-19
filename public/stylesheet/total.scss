@@ -222,14 +222,13 @@ body {
     position: relative;
   }
 
-  .visible-switch {
-    &.invisible {
-      opacity: 0;
-    }
 
-    &.hidden {
-      display: none;
-    }
+  .invisible {
+    opacity: 0;
+  }
+
+  .hidden {
+    display: none;
   }
 }
 

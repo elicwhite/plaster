@@ -16,20 +16,15 @@ define([], function() {
     _startTime: null,
     _startX: null,
     _startY: null,
-
-    // _startScale: null,
+    _startDistance: null,
 
     _lastX: null,
     _lastY: null,
 
-    // _lastScale: null,
-
     // Object with x and why of where the element is on the page
     _offset: null,
 
-    // _inTouch: false,
     _inGesture: false,
-
     _ignoreGestures: false,
 
     init: function(element, options) {
@@ -46,6 +41,8 @@ define([], function() {
       this._mouseUp = this._mouseUp.bind(this);
       this._touchUp = this._touchUp.bind(this);
 
+      this._touchCancel = this._touchCancel.bind(this);
+
 
       this._down = this._down.bind(this);
       this._move = this._move.bind(this);
@@ -61,7 +58,6 @@ define([], function() {
 
       this._element.addEventListener("mousedown", this._mouseDown);
       this._element.addEventListener("touchstart", this._touchDown);
-      // this._element.addEventListener("gesturestart", this._gestureStart);
     },
 
     ignoreGestures: function(value) {
@@ -107,24 +103,18 @@ define([], function() {
       if (e.touches.length >= 2 && !this._ignoreGestures) {
         this._gestureStart(e);
       } else {
-        this._calculateTouchXY(e);
+        this._calculateTouchXY(e)
         this._down(e);
       }
 
       document.addEventListener("touchmove", this._touchMove);
       document.addEventListener("touchend", this._touchUp);
+      this._element.addEventListener("touchcancel", this._touchCancel);
     },
 
 
     _down: function(e) {
       this._processEvent(e);
-
-      // // Ignore these if we are currently gesturing
-      // if (this._inGesture) {
-      //   return;
-      // }
-
-      // this._inTouch = true;
 
       // We need to use our own instead of timeStamp so that we can run tests
       this._startTime = Date.now();
@@ -170,9 +160,7 @@ define([], function() {
     _touchMove: function(e) {
       if (this._inGesture) {
         this._gestureChange(e);
-      }
-      else
-      {
+      } else {
         this._calculateTouchXY(e);
         this._move(e);
       }
@@ -193,7 +181,6 @@ define([], function() {
       this._calculateGestureXY(e);
 
       this._processEvent(e);
-      //this._processGesture(e);
 
       var newDistance = this._getGestureDistance(e);
 
@@ -226,29 +213,15 @@ define([], function() {
         return;
       }
 
+      this._end(e);
+
       document.removeEventListener("touchmove", this._touchMove);
       document.removeEventListener("touchend", this._touchUp);
 
-      this._end(e);
-      this._startTouchId = null;
+      this._touchCancel();
     },
 
     _end: function(e) {
-      /*
-        if e isn't set, end the handlers, call tap if it is within limits, call end
-      */
-      // if (!e) {
-      //   this._endTouchHandlers();
-      //   if (this._options.end) {
-      //     this._options.end();
-      //   }
-
-      //   this._inTouch = false;
-
-      //   return;
-      // }
-
-      // this._endTouchHandlers();
       this._processEvent(e);
 
       e.wasTap = false;
@@ -266,16 +239,16 @@ define([], function() {
         this._options.end(e);
       }
 
-      // this._inTouch = false;
-
       this._startX = null;
       this._startY = null;
 
-      // Keep mouse events from being called
-      // if (e) {
       e.preventDefault();
       e.stopImmediatePropagation();
-      // }
+    },
+
+    _touchCancel: function() {
+      this._startTouchId = null;
+      this._element.removeEventListener("touchcancel", this._touchCancel);
     },
 
     _gestureEnd: function(e) {
@@ -292,92 +265,12 @@ define([], function() {
 
       document.removeEventListener("touchmove", this._touchMove);
       document.removeEventListener("touchend", this._touchUp);
-
     },
-
-    // _gestureStart: function(e) {
-    //   if (this._ignoreGestures) {
-    //     return;
-    //   }
-
-    //   this._inGesture = true;
-
-    //   if (this._inTouch) {
-    //     console.log("we are in a touch");
-    //     // We need to end the touch
-    //     this._end();
-    //   }
-
-
-
-    //   this._processEvent(e);
-    //   this._processGesture(e);
-
-    //   this._startTime = e.timeStamp;
-
-    //   this._startX = this._lastX = e.x;
-    //   this._startY = this._lastY = e.y;
-
-    // this._startScale = this._lastScale = e.scale;
-
-    //   if (this._options.gestureStart) {
-    //     this._options.gestureStart(e);
-    //   }
-
-    //   document.addEventListener("gesturechange", this._gestureChange);
-    //   document.addEventListener("gestureend", this._gestureEnd);
-    // },
-
-    // _gestureChange: function(e) {
-    //   this._processEvent(e);
-    //   this._processGesture(e);
-
-    //   this._lastX = e.x;
-    //   this._lastY = e.y;
-    //   this._lastScale = e.scale;
-
-    //   if (this._options.gesture) {
-    //     this._options.gesture(e);
-    //   }
-    // },
-
-    // _gestureEnd: function(e) {
-    //   this._processEvent(e);
-    //   this._processGesture(e);
-
-    //   if (this._options.gestureEnd) {
-    //     this._options.gestureEnd(e);
-    //   }
-
-    //   document.removeEventListener("gesturechange", this._gestureChange);
-    //   document.removeEventListener("gestureend", this._gestureEnd);
-
-    //   this._inGesture = false;
-    // },
 
     // Unregister the regular touch handlers, used for when gestures start
 
     // Given an e, add things like x and y regardless of touch or mouse
     _processEvent: function(e) {
-      // var index = -1;
-      // // It's a touch
-      // if (e.touches && e.touches.length > 0 && (index = this._indexOfTouch(e, this._startTouchId)) !== -1) {
-      //   e.x = e.touches[index].clientX;
-      //   e.y = e.touches[index].clientY;
-      // } else if (e.clientX) {
-      //   // It's a click
-      //   e.x = e.clientX;
-      //   e.y = e.clientY;
-      //   // } else if (e.pageX) {
-      //   //   // gesture events only get a layerx
-      //   //   e.x = e.pageX;
-      //   //   e.y = e.pageY;
-      // } else {
-      //   // It's probably an end, there is no coords
-      //   e.x = this._lastX;
-      //   e.y = this._lastY;
-      // }
-
       e.distFromLeft = e.x - this._offset.x;
       e.distFromTop = e.y - this._offset.y;
 
@@ -417,10 +310,8 @@ define([], function() {
     clear: function() {
 
       // hard code all these removes, might as well, this is only used in the test suite for now
-
       this._element.removeEventListener("mousedown", this._mouseDown);
       this._element.removeEventListener("touchstart", this._touchDown);
-      // this._element.removeEventListener("gesturestart", this._gestureStart);
 
       document.removeEventListener("mousemove", this._mouseMove);
       document.removeEventListener("mouseup", this._mouseUp);
@@ -428,8 +319,6 @@ define([], function() {
       document.removeEventListener("touchmove", this._touchMove);
       document.removeEventListener("touchend", this._touchUp);
     }
-
-
   };
 
   return TapHandler;

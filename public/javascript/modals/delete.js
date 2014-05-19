@@ -6,6 +6,7 @@ define(["components/modalBase", "tapHandler", "data", "analytics"], function(Mod
 
     _titleElement: null,
     _deleteButton: null,
+    _closeButton: null,
 
     _fileInfo: null,
 
@@ -14,12 +15,20 @@ define(["components/modalBase", "tapHandler", "data", "analytics"], function(Mod
 
       this._titleElement = document.getElementById("delete-modal-title");
       this._deleteButton = document.getElementById("delete-modal-delete");
+      this._closeButton = document.getElementById("delete-modal-close");
 
       new tapHandler(this._deleteButton, {
         start: function(e) {
           e.stopPropagation();
         },
         tap: this._deleteTapped.bind(this)
+      })
+
+      new tapHandler(this._closeButton, {
+        start: function(e) {
+          e.stopPropagation();
+        },
+        tap: this._closeTapped.bind(this)
       })
     },
 
@@ -45,6 +54,10 @@ define(["components/modalBase", "tapHandler", "data", "analytics"], function(Mod
         .then((function() {
           Analytics.event("file", "deleted");
         }).bind(this));
+    },
+
+    _closeTapped: function(e) {
+      this.hide();
     }
   });
 

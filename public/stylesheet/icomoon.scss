@@ -55,6 +55,7 @@
 }
 .icon-spinner:before {
 	content: "\e606";
+	display: inline-block;
 
 	@include animation(spin .7s linear infinite);
 }

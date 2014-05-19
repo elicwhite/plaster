@@ -71,6 +71,10 @@ body, input {
       }
 
       #loginbutton {
+        i {
+          font-size: 20px;
+        }
+
         line-height: 50px;
         min-height: 50px;
         padding: 0 60px;
@@ -346,6 +350,7 @@ body, input {
 
 #modal-overlay {
   background-color: rgba(255,255,255,.8);
+  overflow: hidden;
 
   .modal {
     background-color: #fafafa;
@@ -378,18 +383,59 @@ body, input {
   }
 
   #share-modal {
-    width: 600px;
-    min-height: 300px;
+    // #share-modal-online, #share-modal-permissions, #share-modal-owner, #share-modal-link {
+    //   display: none;
+    // }
 
-    #share-modal-link-text {
-      user-select: initial;
-      -webkit-user-select: initial;
-      cursor: text;
+    // &.online {
+    //   #share-modal-offline {
+    //     display: none;
+    //   }
 
+    //   #share-modal-online {
+    //     display: inherit;
+    //   }
+    // }
+
+    // &.loaded {
+    //   #share-modal-loading {
+    //     display: none;
+    //   }
+
+    //   #share-modal-permissions {
+    //     display: inherit;
+    //   }
+    // }
+
+    // &.owned {
+    //   #share-modal-guest {
+    //     display: none;
+    //   }
+
+    //   #share-modal-owner {
+    //     display: inherit;
+    //   }
+    // }
+
+    // &.shared {
+    //   #share-modal-link {
+    //     display: inherit;
+    //   }
+    // }
+
+    #share-modal-link-wrapper {
       background-color: white;
       border-bottom: 1px solid $veryLightGray;
       border-top: 1px solid $veryLightGray;
       padding: 15px 0;
+    }
+
+    #share-modal-link-text {
+      user-select: text;
+      -webkit-user-select: text;
+      cursor: text;
+      color: inherit;
+      text-decoration: none;
     }
 
     .subtext {
@@ -397,11 +443,16 @@ body, input {
       font-size: 14px;
       margin-top: 5px;
     }
-  }
 
-  #delete-modal {
-    width: 400px;
-    height: 200px;
+    #share-modal-link-text {
+      word-wrap: break-word;
+    }
+
+    #share-modal-close-button {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+    }
   }
 }
 
@@ -416,7 +467,8 @@ body, input {
   i {
     margin-right: 10px;
     vertical-align: middle;
-    font-size: 20px;
+    font-weight: bold;
+    // font-size: 20px;
     // line-height: 25px;
   }
 

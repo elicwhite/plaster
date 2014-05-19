@@ -142,6 +142,20 @@ $computerThumbnailHeight: 10px;
   }
 }
 
+.computer, .tablet {
+  #modal-overlay {
+    #share-modal {
+      width: 600px;
+      min-height: 300px;
+    }
+
+    #delete-modal {
+      width: 400px;
+      height: 200px;
+    }
+  }
+}
+
 // mobile
 .tablet, .phone {
   #files {
@@ -434,6 +448,13 @@ $computerThumbnailHeight: 10px;
           }
         }
       }
+    }
+  }
+
+  #modal-overlay {
+    .modal {
+      width: 100%;
+      height: 100%;
     }
   }
 }
