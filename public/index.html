@@ -173,15 +173,15 @@
             You must be online to access sharing for this file.
           </div>
         </div>
-        <div id="share-modal-online" class="visible-switch hidden">
+        <div id="share-modal-online" class="visible-switch">
           <div id="share-modal-loading" class="visible-switch">
             <div class="row">
               <span class="icon-spinner"></span>
               <div>Loading Permissions</div>
             </div>
           </div>
-          <div id="share-modal-permissions" class="visible-switch hidden">
-            <div id="share-modal-guest" class="visible-switch row hidden">
+          <div id="share-modal-permissions" class="visible-switch">
+            <div id="share-modal-guest" class="visible-switch row">
                 Only the creator of this file can change its sharing settings.
             </div>
             <div id="share-modal-owner" class="visible-switch">
@@ -194,12 +194,14 @@
               </div>
             </div>
 
-            <div id="share-modal-link" class="visible-switch invisible">
+            <div id="share-modal-link" class="visible-switch">
               <div id="share-modal-link-wrapper"><a id="share-modal-link-text"></a></div>
               <div class="subtext">Anyone with this link can modify the file.</div>
             </div>
           </div>
         </div>
+
+        <div id="share-modal-close-button" class="button">Close</div>
       </div>
 
       <div id="delete-modal" class="modal">
@@ -215,6 +217,7 @@
           <div id="delete-modal-delete" class="button primary">
             Confirm
           </div>
+          <div id="delete-modal-close" class="button">Close</div>
         </div>
       </div>
 

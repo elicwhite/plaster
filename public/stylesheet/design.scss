@@ -71,6 +71,10 @@ body, input {
       }
 
       #loginbutton {
+        i {
+          font-size: 20px;
+        }
+
         line-height: 50px;
         min-height: 50px;
         padding: 0 60px;
@@ -379,6 +383,46 @@ body, input {
   }
 
   #share-modal {
+    // #share-modal-online, #share-modal-permissions, #share-modal-owner, #share-modal-link {
+    //   display: none;
+    // }
+
+    // &.online {
+    //   #share-modal-offline {
+    //     display: none;
+    //   }
+
+    //   #share-modal-online {
+    //     display: inherit;
+    //   }
+    // }
+
+    // &.loaded {
+    //   #share-modal-loading {
+    //     display: none;
+    //   }
+
+    //   #share-modal-permissions {
+    //     display: inherit;
+    //   }
+    // }
+
+    // &.owned {
+    //   #share-modal-guest {
+    //     display: none;
+    //   }
+
+    //   #share-modal-owner {
+    //     display: inherit;
+    //   }
+    // }
+
+    // &.shared {
+    //   #share-modal-link {
+    //     display: inherit;
+    //   }
+    // }
+
     #share-modal-link-wrapper {
       background-color: white;
       border-bottom: 1px solid $veryLightGray;
@@ -403,6 +447,12 @@ body, input {
     #share-modal-link-text {
       word-wrap: break-word;
     }
+
+    #share-modal-close-button {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+    }
   }
 }
 
@@ -417,7 +467,8 @@ body, input {
   i {
     margin-right: 10px;
     vertical-align: middle;
-    font-size: 20px;
+    font-weight: bold;
+    // font-size: 20px;
     // line-height: 25px;
   }
 

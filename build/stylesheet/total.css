@@ -252,10 +252,10 @@ body {
   display: none;
   position: relative;
 }
-#modal-overlay .visible-switch.invisible {
+#modal-overlay .invisible {
   opacity: 0;
 }
-#modal-overlay .visible-switch.hidden {
+#modal-overlay .hidden {
   display: none;
 }
 
@@ -371,6 +371,9 @@ body, input {
   line-height: 50px;
   min-height: 50px;
   padding: 0 60px;
+}
+#login #login-wrapper #info-container #loginbutton i {
+  font-size: 20px;
 }
 #login #login-wrapper #explanation-container {
   font-size: 16px;
@@ -647,6 +650,11 @@ body, input {
 #modal-overlay #share-modal #share-modal-link-text {
   word-wrap: break-word;
 }
+#modal-overlay #share-modal #share-modal-close-button {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+}
 
 .button {
   display: inline-block;
@@ -659,7 +667,7 @@ body, input {
 .button i {
   margin-right: 10px;
   vertical-align: middle;
-  font-size: 20px;
+  font-weight: bold;
 }
 .button.primary {
   background-color: #49bff9;

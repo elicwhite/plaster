@@ -6,6 +6,8 @@ define(["components/modalBase", "tapHandler", "data", "event", "online", "platfo
 
     _titleElement: null,
     _shareButton: null,
+    _shareButtonText:null,
+    _closeButton: null,
 
     _fileInfo: null,
 
@@ -24,6 +26,7 @@ define(["components/modalBase", "tapHandler", "data", "event", "online", "platfo
       this._titleElement = document.getElementById("share-modal-title");
       this._shareButton = document.getElementById("share-modal-share-button");
       this._shareButtonText = document.getElementById("share-modal-share-text");
+      this._closeButton = document.getElementById("share-modal-close-button");
 
       this._offlineElement = document.getElementById("share-modal-offline");
       this._onlineElement = document.getElementById("share-modal-online");
@@ -46,6 +49,13 @@ define(["components/modalBase", "tapHandler", "data", "event", "online", "platfo
       this._linkTextElement.addEventListener("click", function(e) {
         e.preventDefault();
       });
+
+      new tapHandler(this._closeButton, {
+        start: function(e) {
+          e.stopPropagation();
+        },
+        tap: this._closeTapped.bind(this)
+      });
     },
 
     show: function(fileInfo) {
@@ -60,7 +70,6 @@ define(["components/modalBase", "tapHandler", "data", "event", "online", "platfo
       // set visible states
       this._loadingElement.classList.remove("hidden");
       this._permissionsElement.classList.add("hidden");
-
 
       if (Online.isOnline()) {
         this._showOnline(true, false);
@@ -116,8 +125,10 @@ define(["components/modalBase", "tapHandler", "data", "event", "online", "platfo
           console.error("failed to disable sharing", error);
         });
       }
+    },
 
-
+    _closeTapped: function() {
+      this.hide();
     },
 
     _checkForPermissions: function() {
@@ -148,6 +159,7 @@ define(["components/modalBase", "tapHandler", "data", "event", "online", "platfo
       } else {
         this._swapVisible(this._onlineElement, this._offlineElement, true);
       }
+
     },
 
     _showPermission: function(owner, shared) {
@@ -157,15 +169,14 @@ define(["components/modalBase", "tapHandler", "data", "event", "online", "platfo
       swapOwner
         .then((function() {
           this._swapVisible(this._loadingElement, this._permissionsElement, true);
-        }).bind(this));
-
+        }).bind(this))
     },
 
     _showOwned: function(owned) {
       if (owned) {
-        return this._swapVisible(this._guestElement, this._ownerElement, false)
+        return this._swapVisible(this._guestElement, this._ownerElement, false);
       } else {
-        return this._swapVisible(this._ownerElement, this._guestElement, false)
+        return this._swapVisible(this._ownerElement, this._guestElement, false);
       }
     },
 
