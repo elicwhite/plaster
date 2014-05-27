@@ -110,8 +110,53 @@ define(["class", "event", "vendor/sha256"], function(Class, Event, jsSHA) {
       Event.trigger("authenticatedStatusChanged", {
         authenticated: status
       });
-    }
+    },
+
+    // checkTokenInHash: function() {
+    //   var setToken = false;
+
+    //   if (util.hasURLParam('access_token')) {
+    //     try {
+    //       var scopeString = util.getURLParam('scope');
+
+    //       var token = {
+    //         access_token: util.getURLParam('access_token'),
+    //         expires_in: util.getURLParam('expires_in'),
+    //         scope: scopeString.split('+')
+    //       };
+
+    //       gapi.auth.setToken(token);
+
+    //       setToken = true;
+
+    //       util.removeURLParam('access_token', true);
+    //       util.removeURLParam('expires_in', true);
+    //       util.removeURLParam('scope', true);
+    //       util.removeURLParam('token_type', true);
+    //     } catch (err) {
+    //       g.reportError(err);
+    //     }
+    //   }
+
+    //   return setToken;
+    // },
+
+    // getURLParam: function(key) {
+    //   var queryString = window.location.hash.substring(1);
+    //   var regex = /([^&=]+)=([^&]*)/g;
+    //   var m;
+
+    //   while (m = regex.exec(queryString)) {
+    //     if (decodeURIComponent(m[1]) === key) {
+    //       return decodeURIComponent(m[2]);
+    //     }
+    //   }
+
+    //   return undefined;
+    // }
   });
+
+
 
   return new GAuth();
 });

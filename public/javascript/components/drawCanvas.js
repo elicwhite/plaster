@@ -4,6 +4,9 @@ define(["class", "helpers", "bezierCurve"], function(Class, Helpers, BezierCurve
     _ctx: null,
     _settings: null,
 
+    _backCanvas: null,
+    _backCtx: null,
+
     // Holds at most one action
     _tempCanvas: null,
     _tempCtx: null,
@@ -19,13 +22,9 @@ define(["class", "helpers", "bezierCurve"], function(Class, Helpers, BezierCurve
 
       this._backCanvas = document.createElement("canvas");
       this._backCtx = this._backCanvas.getContext("2d");
-      //this._backCtx.lineJoin = "round";
-      //this._backCtx.lineCap = "round";
 
       this._tempCanvas = document.createElement("canvas");
       this._tempCtx = this._tempCanvas.getContext("2d");
-      //this._tempCtx.lineJoin = "round";
-      //this._tempCtx.lineCap = "round";
     },
 
     useCurves: function(value) {
