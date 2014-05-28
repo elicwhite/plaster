@@ -300,6 +300,8 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
           this._zoom(e.clientX, e.clientY, dy / 100.0 * this._settings.scale);
         }
       }
+
+      e.preventDefault();
     },
 
     _start: function(e) {
