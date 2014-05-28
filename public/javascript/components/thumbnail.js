@@ -1,4 +1,4 @@
-define(["class", "globals", "helpers", "components/manipulateCanvas"], function(Class, g, Helpers, ManipulateCanvas) {
+define(["class", "globals", "helpers", "components/drawCanvas"], function(Class, g, Helpers, DrawCanvas) {
 
   var Thumbnail = Class.extend({
     _canvas: null,
@@ -18,7 +18,7 @@ define(["class", "globals", "helpers", "components/manipulateCanvas"], function(
 
     render: function(settings, actions) {
 
-      var manipulateCanvas = new ManipulateCanvas(this._canvas, settings);
+      var drawCanvas = new DrawCanvas(this._canvas, settings);
 
       // Find out what world point is in the middle
       var centerScreen = {
@@ -29,7 +29,7 @@ define(["class", "globals", "helpers", "components/manipulateCanvas"], function(
 
       var scale = Math.min(this._canvas.width / window.innerWidth, this._canvas.height / window.innerHeight);
       var zoomDiff = (settings.scale * scale) - settings.scale;
-      manipulateCanvas.zoom(0, 0, zoomDiff);
+      drawCanvas.zoom(0, 0, zoomDiff);
 
       // Now that we have zoomed, find the middle of the canvas
       var centerScreenAfter = {
@@ -46,10 +46,10 @@ define(["class", "globals", "helpers", "components/manipulateCanvas"], function(
         y: centerScreenAfter.y - centerScreenPointAfter.y
       };
 
-      manipulateCanvas.pan(diffScreen.x, diffScreen.y);
+      drawCanvas.pan(diffScreen.x, diffScreen.y);
 
-      manipulateCanvas.doAll(actions);
-      manipulateCanvas.render();
+      drawCanvas.doAll(actions);
+      drawCanvas.render();
 
       return this._canvas.toDataURL("image/png");
     },

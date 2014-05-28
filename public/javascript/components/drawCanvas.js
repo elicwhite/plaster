@@ -4,11 +4,19 @@ define(["class", "helpers", "bezierCurve"], function(Class, Helpers, BezierCurve
     _ctx: null,
     _settings: null,
 
+    _backCanvas: null,
+    _backCtx: null,
+
     // Holds at most one action
     _tempCanvas: null,
     _tempCtx: null,
 
     _useCurves: null,
+
+    _raster: false,
+
+    _zooming: false,
+    _initialZoomSettings: null,
 
     init: function(canvas, settings) {
       this._canvas = canvas;
@@ -19,17 +27,21 @@ define(["class", "helpers", "bezierCurve"], function(Class, Helpers, BezierCurve
 
       this._backCanvas = document.createElement("canvas");
       this._backCtx = this._backCanvas.getContext("2d");
-      //this._backCtx.lineJoin = "round";
-      //this._backCtx.lineCap = "round";
 
       this._tempCanvas = document.createElement("canvas");
       this._tempCtx = this._tempCanvas.getContext("2d");
-      //this._tempCtx.lineJoin = "round";
-      //this._tempCtx.lineCap = "round";
     },
 
     useCurves: function(value) {
       this._useCurves = value;
+    },
+
+    rasterMode: function(raster) {
+      this._raster = raster;
+
+      if (!raster) {
+        this._initialZoomSettings = null;
+      }
     },
 
     // Creates a back canvas and draws all the actions to it and renders it on the main canvas
@@ -82,8 +94,27 @@ define(["class", "helpers", "bezierCurve"], function(Class, Helpers, BezierCurve
 
     render: function() {
       this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
-      this._ctx.drawImage(this._backCanvas, 0, 0, this._backCanvas.width, this._backCanvas.height);
-      this._ctx.drawImage(this._tempCanvas, 0, 0, this._tempCanvas.width, this._tempCanvas.height);
+
+      var x = 0;
+      var y = 0;
+      var width = this._backCanvas.width;
+      var height = this._backCanvas.height;
+
+      if (this._raster) {
+        var startTopLeft = Helpers.screenToWorld(this._initialZoomSettings, 0, 0);
+        var offsetScreen = Helpers.worldToScreen(this._settings, startTopLeft.x, startTopLeft.y);
+
+        var startBottomRight = Helpers.screenToWorld(this._initialZoomSettings, canvas.width, canvas.height);
+        var endBottomRight = Helpers.worldToScreen(this._settings, startBottomRight.x, startBottomRight.y);
+
+        x = offsetScreen.x;
+        y = offsetScreen.y;
+        width = endBottomRight.x - offsetScreen.x;
+        height = endBottomRight.y - offsetScreen.y;
+      }
+
+      this._ctx.drawImage(this._backCanvas, x, y, width, height);
+      this._ctx.drawImage(this._tempCanvas, x, y, width, height);
     },
 
     _doAction: function(ctx, action) {
@@ -128,15 +159,58 @@ define(["class", "helpers", "bezierCurve"], function(Class, Helpers, BezierCurve
           var cp1 = controlPoints[i - 1][0];
           var cp2 = controlPoints[i - 1][1];
           ctx.bezierCurveTo(cp1[0], cp1[1], cp2[0], cp2[1], point[0], point[1]);
-        }
-        else
-        {
+        } else {
           ctx.lineTo(point[0], point[1]);
         }
       }
 
       ctx.stroke();
     },
+
+    zoom: function(x, y, dScale) {
+      // Can't zoom that far!
+      var modifiedScale = this._settings.scale + dScale;
+
+      if (modifiedScale < .000001 || modifiedScale > 20) {
+        return false;
+      }
+
+      if (this._raster === false) {
+        this._initialZoomSettings = Helpers.clone(this._settings);
+      }
+
+      var world = Helpers.screenToWorld(this._settings, x, y);
+      this._settings.scale += dScale;
+      var scr = Helpers.worldToScreen(this._settings, world.x, world.y);
+
+      var diffScr = {
+        x: x - scr.x,
+        y: y - scr.y
+      };
+
+      this._settings.offsetX += diffScr.x; // * this._settings.scale;
+      this._settings.offsetY += diffScr.y; // * this._settings.scale;
+
+      this._raster = true;
+
+      return true;
+    },
+
+    pan: function(dx, dy) {
+      if (this._raster === false) {
+        this._initialZoomSettings = Helpers.clone(this._settings);
+      }
+
+      this._settings.offsetX += dx;
+      this._settings.offsetY += dy;
+
+      return true;
+    },
+
+    panTo: function(x, y) {
+      this._settings.offsetX = x;
+      this._settings.offsetY = y;
+    }
   });
 
   return DrawCanvas;

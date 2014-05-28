@@ -1,4 +1,4 @@
-define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "bezierCurve", "data", "online", "components/manipulateCanvas", "analytics"], function(Page, g, Event, Helpers, TapHandler, Platform, db, BezierCurve, Data, Online, ManipulateCanvas, Analytics) {
+define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "bezierCurve", "data", "online", "components/drawCanvas", "analytics"], function(Page, g, Event, Helpers, TapHandler, Platform, db, BezierCurve, Data, Online, DrawCanvas, Analytics) {
 
   var Draw = Page.extend({
     id: "draw",
@@ -8,7 +8,7 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
     _filesPane: null,
 
     // Instance of draw canvas that is handling all the drawing
-    _manipulateCanvas: null,
+    _drawCanvas: null,
 
     // The actual canvas element
     _canvas: null,
@@ -28,6 +28,9 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
     // Do we need to update on this frame?
     _updateAll: true,
 
+    // are we zooming or panning?
+    _manipulating: false,
+
     // Does the current action need to be redrawn?
     _updateCurrentAction: false,
 
@@ -37,8 +40,8 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
     // Timeout for saving settings
     _saveSettingsTimeout: null,
 
-    // Timeout for when we stopped scrolling
-    _mouseWheelTimeout: null,
+    // Timeout for when we stopped panning / zooming
+    _manipulateTimeout: null,
 
     // The timer we use to schedule file sync
     _fileSyncTimeout: null,
@@ -67,7 +70,7 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
       this._fileRenamed = this._fileRenamed.bind(this);
       this._redraw = this._redraw.bind(this);
       this._onlineStatusChanged = this._onlineStatusChanged.bind(this);
-      this._scheduleMouseWheelTimeout = this._scheduleMouseWheelTimeout.bind(this);
+      this._scheduleManipulateTimeout = this._scheduleManipulateTimeout.bind(this);
 
       // Keep the trackpad from trigger chrome's back event
       this.element.addEventListener("touchmove", function(e) {
@@ -79,8 +82,6 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
         move: this._move.bind(this),
         end: this._end.bind(this),
         gesture: this._gesture.bind(this),
-        gestureStart: this._gestureStart.bind(this),
-        gestureEnd: this._gestureEnd.bind(this)
       });
 
 
@@ -176,7 +177,7 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
             document.getElementById("chosenColorSwatch").style.backgroundColor = this._settings.color;
 
             this._setActiveTool();
-            this._manipulateCanvas = new ManipulateCanvas(this._canvas, this._settings);
+            this._drawCanvas = new DrawCanvas(this._canvas, this._settings);
 
             this._redraw();
 
@@ -235,7 +236,7 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
     _actionsAdded: function(e) {
       if (e.isLocal) {
         this._update = true;
-        this._manipulateCanvas.addAction(e.items[0]);
+        this._drawCanvas.addAction(e.items[0]);
       } else {
         this._updateAll = true;
       }
@@ -253,28 +254,44 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
     },
 
     _zoom: function(x, y, dScale) {
-      if (this._manipulateCanvas.zoom(x, y, dScale)) {
+      if (this._drawCanvas.zoom(x, y, dScale)) {
         this._saveSettings();
-        this._updateAll = true;
+        this._drawCanvas.rasterMode(true);
+        this._manipulating = true;
+
+        this._scheduleManipulateTimeout();
       }
     },
 
     _pan: function(dx, dy) {
-      if (this._manipulateCanvas.pan(dx, dy)) {
+      if (this._drawCanvas.pan(dx, dy)) {
         this._saveSettings();
-        this._updateAll = true;
+        this._drawCanvas.rasterMode(true);
+        this._manipulating = true;
+
+        this._scheduleManipulateTimeout();
       }
     },
 
+    _scheduleManipulateTimeout: function() {
+      if (this._manipulateTimeout) {
+        clearTimeout(this._manipulateTimeout);
+      }
+
+      this._manipulateTimeout = setTimeout((function() {
+        this._drawCanvas.rasterMode(false);
+        this._manipulating = false;
+        this._updateAll = true;
+      }).bind(this), 50);
+    },
+
     _mouseWheel: function(e) {
-      //console.log(e);
+      // console.log(e, e.wheelDeltaX, e.deltaY);
       // deltaX is chrome, wheelDelta is safari
       var dx = !isNaN(e.deltaX) ? -e.deltaX : (e.wheelDeltaX / 5);
       var dy = !isNaN(e.deltaY) ? -e.deltaY : (e.wheelDeltaY / 5);
 
-      this._manipulateCanvas.useCurves(false);
-
-      this._scheduleMouseWheelTimeout();
+      // this._scheduleMouseWheelTimeout();
 
       if (this._settings.tools.scroll == "pan") {
         this._pan(dx, dy);
@@ -283,17 +300,8 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
           this._zoom(e.clientX, e.clientY, dy / 100.0 * this._settings.scale);
         }
       }
-    },
 
-    _scheduleMouseWheelTimeout: function() {
-      if (this._mouseWheelTimeout) {
-        clearTimeout(this._mouseWheelTimeout);
-      }
-
-      this._mouseWheelTimeout = setTimeout((function() {
-        this._manipulateCanvas.useCurves(true);
-        this._updateAll = true;
-      }).bind(this), 100);
+      e.preventDefault();
     },
 
     _start: function(e) {
@@ -303,7 +311,6 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
       }
 
       if (tool == "pan") {
-        this._manipulateCanvas.useCurves(false);
         return;
       }
 
@@ -377,7 +384,6 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
       var tool = this._settings.tools.gesture || this._settings.tools.point;
 
       if (tool == "pan") {
-        this._manipulateCanvas.useCurves(true);
         this._updateAll = true;
       } else if (tool == "pencil" || tool == "eraser") {
         if (!this._currentAction) {
@@ -428,15 +434,6 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
       this._zoom(e.x, e.y, e.scaleFromLast * this._settings.scale);
     },
 
-    _gestureStart: function() {
-      this._manipulateCanvas.useCurves(false);
-    },
-
-    _gestureEnd: function() {
-      this._manipulateCanvas.useCurves(true);
-      this._updateAll = true;
-    },
-
     _redraw: function() {
       // If we shouldn't render, exit the loop
       if (!this._shouldRender) {
@@ -445,7 +442,7 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
 
       if (this._updateAll) {
         var actions = this._file.getActions();
-        this._manipulateCanvas.doAll(actions);
+        this._drawCanvas.doAll(actions);
       }
 
       if (this._updateCurrentAction && this._currentAction) {
@@ -453,15 +450,16 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
         var controlPoints = BezierCurve.getCurveControlPoints(currentAction.value.points);
 
         currentAction.value.controlPoints = controlPoints;
-        this._manipulateCanvas.doTemporaryAction(currentAction)
+        this._drawCanvas.doTemporaryAction(currentAction)
       }
 
-      if (this._updateAll || this._updateCurrentAction || this._update) {
-        this._manipulateCanvas.render();
+      if (this._updateAll || this._updateCurrentAction || this._update || this._manipulating) {
+        this._drawCanvas.render();
 
         this._update = false;
         this._updateAll = false;
         this._updateCurrentAction = false;
+        this._manipulating = false;
       }
 
       requestAnimationFrame(this._redraw);
