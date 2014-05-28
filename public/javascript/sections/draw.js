@@ -1,4 +1,4 @@
-define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "bezierCurve", "data", "online", "components/manipulateCanvas", "analytics"], function(Page, g, Event, Helpers, TapHandler, Platform, db, BezierCurve, Data, Online, ManipulateCanvas, Analytics) {
+define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "bezierCurve", "data", "online", "components/drawCanvas", "analytics"], function(Page, g, Event, Helpers, TapHandler, Platform, db, BezierCurve, Data, Online, DrawCanvas, Analytics) {
 
   var Draw = Page.extend({
     id: "draw",
@@ -8,7 +8,7 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
     _filesPane: null,
 
     // Instance of draw canvas that is handling all the drawing
-    _manipulateCanvas: null,
+    _drawCanvas: null,
 
     // The actual canvas element
     _canvas: null,
@@ -178,7 +178,7 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
             document.getElementById("chosenColorSwatch").style.backgroundColor = this._settings.color;
 
             this._setActiveTool();
-            this._manipulateCanvas = new ManipulateCanvas(this._canvas, this._settings);
+            this._drawCanvas = new DrawCanvas(this._canvas, this._settings);
 
             this._redraw();
 
@@ -237,7 +237,7 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
     _actionsAdded: function(e) {
       if (e.isLocal) {
         this._update = true;
-        this._manipulateCanvas.addAction(e.items[0]);
+        this._drawCanvas.addAction(e.items[0]);
       } else {
         this._updateAll = true;
       }
@@ -255,14 +255,14 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
     },
 
     _zoom: function(x, y, dScale) {
-      if (this._manipulateCanvas.zoom(x, y, dScale)) {
+      if (this._drawCanvas.zoom(x, y, dScale)) {
         this._saveSettings();
         this._updateAll = true;
       }
     },
 
     _pan: function(dx, dy) {
-      if (this._manipulateCanvas.pan(dx, dy)) {
+      if (this._drawCanvas.pan(dx, dy)) {
         this._saveSettings();
         this._updateAll = true;
       }
@@ -274,7 +274,7 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
       var dx = !isNaN(e.deltaX) ? -e.deltaX : (e.wheelDeltaX / 5);
       var dy = !isNaN(e.deltaY) ? -e.deltaY : (e.wheelDeltaY / 5);
 
-      this._manipulateCanvas.useCurves(false);
+      this._drawCanvas.useCurves(false);
 
       this._scheduleMouseWheelTimeout();
 
@@ -294,7 +294,7 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
       }
 
       this._mouseWheelTimeout = setTimeout((function() {
-        this._manipulateCanvas.useCurves(true);
+        this._drawCanvas.useCurves(true);
         this._updateAll = true;
       }).bind(this), 100);
     },
@@ -306,7 +306,7 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
       }
 
       if (tool == "pan") {
-        this._manipulateCanvas.useCurves(false);
+        this._drawCanvas.useCurves(false);
         return;
       }
 
@@ -380,7 +380,7 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
       var tool = this._settings.tools.gesture || this._settings.tools.point;
 
       if (tool == "pan") {
-        this._manipulateCanvas.useCurves(true);
+        this._drawCanvas.useCurves(true);
         this._updateAll = true;
       } else if (tool == "pencil" || tool == "eraser") {
         if (!this._currentAction) {
@@ -432,11 +432,11 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
     },
 
     _gestureStart: function() {
-      this._manipulateCanvas.useCurves(false);
+      this._drawCanvas.useCurves(false);
     },
 
     _gestureEnd: function() {
-      this._manipulateCanvas.useCurves(true);
+      this._drawCanvas.useCurves(true);
       this._updateAll = true;
     },
 
@@ -448,7 +448,7 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
 
       if (this._updateAll && !this._zooming) {
         var actions = this._file.getActions();
-        this._manipulateCanvas.doAll(actions);
+        this._drawCanvas.doAll(actions);
 
         if (this._zooming) {
           this._zooming = false;
@@ -460,11 +460,11 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
         var controlPoints = BezierCurve.getCurveControlPoints(currentAction.value.points);
 
         currentAction.value.controlPoints = controlPoints;
-        this._manipulateCanvas.doTemporaryAction(currentAction)
+        this._drawCanvas.doTemporaryAction(currentAction)
       }
 
       if (this._updateAll || this._updateCurrentAction || this._update) {
-        this._manipulateCanvas.render();
+        this._drawCanvas.render();
 
         this._update = false;
         this._updateAll = false;
