@@ -13,6 +13,8 @@ define(["class", "helpers", "bezierCurve"], function(Class, Helpers, BezierCurve
 
     _useCurves: null,
 
+    _raster: false,
+
     _zooming: false,
     _initialZoomSettings: null,
 
@@ -32,6 +34,14 @@ define(["class", "helpers", "bezierCurve"], function(Class, Helpers, BezierCurve
 
     useCurves: function(value) {
       this._useCurves = value;
+    },
+
+    rasterMode: function(raster) {
+      this._raster = raster;
+
+      if (!raster) {
+        this._initialZoomSettings = null;
+      }
     },
 
     // Creates a back canvas and draws all the actions to it and renders it on the main canvas
@@ -85,22 +95,26 @@ define(["class", "helpers", "bezierCurve"], function(Class, Helpers, BezierCurve
     render: function() {
       this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
 
-      if (this._zooming) {
+      var x = 0;
+      var y = 0;
+      var width = this._backCanvas.width;
+      var height = this._backCanvas.height;
+
+      if (this._raster) {
         var startTopLeft = Helpers.screenToWorld(this._initialZoomSettings, 0, 0);
         var offsetScreen = Helpers.worldToScreen(this._settings, startTopLeft.x, startTopLeft.y);
 
         var startBottomRight = Helpers.screenToWorld(this._initialZoomSettings, canvas.width, canvas.height);
         var endBottomRight = Helpers.worldToScreen(this._settings, startBottomRight.x, startBottomRight.y);
 
-        var width = endBottomRight.x - offsetScreen.x;
-        var height = endBottomRight.y - offsetScreen.y;
-
-        this._ctx.drawImage(this._backCanvas, offsetScreen.x, offsetScreen.y, width, height);
-      } else {
-        this._ctx.drawImage(this._backCanvas, 0, 0, this._backCanvas.width, this._backCanvas.height);
+        x = offsetScreen.x;
+        y = offsetScreen.y;
+        width = endBottomRight.x - offsetScreen.x;
+        height = endBottomRight.y - offsetScreen.y;
       }
 
-      this._ctx.drawImage(this._tempCanvas, 0, 0, this._tempCanvas.width, this._tempCanvas.height);
+      this._ctx.drawImage(this._backCanvas, x, y, width, height);
+      this._ctx.drawImage(this._tempCanvas, x, y, width, height);
     },
 
     _doAction: function(ctx, action) {
@@ -161,7 +175,7 @@ define(["class", "helpers", "bezierCurve"], function(Class, Helpers, BezierCurve
         return false;
       }
 
-      if (this._zooming === false) {
+      if (this._raster === false) {
         this._initialZoomSettings = Helpers.clone(this._settings);
       }
 
@@ -177,12 +191,16 @@ define(["class", "helpers", "bezierCurve"], function(Class, Helpers, BezierCurve
       this._settings.offsetX += diffScr.x; // * this._settings.scale;
       this._settings.offsetY += diffScr.y; // * this._settings.scale;
 
-      this._zooming = true;
+      this._raster = true;
 
       return true;
     },
 
     pan: function(dx, dy) {
+      if (this._raster === false) {
+        this._initialZoomSettings = Helpers.clone(this._settings);
+      }
+
       this._settings.offsetX += dx;
       this._settings.offsetY += dy;
 
