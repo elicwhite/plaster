@@ -13,6 +13,9 @@ define(["class", "helpers", "bezierCurve"], function(Class, Helpers, BezierCurve
 
     _useCurves: null,
 
+    _zooming: false,
+    _initialZoomSettings: null,
+
     init: function(canvas, settings) {
       this._canvas = canvas;
       this._ctx = canvas.getContext("2d");
@@ -81,7 +84,24 @@ define(["class", "helpers", "bezierCurve"], function(Class, Helpers, BezierCurve
 
     render: function() {
       this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
-      this._ctx.drawImage(this._backCanvas, 0, 0, this._backCanvas.width, this._backCanvas.height);
+
+      if (this._zooming) {
+        var startTopLeft = Helpers.screenToWorld(this._initialZoomSettings, 0, 0);
+        var offsetScreen = Helpers.worldToScreen(this._settings, startTopLeft.x, startTopLeft.y);
+
+        var startBottomRight = Helpers.screenToWorld(this._initialZoomSettings, canvas.width, canvas.height);
+        var endBottomRight = Helpers.worldToScreen(this._settings, startBottomRight.x, startBottomRight.y);
+
+        var width = endBottomRight.x - offsetScreen.x;
+        var height = endBottomRight.y - offsetScreen.y;
+
+        this._ctx.drawImage(this._backCanvas, offsetScreen.x, offsetScreen.y, width, height);
+      }
+      else
+      {
+        this._ctx.drawImage(this._backCanvas, 0, 0, this._backCanvas.width, this._backCanvas.height);
+      }
+
       this._ctx.drawImage(this._tempCanvas, 0, 0, this._tempCanvas.width, this._tempCanvas.height);
     },
 

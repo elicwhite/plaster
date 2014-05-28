@@ -9,6 +9,10 @@ define(["components/drawCanvas", "helpers"], function(DrawCanvas, Helpers) {
         return false;
       }
 
+      if (this._zooming === false) {
+        this._initialZoomSettings = Helpers.clone(this._settings);
+      }
+
       var world = Helpers.screenToWorld(this._settings, x, y);
       this._settings.scale += dScale;
       var scr = Helpers.worldToScreen(this._settings, world.x, world.y);
@@ -20,6 +24,8 @@ define(["components/drawCanvas", "helpers"], function(DrawCanvas, Helpers) {
 
       this._settings.offsetX += diffScr.x; // * this._settings.scale;
       this._settings.offsetY += diffScr.y; // * this._settings.scale;
+
+      this._zooming = true;
 
       return true;
     },

@@ -53,6 +53,8 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
     // The overlay of modals
     _overlay: null,
 
+    _zooming: false,
+
     init: function(filesPane) {
       this._super();
 
@@ -280,6 +282,7 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
         this._pan(dx, dy);
       } else if (this._settings.tools.scroll == "zoom") {
         if (dy != 0) {
+          this._zooming = true;
           this._zoom(e.clientX, e.clientY, dy / 100.0 * this._settings.scale);
         }
       }
@@ -443,9 +446,13 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
         return;
       }
 
-      if (this._updateAll) {
+      if (this._updateAll && !this._zooming) {
         var actions = this._file.getActions();
         this._manipulateCanvas.doAll(actions);
+
+        if (this._zooming) {
+          this._zooming = false;
+        }
       }
 
       if (this._updateCurrentAction && this._currentAction) {
