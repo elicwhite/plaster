@@ -194,6 +194,8 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
 
           this._resize();
 
+
+
           // Focus on the canvas after we navigate to it
           setTimeout(function() {
             this._canvas.focus();
@@ -247,8 +249,8 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
     },
 
     _resize: function() {
-      this._canvas.width = window.innerWidth;
-      this._canvas.height = window.innerHeight;
+      this._canvas.width = window.innerWidth * window.devicePixelRatio;
+      this._canvas.height = window.innerHeight * window.devicePixelRatio;
 
       this._updateAll = true;
     },
@@ -314,7 +316,7 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
         return;
       }
 
-      var world = Helpers.screenToWorld(this._settings, e.distFromLeft, e.distFromTop);
+      var world = this._screenToWorld(this._settings, e.distFromLeft, e.distFromTop);
 
       if (this._currentAction) {
         console.error("Current action isn't null!");
@@ -358,7 +360,7 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
           return;
         }
 
-        var world = Helpers.screenToWorld(this._settings, e.distFromLeft, e.distFromTop);
+        var world = this._screenToWorld(this._settings, e.distFromLeft, e.distFromTop);
 
         var currentStroke = this._currentAction.value;
 
@@ -383,9 +385,7 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
     _end: function(e) {
       var tool = this._settings.tools.gesture || this._settings.tools.point;
 
-      if (tool == "pan") {
-        this._updateAll = true;
-      } else if (tool == "pencil" || tool == "eraser") {
+      if (tool == "pencil" || tool == "eraser") {
         if (!this._currentAction) {
           // no current action. This can happen if we were dragging a tool and let up the
           // tool button and kept dragging
@@ -781,6 +781,11 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
 
       }).bind(this), 15 * 1000);
     },
+
+    _screenToWorld: function(settings, x, y) {
+      var dpr = window.devicePixelRatio;
+      return Helpers.screenToWorld(settings, x * dpr, y * dpr);
+    }
   });
 
   return Draw;
