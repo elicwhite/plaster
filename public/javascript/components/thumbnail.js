@@ -20,14 +20,16 @@ define(["class", "globals", "helpers", "components/drawCanvas"], function(Class,
 
       var drawCanvas = new DrawCanvas(this._canvas, settings);
 
+      var dpr = window.devicePixelRatio;
+
       // Find out what world point is in the middle
       var centerScreen = {
-        x: window.innerWidth / 2,
-        y: window.innerHeight / 2
+        x: window.innerWidth / 2 * dpr,
+        y: window.innerHeight / 2 * dpr
       };
       var centerWorld = Helpers.screenToWorld(settings, centerScreen.x, centerScreen.y);
 
-      var scale = Math.min(this._canvas.width / window.innerWidth, this._canvas.height / window.innerHeight);
+      var scale = Math.min(this._canvas.width / window.innerWidth / dpr, this._canvas.height / window.innerHeight / dpr);
       var zoomDiff = (settings.scale * scale) - settings.scale;
       drawCanvas.zoom(0, 0, zoomDiff);
 
@@ -49,6 +51,9 @@ define(["class", "globals", "helpers", "components/drawCanvas"], function(Class,
       drawCanvas.pan(diffScreen.x, diffScreen.y);
 
       drawCanvas.doAll(actions);
+
+      // Since we panned and zoomed, make sure we are actually redrawing the curves
+      drawCanvas.rasterMode(false);
       drawCanvas.render();
 
       return this._canvas.toDataURL("image/png");

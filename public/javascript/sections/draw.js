@@ -256,7 +256,9 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
     },
 
     _zoom: function(x, y, dScale) {
-      if (this._drawCanvas.zoom(x, y, dScale)) {
+      var scr = this._screenToRetina(x, y);
+
+      if (this._drawCanvas.zoom(scr.x, scr.y, dScale)) {
         this._saveSettings();
         this._drawCanvas.rasterMode(true);
         this._manipulating = true;
@@ -266,7 +268,9 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
     },
 
     _pan: function(dx, dy) {
-      if (this._drawCanvas.pan(dx, dy)) {
+      var scr = this._screenToRetina(dx, dy);
+
+      if (this._drawCanvas.pan(scr.x, scr.y)) {
         this._saveSettings();
         this._drawCanvas.rasterMode(true);
         this._manipulating = true;
@@ -782,9 +786,18 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
       }).bind(this), 15 * 1000);
     },
 
-    _screenToWorld: function(settings, x, y) {
+    _screenToRetina: function(x, y) {
       var dpr = window.devicePixelRatio;
-      return Helpers.screenToWorld(settings, x * dpr, y * dpr);
+
+      return {
+        x: x * dpr,
+        y: y * dpr
+      };
+    },
+
+    _screenToWorld: function(settings, x, y) {
+      var scr = this._screenToRetina(x, y);
+      return Helpers.screenToWorld(settings, scr.x, scr.y);
     }
   });
 
