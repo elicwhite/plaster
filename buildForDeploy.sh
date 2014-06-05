@@ -7,15 +7,17 @@ if [ "$branch" != "master" ] ; then
   exit 2
 fi
 
-echo "What version number?"
-read version
+# echo "What version number?"
+# read version
 
-if [ "$version" = "" ] ; then
-  echo "You must specify a version number"
-  exit 2
-fi
+# if [ "$version" = "" ] ; then
+#   echo "You must specify a version number"
+#   exit 2
+# fi
 
-buildBranch="release-v$version"
+timestamp=$(date +%s)
+
+buildBranch="release-$timestamp"
 
 git checkout -b $buildBranch
 grunt
@@ -23,6 +25,7 @@ git add -A
 git commit -a -m "Preparing for release."
 git checkout integration
 git merge --no-ff $buildBranch -X theirs -m "Merge branch '$buildBranch' into integration"
+git tag -a v$timestamp -m 'version $timestamp'
 git checkout master
 git branch -D $buildBranch
 
