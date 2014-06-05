@@ -49,11 +49,7 @@ define(["class", "globals", "helpers", "components/drawCanvas"], function(Class,
       };
 
       drawCanvas.pan(diffScreen.x, diffScreen.y);
-
       drawCanvas.doAll(actions);
-
-      // Since we panned and zoomed, make sure we are actually redrawing the curves
-      drawCanvas.rasterMode(false);
       drawCanvas.render();
 
       return this._canvas.toDataURL("image/png");

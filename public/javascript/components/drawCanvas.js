@@ -16,7 +16,7 @@ define(["class", "helpers", "bezierCurve"], function(Class, Helpers, BezierCurve
     _raster: false,
 
     _zooming: false,
-    _initialZoomSettings: null,
+    _initialSettings: null,
 
     init: function(canvas, settings) {
       this._canvas = canvas;
@@ -39,8 +39,10 @@ define(["class", "helpers", "bezierCurve"], function(Class, Helpers, BezierCurve
     rasterMode: function(raster) {
       this._raster = raster;
 
-      if (!raster) {
-        this._initialZoomSettings = null;
+      if (raster && !this._initialSettings) {
+        this._initialSettings = Helpers.clone(this._settings);
+      } else if (!raster) {
+        this._initialSettings = null;
       }
     },
 
@@ -101,10 +103,10 @@ define(["class", "helpers", "bezierCurve"], function(Class, Helpers, BezierCurve
       var height = this._backCanvas.height;
 
       if (this._raster) {
-        var startTopLeft = Helpers.screenToWorld(this._initialZoomSettings, 0, 0);
+        var startTopLeft = Helpers.screenToWorld(this._initialSettings, 0, 0);
         var offsetScreen = Helpers.worldToScreen(this._settings, startTopLeft.x, startTopLeft.y);
 
-        var startBottomRight = Helpers.screenToWorld(this._initialZoomSettings, canvas.width, canvas.height);
+        var startBottomRight = Helpers.screenToWorld(this._initialSettings, canvas.width, canvas.height);
         var endBottomRight = Helpers.worldToScreen(this._settings, startBottomRight.x, startBottomRight.y);
 
         x = offsetScreen.x;
@@ -175,10 +177,6 @@ define(["class", "helpers", "bezierCurve"], function(Class, Helpers, BezierCurve
         return false;
       }
 
-      if (this._raster === false) {
-        this._initialZoomSettings = Helpers.clone(this._settings);
-      }
-
       var world = Helpers.screenToWorld(this._settings, x, y);
       this._settings.scale += dScale;
       var scr = Helpers.worldToScreen(this._settings, world.x, world.y);
@@ -191,16 +189,10 @@ define(["class", "helpers", "bezierCurve"], function(Class, Helpers, BezierCurve
       this._settings.offsetX += diffScr.x; // * this._settings.scale;
       this._settings.offsetY += diffScr.y; // * this._settings.scale;
 
-      this._raster = true;
-
       return true;
     },
 
     pan: function(dx, dy) {
-      if (this._raster === false) {
-        this._initialZoomSettings = Helpers.clone(this._settings);
-      }
-
       this._settings.offsetX += dx;
       this._settings.offsetY += dy;
 
@@ -214,11 +206,4 @@ define(["class", "helpers", "bezierCurve"], function(Class, Helpers, BezierCurve
   });
 
   return DrawCanvas;
-
-  /*
-  drawAll(actions) // Draw all actions to a back canvas
-  drawTemporary(action) // draw action on front canvas
-  addAction(action) // add action to back canvas
-  */
-
 });
