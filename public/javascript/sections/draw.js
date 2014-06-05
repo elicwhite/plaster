@@ -258,9 +258,10 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
     _zoom: function(x, y, dScale) {
       var scr = this._screenToRetina(x, y);
 
+      this._drawCanvas.rasterMode(true);
+
       if (this._drawCanvas.zoom(scr.x, scr.y, dScale)) {
         this._saveSettings();
-        this._drawCanvas.rasterMode(true);
         this._manipulating = true;
 
         this._scheduleManipulateTimeout();
@@ -270,9 +271,10 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
     _pan: function(dx, dy) {
       var scr = this._screenToRetina(dx, dy);
 
+      this._drawCanvas.rasterMode(true);
+
       if (this._drawCanvas.pan(scr.x, scr.y)) {
         this._saveSettings();
-        this._drawCanvas.rasterMode(true);
         this._manipulating = true;
 
         this._scheduleManipulateTimeout();

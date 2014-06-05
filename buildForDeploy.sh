@@ -2,8 +2,8 @@
 
 branch=$(git symbolic-ref HEAD | sed -e 's,.*/\(.*\),\1,')
 
-if [ "$branch" != "master" ] ; then
-  echo "You must be on master"
+if [ "$branch" != "development" ] ; then
+  echo "You must be on the development branch"
   exit 2
 fi
 
@@ -23,15 +23,15 @@ git checkout -b $buildBranch
 grunt
 git add -A
 git commit -a -m "Preparing for release."
-git checkout integration
+git checkout master
 git merge --no-ff $buildBranch -X theirs -m "Merge branch '$buildBranch' into integration"
 git tag -a v$timestamp -m 'version $timestamp'
-git checkout master
+git checkout development
 git branch -D $buildBranch
 
 echo "Deploy? y/n"
 read deploy
 
 if [ "$deploy" = "y" ] ; then
-  git push staging integration:master
+  git push staging master
 fi
