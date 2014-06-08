@@ -260,14 +260,15 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
     },
 
     _resize: function() {
-      this._canvas.width = window.innerWidth * window.devicePixelRatio;
-      this._canvas.height = window.innerHeight * window.devicePixelRatio;
+      this._canvas.width = window.innerWidth * 2 * window.devicePixelRatio;
+      this._canvas.height = window.innerHeight * 2 * window.devicePixelRatio;
 
       this._updateAll = true;
     },
 
     _zoom: function(x, y, dScale) {
       var scr = this._screenToRetina(x, y);
+      scr = this._canvasOffset(scr.x, scr.y);
 
       this._drawCanvas.rasterMode(true);
 
@@ -811,13 +812,22 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
       var dpr = window.devicePixelRatio;
 
       return {
-        x: x * dpr,
-        y: y * dpr
+        x: (x * dpr),
+        y: (y * dpr)
       };
+    },
+
+    _canvasOffset: function(x, y) {
+      return {
+        x: x + (window.innerWidth * .5),
+        y: y + (window.innerHeight * .5)
+      }
     },
 
     _screenToWorld: function(settings, x, y) {
       var scr = this._screenToRetina(x, y);
+      scr = this._canvasOffset(scr.x, scr.y);
+
       return Helpers.screenToWorld(settings, scr.x, scr.y);
     }
   });
