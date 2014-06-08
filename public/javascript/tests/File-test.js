@@ -447,7 +447,6 @@ define(['promise', 'tests/Helpers/backingHelpers', 'tests/Fixture/driveFixture',
         },
 
         "is on drive": {
-
           "renames locally if drive is newer": function() {
             var newName = "blahs";
 

@@ -460,6 +460,21 @@ body, input {
       right: 20px;
     }
   }
+
+  #loading-modal {
+    .loading {
+      @include display-flex();
+      @include flex-justify-content(center);
+      @include flex-align-items(center);
+      @include flex-direction(column);
+
+      height: 100%;
+
+      .spinner {
+        font-size: 50px;
+      }
+    }
+  }
 }
 
 .button {

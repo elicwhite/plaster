@@ -1,4 +1,4 @@
-define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "bezierCurve", "data", "online", "components/drawCanvas", "analytics"], function(Page, g, Event, Helpers, TapHandler, Platform, db, BezierCurve, Data, Online, DrawCanvas, Analytics) {
+define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "bezierCurve", "data", "online", "components/drawCanvas", "analytics", "modals/loading"], function(Page, g, Event, Helpers, TapHandler, Platform, db, BezierCurve, Data, Online, DrawCanvas, Analytics, LoadingModal) {
 
   var Draw = Page.extend({
     id: "draw",
@@ -134,30 +134,40 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
 
     show: function(fileInfo) {
       this._super();
+      return Promise.resolve()
+        .then((function() {
+          return this._tryLoadFile(fileInfo)
+        }).bind(this))
+        .catch((function() {
+          return new Promise(function(resolve, reject) {
+              LoadingModal.show();
+              setTimeout(function() {
+                resolve();
+              }, 4000);
+            })
+            .then(function() {
+              // error loading the file, set a timeout for waiting to come online
+              return Online.waitToComeOnline(10000)
+            })
+            .then((function() {
+              return Data.loadFileFromRemote(fileInfo.id)
+            }).bind(this))
+            .then((function(fileInfo) {
+              return this._tryLoadFile(fileInfo);
+            }).bind(this))
+            .catch((function(error) {
+              console.error("Unable to draw for this file", error);
+              Analytics.event("draw", "load failure");
 
-      return this._tryLoadFile(fileInfo)
-        .
-      catch ((function() {
-        // error loading the file, set a timeout for waiting to come online
-        return Online.waitToComeOnline(10000)
-          .then((function() {
-            return Data.loadFileFromRemote(fileInfo.id)
-          }).bind(this))
-          .then((function(fileInfo) {
-            return this._tryLoadFile(fileInfo);
-          }).bind(this))
+              location.hash = "";
 
-        .
-        catch ((function(error) {
-          console.error("Unable to draw for this file", error);
-          Analytics.event("draw", "load failure");
-
-          location.hash = "";
-
-          this._filesPane.setPane("list");
-          return;
-        }).bind(this));
-      }).bind(this))
+              this._filesPane.setPane("list");
+              return;
+            }).bind(this))
+            .then(function() {
+              LoadingModal.hide();
+            });
+        }).bind(this))
     },
 
     _tryLoadFile: function(fileInfo) {
@@ -221,7 +231,7 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
               return Data.close(file);
             }).bind(this, this._file))
             .
-          catch (function(error) {
+          catch(function(error) {
             console.error(error, error.stack, error.message);
           });
         }).bind(this), 600);
@@ -430,7 +440,7 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
       action.id = Helpers.getGuid();
       this._file.addAction(action)
         .
-      catch (function(e) {
+      catch(function(e) {
         console.error(e, e.stack, e.message);
       });
     },
@@ -754,7 +764,7 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
             this._scheduleUpdate()
           }).bind(this))
           .
-        catch (function(error) {
+        catch(function(error) {
           console.error(error, error.stack, error.message);
         });
       }

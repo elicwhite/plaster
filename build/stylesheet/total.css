@@ -659,6 +659,33 @@ body, input {
   bottom: 20px;
   right: 20px;
 }
+#modal-overlay #loading-modal .loading {
+  display: -webkit-box;
+  /* OLD - iOS 6-, Safari 3.1-6 */
+  display: -moz-box;
+  /* OLD - Firefox 19- (buggy but mostly works) */
+  display: -ms-flexbox;
+  /* TWEENER - IE 10 */
+  display: -webkit-flex;
+  /* NEW - Chrome */
+  display: flex;
+  -webkit-justify-content: center;
+  -moz-justify-content: center;
+  -ms-justify-content: center;
+  justify-content: center;
+  -webkit-align-items: center;
+  -moz-align-items: center;
+  -ms-align-items: center;
+  align-items: center;
+  -webkit-flex-direction: column;
+  -moz-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  height: 100%;
+}
+#modal-overlay #loading-modal .loading .spinner {
+  font-size: 50px;
+}
 
 .button {
   display: inline-block;
@@ -795,6 +822,10 @@ body, input {
 .computer #modal-overlay #delete-modal, .tablet #modal-overlay #delete-modal {
   width: 400px;
   height: 200px;
+}
+.computer #modal-overlay #loading-modal, .tablet #modal-overlay #loading-modal {
+  width: 400px;
+  height: 400px;
 }
 
 .tablet #files #files-list-container #files-list li > div .thumbnail-info, .phone #files #files-list-container #files-list li > div .thumbnail-info {
