@@ -689,13 +689,14 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
         e.preventDefault();
         this._undo();
       } else if (key == "Z") {
-        this._settings.tools.scroll = "zoom";
-        this._setActiveTool();
-      } else if (key == "P") {
-        this._settings.tools.scroll = "pan";
+        if (this._settings.tools.scroll == "zoom") {
+          this._settings.tools.scroll = "pan";
+        } else {
+          this._settings.tools.scroll = "zoom";
+        }
+
         this._setActiveTool();
       }
-
     },
 
     _undo: function() {
