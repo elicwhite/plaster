@@ -64,6 +64,7 @@ define(["event", "page", "tapHandler", "online", "gauth", "data"], function(Even
     },
 
     _turnOnline: function() {
+      this.element.classList.add("online");
       this._button.classList.remove("disabled");
 
       var hash = location.hash;

@@ -375,11 +375,19 @@ body, input {
 #login #login-wrapper #info-container #loginbutton i {
   font-size: 20px;
 }
+#login #login-wrapper #online-text {
+  height: 30px;
+  line-height: 30px;
+  font-style: italic;
+  font-size: 14px;
+}
 #login #login-wrapper #explanation-container {
   font-size: 16px;
-  margin-top: 30px;
   text-align: center;
   line-height: 25px;
+}
+#login.online #online-text {
+  visibility: hidden;
 }
 
 #updateBar {
@@ -716,6 +724,7 @@ body, input {
 .button.disabled {
   cursor: default;
   background-color: #ddf3fe;
+  color: #333;
 }
 
 .computer #files #files-list-container #files-list li > div .thumbnail-info .overlay:hover .bar {
