@@ -101,7 +101,8 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
       new TapHandler(document.getElementById("fileName"), {
         start: function(e) {
           e.stopPropagation();
-        }
+        },
+        tap: this._fileNameTapped.bind(this)
       });
 
       // new TapHandler(document.getElementById("options"), {
@@ -497,6 +498,10 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
         //   window.open(dataURL);
         // }
       }
+    },
+
+    _fileNameTapped: function(e) {
+      e.srcElement.focus();
     },
 
     _showModal: function(modalId) {
