@@ -688,6 +688,9 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
 
         e.preventDefault();
         this._undo();
+      } else if (
+        ((g.isMac() && e.metaKey) || (g.isPC() && e.ctrlKey)) && key == "S") {
+        e.preventDefault();
       } else if (key == "Z") {
         if (this._settings.tools.scroll == "zoom") {
           this._settings.tools.scroll = "pan";
