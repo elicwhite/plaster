@@ -311,6 +311,9 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
       var dx = !isNaN(e.deltaX) ? -e.deltaX : (e.wheelDeltaX / 5);
       var dy = !isNaN(e.deltaY) ? -e.deltaY : (e.wheelDeltaY / 5);
 
+      dx = Math.min(15, Math.max(-15, dx));
+      dy = Math.min(15, Math.max(-15, dy));
+
       // this._scheduleMouseWheelTimeout();
 
       if (this._settings.tools.scroll == "pan") {
