@@ -81,11 +81,23 @@ body, input {
       }
     }
 
+    #online-text {
+      height: 30px;
+      line-height: 30px;
+      font-style: italic;
+      font-size: 14px;
+    }
+
     #explanation-container {
       font-size: 16px;
-      margin-top: 30px;
       text-align: center;
       line-height: 25px;
+    }
+  }
+
+  &.online {
+    #online-text {
+      visibility: hidden;
     }
   }
 }
@@ -241,8 +253,11 @@ body, input {
   #draw {
 
     #canvas {
-      width: 100%;
-      height: 100%;
+      width: 200%;
+      height: 200%;
+      position: absolute;
+      left: -50%;
+      top: -50%;
     }
 
     .overlay {
@@ -460,6 +475,21 @@ body, input {
       right: 20px;
     }
   }
+
+  #loading-modal {
+    .loading {
+      @include display-flex();
+      @include flex-justify-content(center);
+      @include flex-align-items(center);
+      @include flex-direction(column);
+
+      height: 100%;
+
+      .spinner {
+        font-size: 50px;
+      }
+    }
+  }
 }
 
 .button {
@@ -493,6 +523,7 @@ body, input {
   &.disabled {
     cursor: default;
     background-color: lighten($primary4, 30%);
+    color: #333;
   }
 }
 

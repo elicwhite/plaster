@@ -1,4 +1,4 @@
-define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "bezierCurve", "data", "online", "components/drawCanvas", "analytics"], function(Page, g, Event, Helpers, TapHandler, Platform, db, BezierCurve, Data, Online, DrawCanvas, Analytics) {
+define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "bezierCurve", "data", "online", "components/drawCanvas", "analytics", "modals/loading"], function(Page, g, Event, Helpers, TapHandler, Platform, db, BezierCurve, Data, Online, DrawCanvas, Analytics, LoadingModal) {
 
   var Draw = Page.extend({
     id: "draw",
@@ -101,7 +101,8 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
       new TapHandler(document.getElementById("fileName"), {
         start: function(e) {
           e.stopPropagation();
-        }
+        },
+        tap: this._fileNameTapped.bind(this)
       });
 
       // new TapHandler(document.getElementById("options"), {
@@ -134,30 +135,40 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
 
     show: function(fileInfo) {
       this._super();
+      return Promise.resolve()
+        .then((function() {
+          return this._tryLoadFile(fileInfo)
+        }).bind(this))
+        .catch((function() {
+          return new Promise(function(resolve, reject) {
+              LoadingModal.show();
+              setTimeout(function() {
+                resolve();
+              }, 4000);
+            })
+            .then(function() {
+              // error loading the file, set a timeout for waiting to come online
+              return Online.waitToComeOnline(10000)
+            })
+            .then((function() {
+              return Data.loadFileFromRemote(fileInfo.id)
+            }).bind(this))
+            .then((function(fileInfo) {
+              return this._tryLoadFile(fileInfo);
+            }).bind(this))
+            .catch((function(error) {
+              console.error("Unable to draw for this file", error);
+              Analytics.event("draw", "load failure");
 
-      return this._tryLoadFile(fileInfo)
-        .
-      catch ((function() {
-        // error loading the file, set a timeout for waiting to come online
-        return Online.waitToComeOnline(10000)
-          .then((function() {
-            return Data.loadFileFromRemote(fileInfo.id)
-          }).bind(this))
-          .then((function(fileInfo) {
-            return this._tryLoadFile(fileInfo);
-          }).bind(this))
+              location.hash = "";
 
-        .
-        catch ((function(error) {
-          console.error("Unable to draw for this file", error);
-          Analytics.event("draw", "load failure");
-
-          location.hash = "";
-
-          this._filesPane.setPane("list");
-          return;
-        }).bind(this));
-      }).bind(this))
+              this._filesPane.setPane("list");
+              return;
+            }).bind(this))
+            .then(function() {
+              LoadingModal.hide();
+            });
+        }).bind(this))
     },
 
     _tryLoadFile: function(fileInfo) {
@@ -221,7 +232,7 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
               return Data.close(file);
             }).bind(this, this._file))
             .
-          catch (function(error) {
+          catch(function(error) {
             console.error(error, error.stack, error.message);
           });
         }).bind(this), 600);
@@ -249,14 +260,15 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
     },
 
     _resize: function() {
-      this._canvas.width = window.innerWidth * window.devicePixelRatio;
-      this._canvas.height = window.innerHeight * window.devicePixelRatio;
+      this._canvas.width = window.innerWidth * 2 * window.devicePixelRatio;
+      this._canvas.height = window.innerHeight * 2 * window.devicePixelRatio;
 
       this._updateAll = true;
     },
 
     _zoom: function(x, y, dScale) {
       var scr = this._screenToRetina(x, y);
+      scr = this._canvasOffset(scr.x, scr.y);
 
       this._drawCanvas.rasterMode(true);
 
@@ -298,6 +310,9 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
       // deltaX is chrome, wheelDelta is safari
       var dx = !isNaN(e.deltaX) ? -e.deltaX : (e.wheelDeltaX / 5);
       var dy = !isNaN(e.deltaY) ? -e.deltaY : (e.wheelDeltaY / 5);
+
+      dx = Math.min(15, Math.max(-15, dx));
+      dy = Math.min(15, Math.max(-15, dy));
 
       // this._scheduleMouseWheelTimeout();
 
@@ -430,7 +445,7 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
       action.id = Helpers.getGuid();
       this._file.addAction(action)
         .
-      catch (function(e) {
+      catch(function(e) {
         console.error(e, e.stack, e.message);
       });
     },
@@ -487,6 +502,10 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
         //   window.open(dataURL);
         // }
       }
+    },
+
+    _fileNameTapped: function(e) {
+      e.srcElement.focus();
     },
 
     _showModal: function(modalId) {
@@ -678,14 +697,18 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
 
         e.preventDefault();
         this._undo();
+      } else if (
+        ((g.isMac() && e.metaKey) || (g.isPC() && e.ctrlKey)) && key == "S") {
+        e.preventDefault();
       } else if (key == "Z") {
-        this._settings.tools.scroll = "zoom";
-        this._setActiveTool();
-      } else if (key == "P") {
-        this._settings.tools.scroll = "pan";
+        if (this._settings.tools.scroll == "zoom") {
+          this._settings.tools.scroll = "pan";
+        } else {
+          this._settings.tools.scroll = "zoom";
+        }
+
         this._setActiveTool();
       }
-
     },
 
     _undo: function() {
@@ -754,7 +777,7 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
             this._scheduleUpdate()
           }).bind(this))
           .
-        catch (function(error) {
+        catch(function(error) {
           console.error(error, error.stack, error.message);
         });
       }
@@ -792,13 +815,22 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
       var dpr = window.devicePixelRatio;
 
       return {
-        x: x * dpr,
-        y: y * dpr
+        x: (x * dpr),
+        y: (y * dpr)
       };
+    },
+
+    _canvasOffset: function(x, y) {
+      return {
+        x: x + (window.innerWidth * .5),
+        y: y + (window.innerHeight * .5)
+      }
     },
 
     _screenToWorld: function(settings, x, y) {
       var scr = this._screenToRetina(x, y);
+      scr = this._canvasOffset(scr.x, scr.y);
+
       return Helpers.screenToWorld(settings, scr.x, scr.y);
     }
   });

@@ -2,7 +2,7 @@ define(["dataLayer/data", "event", "dataLayer/indexedDBBacking", "dataLayer/webS
   var backing;
 
   if (window.indexedDB) {
-   backing = new IndexedDBBacking();
+    backing = new IndexedDBBacking();
   } else {
     backing = new WebSQLBacking();
   }
