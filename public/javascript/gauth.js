@@ -2,7 +2,7 @@ define(["class", "event", "vendor/sha256"], function(Class, Event, jsSHA) {
   var GAuth = Class.extend({
     CLIENT_ID: '450627732299-2d7jlo96ious5jmdmsd9t7hpclstf7ub.apps.googleusercontent.com',
     INSTALL_SCOPE: 'https://www.googleapis.com/auth/drive.install',
-    DRIVE_SCOPE: 'https://www.googleapis.com/auth/drive',
+    DRIVE_SCOPE: 'https://www.googleapis.com/auth/drive.file',
     OPENID_SCOPE: 'openid',
 
     _user: null,
