@@ -28,7 +28,7 @@ git merge --no-ff $buildBranch -X theirs -m "Merge branch '$buildBranch' into ma
 git tag -a v$timestamp -m 'version $timestamp'
 
 cd build
-git commit -a -m 'Release version $timestamp'
+git commit -a -m "Release version $timestamp"
 cd ..
 
 git checkout development
@@ -46,6 +46,6 @@ read deploy
 
 if [ "$deploy" = "y" ] ; then
   cd build
-  git push master:gh-pages
+  git push origin master:gh-pages
   cd ..
 fi

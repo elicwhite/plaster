@@ -24,9 +24,11 @@ define(["class", "globals", "helpers", "components/drawCanvas"], function(Class,
 
       // Find out what world point is in the middle
       var centerScreen = {
-        x: window.innerWidth / 2 * dpr,
-        y: window.innerHeight / 2 * dpr
+        x: window.innerWidth * dpr,
+        y: window.innerHeight * dpr
       };
+
+
       var centerWorld = Helpers.screenToWorld(settings, centerScreen.x, centerScreen.y);
 
       var scale = Math.min(this._canvas.width / window.innerWidth / dpr, this._canvas.height / window.innerHeight / dpr);
