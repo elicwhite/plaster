@@ -156,7 +156,5 @@ define(["class", "event", "vendor/sha256"], function(Class, Event, jsSHA) {
     // }
   });
 
-
-
   return new GAuth();
 });
