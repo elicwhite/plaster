@@ -26,12 +26,26 @@ git commit -a -m "Preparing for release."
 git checkout master
 git merge --no-ff $buildBranch -X theirs -m "Merge branch '$buildBranch' into master"
 git tag -a v$timestamp -m 'version $timestamp'
+
+cd build
+git commit -a -m 'Release version $timestamp'
+cd ..
+
 git checkout development
 git branch -D $buildBranch
 
-echo "Deploy? y/n"
+echo "Deploy to staging? y/n"
 read deploy
 
 if [ "$deploy" = "y" ] ; then
   git push staging master
+fi
+
+echo "Deploy to Production? y/n"
+read deploy
+
+if [ "$deploy" = "y" ] ; then
+  cd build
+  git push master:gh-pages
+  cd ..
 fi
