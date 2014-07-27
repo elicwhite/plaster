@@ -24,7 +24,7 @@ grunt
 git add -A
 git commit -a -m "Preparing for release."
 git checkout master
-git merge --no-ff $buildBranch -X theirs -m "Merge branch '$buildBranch' into integration"
+git merge --no-ff $buildBranch -X theirs -m "Merge branch '$buildBranch' into master"
 git tag -a v$timestamp -m 'version $timestamp'
 git checkout development
 git branch -D $buildBranch

@@ -16,7 +16,7 @@
       })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
       var createProp = 'auto';
-      if (location.origin.indexOf("localhost") !== -1) {
+      if (location.href.indexOf("localhost") !== -1) {
         createProp = {
           'cookieDomain': 'none'
         };
