@@ -821,9 +821,11 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
     },
 
     _canvasOffset: function(x, y) {
+      var dpr = window.devicePixelRatio;
+
       return {
-        x: x + (window.innerWidth * .5),
-        y: y + (window.innerHeight * .5)
+        x: x + (dpr * window.innerWidth / 2),
+        y: y + (dpr * window.innerHeight / 2)
       }
     },
 
