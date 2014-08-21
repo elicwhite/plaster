@@ -157,7 +157,8 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
               return this._tryLoadFile(fileInfo);
             }).bind(this))
             .catch((function(error) {
-              console.error("Unable to draw for this file", error);
+              Rollbar.error("Load failure", error);
+              // console.error("Unable to draw for this file", error);
               Analytics.event("draw", "load failure");
 
               location.hash = "";

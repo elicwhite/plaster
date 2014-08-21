@@ -363,6 +363,7 @@ define(["class", "helpers", "event", "gauth", "online", "sequentialHelper", "dat
             }).bind(this))
             .
           catch (function(error) {
+            Rollbar.error("Sync failure", error);
             console.error(error, error.stack, error.message);
           })
             .then((function() {
