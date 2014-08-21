@@ -1,16 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>Draw - The Collaborative Drawing App</title>
-    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, minimal-ui">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <link rel="stylesheet" href="stylesheet/total.css">
-    <script src="javascript/main.min.js"></script>
-    <script onError="gapiLoadError()" async="async" id="gapiScript" type="text/javascript" src="https://apis.google.com/js/api.js?onload=gapiLoaded"></script>
-
-    <script>
-      window.VERSION_NUMBER = "1408641004438";
+<!DOCTYPE html><html lang="en" manifest="cache.manifest"><head><meta charset="utf-8"><title>Draw - The Collaborative Drawing App</title><meta name="viewport" content="initial-scale=1.0, user-scalable=no, minimal-ui"><meta name="apple-mobile-web-app-capable" content="yes"><link rel="stylesheet" href="stylesheet/total.css"><script src="javascript/main.min.js"></script><script onerror="gapiLoadError()" async="async" id="gapiScript" type="text/javascript" src="https://apis.google.com/js/api.js?onload=gapiLoaded"></script><script>window.VERSION_NUMBER = "1408641700939";
 
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -24,206 +12,29 @@
         };
       }
 
-      var propertyId = 'UA-49250395-1';
+      var propertyId = 'UA-49250395-2';
       ga('create', propertyId, createProp);
 
       ga('require', 'displayfeatures');
 
-    </script>
-  </head>
-  <body ver="1408641004438">
-    <div id="overall">
-      <div id="login" class="page">
-        <div id="login-wrapper">
-          <div id="info-container">
-            <div id="login-box-switcher">
-              <div id="login-basic">
-                <h1>Draw</h1>
-              </div>
+    var _rollbarConfig = {
+        accessToken: "b61bfc58262a4ba4bfaa5c65ba4cb16a",
+        captureUncaught: true,
+        payload: {
+          environment: "production",
 
-              <div id="login-file" class="hidden">
-                <h1><span id="login-file-title"></span></h1>
-                <h2>By <img id="login-owner-pic" /><span id="login-file-owners"></span></h2>
-              </div>
-            </div>
-
-            <div id="loginbutton" class="button primary disabled">
-              <span><i class="icon-google"></i>Login with Google</span>
-            </div>
-          </div>
-          <div id="online-text">
-            You must be online to log in.
-          </div>
-          <div id="explanation-container">
-            <p>
-              <strong>Draw</strong> uses Google Drive to keep your files secure.
-            </p>
-            <p>
-              Keeping all of your drawings in sync, <br /><strong>Draw</strong> lets you work from any device.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div id="main-container" class="page">
-        <div id="updateBar">
-          <div id="updateBarContent">
-            An update is ready. Click here to reload.
-          </div>
-        </div>
-        <div id="main-content">
-          <div id="panes">
-
-            <div id="files" class="pane pane-slider">
-              <div id="files-pane-wrapper" class="pane pane-wrapper">
-
-                <div id="files-list-container" class="pane">
-                  <div id="navbar">
-                    <ul id="main-menu" class="pull-right">
-                      <li id="mode" class="hidden">Offline</li>
-                    </ul>
-                  </div>
-                    <ul id="files-list">
-                      <li class="file-info" id="create-file">
-                        <div class="create">
-                          <div class="icon icon-plus2"></div>
-                          <span>Create</span>
-                        </div>
-                      </li>
-                    </ul>
-                </div>
-
-                <div id="draw" class="pane">
-                  <div id="draw-overlay" class="overlay">
-                    <div id="colorPicker" class="modal">
-                      <ul>
-                        <li class="swatch" style="background-color: #000"></li>
-                        <li class="swatch" style="background-color: #aaa"></li>
-                        <li class="swatch" style="background-color: #00d81e"></li>
-
-                        <li class="swatch" style="background-color: #0AA6F2"></li>
-                        <li class="swatch" style="background-color: #00f"></li>
-                        <li class="swatch" style="background-color: #890EF3"></li>
-
-                        <li class="swatch" style="background-color: #FFF400"></li>
-                        <li class="swatch" style="background-color: #FF8900"></li>
-                        <li class="swatch" style="background-color: #cf0000"></li>
-
-                      </ul>
-                    </div>
-                  </div>
-                  <canvas id="canvas" tabindex="1">
-                  </canvas>
-                  <div id="menu">
-                    <ul>
-                      <li data-action="back" class="icon-home"></li>
-                    </ul>
-                  </div>
-                  <div id="title">
-                    <input type="text" id="fileName" data-action="rename" />
-                  </div>
-                  <!-- <div id="options">
-                    <ul>
-                      <li data-action="export" class="icon-image"></li>
-                    </ul>
-                  </div> -->
-
-                  <div id="tools">
-                    <ul>
-                      <li id="pencil-tool" class="toolitem icon-pencil" data-tool="pencil"></li>
-                      <li id="eraser-tool" class="toolitem icon-eraser" data-tool="eraser"></li>
-                      <li id="undo-tool" class="toolitem icon-undo" data-action="undo"></li>
-                      <li id="redo-tool" class="toolitem icon-redo" data-action="redo"></li>
-                      <li id="pan-tool" class="toolitem icon-move" data-tool="pan"></li>
-                      <li id="zoom-tool" class="toolitem icon-zoom-in" data-tool="zoom"></li>
-                      <li id="color-tool" data-action="color" class="toolitem menu">
-                        <div id="chosenColorSwatch" class="swatch" style="background-color: black">
-                        </div>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </div>
-    </div>
-
-
-    <div id="modal-overlay" class="hidden">
-
-      <div id="share-modal" class="modal">
-        <div class="row title">
-          Sharing File '<span id="share-modal-title"></span>'
-        </div>
-        <div id="share-modal-offline" class="visible-switch">
-          <div class="row">
-            You must be online to access sharing for this file.
-          </div>
-        </div>
-        <div id="share-modal-online" class="visible-switch">
-          <div id="share-modal-loading" class="visible-switch">
-            <div class="row">
-              <span class="icon-spinner"></span>
-              <div>Loading Permissions</div>
-            </div>
-          </div>
-          <div id="share-modal-permissions" class="visible-switch">
-            <div id="share-modal-guest" class="visible-switch row">
-                Only the creator of this file can change its sharing settings.
-            </div>
-            <div id="share-modal-owner" class="visible-switch">
-              <div class="row">
-                Sharing this file enables anyone with the link to draw on it.
-              </div>
-              <div class="row buttons">
-                <div id="share-modal-share-button" class="button primary"><i class="icon-google"></i><span id="share-modal-share-text"></span>
-                </div>
-              </div>
-            </div>
-
-            <div id="share-modal-link" class="visible-switch">
-              <div id="share-modal-link-wrapper"><a id="share-modal-link-text"></a></div>
-              <div class="subtext">Anyone with this link can modify the file.</div>
-            </div>
-          </div>
-        </div>
-
-        <div id="share-modal-close-button" class="button">Close</div>
-      </div>
-
-      <div id="delete-modal" class="modal">
-        <div class="row title">
-          Deleting file '<span id="delete-modal-title"></span>'
-        </div>
-
-        <div class="row">
-          Are you sure you want to delete this file?
-        </div>
-
-        <div class="row buttons">
-          <div id="delete-modal-delete" class="button primary">
-            Confirm
-          </div>
-          <div id="delete-modal-close" class="button">Close</div>
-        </div>
-      </div>
-
-      <div id="loading-modal" class="modal">
-        <div class="row loading">
-          <h3>Loading file</h3>
-          <span class="spinner icon-spinner"></span>
-        </div>
-      </div>
-
-    </div>
-
-
-    <script type="text/template" id="template-fileListItem">
-      <li class="file-info">
+          client: {
+            javascript: {
+              source_map_enabled: true,
+              code_version: window.VERSION_NUMBER,
+              // Optionally have Rollbar guess which frames the error was thrown from
+              // when the browser does not provide line and column numbers.
+              guess_uncaught_frames: true
+            }
+          }
+        }
+    };
+    !function(a,b){function c(b){this.shimId=++h,this.notifier=null,this.parentShim=b,this.logger=function(){},a.console&&void 0===a.console.shimId&&(this.logger=a.console.log)}function d(b,c,d){!d[4]&&a._rollbarWrappedError&&(d[4]=a._rollbarWrappedError,a._rollbarWrappedError=null),b.uncaughtError.apply(b,d),c&&c.apply(a,d)}function e(b){var d=c;return g(function(){if(this.notifier)return this.notifier[b].apply(this.notifier,arguments);var c=this,e="scope"===b;e&&(c=new d(this));var f=Array.prototype.slice.call(arguments,0),g={shim:c,method:b,args:f,ts:new Date};return a._rollbarShimQueue.push(g),e?c:void 0})}function f(a,b){if(b.hasOwnProperty&&b.hasOwnProperty("addEventListener")){var c=b.addEventListener;b.addEventListener=function(b,d,e){c.call(this,b,a.wrap(d),e)};var d=b.removeEventListener;b.removeEventListener=function(a,b,c){d.call(this,a,b&&b._wrapped?b._wrapped:b,c)}}}function g(a,b){return b=b||this.logger,function(){try{return a.apply(this,arguments)}catch(c){b("Rollbar internal error:",c)}}}var h=0;c.init=function(a,b){var e=b.globalAlias||"Rollbar";if("object"==typeof a[e])return a[e];a._rollbarShimQueue=[],a._rollbarWrappedError=null,b=b||{};var h=new c;return g(function(){if(h.configure(b),b.captureUncaught){var c=a.onerror;a.onerror=function(){var a=Array.prototype.slice.call(arguments,0);d(h,c,a)};var g,i,j="EventTarget,Window,Node,ApplicationCache,AudioTrackList,ChannelMergerNode,CryptoOperation,EventSource,FileReader,HTMLUnknownElement,IDBDatabase,IDBRequest,IDBTransaction,KeyOperation,MediaController,MessagePort,ModalWindow,Notification,SVGElementInstance,Screen,TextTrack,TextTrackCue,TextTrackList,WebSocket,WebSocketWorker,Worker,XMLHttpRequest,XMLHttpRequestEventTarget,XMLHttpRequestUpload".split(",");for(g=0;g<j.length;++g)i=j[g],a[i]&&a[i].prototype&&f(h,a[i].prototype)}return a[e]=h,h},h.logger)()},c.prototype.loadFull=function(a,b,c,d){var e=g(function(){var a=b.createElement("script"),e=b.getElementsByTagName("script")[0];a.src=d.rollbarJsUrl,a.async=!c,a.onload=f,e.parentNode.insertBefore(a,e)},this.logger),f=g(function(){if(void 0===a._rollbarPayloadQueue)for(var b,c,d,e,f=new Error("rollbar.js did not load");b=a._rollbarShimQueue.shift();)for(d=b.args,e=0;e<d.length;++e)if(c=d[e],"function"==typeof c){c(f);break}},this.logger);g(function(){c?e():a.addEventListener?a.addEventListener("load",e,!1):a.attachEvent("onload",e)},this.logger)()},c.prototype.wrap=function(b){try{if("function"!=typeof b)return b;if(b._isWrap)return b;if(!b._wrapped){b._wrapped=function(){try{return b.apply(this,arguments)}catch(c){throw a._rollbarWrappedError=c,c}},b._wrapped._isWrap=!0;for(var c in b)b.hasOwnProperty(c)&&(b._wrapped[c]=b[c])}return b._wrapped}catch(d){return b}};for(var i="log,debug,info,warn,warning,error,critical,global,configure,scope,uncaughtError".split(","),j=0;j<i.length;++j)c.prototype[i[j]]=e(i[j]);var k="//d37gvrvc0wt4s1.cloudfront.net/js/v1.1/rollbar.min.js";_rollbarConfig.rollbarJsUrl=_rollbarConfig.rollbarJsUrl||k;var l=c.init(a,_rollbarConfig);l.loadFull(a,b,!1,_rollbarConfig)}(window,document);</script></head><body ver="1408641700939"><div id="overall"><div id="login" class="page"><div id="login-wrapper"><div id="info-container"><div id="login-box-switcher"><div id="login-basic"><h1>Draw</h1></div><div id="login-file" class="hidden"><h1><span id="login-file-title"></span></h1><h2>By <img id="login-owner-pic"><span id="login-file-owners"></span></h2></div></div><div id="loginbutton" class="button primary disabled"><span><i class="icon-google"></i>Login with Google</span></div></div><div id="online-text">You must be online to log in.</div><div id="explanation-container"><p><strong>Draw</strong> uses Google Drive to keep your files secure.</p><p>Keeping all of your drawings in sync,<br><strong>Draw</strong> lets you work from any device.</p></div></div></div><div id="main-container" class="page"><div id="updateBar"><div id="updateBarContent">An update is ready. Click here to reload.</div></div><div id="main-content"><div id="panes"><div id="files" class="pane pane-slider"><div id="files-pane-wrapper" class="pane pane-wrapper"><div id="files-list-container" class="pane"><div id="navbar"><ul id="main-menu" class="pull-right"><li id="mode" class="hidden">Offline</li></ul></div><ul id="files-list"><li class="file-info" id="create-file"><div class="create"><div class="icon icon-plus2"></div><span>Create</span></div></li></ul></div><div id="draw" class="pane"><div id="draw-overlay" class="overlay"><div id="colorPicker" class="modal"><ul><li class="swatch" style="background-color: #000"></li><li class="swatch" style="background-color: #aaa"></li><li class="swatch" style="background-color: #00d81e"></li><li class="swatch" style="background-color: #0AA6F2"></li><li class="swatch" style="background-color: #00f"></li><li class="swatch" style="background-color: #890EF3"></li><li class="swatch" style="background-color: #FFF400"></li><li class="swatch" style="background-color: #FF8900"></li><li class="swatch" style="background-color: #cf0000"></li></ul></div></div><canvas id="canvas" tabindex="1"></canvas><div id="menu"><ul><li data-action="back" class="icon-home"></li></ul></div><div id="title"><input type="text" id="fileName" data-action="rename"></div><div id="tools"><ul><li id="pencil-tool" class="toolitem icon-pencil" data-tool="pencil"></li><li id="eraser-tool" class="toolitem icon-eraser" data-tool="eraser"></li><li id="undo-tool" class="toolitem icon-undo" data-action="undo"></li><li id="redo-tool" class="toolitem icon-redo" data-action="redo"></li><li id="pan-tool" class="toolitem icon-move" data-tool="pan"></li><li id="zoom-tool" class="toolitem icon-zoom-in" data-tool="zoom"></li><li id="color-tool" data-action="color" class="toolitem menu"><div id="chosenColorSwatch" class="swatch" style="background-color: black"></div></li></ul></div></div></div></div></div></div></div></div><div id="modal-overlay" class="hidden"><div id="share-modal" class="modal"><div class="row title">Sharing File '<span id="share-modal-title"></span>'</div><div id="share-modal-offline" class="visible-switch"><div class="row">You must be online to access sharing for this file.</div></div><div id="share-modal-online" class="visible-switch"><div id="share-modal-loading" class="visible-switch"><div class="row"><span class="icon-spinner"></span><div>Loading Permissions</div></div></div><div id="share-modal-permissions" class="visible-switch"><div id="share-modal-guest" class="visible-switch row">Only the creator of this file can change its sharing settings.</div><div id="share-modal-owner" class="visible-switch"><div class="row">Sharing this file enables anyone with the link to draw on it.</div><div class="row buttons"><div id="share-modal-share-button" class="button primary"><i class="icon-google"></i><span id="share-modal-share-text"></span></div></div></div><div id="share-modal-link" class="visible-switch"><div id="share-modal-link-wrapper"><a id="share-modal-link-text"></a></div><div class="subtext">Anyone with this link can modify the file.</div></div></div></div><div id="share-modal-close-button" class="button">Close</div></div><div id="delete-modal" class="modal"><div class="row title">Deleting file '<span id="delete-modal-title"></span>'</div><div class="row">Are you sure you want to delete this file?</div><div class="row buttons"><div id="delete-modal-delete" class="button primary">Confirm</div><div id="delete-modal-close" class="button">Close</div></div></div><div id="loading-modal" class="modal"><div class="row loading"><h3>Loading file</h3><span class="spinner icon-spinner"></span></div></div></div><script type="text/template" id="template-fileListItem"><li class="file-info">
         <div>
           <div class="thumbnail-info">
             <img class="thumbnail" />
@@ -247,7 +58,4 @@
             <span class="file-name"></span>
           </div>
         </div>
-      </li>
-    </script>
-  </body>
-</html>
+      </li></script></body></html>
