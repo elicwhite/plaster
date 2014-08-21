@@ -8,6 +8,9 @@ define(["dataLayer/data", "event", "dataLayer/indexedDBBacking", "dataLayer/webS
   }
 
   var driveBacking = new DriveBacking();
+
+  window.db = driveBacking;
+
   var data = new Data(backing, driveBacking);
 
   Event.addListener("authenticatedStatusChanged", function(status) {
