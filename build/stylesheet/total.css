@@ -109,73 +109,18 @@ body {
   max-width: 960px;
   margin: auto;
 }
-#login strong {
-  font-weight: bold;
-}
 #login .section {
   overflow: hidden;
   text-align: center;
-  background-color: white;
-  border-bottom: 1px solid #cccccc;
-  padding: 50px 25px;
-}
-#login .section:nth-child(even) {
-  background-color: #f2f2f2;
-}
-#login .section:last-child {
-  border-bottom: 0;
-}
-#login #topHeader {
-  background: #057cb5;
-  color: rgba(255, 255, 255, 0.87);
-  padding: 0 10px;
 }
 #login #topHeader .content {
   clear: both;
-  margin: 100px 0 60px 0;
-}
-#login #topHeader .content h1 {
-  font-size: 3.5em;
-  font-weight: bold;
-  margin-bottom: 50px;
-}
-#login #topHeader .content h2 {
-  font-size: 1.8em;
-  font-weight: 100;
-  margin-bottom: 50px;
-}
-#login #topHeader .content #login {
-  width: 250px;
 }
 #login #topHeader .content .button {
-  padding: 1em;
-  font-size: 1.2em;
-  background-color: #0aa6f2;
-  color: white;
-  -webkit-border-radius: 6px;
-  -moz-border-radius: 6px;
-  -ms-border-radius: 6px;
-  -o-border-radius: 6px;
-  border-radius: 6px;
-  border: 1px solid #057cb5;
   display: inline-block;
-  font-weight: 100;
-}
-#login #topHeader .content .button.disabled {
-  cursor: default;
-  background-color: #057cb5;
-  border-color: #045a83;
-}
-#login #topHeader .content .button:not(.disabled):hover {
-  background-color: #49bff9;
 }
 #login #topHeader .content #disclaimer {
   margin-top: 20px;
-}
-#login #info .header {
-  font-weight: bold;
-  font-size: 1.3em;
-  margin-bottom: 1em;
 }
 #login #info .content {
   overflow: hidden;
@@ -221,100 +166,11 @@ body {
 #login #info .platforms {
   padding: 10px 0;
 }
-#login .platforms i {
-  font-size: 20px;
+#login #info .platforms i {
   padding: 0 10px;
 }
-#login .platforms i:first-child {
+#login #info .platforms i:first-child {
   padding-left: 0px;
-}
-#login #seen {
-  background-color: #f2f2f2;
-  border-bottom: 1px solid #cccccc;
-}
-#login #seen img {
-  height: 75px;
-  width: auto;
-  margin: 0 5px;
-}
-#login #testimonial {
-  display: -webkit-box;
-  /* OLD - iOS 6-, Safari 3.1-6 */
-  display: -moz-box;
-  /* OLD - Firefox 19- (buggy but mostly works) */
-  display: -ms-flexbox;
-  /* TWEENER - IE 10 */
-  display: -webkit-flex;
-  /* NEW - Chrome */
-  display: flex;
-  -webkit-justify-content: center;
-  -moz-justify-content: center;
-  -ms-justify-content: center;
-  justify-content: center;
-  -webkit-align-items: center;
-  -moz-align-items: center;
-  -ms-align-items: center;
-  align-items: center;
-}
-#login #testimonial .testimonial {
-  -webkit-box-flex: 1;
-  /* OLD - iOS 6-, Safari 3.1-6 */
-  -moz-box-flex: 1;
-  /* OLD - Firefox 19- */
-  -webkit-flex: 1;
-  /* Chrome */
-  -ms-flex: 1;
-  /* IE 10 */
-  flex: 1;
-  /* NEW, Spec - Opera 12.1, Firefox 20+ */
-  -webkit-flex-basis: auto;
-  -moz-flex-basis: auto;
-  -ms-flex-basis: auto;
-  flex-basis: auto;
-  max-width: 400px;
-}
-#login #testimonial .testimonial .picture {
-  margin: auto;
-  height: 120px;
-  width: 120px;
-  -webkit-border-radius: 60px;
-  -moz-border-radius: 60px;
-  -ms-border-radius: 60px;
-  -o-border-radius: 60px;
-  border-radius: 60px;
-  border: 1px solid #cccccc;
-  margin-bottom: 20px;
-  overflow: hidden;
-}
-#login #testimonial .testimonial .picture img {
-  width: 100%;
-  height: auto;
-}
-#login #testimonial .testimonial .text {
-  margin-bottom: 20px;
-}
-#login #testimonial .testimonial .who {
-  font-weight: bold;
-}
-#login #about {
-  padding: 20px 0 20px 0;
-}
-#login #about ul.links {
-  font-size: 1.2em;
-  font-weight: 100;
-}
-#login #about ul.links .header {
-  font-weight: bold;
-}
-#login #about ul.links li {
-  display: inline;
-}
-#login #about ul.links li span {
-  padding: 10px;
-}
-#login #privacy {
-  padding: 20px;
-  text-align: right;
 }
 #login #flex {
   -webkit-box-flex: 1;
@@ -328,63 +184,6 @@ body {
   flex: 1;
   /* NEW, Spec - Opera 12.1, Firefox 20+ */
   padding: 0;
-}
-#login #login-wrapper {
-  width: 100%;
-  height: 100%;
-  display: -webkit-box;
-  /* OLD - iOS 6-, Safari 3.1-6 */
-  display: -moz-box;
-  /* OLD - Firefox 19- (buggy but mostly works) */
-  display: -ms-flexbox;
-  /* TWEENER - IE 10 */
-  display: -webkit-flex;
-  /* NEW - Chrome */
-  display: flex;
-  -webkit-justify-content: center;
-  -moz-justify-content: center;
-  -ms-justify-content: center;
-  justify-content: center;
-  -webkit-align-items: center;
-  -moz-align-items: center;
-  -ms-align-items: center;
-  align-items: center;
-  -webkit-flex-direction: column;
-  -moz-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-}
-#login #login-wrapper #info-container {
-  display: -webkit-box;
-  /* OLD - iOS 6-, Safari 3.1-6 */
-  display: -moz-box;
-  /* OLD - Firefox 19- (buggy but mostly works) */
-  display: -ms-flexbox;
-  /* TWEENER - IE 10 */
-  display: -webkit-flex;
-  /* NEW - Chrome */
-  display: flex;
-  -webkit-justify-content: center;
-  -moz-justify-content: center;
-  -ms-justify-content: center;
-  justify-content: center;
-  -webkit-align-items: center;
-  -moz-align-items: center;
-  -ms-align-items: center;
-  align-items: center;
-  -webkit-flex-direction: column;
-  -moz-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  width: 100%;
-  position: relative;
-}
-#login #login-wrapper #info-container #login-box-switcher {
-  width: 100%;
-  position: relative;
-}
-#login #login-wrapper #info-container #login-basic, #login #login-wrapper #info-container #login-file {
-  position: absolute;
 }
 
 #updateBar {
@@ -599,12 +398,48 @@ body {
 #####  Generated by Color Scheme Designer (c) Petr Stanicek 2002-2010
 
 */
-body, input {
+.display3, #login #topHeader .content h1 {
+  font-size: 56px;
+  line-height: 70px;
+}
+
+.display2 {
+  font-size: 45px;
+  line-height: 48px;
+}
+
+.display1, #login #topHeader .content h2 {
+  font-size: 34px;
+  line-height: 40px;
+}
+
+.title, #login #info .platforms i, #login #topHeader .content .button, #login #swappable-box #login-file #login-file-title {
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.body, body, input {
   font-size: 16px;
-  line-height: 150%;
+  color: rgba(0, 0, 0, 0.87);
+  line-height: 26px;
+}
+
+.subtext {
+  font-size: 14px;
+  font-weight: 400;
+}
+
+body {
+  font-weight: 500;
+  -webkit-font-smoothing: antialiased;
+}
+
+body, input {
   font-family: Helvetica, arial, sans-serif;
-  font-weight: 100;
-  color: #666;
+}
+
+strong {
+  font-weight: bold;
 }
 
 #overall.blurred {
@@ -612,6 +447,91 @@ body, input {
   -moz-filter: blur(3px);
   -ms-filter: blur(3px);
   filter: blur(3px);
+}
+
+#login {
+  background-color: #f2f2f2;
+}
+#login .section {
+  background-color: white;
+  border-bottom: 1px solid #cccccc;
+  padding: 50px 25px;
+}
+#login .section:nth-child(even) {
+  background-color: #f2f2f2;
+}
+#login .section:last-child {
+  border-bottom: 0;
+}
+#login.online #online-text {
+  opacity: 0;
+}
+#login #topHeader {
+  background: #057cb5;
+  color: rgba(255, 255, 255, 0.87);
+  padding: 0 10px;
+}
+#login #topHeader .content {
+  margin: 100px 0 60px 0;
+}
+#login #topHeader .content h1 {
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+#login #topHeader .content h2 {
+  font-weight: 100;
+  margin-bottom: 50px;
+}
+#login #topHeader .content .button {
+  padding: 1em;
+  color: white;
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  -ms-border-radius: 6px;
+  -o-border-radius: 6px;
+  border-radius: 6px;
+  background-color: #0aa6f2;
+  border: 1px solid #045a83;
+}
+#login #topHeader .content .button.disabled {
+  cursor: default;
+  background-color: #057cb5;
+  color: #2a94c7;
+  border-color: #045a83;
+}
+#login #topHeader .content .button:not(.disabled):hover {
+  background-color: #49bff9;
+}
+#login #swappable-box {
+  position: relative;
+  overflow: hidden;
+  height: 70px;
+}
+#login #swappable-box #online-text, #login #swappable-box #login-file {
+  position: absolute;
+  -webkit-transition: 0.5s all;
+  -moz-transition: 0.5s all;
+  -o-transition: 0.5s all;
+  transition: 0.5s all;
+  left: 0;
+  right: 0;
+  top: 0;
+  padding: 10px;
+}
+#login #swappable-box #online-text.hidden, #login #swappable-box #login-file.hidden {
+  opacity: 0;
+}
+#login #about {
+  padding: 20px 0 20px 0;
+}
+#login #about ul.links {
+  font-size: 1.2em;
+}
+#login #about ul.links li {
+  display: inline;
+}
+#login #about ul.links li span {
+  padding: 10px;
 }
 
 #updateBar {
@@ -861,7 +781,7 @@ body, input {
   left: 0;
   right: 0;
 }
-#modal-overlay .modal .title {
+#modal-overlay .modal .title, #modal-overlay .modal #login #info .platforms i, #login #info .platforms #modal-overlay .modal i, #modal-overlay .modal #login #topHeader .content .button, #login #topHeader .content #modal-overlay .modal .button, #modal-overlay .modal #login #swappable-box #login-file #login-file-title, #login #swappable-box #login-file #modal-overlay .modal #login-file-title {
   font-size: 20px;
   font-weight: 100;
   padding: 10px;
@@ -1261,7 +1181,7 @@ body, input {
 
 @font-face {
   font-family: 'icomoon';
-  src: url("../fonts/icomoon.woff?") format("woff"), url("../fonts/icomoon.ttf") format("truetype");
+  src: url("../fonts/icomoon.woff") format("woff"), url("../fonts/icomoon.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
@@ -1277,6 +1197,10 @@ body, input {
   /* Better Font Rendering =========== */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-uniE609:before {
+  content: "\e609";
 }
 
 .icon-user:before {

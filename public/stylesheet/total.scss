@@ -52,11 +52,6 @@ body {
   }
 }
 
-$borderColor: #ccc;
-$primary: #0AA6F2;
-$darkPrimary: #057CB5;
-$lighter: #49BFF9;
-
 #login {
   overflow-y: scroll;
 
@@ -65,77 +60,17 @@ $lighter: #49BFF9;
     margin: auto;
   }
 
-  strong {
-    font-weight: bold;
-  }
-
   .section {
     overflow: hidden;
     text-align: center;
-
-    background-color: white;
-    border-bottom: 1px solid $borderColor;
-    padding: 50px 25px;
   }
-
-  .section:nth-child(even) {
-    background-color: #f2f2f2;
-  }
-
-  .section:last-child {
-    border-bottom: 0;
-  }
-
 
   #topHeader {
-    background: $darkPrimary;
-    color: rgba(255, 255, 255, .87);
-
-    padding: 0 10px;
-
     .content {
       clear: both;
 
-      margin: 100px 0 60px 0;
-
-      h1 {
-        font-size: 3.5em;
-        font-weight: bold;
-        margin-bottom: 50px;
-      }
-
-      h2 {
-        font-size: 1.8em;
-        font-weight: 100;
-
-        margin-bottom: 50px;
-
-      }
-
-      #login {
-        width: 250px;
-      }
-
       .button {
-        padding: 1em;
-        font-size: 1.2em;
-        background-color: $primary;
-        color: white;
-
-        @include border-radius(6px);
-        border: 1px solid $darkPrimary;
         display: inline-block;
-        font-weight: 100;
-
-        &.disabled {
-          cursor: default;
-          background-color: $darkPrimary;
-          border-color: darken($darkPrimary, 10%);
-        }
-
-        &:not(.disabled):hover {
-          background-color: $lighter;
-        }
       }
 
       #disclaimer {
@@ -145,12 +80,6 @@ $lighter: #49BFF9;
   }
 
   #info {
-    .header {
-      font-weight: bold;
-      font-size: 1.3em;
-      margin-bottom: 1em;
-    }
-
     .content {
       overflow: hidden;
 
@@ -158,154 +87,37 @@ $lighter: #49BFF9;
       @include flex-justify-content(center);
     }
 
-
     ul {
       @include display-flex();
       @include flex-direction(column);
       @include flex-justify-content(center);
-
-      // overflow: hidden;
-      // display: inline-block;
-    //   @include display-flex();
-    //   @include flex-align-content(flex-start);
-    //   @include flex-justify-content(center);
-    //   @include flex-align-items(center);
-    //   @include flex-wrap(wrap);
     }
 
-
     li {
-      // float: left;
-      // clear: both;
       min-width: 300px;
       max-width: 400px;
 
       text-align: left;
-      padding: 25px;// 20px 0px 20px;
+      padding: 25px;
     }
 
     .platforms {
       padding: 10px 0;
-    }
-  }
 
-  .platforms {
-    i {
-      font-size: 20px;
-      padding: 0 10px;
+      i {
+        @extend .title;
+        padding: 0 10px;
 
-      &:first-child {
-        padding-left: 0px;
-      }
-    }
-  }
-
-  #seen {
-    background-color: #f2f2f2;
-    border-bottom: 1px solid $borderColor;
-
-    img {
-      height: 75px;
-      width: auto;
-      margin: 0 5px;
-    }
-  }
-
-  #testimonial {
-    @include display-flex();
-    @include flex-justify-content(center);
-    @include flex-align-items(center);
-
-    .testimonial {
-      @include flex(1);
-      @include flex-basis(auto);
-
-      max-width: 400px;
-
-      .picture {
-        margin: auto;
-        height: 120px;
-        width: 120px;
-        @include border-radius(60px);
-        border: 1px solid $borderColor;
-        margin-bottom: 20px;
-        overflow: hidden;
-
-        img {
-          width: 100%;
-          height: auto;
-        }
-      }
-
-      .text {
-        margin-bottom: 20px;
-      }
-
-      .who {
-        font-weight: bold;
-      }
-    }
-  }
-
-  #about {
-    padding: 20px 0 20px 0;
-
-    ul.links {
-      font-size: 1.2em;
-      font-weight: 100;
-
-      .header {
-        font-weight: bold;
-      }
-
-      li {
-        display: inline;
-
-        span {
-          padding: 10px;
+        &:first-child {
+          padding-left: 0px;
         }
       }
     }
-  }
-
-  #privacy {
-    padding: 20px;
-
-    text-align: right;
   }
 
   #flex {
     @include flex(1);
     padding: 0;
-  }
-
-  #login-wrapper{
-    width: 100%;
-    height: 100%;
-    @include display-flex();
-    @include flex-justify-content(center);
-    @include flex-align-items(center);
-    @include flex-direction(column);
-
-    #info-container {
-      @include display-flex();
-      @include flex-justify-content(center);
-      @include flex-align-items(center);
-      @include flex-direction(column);
-
-      width: 100%;
-      position: relative;
-
-      #login-box-switcher {
-        width: 100%;
-        position: relative;
-      }
-
-      #login-basic, #login-file {
-        position: absolute;
-      }
-    }
-
   }
 }
 

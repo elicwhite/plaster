@@ -106,7 +106,13 @@
      -moz-animation: $value;
       -ms-animation: $value;
           animation: $value;
+}
 
+@mixin vertical-center {
+  @include display-flex();
+  @include flex-align-content(flex-start);
+  @include flex-justify-content(center);
+  @include flex-align-items(center);
 }
 
 @mixin keyframes($name) {
