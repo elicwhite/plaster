@@ -4,6 +4,7 @@
   darker even: 520551
 */
 @import "bluePurple.scss";
+@import "typography";
 
 $extraLightGray: #ccc;
 $veryLightGray: #aaa;
@@ -13,10 +14,12 @@ $darkGray: #333;
 $veryDarkGray: #111;
 
 body, input {
-  font-size: 15px;
-  font-family: verdana, arial, sans-serif;
-  font-weight: 100;
-  color: #333;
+  @extend .body;
+  font-family: Helvetica, arial, sans-serif;
+}
+
+strong {
+  font-weight: bold;
 }
 
 #overall {
@@ -26,78 +29,112 @@ body, input {
 }
 
 #login {
-  #login-wrapper {
-    #info-container {
-      text-align: center;
+  background-color: #f2f2f2;
 
-      #login-box-switcher {
-        height: 170px;
-        margin-bottom: 20px;
+  .section {
+    background-color: white;
+    border-bottom: 1px solid $extraLightGray;
+    padding: 50px 25px;
 
-        h1 {
-          font-size: 25px;
-          margin: 0;
-        }
-
-        h2 {
-          font-size: 18px;
-          margin: 0;
-          margin-top: 5px;
-        }
-      }
-
-      #login-basic, #login-file {
-
-        position: absolute;
-        @include transition(.5s all);
-        left: 0;
-        right: 0;
-        bottom: 0;
-
-        &.hidden {
-          opacity: 0;
-        }
-      }
-
-      #login-file {
-        #login-owner-pic {
-          vertical-align: middle;
-          border-bottom: 1px solid black;
-          border-radius: 16px;
-          margin-right: 10px;
-          width: 32px;
-          height: 32px;
-        }
-      }
-
-      #loginbutton {
-        i {
-          font-size: 20px;
-        }
-
-        line-height: 50px;
-        min-height: 50px;
-        padding: 0 60px;
-      }
+    &:nth-child(even) {
+      background-color: #f2f2f2;
     }
 
-    #online-text {
-      height: 30px;
-      line-height: 30px;
-      font-style: italic;
-      font-size: 14px;
-    }
-
-    #explanation-container {
-      font-size: 16px;
-      text-align: center;
-      line-height: 25px;
+    &:last-child {
+      border-bottom: 0;
     }
   }
 
   &.online {
     #online-text {
-      visibility: hidden;
+      opacity: 0;
+    }
+  }
+
+  #topHeader {
+    background: $primary3;
+    color: rgba(255, 255, 255, .87);
+
+    padding: 0 10px;
+
+    .content {
+      margin: 100px 0 60px 0;
+
+      h1 {
+        @extend .display3;
+        font-weight: 700;
+        margin-bottom: 20px;
+      }
+
+      h2 {
+        @extend .display1;
+        font-weight: 100;
+        margin-bottom: 50px;
+      }
+
+      .button {
+        @extend .title;
+        padding: 1em;
+        color: white;
+        @include border-radius(6px);
+
+        background-color: $primary1;
+        border: 1px solid darken($primary3, 10%);
+
+        &.disabled {
+          cursor: default;
+          background-color: $primary3;
+          color: $primary2;
+          border-color: darken($primary3, 10%);
+        }
+
+        &:not(.disabled):hover {
+          background-color: $primary4;
+        }
+      }
+    }
+  }
+
+
+  #swappable-box {
+    position: relative;
+    overflow: hidden;
+    height: 70px;
+
+
+    #online-text, #login-file {
+      position: absolute;
+      @include transition(.5s all);
+      left: 0;
+      right: 0;
+      top: 0;
+      padding: 10px;
+
+      &.hidden {
+        opacity: 0;
+      }
+    }
+
+    #login-file {
+      #login-file-title {
+        @extend .title;
+      }
+    }
+  }
+
+  #about {
+    padding: 20px 0 20px 0;
+
+    ul.links {
+      font-size: 1.2em;
+
+      li {
+        display: inline;
+
+        span {
+          padding: 10px;
+        }
+      }
     }
   }
 }

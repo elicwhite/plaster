@@ -51,6 +51,13 @@
           flex-wrap: $value;
 }
 
+@mixin flex-basis($value) {
+  -webkit-flex-basis: $value;
+     -moz-flex-basis: $value;
+      -ms-flex-basis: $value;
+          flex-basis: $value;
+}
+
 @mixin flex-align-items($value) {
   -webkit-align-items: $value;
      -moz-align-items: $value;
@@ -79,6 +86,13 @@
           flex-direction: $value;
 }
 
+@mixin flex-shrink($value) {
+  -webkit-flex-shrink: $value;
+     -moz-flex-shrink: $value;
+      -ms-flex-shrink: $value;
+          flex-shrink: $value;
+}
+
 @mixin blur($value) {
   -webkit-filter: blur($value);
      -moz-filter: blur($value);
@@ -92,7 +106,13 @@
      -moz-animation: $value;
       -ms-animation: $value;
           animation: $value;
+}
 
+@mixin vertical-center {
+  @include display-flex();
+  @include flex-align-content(flex-start);
+  @include flex-justify-content(center);
+  @include flex-align-items(center);
 }
 
 @mixin keyframes($name) {

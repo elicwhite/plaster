@@ -8,7 +8,6 @@ define(["event", "page", "tapHandler", "online", "gauth", "data"], function(Even
     _fileBox: null,
 
     _fileTitleElement: null,
-    _userProfileElement: null,
     _fileOwnersElement: null,
 
     _button: null,
@@ -21,7 +20,6 @@ define(["event", "page", "tapHandler", "online", "gauth", "data"], function(Even
       this._fileBox = document.getElementById("login-file");
 
       this._fileTitleElement = document.getElementById("login-file-title");
-      this._userProfileElement = document.getElementById("login-owner-pic");
       this._fileOwnersElement = document.getElementById("login-file-owners");
 
       this._button = document.getElementById("loginbutton");
@@ -48,15 +46,12 @@ define(["event", "page", "tapHandler", "online", "gauth", "data"], function(Even
     },
 
     displayFileInfo: function(fileInfo) {
-      this._basicBox.classList.add("hidden");
-
       this._waitAnimationEnd()
         .then((function() {
           var firstOwner = fileInfo.owners[0];
 
           this._fileTitleElement.textContent = fileInfo.title;
           this._fileOwnersElement.textContent = firstOwner.displayName;
-          this._userProfileElement.src = firstOwner.picture.url
 
           this._fileBox.classList.remove("hidden");
 

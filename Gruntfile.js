@@ -24,34 +24,33 @@ module.exports = function(grunt) {
     },
 
     watch: {
+      options: {
+        livereload: false
+      },
+
       scss: {
         files: ['public/stylesheet/*.scss'],
         tasks: ['sass:build'],
-        options: {
-          livereload: true,
-        }
       },
       javascript: {
         files: 'public/javascript/**/*.js',
         tasks: ['requirejs'],
-        options: {
-          livereload: true,
-        }
       },
 
       html: {
         files: 'public/index.html',
         tasks: ['env:dev', 'preprocess:html'],
-        options: {
-          livereload: true,
-        }
       },
 
       cache: {
         files: 'public/cache.manifest',
         tasks: ['preprocess:cache'],
+      },
+
+      build: {
+        files: 'build/**/*',
         options: {
-          livereload: true,
+          livereload: true
         }
       }
     },

@@ -1,0 +1,42 @@
+.display3 {
+  // color: rgba(0,0,0,.54);
+  font-size: 56px;
+  line-height: 70px;
+}
+
+.display2 {
+  // color: rgba(0,0,0,.54);
+  font-size: 45px;
+  line-height: 48px;
+}
+
+.display1 {
+  // color: rgba(0,0,0,.54);
+  font-size: 34px;
+  line-height: 40px;
+}
+
+.title {
+  font-size: 20px;
+  // color: rgba(0,0,0,.87);
+  font-weight: 500;
+}
+
+.body {
+  font-size: 16px;
+  color: rgba(0,0,0,.87);
+  // line-height: 20px;
+  line-height:26px;
+}
+
+.subtext {
+  font-size: 14px;
+  font-weight: 400;
+}
+
+body {
+  @extend .body;
+
+  font-weight: 500;
+  -webkit-font-smoothing: antialiased;
+}
