@@ -13,10 +13,11 @@ $darkGray: #333;
 $veryDarkGray: #111;
 
 body, input {
-  font-size: 15px;
-  font-family: verdana, arial, sans-serif;
+  font-size: 16px;
+  line-height: 150%;
+  font-family: Helvetica, arial, sans-serif;
   font-weight: 100;
-  color: #333;
+  color: #666;
 }
 
 #overall {
@@ -26,80 +27,80 @@ body, input {
 }
 
 #login {
-  #login-wrapper {
-    #info-container {
-      text-align: center;
+  // #login-wrapper {
+  //   #info-container {
+  //     text-align: center;
 
-      #login-box-switcher {
-        height: 170px;
-        margin-bottom: 20px;
+  //     #login-box-switcher {
+  //       height: 170px;
+  //       margin-bottom: 20px;
 
-        h1 {
-          font-size: 25px;
-          margin: 0;
-        }
+  //       h1 {
+  //         font-size: 25px;
+  //         margin: 0;
+  //       }
 
-        h2 {
-          font-size: 18px;
-          margin: 0;
-          margin-top: 5px;
-        }
-      }
+  //       h2 {
+  //         font-size: 18px;
+  //         margin: 0;
+  //         margin-top: 5px;
+  //       }
+  //     }
 
-      #login-basic, #login-file {
+  //     #login-basic, #login-file {
 
-        position: absolute;
-        @include transition(.5s all);
-        left: 0;
-        right: 0;
-        bottom: 0;
+  //       position: absolute;
+  //       @include transition(.5s all);
+  //       left: 0;
+  //       right: 0;
+  //       bottom: 0;
 
-        &.hidden {
-          opacity: 0;
-        }
-      }
+  //       &.hidden {
+  //         opacity: 0;
+  //       }
+  //     }
 
-      #login-file {
-        #login-owner-pic {
-          vertical-align: middle;
-          border-bottom: 1px solid black;
-          border-radius: 16px;
-          margin-right: 10px;
-          width: 32px;
-          height: 32px;
-        }
-      }
+  //     #login-file {
+  //       #login-owner-pic {
+  //         vertical-align: middle;
+  //         border-bottom: 1px solid black;
+  //         border-radius: 16px;
+  //         margin-right: 10px;
+  //         width: 32px;
+  //         height: 32px;
+  //       }
+  //     }
 
-      #loginbutton {
-        i {
-          font-size: 20px;
-        }
+  //     #loginbutton {
+  //       i {
+  //         font-size: 20px;
+  //       }
 
-        line-height: 50px;
-        min-height: 50px;
-        padding: 0 60px;
-      }
-    }
+  //       line-height: 50px;
+  //       min-height: 50px;
+  //       padding: 0 60px;
+  //     }
+  //   }
 
-    #online-text {
-      height: 30px;
-      line-height: 30px;
-      font-style: italic;
-      font-size: 14px;
-    }
+  //   #online-text {
+  //     height: 30px;
+  //     line-height: 30px;
+  //     font-style: italic;
+  //     font-size: 14px;
+  //   }
 
-    #explanation-container {
-      font-size: 16px;
-      text-align: center;
-      line-height: 25px;
-    }
-  }
+  //   #explanation-container {
+  //     font-size: 16px;
+  //     text-align: center;
+  //     line-height: 25px;
+  //   }
+  // }
 
-  &.online {
-    #online-text {
-      visibility: hidden;
-    }
-  }
+  // &.online {
+  //   #online-text {
+  //     visibility: hidden;
+  //   }
+  // }
 }
 
 #updateBar {
