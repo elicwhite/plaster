@@ -1,4 +1,4 @@
-define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "bezierCurve", "data", "online", "components/drawCanvas", "analytics", "modals/loading"], function(Page, g, Event, Helpers, TapHandler, Platform, db, BezierCurve, Data, Online, DrawCanvas, Analytics, LoadingModal) {
+define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "bezierCurve", "smooth", "data", "online", "components/drawCanvas", "analytics", "modals/loading"], function(Page, g, Event, Helpers, TapHandler, Platform, db, BezierCurve, Smooth, Data, Online, DrawCanvas, Analytics, LoadingModal) {
 
   var Draw = Page.extend({
     id: "draw",
@@ -205,8 +205,6 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
           Event.addListener("onlineStatusChanged", this._onlineStatusChanged);
 
           this._resize();
-
-
 
           // Focus on the canvas after we navigate to it
           setTimeout(function() {
@@ -425,6 +423,14 @@ define(["page", "globals", "event", "helpers", "tapHandler", "platform", "db", "
 
           // or render a point
         }
+
+        var originalLength = currentStroke.points.length;
+
+        var epsilon = 1 / this._settings.scale;
+        // Creates garbage
+        currentStroke.points = Smooth(currentStroke.points, epsilon);
+
+        // console.log("Converted from", originalLength, "to", currentStroke.points.length, Math.round(100-(currentStroke.points.length/originalLength)*100) + "% reduction");
 
         // Copy the control points out now that we are done with it.
         var controlPoints = Helpers.cloneArray(BezierCurve.getCurveControlPoints(currentStroke.points));

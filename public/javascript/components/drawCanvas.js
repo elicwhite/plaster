@@ -151,7 +151,7 @@ define(["class", "helpers", "bezierCurve"], function(Class, Helpers, BezierCurve
       ctx.lineCap = "round";
 
       ctx.beginPath();
-      ctx.moveTo(point.x, point.y);
+      ctx.moveTo(point[0], point[1]);
 
       for (var i = 1; i < points.length; i++) {
         point = points[i];
