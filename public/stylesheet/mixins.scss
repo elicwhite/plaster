@@ -115,6 +115,13 @@
   @include flex-align-items(center);
 }
 
+@mixin user-select($value) {
+  -webkit-user-select: $value;
+     -moz-user-select: $value;
+      -ms-user-select: $value;
+          user-select: $value;
+}
+
 @mixin keyframes($name) {
   @-webkit-keyframes #{$name} {
     @content;

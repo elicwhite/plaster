@@ -62,8 +62,10 @@ a, a:active, a:hover, a:visited {
 }
 
 body, html, canvas {
-  user-select: none;
   -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 body, html {
@@ -138,6 +140,9 @@ body {
   -ms-justify-content: center;
   justify-content: center;
 }
+#login #info #screenshot {
+  margin-right: 40px;
+}
 #login #info ul {
   display: -webkit-box;
   /* OLD - iOS 6-, Safari 3.1-6 */
@@ -158,10 +163,9 @@ body {
   justify-content: center;
 }
 #login #info li {
-  min-width: 300px;
   max-width: 400px;
   text-align: left;
-  padding: 25px;
+  padding: 25px 0;
 }
 #login #info .platforms {
   padding: 10px 0;
@@ -871,6 +875,12 @@ strong {
   color: #333;
 }
 
+.computer #login h1, .computer #login h2, .computer #login p, .computer #login span {
+  -webkit-user-select: initial;
+  -moz-user-select: initial;
+  -ms-user-select: initial;
+  user-select: initial;
+}
 .computer #files #files-list-container #files-list li > div .thumbnail-info .overlay:hover .bar {
   -webkit-transform: translateY(0px);
   -moz-transform: translateY(0px);
@@ -984,6 +994,9 @@ strong {
   height: 400px;
 }
 
+.tablet #login #screenshot, .phone #login #screenshot {
+  display: none;
+}
 .tablet #files #files-list-container #files-list li > div .thumbnail-info, .phone #files #files-list-container #files-list li > div .thumbnail-info {
   background-color: white;
 }

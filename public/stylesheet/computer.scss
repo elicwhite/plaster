@@ -2,14 +2,17 @@ $computerThumbnailWidth: 300px - 15px;
 $computerThumbnailHeight: 10px;
 
 .computer {
-  #files {
+  #login {
+    h1, h2, p, span {
+      @include user-select(initial);
+    }
+  }
 
+  #files {
     #files-list-container {
       #files-list {
         li {
           &>div {
-
-
             .thumbnail-info {
               .overlay {
 
@@ -163,6 +166,12 @@ $computerThumbnailHeight: 10px;
 
 // mobile
 .tablet, .phone {
+  #login {
+    #screenshot {
+      display: none;
+    }
+  }
+
   #files {
 
     #files-list-container {
