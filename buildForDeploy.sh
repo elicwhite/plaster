@@ -25,7 +25,7 @@ git tag -a v$ver -m 'version $ver'
 curl https://api.rollbar.com/api/1/sourcemap \
   -F access_token=$rollbarToken \
   -F version=$ver \
-  -F minified_url=http://thesavior.github.io/draw/javascript/main.min.js \
+  -F minified_url=http://plaster.eli-white.com/javascript/main.min.js \
   -F source_map=@build/javascript/main.min.js.map
 
 rm build/javascript/main.min.js.map
