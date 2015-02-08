@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+env $(cat .env | xargs)
+
 branch=$(git symbolic-ref HEAD | sed -e 's,.*/\(.*\),\1,')
 
 if [ "$branch" != "development" ] ; then
@@ -9,7 +11,6 @@ if [ "$branch" != "development" ] ; then
 fi
 
 buildBranch="release-prep"
-rollbarToken="2765e152671441fabf6a884fd00a383b"
 
 git checkout -b $buildBranch
 grunt
@@ -23,7 +24,7 @@ git merge --no-ff $buildBranch -X theirs -m "Merge release branch into master"
 git tag -a v$ver -m 'version $ver'
 
 curl https://api.rollbar.com/api/1/sourcemap \
-  -F access_token=$rollbarToken \
+  -F access_token=$ROLLBAR_TOKEN \
   -F version=$ver \
   -F minified_url=http://plaster.eli-white.com/javascript/main.min.js \
   -F source_map=@build/javascript/main.min.js.map
@@ -48,7 +49,7 @@ if [ "$deploy" = "y" ] ; then
   LOCAL_USERNAME=`whoami`
 
   curl https://api.rollbar.com/api/1/deploy/ \
-    -F access_token=$rollbarToken \
+    -F access_token=$ROLLBAR_TOKEN \
     -F environment=production \
     -F revision=$ver \
     -F local_username=$LOCAL_USERNAME
