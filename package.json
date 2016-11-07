@@ -8,22 +8,22 @@
     "node": "0.10.x"
   },
   "dependencies": {
-    "express": "3.3.6"
+    "express": "4.14.0"
   },
   "devDependencies": {
-    "grunt": "~0.4.0",
-    "grunt-contrib-uglify": "~0.4.0",
-    "grunt-contrib-jshint": "~0.4.0",
-    "grunt-contrib-watch": "~0.4.0",
-    "grunt-contrib-sass": "~0.4.0",
+    "grunt": "~1.0.1",
+    "grunt-contrib-uglify": "~2.0.0",
+    "grunt-contrib-jshint": "~1.0.0",
+    "grunt-contrib-watch": "~1.0.0",
+    "grunt-contrib-sass": "~1.0.0",
     "grunt-requirejs": "~0.4.0",
     "buster-amd": "~0.3.1",
-    "buster-html-doc": "~1.0.0",
-    "grunt-contrib-clean": "~0.5.0",
-    "grunt-preprocess": "~4.0.0",
+    "buster-html-doc": "~2.0.0",
+    "grunt-contrib-clean": "~1.0.0",
+    "grunt-preprocess": "~5.1.0",
     "grunt-env": "~0.4.1",
-    "grunt-contrib-htmlmin": "~0.2.0",
-    "load-grunt-tasks": "~0.4.0",
-    "grunt-shell": "~0.7.0"
+    "grunt-contrib-htmlmin": "~2.0.0",
+    "load-grunt-tasks": "~3.5.2",
+    "grunt-shell": "~2.1.0"
   }
 }
